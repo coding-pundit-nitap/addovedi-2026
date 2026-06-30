@@ -2,6 +2,7 @@
   "name": "techfest-server",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,5 +14,8 @@
     "jsonwebtoken": "^9.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
   }
 }
