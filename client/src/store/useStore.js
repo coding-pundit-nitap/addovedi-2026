@@ -11,6 +11,10 @@ export const useStore = create((set) => ({
     showButton: false,
     showTextParticles: false,
 
+    // Arena Entrance States
+    isEntered: false,
+    portalFlash: false,
+
     // State Setters (Targeted by GSAP onUpdate callbacks)
     setCameraSpeed: (speed) => set({ cameraSpeed: speed }),
     setTunnelIntensity: (intensity) => set({ tunnelIntensity: intensity }),
@@ -18,5 +22,7 @@ export const useStore = create((set) => ({
     setShowNavbar: (show) => set({ showNavbar: show }),
     setShowButton: (show) => set({ showButton: show }),
     setShowTextParticles: (show) => set({ showTextParticles: show }),
+    setIsEntered: (entered) => set({ isEntered: entered }),
+    setPortalFlash: (flash) => set({ portalFlash: flash }),
 }));
 

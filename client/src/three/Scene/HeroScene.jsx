@@ -9,6 +9,7 @@ import CameraRig from "../Camera/CameraRig";
 import Particles from "./Particles";
 import IntroSequence from "./IntroSequence";
 import TextParticles from "./TextParticles";
+import Spaceship from "./Spaceship";
 import { useStore } from "../../store/useStore";
 
 export default function HeroScene() {
@@ -79,6 +80,9 @@ export default function HeroScene() {
                 <sphereGeometry args={[15, 32, 32]} />
                 <meshStandardMaterial ref={sunMaterialRef} color="#ffffff" emissive="#ffffff" emissiveIntensity={20} />
             </mesh>
+
+            {/* Massive silhouetted spaceship floating directly in front of the sun */}
+            <Spaceship />
 
             {/* Point light rigorously removed to absolutely guarantee zero physical specular glare on buildings */}
 
