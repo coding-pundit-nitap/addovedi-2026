@@ -1,11 +1,15 @@
-import { Routes, Route } from "react-router-dom";
-
-import Home from "../pages/Home/Home";
+import { Routes, Route, Navigate } from "react-router-dom";
+import HeroOverlay from "../components/hero/HeroOverlay";
+import EventsPage from "../components/hero/EventsPage";
 
 export default function AppRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<HeroOverlay />} />
+            <Route path="/event" element={<EventsPage />} />
+            <Route path="/event/:categoryName" element={<EventsPage />} />
+            <Route path="/event/:categoryName/:eventName" element={<EventsPage />} />
         </Routes>
     );
 }

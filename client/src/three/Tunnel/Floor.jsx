@@ -40,46 +40,46 @@ export default function Floor() {
         const cloudFactor = Math.max(0.8 + cloudNoise, 0.45);
         const finalDim = dimFactor * cloudFactor;
         
-        if (leftMatRef.current) leftMatRef.current.emissiveIntensity = 0.06 * finalDim;
-        if (rightMatRef.current) rightMatRef.current.emissiveIntensity = 0.06 * finalDim;
-        if (centerMatRef.current) centerMatRef.current.emissiveIntensity = 10 * finalDim;
+        if (leftMatRef.current) leftMatRef.current.emissiveIntensity = 0.01 * finalDim;
+        if (rightMatRef.current) rightMatRef.current.emissiveIntensity = 0.01 * finalDim;
+        if (centerMatRef.current) centerMatRef.current.emissiveIntensity = 0;
     });
 
     return (
         <group>
-            {/* ---------------- LEFT SIDE: STRICTLY BLUE ---------------- */}
+            {/* ---------------- LEFT SIDE: WET REFLECTIVE BLUE-BLEED ASPHALT ---------------- */}
             <group position={[-15, 0, 0]}>
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.18, -105]} receiveShadow>
+                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.18, -105]}>
                     <planeGeometry args={[28, 260]} />
-                    <meshStandardMaterial ref={leftMatRef} color="#06080f" roughness={0.20} metalness={0.88} emissive="#24d9ff" emissiveIntensity={0.06} />
+                    <meshStandardMaterial ref={leftMatRef} color="#030304" roughness={0.12} metalness={0.96} emissive="#0055ff" emissiveIntensity={0.01} />
                 </mesh>
             </group>
 
-            {/* ---------------- RIGHT SIDE: STRICTLY PINK ---------------- */}
+            {/* ---------------- RIGHT SIDE: WET REFLECTIVE RED-BLEED ASPHALT ---------------- */}
             <group position={[15, 0, 0]}>
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.18, -105]} receiveShadow>
+                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.18, -105]}>
                     <planeGeometry args={[28, 260]} />
-                    <meshStandardMaterial ref={rightMatRef} color="#06080f" roughness={0.20} metalness={0.88} emissive="#ff345f" emissiveIntensity={0.06} />
+                    <meshStandardMaterial ref={rightMatRef} color="#030304" roughness={0.12} metalness={0.96} emissive="#ff0033" emissiveIntensity={0.01} />
                 </mesh>
             </group>
 
-            {/* Absolutely pristine single un-duplicated core central white neon strip natively drawn onto track */}
+            {/* Center line is kept dark/black to match the visual reference (no bright white neon strip) */}
             <mesh position={[0, -1.08, -130]}>
                 <boxGeometry args={[0.3, 0.1, 260]} />
-                <meshStandardMaterial ref={centerMatRef} color="#ffffff" emissive="#ffffff" emissiveIntensity={10} toneMapped={false} />
+                <meshStandardMaterial ref={centerMatRef} color="#050505" emissive="#000000" emissiveIntensity={0} />
             </mesh>
 
-            {/* Dynamically tracking grids visually generating infinite speed physics */}
+            {/* Dynamically tracking grids visually generating infinite speed physics (colored dark and subtle) */}
             <group ref={gridGroupRef}>
                 <Grid
                     position={[-15, -1.1, -105]}
                     args={[28, 260]}
                     cellSize={2.5}
-                    cellThickness={0.5}
-                    cellColor="#146ca6"
+                    cellThickness={0.3}
+                    cellColor="#101016"
                     sectionSize={10}
-                    sectionThickness={1.4}
-                    sectionColor="#24d9ff"
+                    sectionThickness={0.8}
+                    sectionColor="#000533"
                     fadeDistance={145}
                     fadeStrength={1.45}
                     infiniteGrid={false}
@@ -89,11 +89,11 @@ export default function Floor() {
                     position={[15, -1.1, -105]}
                     args={[28, 260]}
                     cellSize={2.5}
-                    cellThickness={0.5}
-                    cellColor="#a6144e"
+                    cellThickness={0.3}
+                    cellColor="#101016"
                     sectionSize={10}
-                    sectionThickness={1.4}
-                    sectionColor="#ff345f"
+                    sectionThickness={0.8}
+                    sectionColor="#330005"
                     fadeDistance={145}
                     fadeStrength={1.45}
                     infiniteGrid={false}

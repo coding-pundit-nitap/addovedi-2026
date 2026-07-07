@@ -1,96 +1,167 @@
-import { Edges } from '@react-three/drei';
+/**
+ * Building.jsx — Renders a highly structured, realistic sci-fi monolith
+ * built with greebled panels, flared bases, and heavy structural corner columns
+ * matching the apocalyptic visual reference, with flickering post-apocalyptic window arrays.
+ * Optimized to remove shadow maps for silky-smooth performance while keeping high geometry detail.
+ */
+
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { memo } from 'react';
 import * as THREE from 'three';
 
-// ─── Gaming colour palette ────────────────────────────────────────────────────
-const BLUE  = '#00d9ff';
-const PINK  = '#ff2ea6';
-const CYAN  = '#18ffc8';
-const PURP  = '#9b5cff';
+// ─── Apocalyptic Cyberpunk Neon Color Palettes ──────────────────────────────
+const RED_NEON   = '#ff0033'; // Left buildings accent (apocalyptic crimson)
+const BLUE_NEON  = '#0055ff'; // Right buildings accent (deep cyan blue)
+const AMBER_NEON = '#ff6600'; // Left alternate (magma orange)
+const CYAN_NEON  = '#00ffff'; // Right alternate (high-tech cyan)
 
-// Shared geometries (one per component instance — memo keeps it single)
+// Shared box geometry across ALL building instances
 const boxGeo = new THREE.BoxGeometry(1, 1, 1);
 
-// ─────────────────────────────────────────────────────────────────────────────
+function Building({ position, scale, side }) {
+    // Aligns neon outlines with the swapped split: left is blue/cyan, right is red/amber
+    const accent   = side < 0 ? BLUE_NEON : RED_NEON;
+    const altColor = side < 0 ? CYAN_NEON : AMBER_NEON;
 
-function Building({ position, scale, colorIndex, side }) {
-    const accent   = side < 0 ? BLUE : PINK;
-    const altColor = (colorIndex % 2 === 0) ? CYAN : PURP;
+    // Refs for animated pulsing neon lines
+    const topBandRef = useRef();
 
-    // Refs for animated parts
-    const topBandRef    = useRef();
-    const midBandRef    = useRef();
-    const scanRef       = useRef();
-    const windowsRef    = useRef([]);
-
-    // Per-building random phase offset so every building pulses differently
+    // Per-building random phase offset for visual variety and independent flickering
     const phase = useMemo(() => Math.random() * Math.PI * 2, []);
-    const scanSpeed = useMemo(() => 0.4 + Math.random() * 0.6, []);
 
-    // Window grid: random lit/unlit pattern across the face
+    // Create a building-specific window material so each building flickers independently (dimmed for realism)
+    const winMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: accent,
+        emissive: accent,
+        emissiveIntensity: 0.5,
+        toneMapped: false,
+        transparent: true,
+        opacity: 0.75,
+        depthWrite: false
+    }), [accent]);
+
+    // Window grid: random lit/unlit pattern mapped along the depth (Z) and height (Y) of the building face
     const windowData = useMemo(() => {
-        const cols = Math.max(2, Math.round(scale[0] / 1.4));
-        const rows = Math.max(3, Math.round(scale[1] / 1.8));
+        const cols = Math.max(2, Math.round(scale[2] / 2.0)); // columns along depth
+        const rows = Math.max(3, Math.round(scale[1] / 2.5)); // rows along height
         const data = [];
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                const lit = Math.random() > 0.35;
-                const color = Math.random() > 0.5 ? accent : altColor;
-                data.push({ r, c, rows, cols, lit, color });
+                const lit = Math.random() > 0.6; // 40% active window meshes
+                data.push({ r, c, rows, cols, lit });
             }
         }
         return data;
-    }, [scale, accent, altColor]);
+    }, [scale]);
 
+    // Throttle animation checks to keep rendering performance high
+    const frameSkip = useRef(0);
     useFrame(({ clock }) => {
+        frameSkip.current++;
+        if (frameSkip.current % 2 !== 0) return;
+
         const t = clock.elapsedTime;
 
-        // Pulsing top neon band
+        // 1. Pulsing top neon band (dimmed for soft outlining)
         if (topBandRef.current) {
             topBandRef.current.emissiveIntensity =
-                1.6 + Math.sin(t * 2.2 + phase) * 0.8;
+                0.8 + Math.sin(t * 2.5 + phase) * 0.25;
         }
 
-        // Slower mid band with different rhythm
-        if (midBandRef.current) {
-            midBandRef.current.emissiveIntensity =
-                1.0 + Math.sin(t * 1.4 + phase + 1.1) * 0.6;
+        // 2. Realistic flickering power grid brownout effect for windows
+        if (winMat) {
+            const noise = Math.sin(t * 15 + phase) * 0.5 + Math.sin(t * 33 + phase * 2.2) * 0.3;
+            const brownout = Math.random() > 0.97 ? 0.12 : 1.0; // occasional power brownout drop
+            winMat.emissiveIntensity = Math.max(0.04, (0.5 + noise * 0.15) * brownout);
+            winMat.opacity = Math.max(0.15, (0.75 + noise * 0.1) * brownout);
         }
-
-        // Animated scan-line panel moves up the building face
-        if (scanRef.current) {
-            const yOff = ((t * scanSpeed + phase) % 1.0) * scale[1];
-            scanRef.current.position.y = -scale[1] * 0.5 + yOff;
-            scanRef.current.material.opacity =
-                0.08 + Math.sin(t * 3 + phase) * 0.04;
-        }
-
-        // Randomly flicker some windows
-        windowsRef.current.forEach((mat, idx) => {
-            if (!mat) return;
-            if (Math.random() > 0.998) {
-                mat.emissiveIntensity = mat.emissiveIntensity > 0.5 ? 0.0 : 1.4;
-            }
-        });
     });
+
+    // ── Pre-build Shared Materials for Greebled Blocks ───────────────────────
+    
+    // Main building plating: highly reflective dark obsidian/charcoal metal (captures reflections)
+    const bodyMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: '#030304',
+        roughness: 0.16,
+        metalness: 0.95,
+        emissive: '#000000'
+    }), []);
+
+    // Heavy vertical structural corner armor pillars
+    const pillarMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: '#08080c',
+        roughness: 0.22,
+        metalness: 0.92
+    }), []);
+
+    // Flared bottom heavy base block
+    const baseMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: '#020203',
+        roughness: 0.2,
+        metalness: 0.96
+    }), []);
+
+    // Horizontal armor bands/greebles
+    const panelMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: '#050608',
+        roughness: 0.14,
+        metalness: 0.95
+    }), []);
+
+    // Glowing neon outline crown (dimmed)
+    const topBandMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: accent, emissive: accent, emissiveIntensity: 0.8, toneMapped: false
+    }), [accent]);
+
+    // Secondary mid neon band
+    const midBandMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: altColor, emissive: altColor, emissiveIntensity: 0.4, toneMapped: false
+    }), [altColor]);
+
+    // Sharp vertical neon stripe running along the front edge (dimmed)
+    const stripeMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: accent, emissive: accent, emissiveIntensity: 0.4,
+        transparent: true, opacity: 0.35, toneMapped: false, depthWrite: false
+    }), [accent]);
+
+    const antennaMat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: accent, emissive: accent, emissiveIntensity: 0.5, toneMapped: false
+    }), [accent]);
 
     return (
         <group position={position}>
 
-            {/* ── Main skyscraper body — highly metallic, low roughness ── */}
-            <mesh scale={scale} castShadow receiveShadow geometry={boxGeo}>
-                <meshStandardMaterial
-                    color="#08091a"
-                    roughness={0.18}
-                    metalness={0.92}
-                    emissive={accent}
-                    emissiveIntensity={0.04}
-                    envMapIntensity={1.2}
-                />
-                <Edges color={accent} threshold={15} scale={1.005} renderOrder={1} lineWidth={0.8} />
-            </mesh>
+            {/* 1. Main Skyscraper Body Core (Disabled heavy dynamic shadows for optimal performance) */}
+            <mesh scale={[scale[0] * 0.82, scale[1], scale[2] * 0.82]} geometry={boxGeo} material={bodyMat} />
+
+            {/* 2. Flared Bottom Base */}
+            <mesh
+                position={[0, -scale[1] * 0.42, 0]}
+                scale={[scale[0] * 1.05, scale[1] * 0.18, scale[2] * 1.05]}
+                geometry={boxGeo}
+                material={baseMat}
+            />
+
+            {/* 3. Protruding Horizontal Armor Panels (Greeble details) */}
+            <mesh
+                position={[0, scale[1] * 0.22, 0]}
+                scale={[scale[0] * 0.92, scale[1] * 0.08, scale[2] * 0.92]}
+                geometry={boxGeo}
+                material={panelMat}
+            />
+            <mesh
+                position={[0, -scale[1] * 0.12, 0]}
+                scale={[scale[0] * 0.92, scale[1] * 0.08, scale[2] * 0.92]}
+                geometry={boxGeo}
+                material={panelMat}
+            />
+
+            {/* 4. Heavy Vertical Corner Armor Columns */}
+            <mesh position={[scale[0] * 0.42, 0, scale[2] * 0.42]} scale={[0.18, scale[1] * 1.01, 0.18]} geometry={boxGeo} material={pillarMat} />
+            <mesh position={[-scale[0] * 0.42, 0, scale[2] * 0.42]} scale={[0.18, scale[1] * 1.01, 0.18]} geometry={boxGeo} material={pillarMat} />
+            <mesh position={[scale[0] * 0.42, 0, -scale[2] * 0.42]} scale={[0.18, scale[1] * 1.01, 0.18]} geometry={boxGeo} material={pillarMat} />
+            <mesh position={[-scale[0] * 0.42, 0, -scale[2] * 0.42]} scale={[0.18, scale[1] * 1.01, 0.18]} geometry={boxGeo} material={pillarMat} />
 
             {/* ── Glowing top neon crown ── */}
             <mesh
@@ -98,92 +169,40 @@ function Building({ position, scale, colorIndex, side }) {
                 scale={[scale[0] * 1.04, 0.06, scale[2] * 1.04]}
                 geometry={boxGeo}
             >
-                <meshStandardMaterial
-                    ref={topBandRef}
-                    color={accent}
-                    emissive={accent}
-                    emissiveIntensity={1.6}
-                    toneMapped={false}
-                />
+                <meshStandardMaterial ref={topBandRef} {...topBandMat} />
             </mesh>
 
-            {/* ── Secondary mid neon band ── */}
+            {/* ── Secondary mid neon band (static) ── */}
             <mesh
                 position={[0, scale[1] * 0.18, 0]}
                 scale={[scale[0] * 1.01, 0.04, scale[2] * 1.01]}
                 geometry={boxGeo}
-            >
-                <meshStandardMaterial
-                    ref={midBandRef}
-                    color={altColor}
-                    emissive={altColor}
-                    emissiveIntensity={1.0}
-                    toneMapped={false}
-                />
-            </mesh>
+                material={midBandMat}
+            />
 
-            {/* ── Vertical neon edge stripe on inner face ── */}
+            {/* ── Vertical neon edge stripe on inner face (static, sharp neon line) ── */}
             <mesh
                 position={[side * scale[0] * -0.51, 0, 0]}
                 scale={[0.045, scale[1] * 0.72, scale[2] * 0.98]}
                 geometry={boxGeo}
-            >
-                <meshStandardMaterial
-                    color={accent}
-                    emissive={accent}
-                    emissiveIntensity={0.9}
-                    transparent
-                    opacity={0.35}
-                    toneMapped={false}
-                    depthWrite={false}
-                />
-            </mesh>
+                material={stripeMat}
+            />
 
-            {/* ── Holographic scan-line panel that slides up the face ── */}
-            <mesh
-                ref={scanRef}
-                position={[side * scale[0] * -0.505, 0, 0]}
-                scale={[0.02, scale[1] * 0.12, scale[2] * 0.96]}
-                geometry={boxGeo}
-            >
-                <meshStandardMaterial
-                    color={altColor}
-                    emissive={altColor}
-                    emissiveIntensity={3.0}
-                    transparent
-                    opacity={0.1}
-                    toneMapped={false}
-                    depthWrite={false}
-                />
-            </mesh>
-
-            {/* ── Window grid on the inner face ── */}
-            {windowData.map(({ r, c, rows, cols, lit, color }, idx) => {
+            {/* ── Rich window grid on the inner face (restored for high detail, shadows disabled) ── */}
+            {windowData.map(({ r, c, rows, cols, lit }, idx) => {
                 if (!lit) return null;
-                const wx = (c / (cols - 1 || 1) - 0.5) * scale[0] * 0.82;
+                const wz = (c / (cols - 1 || 1) - 0.5) * scale[2] * 0.82;
                 const wy = (r / (rows - 1 || 1) - 0.5) * scale[1] * 0.76;
-                const winW = (scale[0] / cols) * 0.45;
-                const winH = (scale[1] / rows) * 0.52;
+                const winH = (scale[1] / rows) * 0.35;
+                const winZ = (scale[2] / cols) * 0.35;
                 return (
                     <mesh
                         key={idx}
-                        position={[
-                            side * scale[0] * -0.502 + wx * (side < 0 ? 0 : 0),
-                            wy,
-                            0,
-                        ]}
-                        scale={[0.01, winH, winW]}
+                        position={[side * scale[0] * -0.502, wy, wz]}
+                        scale={[0.015, winH, winZ]}
                         geometry={boxGeo}
-                    >
-                        <meshStandardMaterial
-                            ref={(el) => { windowsRef.current[idx] = el; }}
-                            color={color}
-                            emissive={color}
-                            emissiveIntensity={1.2}
-                            toneMapped={false}
-                            depthWrite={false}
-                        />
-                    </mesh>
+                        material={winMat}
+                    />
                 );
             })}
 
@@ -192,14 +211,8 @@ function Building({ position, scale, colorIndex, side }) {
                 position={[0, scale[1] * 0.54 + 0.3, 0]}
                 scale={[0.08, 0.6, 0.08]}
                 geometry={boxGeo}
-            >
-                <meshStandardMaterial
-                    color={accent}
-                    emissive={accent}
-                    emissiveIntensity={2.5}
-                    toneMapped={false}
-                />
-            </mesh>
+                material={antennaMat}
+            />
 
         </group>
     );

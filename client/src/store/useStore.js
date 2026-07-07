@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 
+const initialPath = typeof window !== 'undefined' ? window.location.pathname : '';
+const initialIsEvent = initialPath.startsWith('/event');
+
 export const useStore = create((set) => ({
     // WebGL Timeline Variables
     cameraSpeed: 0,
     tunnelIntensity: 0,
+    shakeIntensity: 0,
 
     // UI Timeline Flags
     showLogo: false,
@@ -11,18 +15,30 @@ export const useStore = create((set) => ({
     showButton: false,
     showTextParticles: false,
 
-    // Arena Entrance States
-    isEntered: false,
-    portalFlash: false,
+    // Arena / Gun Entrance States
+    isEntered: initialIsEvent,      // Triggers the 4-phase camera flight into the gun
+    portalFlash: false,    // Black overlay for the barrel portal flash
+    isEventPage: initialIsEvent,    // Shows the Events Page after the barrel entry
 
-    // State Setters (Targeted by GSAP onUpdate callbacks)
-    setCameraSpeed: (speed) => set({ cameraSpeed: speed }),
-    setTunnelIntensity: (intensity) => set({ tunnelIntensity: intensity }),
-    setShowLogo: (show) => set({ showLogo: show }),
-    setShowNavbar: (show) => set({ showNavbar: show }),
-    setShowButton: (show) => set({ showButton: show }),
-    setShowTextParticles: (show) => set({ showTextParticles: show }),
-    setIsEntered: (entered) => set({ isEntered: entered }),
-    setPortalFlash: (flash) => set({ portalFlash: flash }),
+    // Gun / Portal Rotation (0 = faces camera directly)
+    gunRotationY: 0,
+
+    // Sun brightness override — 1.0 = normal, 0.0 = pitch black
+    sunDimFactor: 1.0,
+    showSun: true,          // Determines if the sun is active in the scene
+
+    // State Setters
+    setCameraSpeed:       (v) => set({ cameraSpeed: v }),
+    setTunnelIntensity:   (v) => set({ tunnelIntensity: v }),
+    setShakeIntensity:    (v) => set({ shakeIntensity: v }),
+    setShowLogo:          (v) => set({ showLogo: v }),
+    setShowNavbar:        (v) => set({ showNavbar: v }),
+    setShowButton:        (v) => set({ showButton: v }),
+    setShowTextParticles: (v) => set({ showTextParticles: v }),
+    setIsEntered:         (v) => set({ isEntered: v }),
+    setPortalFlash:       (v) => set({ portalFlash: v }),
+    setIsEventPage:       (v) => set({ isEventPage: v }),
+    setGunRotationY:      (v) => set({ gunRotationY: v }),
+    setSunDimFactor:      (v) => set({ sunDimFactor: v }),
+    setShowSun:           (v) => set({ showSun: v }),
 }));
-

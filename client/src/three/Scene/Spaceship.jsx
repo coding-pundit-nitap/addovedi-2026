@@ -1,110 +1,151 @@
-import { useRef } from 'react';
+/**
+ * Spaceship.jsx — Loads the Magic Portal GLTF model,
+ * adaptively centers and scales it, and floats it in front of the sun
+ * with a glowing title above the ring and a cyan energy field.
+ */
+
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { useGLTF, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { useStore } from '../../store/useStore';
 
-export default function Spaceship() {
-    const shipRef = useRef();
+export default function Spaceship({ setPortalMesh }) {
+    const portalRef = useRef();
+    const horizonRef = useRef();
+    const isEntered = useStore(s => s.isEntered);
+    const gunRotationY = useStore(s => s.gunRotationY); // Keep rotation hook reference
+    const sunDimFactor = useStore(s => s.sunDimFactor); // Fetch dim factor for smooth dimming
 
-    // Slow organic floating/breathing rotation for the spaceship
+    // Load the GLTF portal model
+    const { scene } = useGLTF('/models/portal/scene.gltf');
+
+    // Auto-scale, center and recolor to titanium sci-fi look
+    const customizedModel = useMemo(() => {
+        const clone = scene.clone();
+
+        // 1. Calculate size bounds
+        const box = new THREE.Box3().setFromObject(clone);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+
+        // 2. Center the geometry at local origin
+        clone.position.sub(center);
+
+        // 3. Compute scale factor (target diameter of 44 units)
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const targetScale = 44 / (maxDim || 1);
+        clone.scale.set(targetScale, targetScale, targetScale);
+
+        // 4. Adaptively rotate upright if model is modeled lying flat
+        if (size.y < size.z && size.y < size.x) {
+            clone.rotation.x = Math.PI / 2;
+        }
+
+        // 5. Transform fantasy stone materials into metallic sci-fi parts with cyan glows
+        clone.traverse((child) => {
+            if (child.isMesh) {
+                const prevMat = child.material;
+                if (prevMat) {
+                    const mat = prevMat.clone();
+                    
+                    const isMoss = (mat.name && mat.name.toLowerCase().includes('moss')) ||
+                                   (child.name && child.name.toLowerCase().includes('moss'));
+                                   
+                    if (isMoss) {
+                        // Completely strip the green moss textures and glow
+                        mat.map = null;
+                        mat.emissiveMap = null;
+                        mat.color.setHex(0x0c0d12); // clean dark titanium body
+                        mat.emissive.setHex(0x000000); // disable green moss emission
+                        mat.emissiveIntensity = 0;
+                        mat.metalness = 0.9;
+                        mat.roughness = 0.2;
+                    } else {
+                        // Max metallic reflective dark titanium finish
+                        mat.metalness = 0.95;
+                        mat.roughness = 0.15;
+                        mat.color.setHex(0x11131a); // dark carbon slate body
+                        
+                        // Replace fantasy yellow/warm stone highlights with cold futuristic electric blue/cyan emissive highlights
+                        mat.emissive.setHex(0x00d9ff);
+                        mat.emissiveIntensity = 15.0;
+                    }
+
+                    child.material = mat;
+                }
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
+        });
+
+        return clone;
+    }, [scene]);
+
+    // Animate slow organic floating
     useFrame(({ clock }) => {
-        if (!shipRef.current) return;
         const t = clock.elapsedTime;
-        shipRef.current.position.y = 38 + Math.sin(t * 0.5) * 1.5;
-        shipRef.current.rotation.y = Math.sin(t * 0.2) * 0.03;
-        shipRef.current.rotation.z = Math.cos(t * 0.3) * 0.02;
+        
+        // If we are entering, fade out the float amplitude to 0 to stabilize portal center at Y=38
+        const floatAmp = isEntered ? 0.0 : 1.2;
+        const targetY = 38 + Math.sin(t * 0.35) * floatAmp;
+        
+        if (portalRef.current) {
+            // Smoothly lerp to center Y=38 as camera zoom flight approaches
+            portalRef.current.position.y = THREE.MathUtils.lerp(portalRef.current.position.y, targetY, 0.08);
+            // No direct Y-axis spin rotation of portal itself: "dont rotate the portal directly go into it"
+            portalRef.current.rotation.y = gunRotationY;
+        }
+
+        // 1. Programmatically dim emissive elements of rocks & frame to 0
+        if (portalRef.current) {
+            portalRef.current.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    child.material.emissiveIntensity = 15.0 * sunDimFactor;
+                }
+            });
+        }
+
+        // 2. Programmatically dim portal event horizon opacity to 0
+        if (horizonRef.current) {
+            horizonRef.current.material.opacity = 0.65 * sunDimFactor;
+        }
     });
 
-    // Build a tighter hollow octagonal hangar corridor in the center of the spaceship (radius 6.5)
-    const hangarPanels = [];
-    for (let i = 0; i < 8; i++) {
-        const angle = (i * Math.PI) / 4;
-        hangarPanels.push(
-            <mesh 
-                key={i} 
-                position={[Math.sin(angle) * 6.5, Math.cos(angle) * 6.5, 0]} 
-                rotation={[0, 0, -angle]}
-            >
-                <boxGeometry args={[6, 0.8, 50]} />
-                <meshBasicMaterial color={i % 2 === 0 ? "#080c16" : "#04060b"} />
-            </mesh>
-        );
-    }
-
     return (
-        <group ref={shipRef} position={[0, 38, -235]}>
-            {/* 1. Hollow Hangar Tunnel in the Center */}
-            <group>
-                {hangarPanels}
-            </group>
+        <group ref={portalRef} position={[0, 38, -220]}>
+            {/* Render centered titanium Magic Portal (shifted down by 7.1 to align circular ring center with Y=38) */}
+            <primitive object={customizedModel} position={[0, -7.1, 0]} />
 
-            {/* 2. Large Hexagonal Backing Plate to Eclipse the Sun & Cast GodRays */}
-            {/* Opaque outer shield (blocks the sun) */}
-            <mesh position={[0, 0, -15]} rotation={[0, 0, Math.PI / 6]}>
-                <ringGeometry args={[4, 25, 6]} />
-                <meshBasicMaterial color="#020305" />
-            </mesh>
-            {/* Glowing Reactor Core / Portal center */}
-            <mesh position={[0, 0, -14.9]}>
-                <circleGeometry args={[4, 32]} />
-                <meshBasicMaterial color="#ff1f4f" toneMapped={false} />
+            {/* Glowing cyan inner portal core horizon (perfectly aligned with ring center and feeds GodRays) */}
+            <mesh ref={(el) => {
+                horizonRef.current = el;
+                if (setPortalMesh) setPortalMesh(el);
+            }} position={[0, 0, -0.2]}>
+                <circleGeometry args={[12.9, 32]} />
+                <meshBasicMaterial color="#00d9ff" toneMapped={false} transparent opacity={0.65} side={THREE.DoubleSide} />
             </mesh>
 
-            {/* 3. Massive Left Wing Structure */}
-            <mesh position={[-25, 0, -5]} rotation={[0.05, 0.1, -0.06]}>
-                <boxGeometry args={[28, 3, 30]} />
-                <meshBasicMaterial color="#03050a" />
-            </mesh>
-            {/* Wing Detail Panels - Left */}
-            <mesh position={[-18, 2.0, -2]} rotation={[0.05, 0.1, -0.06]}>
-                <boxGeometry args={[12, 1.2, 18]} />
-                <meshBasicMaterial color="#070a14" />
-            </mesh>
-
-            {/* 4. Massive Right Wing Structure */}
-            <mesh position={[25, 0, -5]} rotation={[0.05, -0.1, 0.06]}>
-                <boxGeometry args={[28, 3, 30]} />
-                <meshBasicMaterial color="#03050a" />
-            </mesh>
-            {/* Wing Detail Panels - Right */}
-            <mesh position={[18, 2.0, -2]} rotation={[0.05, -0.1, 0.06]}>
-                <boxGeometry args={[12, 1.2, 18]} />
-                <meshBasicMaterial color="#070a14" />
-            </mesh>
-
-            {/* 5. Giant Spires / Antennas */}
-            <mesh position={[-38, 0, -18]} rotation={[0, 0, -0.15]}>
-                <cylinderGeometry args={[0.15, 0.6, 20, 8]} />
-                <meshBasicMaterial color="#020305" />
-            </mesh>
-            <mesh position={[38, 0, -18]} rotation={[0, 0, 0.15]}>
-                <cylinderGeometry args={[0.15, 0.6, 20, 8]} />
-                <meshBasicMaterial color="#020305" />
-            </mesh>
-
-            {/* 6. Glowing Neon Markings on Hull */}
-            <mesh position={[-16, 1.8, 6]} rotation={[-Math.PI / 2, 0, -0.08]}>
-                <planeGeometry args={[10, 0.3]} />
-                <meshBasicMaterial color="#ff1f4f" toneMapped={false} />
-            </mesh>
-            <mesh position={[16, 1.8, 6]} rotation={[-Math.PI / 2, 0, 0.08]}>
-                <planeGeometry args={[10, 0.3]} />
-                <meshBasicMaterial color="#00d9ff" toneMapped={false} />
-            </mesh>
-
-            {/* 7. Glowing "ADDOVEDI 2026" Text on the Hull Face */}
+            {/* Glowing neon title right above the portal core */}
             <Text
-                position={[0, 8.2, 16.1]}
-                fontSize={3.2}
+                position={[0, 27.0, 0]}
+                fontSize={2.5}
                 fontWeight="black"
-                letterSpacing={0.12}
+                letterSpacing={0.18}
                 textAlign="center"
-                anchorX="center"
-                anchorY="middle"
             >
-                ADDOVEDI 2026
-                <meshBasicMaterial color="#ff1f4f" toneMapped={false} />
+                ENTER ADDOVEDI ARENA
+                <meshBasicMaterial color="#00d9ff" toneMapped={false} />
             </Text>
+
+            {/* Ambient & local fill lights */}
+            <pointLight position={[0, 15, 10]} intensity={350} color="#00d9ff" distance={100} decay={1.5} />
+            <pointLight position={[0, -15, 10]} intensity={250} color="#ff1f4f" distance={100} decay={1.5} />
         </group>
     );
 }
+
+// Pre-load the portal asset to avoid stuttering
+useGLTF.preload('/models/portal/scene.gltf');

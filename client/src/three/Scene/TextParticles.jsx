@@ -5,7 +5,7 @@
 
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { Text3D, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { useStore } from '../../store/useStore';
@@ -14,10 +14,25 @@ import { useStore } from '../../store/useStore';
 const COL_RED  = new THREE.Color('#ff1f4f'); // ADD side (left) - neon electric red/pink
 const COL_BLUE = new THREE.Color('#00d9ff'); // VEDI side (right) - neon blue
 
+// Pre-allocated THREE.Color instances for warm/cool dynamic shading palettes (bright bold red/blue with touch of black)
+const morphWarmColors = [
+    new THREE.Color('#ff0000'), // Bright Bold Red
+    new THREE.Color('#110000'), // Touch of Black
+    new THREE.Color('#ff0044'), // Bright Neon Crimson
+    new THREE.Color('#ff3300')  // Bold Red-Orange
+];
+
+const morphCoolColors = [
+    new THREE.Color('#0066ff'), // Bright Bold Blue
+    new THREE.Color('#00001a'), // Touch of Black
+    new THREE.Color('#00bfff'), // Bright Cyber Cyan
+    new THREE.Color('#0022ff')  // Vibrant Indigo-Blue
+];
+
 // ─── Tunables ─────────────────────────────────────────────────────────────────
 
-const COUNT_MAIN   = 3500;  // particles for ADDOVEDI (reduced for perf)
-const COUNT_2026   =  600;  // particles for 2026 tagline
+const COUNT_MAIN   = 1800;  // particles for ADDOVEDI (halved for perf)
+const COUNT_2026   =  300;  // particles for 2026 tagline
 const TOTAL        = COUNT_MAIN + COUNT_2026;
 
 // 3D plane where particles settle (extremely close, ahead of all buildings)
@@ -28,8 +43,8 @@ const MAIN_SCALE   = 0.010;   // canvas px → world units (smaller)
 const MAIN_Y       = 0.80;    // raised so the sun sits in the centre gap
 
 // 2026 layout
-const Y2026_SCALE  = 0.0075;
-const Y2026_Y      = MAIN_Y - 0.75;  // closer gap now text is smaller
+const Y2026_SCALE  = 0.0055;
+const Y2026_Y      = MAIN_Y - 0.95;  // Shifted down and scaled smaller
 
 // Burst origin — exactly the sun's position deep in Z space
 const BURST_X      = 0;
@@ -72,19 +87,57 @@ function easeOutExpo(t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
 
 export default function TextParticles() {
     const showTextParticles = useStore(s => s.showTextParticles);
+    const isEntered         = useStore(s => s.isEntered);
 
     const geoRef        = useRef();
     const matRef        = useRef();
     const textMatRefA   = useRef();  // "ADD" — blue
     const textMatRefV   = useRef();  // "VEDI" — pink
     const tagMatRef     = useRef();  // "2026"
-    const textGroupRef  = useRef();  // group containing all solid text and light refs for floating animation
+
+    // ── Generate Canvas Gradient Textures for the horizontal color split across ADD O VEDI ──
+    const leftGradientTex = useMemo(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 1;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 256, 0);
+        grad.addColorStop(0, '#ff001e'); // Bold crimson red on the far left
+        grad.addColorStop(0.7, '#ff0a35'); // Wider dominant bold red body
+        grad.addColorStop(1, '#a81aff'); // Short transition to deep violet purple at the end
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 1);
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }, []);
+
+    const rightGradientTex = useMemo(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 1;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 256, 0);
+        grad.addColorStop(0, '#a81aff'); // Meet at deep violet purple on the left
+        grad.addColorStop(0.3, '#5e35ff'); // Quick transition into indigo
+        grad.addColorStop(1, '#004cff'); // Electric blue on the far right
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 1);
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }, []);
+    const textGroupRef  = useRef();  // group containing all solid text refs for floating animation
     const lightARef     = useRef();  // red light ref
     const lightVRef     = useRef();  // blue light ref
     const animStarted  = useRef(false);
     const startTime    = useRef(null);
     const settled      = useRef(new Uint8Array(TOTAL));
     const settledCount = useRef(0);
+    const flyoverDone  = useRef(false); // prevent replaying the flyover
+
+    const activeWarmColor = useMemo(() => new THREE.Color(), []);
+    const activeCoolColor = useMemo(() => new THREE.Color(), []);
 
     // ── Sample pixel maps (once) ──────────────────────────────────────────────
     const { mainPixels, pixels2026 } = useMemo(() => ({
@@ -144,7 +197,7 @@ export default function TextParticles() {
             const ty = px[1] * Y2026_SCALE + Y2026_Y;
             targetPos[i * 3]     = tx;
             targetPos[i * 3 + 1] = ty;
-            targetPos[i * 3 + 2] = TEXT_Z;
+            targetPos[i * 3 + 2] = TEXT_Z; // Align with ADD and VEDI depth plane
 
             const dx = tx, dy = ty - Y2026_Y;
             rawDist[i] = Math.sqrt(dx * dx + dy * dy);
@@ -170,7 +223,7 @@ export default function TextParticles() {
         return { burstPos, targetPos, delays, colArr };
     }, [mainPixels, pixels2026]);
 
-    // ── Trigger ───────────────────────────────────────────────────────────────
+    // ── Trigger particle animation ────────────────────────────────────────────
     useEffect(() => {
         if (!showTextParticles || animStarted.current) return;
         animStarted.current  = true;
@@ -192,6 +245,40 @@ export default function TextParticles() {
             }
         });
     }, [showTextParticles]);
+
+    // ── "ADDOVEDI flies over you" when Enter the Arena is clicked ────────────
+    useEffect(() => {
+        if (!isEntered || flyoverDone.current) return;
+        if (!textGroupRef.current) return;
+        flyoverDone.current = true;
+
+        const group = textGroupRef.current;
+
+        // Letters rush toward the camera (z from -5.2 toward +2), scale up, fade out
+        gsap.to(group.position, { z: 3.5, duration: 1.1, ease: 'power3.in' });
+        gsap.to(group.scale,    { x: 14, y: 14, z: 14, duration: 1.1, ease: 'power3.in' });
+        [textMatRefA, textMatRefV, tagMatRef].forEach(ref => {
+            if (ref.current) gsap.to(ref.current, { opacity: 0, duration: 0.9, ease: 'power2.in' });
+        });
+        if (matRef.current) gsap.to(matRef.current, { opacity: 0, duration: 0.7, ease: 'power2.in' });
+    }, [isEntered]);
+
+    // ── Reset ADDOVEDI when returning from Events Page ────────────────────────
+    useEffect(() => {
+        if (isEntered) return;                 // Only fires when isEntered goes false
+        if (!flyoverDone.current) return;      // Nothing was changed, skip
+        flyoverDone.current = false;
+
+        const group = textGroupRef.current;
+        if (!group) return;
+
+        // Gently restore the text group to its original state
+        gsap.to(group.position, { z: 0, duration: 1.4, delay: 1.0, ease: 'power2.out' });
+        gsap.to(group.scale,    { x: 1, y: 1, z: 1, duration: 1.4, delay: 1.0, ease: 'power2.out' });
+        [textMatRefA, textMatRefV, tagMatRef].forEach(ref => {
+            if (ref.current) gsap.to(ref.current, { opacity: 1.0, duration: 1.4, delay: 1.2, ease: 'power2.out' });
+        });
+    }, [isEntered]);
 
     // ── Per-frame animation ───────────────────────────────────────────────────
     useFrame(({ clock }) => {
@@ -229,20 +316,7 @@ export default function TextParticles() {
             const d    = delays[i];
             const tRaw = (elapsed - d) / TRAVEL_DUR;
 
-            // Stable particle colors during flight (no blinking/twinkling)
-            let baseCol;
-            if (i < COUNT_MAIN) {
-                const tx = targetPos[i * 3];
-                baseCol = tx < 0 ? COL_RED : COL_BLUE;
-            } else {
-                const tx = targetPos[i * 3];
-                const charX = (tx + 1.8) / 3.6;
-                const isCyan = charX < 0.25 || (charX > 0.5 && charX < 0.75);
-                baseCol = isCyan ? new THREE.Color('#c6f5ff') : new THREE.Color('#ffc2e8');
-            }
-            colors[i * 3]     = baseCol.r;
-            colors[i * 3 + 1] = baseCol.g;
-            colors[i * 3 + 2] = baseCol.b;
+            // Colors are constant (already baked into colArr) — skip re-writing them every frame
 
             // Pre-launch: sit at burst position (jitter removed for perf)
             if (tRaw <= 0) {
@@ -294,6 +368,44 @@ export default function TextParticles() {
 
         const settledFrac = settledCount.current / TOTAL;
         mat.size = 0.008 + (1 - settledFrac) * 0.020;
+
+        // ── 3D Text Dynamic Shading (Colors morphing between shades) ──
+        const time = clock.elapsedTime;
+        
+        // Cycle warmth palette for "ADD"
+        const valWarm = (time * 0.18) % morphWarmColors.length;
+        const idxWarm = Math.floor(valWarm);
+        const fracWarm = valWarm - idxWarm;
+        const fromWarm = morphWarmColors[idxWarm];
+        const toWarm = morphWarmColors[(idxWarm + 1) % morphWarmColors.length];
+        
+        activeWarmColor.copy(fromWarm).lerp(toWarm, fracWarm);
+        
+        if (textMatRefA.current) {
+            // Emissive color is kept at white #ffffff to allow the gradient emissiveMap to shine in its native colors
+            textMatRefA.current.emissive.setHex(0xffffff);
+            // Softer emissive intensity to preserve the glossy metallic specular reflections
+            textMatRefA.current.emissiveIntensity = 0.45 + Math.sin(time * 2.2) * 0.12;
+        }
+
+        // Cycle coolness palette for "VEDI" and "2026"
+        const valCool = (time * 0.22) % morphCoolColors.length;
+        const idxCool = Math.floor(valCool);
+        const fracCool = valCool - idxCool;
+        const fromCool = morphCoolColors[idxCool];
+        const toCool = morphCoolColors[(idxCool + 1) % morphCoolColors.length];
+        
+        activeCoolColor.copy(fromCool).lerp(toCool, fracCool);
+        
+        if (textMatRefV.current) {
+            textMatRefV.current.emissive.setHex(0xffffff);
+            textMatRefV.current.emissiveIntensity = 0.45 + Math.sin(time * 1.8) * 0.12;
+        }
+        
+        if (tagMatRef.current) {
+            tagMatRef.current.emissive.copy(activeCoolColor);
+            tagMatRef.current.emissiveIntensity = 0.5 + Math.sin(time * 2.5) * 0.15;
+        }
     });
 
     return (
@@ -328,68 +440,90 @@ export default function TextParticles() {
             </points>
 
             <group ref={textGroupRef}>
-                {/* ── "ADD" — solid red, left of sun gap ── */}
-                <Text
-                    position={[-3.8, MAIN_Y, TEXT_Z + 0.05]}
-                    fontSize={160 * MAIN_SCALE}
-                    letterSpacing={0.08}
-                    textAlign="center"
-                    anchorX="center"
-                    anchorY="middle"
-                >
-                    ADD
-                    <meshBasicMaterial
-                        ref={textMatRefA}
-                        color="#ff1a40"
-                        toneMapped={false}
-                        transparent
-                        opacity={0}
-                        depthWrite={false}
-                        depthTest={false}
-                    />
-                </Text>
+                {/* ── "ADD" — solid 3D red, left of sun gap ── */}
+                <Center position={[-4.6, MAIN_Y, TEXT_Z + 0.05]}>
+                    <Text3D
+                        font="/fonts/ethnocentric_bold.typeface.json"
+                        size={1.5}
+                        height={0.28}
+                        curveSegments={5}
+                        bevelEnabled
+                        bevelThickness={0.03}
+                        bevelSize={0.02}
+                        bevelSegments={2}
+                    >
+                        ADD
+                        <meshStandardMaterial
+                            ref={textMatRefA}
+                            color="#e2e8f0"
+                            map={leftGradientTex}
+                            emissive="#ffffff"
+                            emissiveMap={leftGradientTex}
+                            emissiveIntensity={0.45}
+                            metalness={1.0}
+                            roughness={0.05}
+                            toneMapped={false}
+                            transparent
+                            opacity={0}
+                        />
+                    </Text3D>
+                </Center>
 
-                {/* ── "VEDI" — solid blue, right of sun gap ── */}
-                <Text
-                    position={[3.5, MAIN_Y, TEXT_Z + 0.05]}
-                    fontSize={160 * MAIN_SCALE}
-                    letterSpacing={0.08}
-                    textAlign="center"
-                    anchorX="center"
-                    anchorY="middle"
-                >
-                    VEDI
-                    <meshBasicMaterial
-                        ref={textMatRefV}
-                        color="#00d9ff"
-                        toneMapped={false}
-                        transparent
-                        opacity={0}
-                        depthWrite={false}
-                        depthTest={false}
-                    />
-                </Text>
+                {/* ── "VEDI" — solid 3D blue, right of sun gap ── */}
+                <Center position={[5.3, MAIN_Y, TEXT_Z + 0.05]}>
+                    <Text3D
+                        font="/fonts/ethnocentric_bold.typeface.json"
+                        size={1.5}
+                        height={0.28}
+                        curveSegments={5}
+                        bevelEnabled
+                        bevelThickness={0.03}
+                        bevelSize={0.02}
+                        bevelSegments={2}
+                    >
+                        VEDI
+                        <meshStandardMaterial
+                            ref={textMatRefV}
+                            color="#e2e8f0"
+                            map={rightGradientTex}
+                            emissive="#ffffff"
+                            emissiveMap={rightGradientTex}
+                            emissiveIntensity={0.45}
+                            metalness={1.0}
+                            roughness={0.05}
+                            toneMapped={false}
+                            transparent
+                            opacity={0}
+                        />
+                    </Text3D>
+                </Center>
 
-                <Text
-                    position={[0, Y2026_Y, TEXT_Z + 0.05]}
-                    fontSize={65 * Y2026_SCALE}
-                    fontWeight="black"
-                    letterSpacing={0.25}
-                    textAlign="center"
-                    anchorX="center"
-                    anchorY="middle"
-                >
-                    2026
-                    <meshBasicMaterial
-                        ref={tagMatRef}
-                        color="#00ffff"
-                        toneMapped={false}
-                        transparent
-                        opacity={0}
-                        depthWrite={false}
-                        depthTest={false}
-                    />
-                </Text>
+                {/* ── "2026" — solid 3D tag ── */}
+                <Center position={[0, Y2026_Y, TEXT_Z + 0.05]}>
+                    <Text3D
+                        font="/fonts/ethnocentric_bold.typeface.json"
+                        size={0.36}
+                        height={0.08}
+                        curveSegments={5}
+                        bevelEnabled
+                        bevelThickness={0.015}
+                        bevelSize={0.01}
+                        bevelSegments={2}
+                    >
+                        2026
+                        <meshStandardMaterial
+                            ref={tagMatRef}
+                            color="#ffffff"
+                            emissive="#00d9ff"
+                            emissiveIntensity={3.0} // High glow visibility
+                            metalness={1.0}
+                            roughness={0.02}
+                            toneMapped={false}
+                            transparent
+                            opacity={0}
+                        />
+                    </Text3D>
+                </Center>
             </group>
         </>
     );

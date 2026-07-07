@@ -6,13 +6,13 @@ import Building from './Building';
 export default function SideWalls() {
     const buildingData = useMemo(() => {
         const buildings = [];
-        // Math matches referencing perfectly down to -222
-        for (let z = -12; z >= -222; z -= 7) {
+        // Start buildings at -26 to keep the foreground open so that the ADDOVEDI title text is never hidden
+        for (let z = -26; z >= -222; z -= 7) {
             for (const side of [-1, 1]) {
-                const depth = 5 + ((Math.abs(z) * 13) % 5);
-                const width = 4 + ((Math.abs(z) * 7) % 5);
+                const depth = 4.5 + ((Math.abs(z) * 13) % 4); // Solid variations
+                const width = 4.5 + ((Math.abs(z) * 7) % 4);  // Solid variations
                 const height = 3.5 + ((Math.abs(z) * 11) % 12);
-                const lane = 7.5 + ((Math.abs(z) * 5) % 7);
+                const lane = 12.0 + ((Math.abs(z) * 5) % 3);   // Align outward to clear sways and outer letters
 
                 buildings.push({
                     key: `${side}-${z}`,
@@ -40,10 +40,14 @@ export default function SideWalls() {
     }, []);
 
     useFrame((state, delta) => {
+        const speed = speedRef.current.value;
+        // Share speed globally to eliminate any micro-frame drift between buildings and billboards
+        window.tunnelSpeed = speed;
+
         buildingsRef.current.forEach((bldg) => {
             if (bldg) {
                 // Apply dynamic GSAP controlled momentum explicitly here!
-                bldg.position.z += speedRef.current.value * delta;
+                bldg.position.z += speed * delta;
 
                 // When explicitly passing behind user's view, silently map it back seamlessly
                 if (bldg.position.z > 20) {

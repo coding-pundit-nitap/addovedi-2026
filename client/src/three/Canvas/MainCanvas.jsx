@@ -5,6 +5,7 @@ import HeroScene from "../Scene/HeroScene";
 export default function MainCanvas() {
     return (
         <Canvas
+            shadows
             camera={{
                 position: [0, 0, 8],
                 fov: 60

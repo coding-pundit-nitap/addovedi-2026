@@ -24,52 +24,52 @@ export default function TunnelLights() {
         // Combined dimming
         const finalDim = dimFactor * cloudFactor;
 
-        // Pulse logic multiplied by finalDim to reflect both camera movement and cloud cover
+        // Pulse logic multiplied by finalDim (dimmed significantly for a soft, dark post-apocalyptic silhouette)
         if (blueRef.current) {
-            blueRef.current.intensity = (220 + Math.sin(t * 1.3) * 40) * finalDim;
+            blueRef.current.intensity = (40 + Math.sin(t * 1.3) * 10) * finalDim;
         }
         if (pinkRef.current) {
-            pinkRef.current.intensity = (220 + Math.sin(t * 1.7 + 1.0) * 40) * finalDim;
+            pinkRef.current.intensity = (40 + Math.sin(t * 1.7 + 1.0) * 10) * finalDim;
         }
         if (ambientRef.current) {
-            ambientRef.current.intensity = 0.12 * finalDim;
+            ambientRef.current.intensity = 0.005 * finalDim;
         }
         if (rimRef.current) {
-            rimRef.current.intensity = 120 * finalDim;
+            rimRef.current.intensity = 15 * finalDim;
         }
     });
 
     return (
         <group>
-            {/* Slightly raised ambient so metalness has something to reflect */}
-            <ambientLight ref={ambientRef} intensity={0.12} color="#1a1a2e" />
+            {/* Extremely dark ambient light to maximize blackness */}
+            <ambientLight ref={ambientRef} intensity={0.005} color="#040408" />
 
-            {/* Blue fill — left buildings */}
+            {/* Left side buildings light — very soft dim blue outline */}
             <pointLight
                 ref={blueRef}
                 position={[-6, 8, -20]}
-                color={COLORS.blue}
-                intensity={220}
+                color="#0055ff"
+                intensity={40}
                 distance={TUNNEL.FRAME_COUNT * TUNNEL.SPACING / 1.2}
                 decay={1.4}
             />
 
-            {/* Pink fill — right buildings */}
+            {/* Right side buildings light — very soft dim red outline */}
             <pointLight
                 ref={pinkRef}
                 position={[6, 8, -20]}
-                color={COLORS.pink}
-                intensity={220}
+                color="#ff0033"
+                intensity={40}
                 distance={TUNNEL.FRAME_COUNT * TUNNEL.SPACING / 1.2}
                 decay={1.4}
             />
 
-            {/* Cyan rim light from far end — hits building tops */}
+            {/* Cyan rim light from far end — hits building tops softly */}
             <pointLight
                 ref={rimRef}
                 position={[0, 18, -TUNNEL.FRAME_COUNT * TUNNEL.SPACING + 15]}
-                color="#18ffc8"
-                intensity={120}
+                color="#00d9ff"
+                intensity={15}
                 distance={TUNNEL.FRAME_COUNT * TUNNEL.SPACING}
                 decay={1.8}
             />

@@ -1,6 +1,6 @@
 import { Tunnel } from "../Tunnel";
 import { EffectComposer, Bloom, GodRays } from "@react-three/postprocessing";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,7 +10,70 @@ import Particles from "./Particles";
 import IntroSequence from "./IntroSequence";
 import TextParticles from "./TextParticles";
 import Spaceship from "./Spaceship";
+import HologramCards from "./HologramCards";
 import { useStore } from "../../store/useStore";
+
+// ─── Apocalyptic Background Mountains (flanking the portal for massive scale) ───
+function ApocalypticMountains() {
+    return (
+        <group>
+            {/* Left Mountain Range */}
+            <mesh position={[-65, 12, -260]} rotation={[0, Math.PI / 4, 0]} scale={[55, 75, 25]}>
+                <coneGeometry args={[1, 1, 4]} />
+                <meshStandardMaterial color="#020203" roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[-40, 6, -250]} rotation={[0, -Math.PI / 6, 0]} scale={[35, 45, 15]}>
+                <coneGeometry args={[1, 1, 4]} />
+                <meshStandardMaterial color="#010203" roughness={0.9} metalness={0.1} />
+            </mesh>
+            
+            {/* Right Mountain Range */}
+            <mesh position={[65, 12, -260]} rotation={[0, -Math.PI / 4, 0]} scale={[55, 75, 25]}>
+                <coneGeometry args={[1, 1, 4]} />
+                <meshStandardMaterial color="#020203" roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[40, 6, -250]} rotation={[0, Math.PI / 6, 0]} scale={[35, 45, 15]}>
+                <coneGeometry args={[1, 1, 4]} />
+                <meshStandardMaterial color="#010203" roughness={0.9} metalness={0.1} />
+            </mesh>
+        </group>
+    );
+}
+
+// ─── Floating Holographic Cyber-Gizmos (rotating in the sky, carrying the dark theme) ───
+function FloatingCyberGizmos() {
+    const groupRef = useRef();
+    useFrame(({ clock }) => {
+        if (groupRef.current) {
+            const t = clock.elapsedTime;
+            groupRef.current.children.forEach((child, idx) => {
+                child.rotation.x = t * 0.15 + idx;
+                child.rotation.y = t * 0.22 - idx;
+                child.position.y = child.userData.initialY + Math.sin(t * 0.5 + idx) * 2;
+            });
+        }
+    });
+    
+    return (
+        <group ref={groupRef}>
+            {/* Left side floating cyber-cube (dim cobalt blue) */}
+            <mesh position={[-25, 48, -130]} userData={{ initialY: 48 }}>
+                <octahedronGeometry args={[5, 1]} />
+                <meshStandardMaterial color="#000000" wireframe emissive="#0055ff" emissiveIntensity={0.6} transparent opacity={0.25} />
+            </mesh>
+            {/* Right side floating cyber-cube (dim volcanic crimson) */}
+            <mesh position={[25, 52, -150]} userData={{ initialY: 52 }}>
+                <octahedronGeometry args={[6, 1]} />
+                <meshStandardMaterial color="#000000" wireframe emissive="#ff0033" emissiveIntensity={0.6} transparent opacity={0.25} />
+            </mesh>
+            {/* Center far floating cyber-gizmo */}
+            <mesh position={[0, 60, -180]} userData={{ initialY: 60 }}>
+                <dodecahedronGeometry args={[4, 1]} />
+                <meshStandardMaterial color="#000000" wireframe emissive="#00ffff" emissiveIntensity={0.5} transparent opacity={0.2} />
+            </mesh>
+        </group>
+    );
+}
 
 export default function HeroScene() {
     const [sun, setSun] = useState(null);
@@ -30,10 +93,13 @@ export default function HeroScene() {
         }
     }, []);
 
+    const fogTargetColor = useMemo(() => new THREE.Color(), []);
+
     useFrame((state) => {
         const speed = useStore.getState().cameraSpeed;
+        const sunDimFactor = useStore.getState().sunDimFactor;
         const time = state.clock.elapsedTime;
-        
+
         // dimFactor ranges from 1.0 (stopped) down to 0.25 (fast movement)
         const dimFactor = 1.0 - Math.min(speed / 1.2, 1.0) * 0.75;
 
@@ -43,70 +109,82 @@ export default function HeroScene() {
 
         // Combined dimming (movement dim + cloud cover dim)
         const finalDim = dimFactor * cloudFactor;
-        
-        // 1. Fog far distance: tighter when moving (mysterious shadow/tunnel depth), wider when stopped
+
+        // 1. Fog far distance: tighter when moving, wider when stopped
         if (state.scene.fog) {
             state.scene.fog.far = THREE.MathUtils.lerp(state.scene.fog.far, 120 + finalDim * 230, 0.08);
-            
-            // 2. Fog color: dim down to black during movement or clouds
-            const targetFogColor = new THREE.Color('#070a1a').multiplyScalar(finalDim);
-            state.scene.fog.color.lerp(targetFogColor, 0.08);
-        }
-        
-        // 3. Background color: dim down during movement or clouds
-        if (state.scene.background) {
-            const targetColor = new THREE.Color('#03050c').multiplyScalar(finalDim);
-            state.scene.background.lerp(targetColor, 0.08);
+
+            // 2. Fog color: dim down to black during movement or clouds (reuse object, no allocation)
+            fogTargetColor.setRGB(0.027 * finalDim, 0.039 * finalDim, 0.102 * finalDim);
+            state.scene.fog.color.lerp(fogTargetColor, 0.08);
         }
 
-        // 4. Sun material color & emissive: reacts dynamically to cloud cover and movement
+        // 3. Sun material color & emissive — sunDimFactor drives it to near-zero during arena entrance
         if (sunMaterialRef.current) {
-            sunMaterialRef.current.color.setRGB(finalDim, finalDim, finalDim);
-            sunMaterialRef.current.emissive.setRGB(finalDim, finalDim, finalDim);
+            const sunBrightness = finalDim * sunDimFactor;
+            sunMaterialRef.current.color.setRGB(sunBrightness, sunBrightness, sunBrightness);
+            sunMaterialRef.current.emissive.setRGB(sunBrightness, sunBrightness, sunBrightness);
         }
     });
+
+    const isEventPage = useStore(s => s.isEventPage);
+    const showSun = useStore(s => s.showSun);
 
     return (
         <>
             <color attach="background" args={['#03050c']} />
             <fog attach="fog" args={['#070a1a', 20, 350]} />
 
-            {/* Twinkling starry sky background (larger size factor and fade disabled for high brightness) */}
-            <Stars radius={300} depth={60} count={3000} factor={16} saturation={0.5} fade={false} speed={2} />
+            {/* Twinkling starry sky background (optimized count) */}
+            <Stars radius={300} depth={60} count={1500} factor={14} saturation={0.5} fade={false} speed={1} />
 
-            {/* A geometrically tighter flawless physical sun structure directly mathematically mapped onto the absolute 3D scene center natively */}
-            <mesh ref={setSun} position={[0, 38, -280]}>
-                {/* Geometrically tightened to 15 to perfectly physically map seamlessly into the typographical layout constraints */}
-                <sphereGeometry args={[15, 32, 32]} />
-                <meshStandardMaterial ref={sunMaterialRef} color="#ffffff" emissive="#ffffff" emissiveIntensity={20} />
-            </mesh>
+            {/* A physical sun structure is removed; the circular portal itself replaces it and acts as the 'O' in ADDOVEDI */}
 
-            {/* Massive silhouetted spaceship floating directly in front of the sun */}
-            <Spaceship />
-
-            {/* Point light rigorously removed to absolutely guarantee zero physical specular glare on buildings */}
+            {/* Directional light positioned near the portal in the background (shadows disabled for maximum performance) */}
+            {!isEventPage && (
+                <directionalLight
+                    position={[0, 65, -220]}
+                    intensity={0.85}
+                    color="#ffffff"
+                />
+            )}
 
             <IntroSequence />
             <CameraRig />
-            <Particles count={500} />
+            <Particles count={200} />
             {/* Text particles burst from sun and converge into ADDVEDI letters */}
-            <TextParticles />
-            <Tunnel />
+            {!isEventPage && (
+                <Suspense fallback={null}>
+                    <TextParticles />
+                </Suspense>
+            )}
 
-            <EffectComposer disableNormalPass>
-                <Bloom luminanceThreshold={0.5} mipmapBlur intensity={1.8} />
-                {/* Dynamically hooking the physical mesh into GodRays generates highly realistic, cinematic sunbeams structurally */}
-                {sun && (
-                    <GodRays
-                        sun={sun}
-                        samples={30}
-                        density={0.8}
-                        decay={0.94}
-                        weight={0.65}
-                        exposure={0.45}
-                        clampMax={1}
-                    />
-                )}
+            {/* Magic Portal floating in space acting as the 'O' in ADDOVEDI (passes setSun to feed GodRays) */}
+            {!isEventPage && (
+                <Suspense fallback={null}>
+                    <Spaceship setPortalMesh={setSun} />
+                </Suspense>
+            )}
+
+            {/* Tunnel (runway and buildings) */}
+            {!isEventPage && <Tunnel />}
+
+            {/* Apocalyptic mountain range silhouette at the end of the runway */}
+            {!isEventPage && <ApocalypticMountains />}
+
+            {/* Floating holographic wireframe cyber-gizmos in the sky */}
+            {!isEventPage && <FloatingCyberGizmos />}
+
+            {/* Render Hologram Cards when in Event Page */}
+            {isEventPage && (
+                <Suspense fallback={null}>
+                    <HologramCards />
+                </Suspense>
+            )}
+
+            {/* Set multisampling={0} to bypass heavy AA buffer calculations for major frame rate performance gains */}
+            <EffectComposer disableNormalPass multisampling={0}>
+                <Bloom luminanceThreshold={0.4} mipmapBlur intensity={2.0} />
             </EffectComposer>
         </>
     );
