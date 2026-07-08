@@ -56,7 +56,7 @@ export default function HeroOverlay() {
                                 <span className="text-[#FF2EA6] text-sm">2026</span>
                             </div>
                             <div className="flex gap-12 text-sm font-semibold uppercase tracking-widest">
-                                {['Home', 'Events', 'Schedule', 'Sponsors'].map(item => (
+                                {['Home', 'ARENA', 'TIMELINE', 'ALLIANCEs','ARENA CREW','CONNECT HUB'].map(item => (
                                     <a key={item} href="#" className="hover:text-[#00D9FF] transition-all hover:scale-110">
                                         {item}
                                     </a>
@@ -129,7 +129,7 @@ export default function HeroOverlay() {
                                     {/* Glitch sweep laser bar */}
                                     <span className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-[#00f0ff]/20 to-transparent -translate-x-16 group-hover:translate-x-[400px] transition-transform duration-1000 ease-out" />
                                     
-                                    <span className="relative z-10">ENTER THE PORTAL</span>
+                                    <span className="relative z-10">ENTER THE ARENA</span>
                                 </button>
                             </motion.div>
                         )}
