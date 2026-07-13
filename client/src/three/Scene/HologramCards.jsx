@@ -1135,55 +1135,97 @@ function RobotShowcase({ activeColor }) {
     const robotRef = useRef();
     const ring1Ref = useRef();
     const ring2Ref = useRef();
+    
+    // Bone refs to animate hands/arms
+    const armLRef = useRef();
+    const armRRef = useRef();
+    const handLRef = useRef();
+    const handRRef = useRef();
 
     const { scene } = useGLTF('/models/mecha/scene.gltf');
 
     // Auto-center + auto-scale the mecha model via Box3 so it always appears
     // regardless of its internal coordinate offsets
     const { mechaModel, scale: autoScale, offset } = useMemo(() => {
-        const clone = scene.clone();
+        // Force matrixAutoUpdate to true on the root scene object
+        scene.matrixAutoUpdate = true;
 
-        // Apply wireframe hologram material
-        clone.traverse((child) => {
+        // Use scene directly instead of clone() to keep bone references intact for SkinnedMesh
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true; // Ensure all children auto-update matrices
             if (child.isMesh) {
+                child.frustumCulled = false;
                 child.material = new THREE.MeshBasicMaterial({
                     color: activeColor,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.30,
+                    opacity: 0.25, // Make it a bit more visible (0.25)
                 });
             }
         });
 
-        // Compute bounding box of the raw model
-        const box = new THREE.Box3().setFromObject(clone);
+        // Store references to the bones for frame animation
+        armLRef.current = scene.getObjectByName('arm_stretch_l_013');
+        armRRef.current = scene.getObjectByName('arm_stretch_r_036');
+        handLRef.current = scene.getObjectByName('hand_l_019');
+        handRRef.current = scene.getObjectByName('hand_r_041');
+
+        // Set baseline rotations to bring arms down
+        if (armLRef.current) {
+            armLRef.current.rotation.z = 0.11964684724807739 - 0.35;
+        }
+        if (armRRef.current) {
+            armRRef.current.rotation.z = -0.11576881259679794 + 0.35;
+        }
+
+        // Force matrix update to ensure Box3 calculations are correct
+        scene.updateMatrixWorld(true);
+
+        // Compute bounding box of the model
+        const box = new THREE.Box3().setFromObject(scene);
         const size = new THREE.Vector3();
         const center = new THREE.Vector3();
         box.getSize(size);
         box.getCenter(center);
 
-        // Desired display height ~6 world units (roughly matches gun height)
-        const desiredHeight = 6.0;
+        // Desired display height ~12 world units (very large background scale)
+        const desiredHeight = 12.0;
         const modelHeight = size.y || 1;
         const s = desiredHeight / modelHeight;
 
-        return { mechaModel: clone, scale: s, offset: center };
+        return { mechaModel: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
     useFrame(({ clock }) => {
         const t = clock.elapsedTime;
         if (robotRef.current) {
-            robotRef.current.rotation.y = t * 0.08;
-            robotRef.current.position.y = 6.0 + Math.sin(t * 0.4) * 0.25;
+            robotRef.current.rotation.y = t * 0.12; // Match weapon showcase rotation speed (0.12)
+            robotRef.current.position.y = 5.2 + Math.sin(t * 0.5) * 0.2; // Raised to 5.2 and animated
         }
-        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.18;
-        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.12;
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.22; // Match weapon showcase ring speed
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.14;
+
+        // Dynamic motion for hands and arms (subtle mecha idle breathing sway)
+        if (armLRef.current) {
+            armLRef.current.rotation.z = (0.11964684724807739 - 0.35) + Math.sin(t * 1.5) * 0.08;
+            armLRef.current.rotation.x = Math.cos(t * 1.2) * 0.05;
+        }
+        if (armRRef.current) {
+            armRRef.current.rotation.z = (-0.11576881259679794 + 0.35) + Math.sin(t * 1.5 + Math.PI) * 0.08;
+            armRRef.current.rotation.x = Math.cos(t * 1.2 + Math.PI) * 0.05;
+        }
+        if (handLRef.current) {
+            handLRef.current.rotation.y = 0.5594652891159058 + Math.sin(t * 2.5) * 0.2;
+        }
+        if (handRRef.current) {
+            handRRef.current.rotation.y = -0.5594651699066162 + Math.sin(t * 2.5 + Math.PI) * 0.2;
+        }
     });
 
     return (
         <group>
-            {/* Model centered via negative offset then scaled to desired height */}
-            <group ref={robotRef} position={[0, 6.0, -12.0]} scale={[autoScale, autoScale, autoScale]}>
+            {/* Model centered via negative offset then scaled to desired height, positioned lower and pushed back behind cards */}
+            <group ref={robotRef} position={[0, 5.2, -14.5]} scale={[autoScale, autoScale, autoScale]}>
                 <primitive
                     object={mechaModel}
                     position={[-offset.x, -offset.y, -offset.z]}
@@ -1191,24 +1233,25 @@ function RobotShowcase({ activeColor }) {
                 />
             </group>
 
-            <mesh ref={ring1Ref} position={[0, 3.5, -12.2]} rotation={[Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[4.5, 4.55, 64]} />
-                <meshBasicMaterial color={activeColor} transparent opacity={0.22} side={THREE.DoubleSide} />
+            {/* Orbiting base rings (vertical and positioned/scaled to match the robot's coordinates) */}
+            <mesh ref={ring1Ref} position={[0, 5.2, -14.8]} rotation={[0, 0, 0]}>
+                <ringGeometry args={[5.5, 5.55, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
             </mesh>
-            <mesh ref={ring2Ref} position={[0, 3.5, -12.3]} rotation={[Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[3.2, 3.24, 48]} />
+            <mesh ref={ring2Ref} position={[0, 5.2, -14.9]} rotation={[0, 0, 0]}>
+                <ringGeometry args={[4.2, 4.24, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
 
             <Html
                 transform
                 distanceFactor={7.5}
-                position={[0, 1.0, -12.0]}
+                position={[0, 1.6, -14.5]}
                 style={{
                     color: activeColor,
                     fontFamily: 'monospace',
                     fontSize: '10px',
-                    opacity: 0.5,
+                    opacity: 0.4,
                     letterSpacing: '2px',
                     textAlign: 'center',
                     pointerEvents: 'none',
@@ -1225,7 +1268,7 @@ function RobotShowcase({ activeColor }) {
 // ── Lobby Title Header ────────────────────────────────────────────────────────
 function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
     return (
-        <group position={[0, selectedDivision ? 8.6 : 11.4, -10.5]}>
+        <group position={[0, selectedDivision ? 8.6 : 9.8, -10.5]}>
             <mesh position={[0, -0.45, 0]}>
                 <planeGeometry args={[16, 0.03]} />
                 <meshBasicMaterial color="#00d9ff" toneMapped={false} />

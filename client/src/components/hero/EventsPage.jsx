@@ -231,7 +231,7 @@ export default function EventsPage() {
                 {/* Center: Current Division indicator */}
                 <div className="hidden lg:flex flex-col items-center justify-center font-mono">
                     <div style={{ color: activeCategory?.color || '#00d9ff', textShadow: `0 0 10px ${activeCategory?.color || '#00d9ff'}44` }} className="text-sm font-black tracking-[0.25em] transition-all duration-300 uppercase">
-                        {activeCategory ? `[ ${activeCategory.title} ]` : '// CHOOSE MISSION TYPE'}
+                        {activeCategory ? `[ ${activeCategory.title} ]` : ''}
                     </div>
                     <div className="text-[8px] text-white/35 tracking-widest mt-1">
                         {activeCategory ? 'STATUS: INFILTRATING...' : 'LOBBY STATUS: ACTIVE'}
