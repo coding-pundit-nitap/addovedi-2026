@@ -27,6 +27,9 @@ export const useStore = create((set) => ({
     sunDimFactor: 1.0,
     showSun: true,          // Determines if the sun is active in the scene
 
+    // Active category card slug inside the event lobby console
+    activeCategorySlug: 'robotics-rc',
+
     // State Setters
     setCameraSpeed:       (v) => set({ cameraSpeed: v }),
     setTunnelIntensity:   (v) => set({ tunnelIntensity: v }),
@@ -41,4 +44,5 @@ export const useStore = create((set) => ({
     setGunRotationY:      (v) => set({ gunRotationY: v }),
     setSunDimFactor:      (v) => set({ sunDimFactor: v }),
     setShowSun:           (v) => set({ showSun: v }),
+    setActiveCategorySlug: (v) => set({ activeCategorySlug: v }),
 }));
