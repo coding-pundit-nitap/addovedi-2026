@@ -13,9 +13,11 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useStore } from '../../store/useStore';
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { useLocation } from 'react-router-dom';
 
 export default function CameraRig() {
     const { camera } = useThree();
+    const location = useLocation();
     const isEntered = useStore(s => s.isEntered);
     const setPortalFlash = useStore(s => s.setPortalFlash);
     const setIsEventPage = useStore(s => s.setIsEventPage);
@@ -243,23 +245,41 @@ export default function CameraRig() {
 
     useFrame(state => {
         if (phaseRef.current === 'inside') {
+            const time = state.clock.elapsedTime;
             const shake = useStore.getState().shakeIntensity;
+
+            // Subtle, game-lobby style camera breathing motion
+            const breathingY = Math.sin(time * 0.75) * 0.08;
+            const breathingX = Math.cos(time * 0.6) * 0.04;
+
+            // Check if we are inside a category or sub-event deck
+            const pathParts = location.pathname.split('/').filter(Boolean);
+            const hasCategory = pathParts.length >= 2;
+
+            const targetX = hasCategory ? 0 : breathingX;
+            const targetY = 0.4 + breathingY;
+            const targetZ = hasCategory ? -1.0 : 1.0;
+            const targetRotX = 0.32;
+
             if (shake > 0) {
-                const time = state.clock.elapsedTime;
-                // Strong translation shake (particularly vertical Y)
                 const shakeX = (Math.sin(time * 85) + Math.cos(time * 145)) * 0.7 * shake;
-                const shakeY = (Math.cos(time * 105) + Math.sin(time * 165)) * 1.3 * shake; // Vertically pronounced
+                const shakeY = (Math.cos(time * 105) + Math.sin(time * 165)) * 1.3 * shake;
                 const shakeZ = Math.sin(time * 125) * 0.6 * shake;
 
-                camera.position.set(shakeX, 0.4 + shakeY, shakeZ);
+                camera.position.set(targetX + shakeX, targetY + shakeY, targetZ + shakeZ);
                 camera.rotation.set(
-                    0.42 + (Math.sin(time * 95) + Math.cos(time * 135)) * 0.07 * shake, // Vertically pronounced tilt
+                    targetRotX + (Math.sin(time * 95) + Math.cos(time * 135)) * 0.07 * shake,
                     (Math.cos(time * 115) + Math.sin(time * 155)) * 0.05 * shake,
                     (Math.sin(time * 135) * 0.05) * shake
                 );
             } else {
-                camera.position.set(0, 0.4, 0);
-                camera.rotation.set(0.42, 0, 0);
+                camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.08);
+                camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.08);
+                camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.08);
+
+                camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotX, 0.08);
+                camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, 0, 0.08);
+                camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, 0, 0.08);
             }
             return;
         }
