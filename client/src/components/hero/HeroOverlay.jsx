@@ -51,60 +51,6 @@ export default function HeroOverlay() {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="w-full max-w-7xl mx-auto h-[95px] flex items-center justify-between text-white pointer-events-auto px-12 relative overflow-visible"
                         >
-                            {/* Detailed Sci-Fi Beveled Border SVG wrapper */}
-                            <div className="absolute inset-0 w-full h-full pointer-events-none">
-                                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 90" fill="none">
-                                    <defs>
-                                        <linearGradient id="cyber-grad" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#00D9FF" />
-                                            <stop offset="20%" stopColor="#00D9FF" />
-                                            <stop offset="35%" stopColor="#00D9FF" stopOpacity="0.15" />
-                                            <stop offset="65%" stopColor="#FF2EA6" stopOpacity="0.15" />
-                                            <stop offset="80%" stopColor="#FF2EA6" />
-                                            <stop offset="100%" stopColor="#FF2EA6" />
-                                        </linearGradient>
-                                        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
-                                            <feGaussianBlur stdDeviation="3" result="blur" />
-                                            <feMerge>
-                                                <feMergeNode in="blur" />
-                                                <feMergeNode in="SourceGraphic" />
-                                            </feMerge>
-                                        </filter>
-                                    </defs>
-                                    
-                                    {/* Main Beveled Body Panel */}
-                                    <path 
-                                        d="M 18 2 L 982 2 L 998 18 L 998 72 L 982 88 L 18 88 L 2 72 L 2 18 Z" 
-                                        fill="rgba(2, 6, 12, 0.82)" 
-                                        stroke="url(#cyber-grad)" 
-                                        strokeWidth="1.5"
-                                    />
-
-                                    {/* Left End Cyan Accents & Bevel Double Bars */}
-                                    <path d="M 2 18 L 18 2" stroke="#00D9FF" strokeWidth="3" filter="url(#glow-cyan)" />
-                                    <path d="M 2 18 L 2 40" stroke="#00D9FF" strokeWidth="2" />
-                                    <path d="M 5 26 L 14 14" stroke="#00D9FF" strokeWidth="1" opacity="0.6" />
-                                    <path d="M 10 32 L 20 20" stroke="#00D9FF" strokeWidth="1" opacity="0.4" />
-                                    
-                                    {/* Right End Pink Accents & Bevel Double Bars */}
-                                    <path d="M 998 18 L 982 2" stroke="#FF2EA6" strokeWidth="3" />
-                                    <path d="M 998 18 L 998 40" stroke="#FF2EA6" strokeWidth="2" />
-                                    <path d="M 993 26 L 984 14" stroke="#FF2EA6" strokeWidth="1" opacity="0.6" />
-                                    <path d="M 988 32 L 978 20" stroke="#FF2EA6" strokeWidth="1" opacity="0.4" />
-
-                                    {/* Top Center Tabs */}
-                                    <path d="M 440 2 L 470 2" stroke="#00D9FF" strokeWidth="3" />
-                                    <path d="M 440 2 L 443 -2 L 467 -2 L 470 2" fill="#00D9FF" opacity="0.4" />
-                                    
-                                    <path d="M 530 2 L 560 2" stroke="#FF2EA6" strokeWidth="3" />
-                                    <path d="M 530 2 L 533 -2 L 557 -2 L 560 2" fill="#FF2EA6" opacity="0.4" />
-
-                                    {/* Bottom Center Indicator dot panel */}
-                                    <path d="M 480 88 L 520 88" stroke="#00D9FF" strokeWidth="3" />
-                                    <rect x="496" y="87" width="8" height="2" fill="#00D9FF" />
-                                    <circle cx="512" cy="88" r="1.5" fill="#FF2EA6" />
-                                </svg>
-                            </div>
 
                             {/* Left Side: Brand Logo block */}
                             <div className="flex items-center gap-3 font-mono relative z-10 pl-2">
@@ -125,7 +71,6 @@ export default function HeroOverlay() {
                                     </div>
                                     <div className="flex items-center gap-2 mt-1 leading-none">
                                         <span className="text-[#FF2EA6] text-xs font-black tracking-widest">2026</span>
-                                        <span className="text-[#FF2EA6] text-[10px] font-black tracking-widest select-none">///</span>
                                     </div>
                                     <div className="w-24 h-[1px] bg-white/10 my-1" />
                                     <div className="flex items-center gap-1.5 leading-none">
@@ -137,7 +82,7 @@ export default function HeroOverlay() {
 
                             {/* Center Navigation Links */}
                             <div className="flex items-center gap-2.5 relative z-10">
-                                {['Home', 'Events', 'Arena', 'Schedule', 'Sponsors'].map((item) => {
+                                {['HOME', 'ARENA', 'TIMELINE', 'ALLIANCES', 'CONNECT HUB'].map((item) => {
                                     const isHome = item === 'Home'; // Standard active representation inside Hero
                                     return (
                                         <a
@@ -168,7 +113,7 @@ export default function HeroOverlay() {
                                     <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
                                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                     </svg>
-                                    <span>PLAYER CONNECTED</span>
+                                    <span>PLAYER CONNECTING</span>
                                     <span className="text-[#FF2EA6] animate-pulse">....</span>
                                 </div>
 
