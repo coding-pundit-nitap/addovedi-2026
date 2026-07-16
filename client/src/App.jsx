@@ -12,20 +12,20 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect';
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
             return;
         }
 
-        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances or /connect
+        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances, /connect or /admin
         if (isStandalone) return;
 
         // Set store parameters
@@ -40,7 +40,7 @@ export default function App() {
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin') return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {

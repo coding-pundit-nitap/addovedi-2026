@@ -89,11 +89,9 @@ const DEPTS = {
     },
 };
 
-const DEPT_KEYS = Object.keys(DEPTS);
-const ALL_MEMBERS = Object.entries(DEPTS).flatMap(([deptKey, deptVal]) =>
-    deptVal.members.map(member => ({ ...member, dept: deptKey, color: deptVal.color, glow: deptVal.glow, badge: deptVal.badge }))
-);
-const TOTAL_MEMBERS_COUNT = ALL_MEMBERS.length;
+const API_BASE = window.location.origin.includes('localhost:5173')
+    ? 'http://localhost:5001/api'
+    : '/api';
 
 /* ════════════════════════════════════════════
    BACKGROUND CANVAS (At 5-10% Opacity)
@@ -526,6 +524,8 @@ export default function CrewPage() {
     const [featuredIndex, setFeaturedIndex] = useState(-1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    const [dbCrew, setDbCrew] = useState([]);
+
     // Track window resize
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -533,11 +533,74 @@ export default function CrewPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Fetch dynamic crew list from backend
+    useEffect(() => {
+        const fetchCrew = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/crew`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        setDbCrew(data);
+                    }
+                }
+            } catch (err) {
+                console.log("Failed to fetch crew from server, using local fallbacks");
+            }
+        };
+        fetchCrew();
+    }, []);
+
+    // Convert dbCrew (if available) or static DEPTS into the standard format
+    const deptsData = useMemo(() => {
+        if (!dbCrew || dbCrew.length === 0) return DEPTS;
+        
+        const mapped = {
+            EXECUTIVE: { color: '#00E5FF', glow: 'rgba(0,229,255,0.4)', icon: '👑', badge: 'cyan', members: [] },
+            TECH: { color: '#FF2CFB', glow: 'rgba(255,44,251,0.4)', icon: '💻', badge: 'pink', members: [] },
+            EVENTS: { color: '#7A5CFF', glow: 'rgba(122,92,255,0.4)', icon: '🎯', badge: 'purple', members: [] },
+            MEDIA: { color: '#FF9D00', glow: 'rgba(255,157,0,0.4)', icon: '📸', badge: 'orange', members: [] },
+            ROBOTICS: { color: '#1FFF76', glow: 'rgba(31,255,118,0.4)', icon: '🤖', badge: 'green', members: [] },
+            SPONSORS: { color: '#FFD700', glow: 'rgba(255,215,0,0.4)', icon: '🤝', badge: 'gold', members: [] }
+        };
+
+        dbCrew.forEach((member, idx) => {
+            let mappedCat = 'TECH';
+            if (member.category === 'CORE') mappedCat = 'EXECUTIVE';
+            else if (member.category === 'TECHNICAL') mappedCat = 'TECH';
+            else if (member.category === 'EVENTS') mappedCat = 'EVENTS';
+            else if (member.category === 'MEDIA') mappedCat = 'MEDIA';
+            else if (member.category === 'ROBOTICS') mappedCat = 'ROBOTICS';
+            else if (member.category === 'SPONSORS') mappedCat = 'SPONSORS';
+            else if (member.category === 'DESIGN') mappedCat = 'TECH';
+
+            mapped[mappedCat].members.push({
+                id: member._id || `M${idx}`,
+                name: member.name,
+                role: member.role,
+                status: member.featured ? 'MISSION READY' : 'CONNECTED',
+                skills: [{ n: member.statText, p: 90 }],
+                missions: [member.bio || 'Addovedi Division Lead'],
+                social: { github: '#', linkedin: '#', instagram: '#' },
+                avatar: member.avatar
+            });
+        });
+        
+        return mapped;
+    }, [dbCrew]);
+
+    const deptKeys = useMemo(() => Object.keys(deptsData), [deptsData]);
+    const allMembers = useMemo(() => {
+        return Object.entries(deptsData).flatMap(([deptKey, deptVal]) =>
+            deptVal.members.map(member => ({ ...member, dept: deptKey, color: deptVal.color, glow: deptVal.glow, badge: deptVal.badge }))
+        );
+    }, [deptsData]);
+
     // Filter members list
     const filteredCrew = useMemo(() => {
-        if (filterDept === 'ALL') return ALL_MEMBERS;
-        return ALL_MEMBERS.filter(m => m.dept === filterDept);
-    }, [filterDept]);
+        if (filterDept === 'ALL') return allMembers;
+        return allMembers.filter(m => m.dept === filterDept);
+    }, [filterDept, allMembers]);
 
     // Split filtered crew into rows of 4 (desktop) or 2 (mobile)
     const cols = isMobile ? 2 : 4;
@@ -737,7 +800,7 @@ export default function CrewPage() {
                         </div>
 
                         {/* Animated Statistics Counter Strip */}
-                        <StatStrip finalMembers={TOTAL_MEMBERS_COUNT} finalDepts={DEPT_KEYS.length} finalMission={1} />
+                        <StatStrip finalMembers={allMembers.length} finalDepts={deptKeys.length} finalMission={1} />
 
                         {/* Futuristic Department Selector Chips */}
                         <div style={{
@@ -748,8 +811,8 @@ export default function CrewPage() {
                             marginBottom: '40px',
                             padding: '0 8px'
                         }}>
-                            {['ALL', ...DEPT_KEYS].map(key => {
-                                const deptColor = key === 'ALL' ? '#00E5FF' : DEPTS[key].color;
+                            {['ALL', ...deptKeys].map(key => {
+                                const deptColor = key === 'ALL' ? '#00E5FF' : deptsData[key].color;
                                 const isActive = filterDept === key;
                                 return (
                                     <button

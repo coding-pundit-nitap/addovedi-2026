@@ -467,12 +467,100 @@ export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
 
+const API_BASE = window.location.origin.includes('localhost:5173')
+    ? 'http://localhost:5001/api'
+    : '/api';
+
+function getSvgIcon(type, color) {
+    switch (type) {
+        case 'robot':
+            return (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                    <circle cx="12" cy="5" r="2"></circle>
+                    <path d="M12 7v4M8 15h.01M16 15h.01"></path>
+                </svg>
+            );
+        case 'bolt':
+            return (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+            );
+        case 'gamepad':
+            return (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <path d="M12 12h.01M16 10h.01M16 14h.01M6 12h4M8 10v4"></path>
+                </svg>
+            );
+        case 'code':
+        default:
+            return (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                    <line x1="14" y1="4" x2="10" y2="20"></line>
+                </svg>
+            );
+    }
+}
+
 export default function HologramCards() {
     const location = useLocation();
     const navigate = useNavigate();
 
     const activeCategorySlug = useStore(state => state.activeCategorySlug);
     const setActiveCategorySlug = useStore(state => state.setActiveCategorySlug);
+
+    const [categoriesList, setCategoriesList] = useState(CARD_DATA);
+    const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
+
+    // Fetch dynamic events on mount
+    useEffect(() => {
+        const fetchBackendEvents = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/events`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.categories && data.categories.length > 0) {
+                        const mappedCats = data.categories.map(c => ({
+                            title: c.title,
+                            subtitle: c.subtitle,
+                            desc: c.desc,
+                            color: c.color,
+                            xp: c.xp,
+                            difficulty: c.difficulty,
+                            icon: (color) => getSvgIcon(c.iconType, color)
+                        }));
+                        setCategoriesList(mappedCats);
+
+                        const mappedSubs = {};
+                        data.categories.forEach(c => {
+                            mappedSubs[c.title] = [];
+                        });
+                        data.subEvents.forEach(s => {
+                            if (!mappedSubs[s.categoryTitle]) mappedSubs[s.categoryTitle] = [];
+                            mappedSubs[s.categoryTitle].push({
+                                title: s.title,
+                                subtitle: s.subtitle,
+                                desc: s.desc,
+                                color: s.color,
+                                xp: s.xp,
+                                difficulty: s.difficulty,
+                                heads: s.heads || [],
+                                icon: (color) => getSvgIcon(s.iconType, color)
+                            });
+                        });
+                        setSubEventsData(mappedSubs);
+                    }
+                }
+            } catch (err) {
+                console.log("Failed to fetch dynamic events, using local fallbacks");
+            }
+        };
+        fetchBackendEvents();
+    }, []);
 
     const { categoryName, eventName } = useMemo(() => {
         const parts = location.pathname.split('/').filter(Boolean);
@@ -484,9 +572,9 @@ export default function HologramCards() {
 
     const selectedDivision = useMemo(() => {
         if (!categoryName) return null;
-        const matched = CARD_DATA.find(c => slugify(c.title) === categoryName);
+        const matched = categoriesList.find(c => slugify(c.title) === categoryName);
         return matched ? matched.title : null;
-    }, [categoryName]);
+    }, [categoryName, categoriesList]);
 
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [activeRotationIndex, setActiveRotationIndex] = useState(0);
@@ -499,27 +587,27 @@ export default function HologramCards() {
     // Sync activeRotationIndex to categoryName on route direct load
     useEffect(() => {
         if (categoryName) {
-            const idx = CARD_DATA.findIndex(c => slugify(c.title) === categoryName);
+            const idx = categoriesList.findIndex(c => slugify(c.title) === categoryName);
             if (idx !== -1 && idx !== activeRotationIndex) {
                 setActiveRotationIndex(idx);
             }
         }
-    }, [categoryName]);
+    }, [categoryName, categoriesList]);
 
     // Sync from activeCategorySlug store changes to rotation index (from bottom nav clicking)
     useEffect(() => {
         if (selectedDivision === null && activeCategorySlug) {
-            const idx = CARD_DATA.findIndex(c => slugify(c.title) === activeCategorySlug);
+            const idx = categoriesList.findIndex(c => slugify(c.title) === activeCategorySlug);
             if (idx !== -1 && idx !== activeRotationIndex) {
                 setActiveRotationIndex(idx);
             }
         }
-    }, [activeCategorySlug, selectedDivision]);
+    }, [activeCategorySlug, selectedDivision, categoriesList]);
 
     // Automatically sync activeRotationIndex changes back to store (for bottom nav highlighting)
     useEffect(() => {
         if (selectedDivision === null) {
-            const activeCard = CARD_DATA[activeRotationIndex];
+            const activeCard = categoriesList[activeRotationIndex];
             if (activeCard) {
                 const slug = slugify(activeCard.title);
                 if (activeCategorySlug !== slug) {
@@ -712,7 +800,7 @@ export default function HologramCards() {
             const offsetZ = CAROUSEL_OFFSET_Z;
             const angleStep = CAROUSEL_ANGLE_STEP;
 
-            return CARD_DATA.map((card, i) => {
+            return categoriesList.map((card, i) => {
                 const diff = (i - activeRotationIndex) % 7;
                 const wrappedDiff = diff > 3 ? diff - 7 : (diff < -3 ? diff + 7 : diff);
                 const cardAngle = wrappedDiff * angleStep;
@@ -731,7 +819,7 @@ export default function HologramCards() {
         }
 
         // Sub-events layout inside selected division
-        const subList = SUB_EVENTS[selectedDivision] || [];
+        const subList = subEventsData[selectedDivision] || [];
         const count = subList.length;
 
         return subList.map((item, idx) => {
@@ -758,10 +846,10 @@ export default function HologramCards() {
 
     const activeColor = useMemo(() => {
         if (selectedDivision) {
-            const matched = CARD_DATA.find(c => c.title === selectedDivision);
+            const matched = categoriesList.find(c => c.title === selectedDivision);
             return matched ? matched.color : '#00d9ff';
         }
-        const activeCard = CARD_DATA[activeRotationIndex];
+        const activeCard = categoriesList[activeRotationIndex];
         return activeCard ? activeCard.color : '#00d9ff';
     }, [selectedDivision, activeRotationIndex]);
 
@@ -995,8 +1083,8 @@ export default function HologramCards() {
             {!eventName && (
                 <LobbyHeader
                     selectedDivision={selectedDivision}
-                    activeTitle={selectedDivision || CARD_DATA[activeRotationIndex]?.title}
-                    sctrId={(selectedDivision ? CARD_DATA.findIndex(c => c.title === selectedDivision) : activeRotationIndex) + 1}
+                    activeTitle={selectedDivision || categoriesList[activeRotationIndex]?.title}
+                    sctrId={(selectedDivision ? categoriesList.findIndex(c => c.title === selectedDivision) : activeRotationIndex) + 1}
                 />
             )}
 
@@ -1177,7 +1265,7 @@ function WeaponShowcase({ activeColor }) {
     const isMobile = window.innerWidth < 768;
     const posY = isMobile ? 6.8 : 8.8;
 
-    const { scene } = useGLTF('/models/gun/scene.gltf');
+    const { scene } = useGLTF('/models/gun/scene.glb');
 
     const blueprintModel = useMemo(() => {
         const clone = scene.clone();
@@ -1252,7 +1340,7 @@ function RobotShowcase({ activeColor }) {
     const handLRef = useRef();
     const handRRef = useRef();
 
-    const { scene } = useGLTF('/models/mecha/scene.gltf');
+    const { scene } = useGLTF('/models/mecha/scene.glb');
 
     // Auto-center + auto-scale the mecha model via Box3 so it always appears
     // regardless of its internal coordinate offsets
@@ -1380,7 +1468,7 @@ function ControllerShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/controller/scene.gltf');
+    const { scene } = useGLTF('/models/controller/scene.glb');
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1474,7 +1562,7 @@ function CodingShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/coding/scene.gltf');
+    const { scene } = useGLTF('/models/coding/scene.glb');
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1568,7 +1656,7 @@ function CivilShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/civil/scene.gltf');
+    const { scene } = useGLTF('/models/civil/scene.glb');
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1673,7 +1761,7 @@ function ElectricalShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/electrical/scene.gltf');
+    const { scene } = useGLTF('/models/electrical/scene.glb');
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1767,7 +1855,7 @@ function AiShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/ai/scene.gltf');
+    const { scene } = useGLTF('/models/ai/scene.glb');
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -2286,10 +2374,10 @@ function CornerBracket({ pos, color, rotation = [0, 0, 0], opacity = 1.0 }) {
 }
 
 // Pre-load assets to avoid stuttering
-useGLTF.preload('/models/gun/scene.gltf');
-useGLTF.preload('/models/mecha/scene.gltf');
-useGLTF.preload('/models/controller/scene.gltf');
-useGLTF.preload('/models/coding/scene.gltf');
-useGLTF.preload('/models/civil/scene.gltf');
-useGLTF.preload('/models/electrical/scene.gltf');
-useGLTF.preload('/models/ai/scene.gltf');
+useGLTF.preload('/models/gun/scene.glb');
+useGLTF.preload('/models/mecha/scene.glb');
+useGLTF.preload('/models/controller/scene.glb');
+useGLTF.preload('/models/coding/scene.glb');
+useGLTF.preload('/models/civil/scene.glb');
+useGLTF.preload('/models/electrical/scene.glb');
+useGLTF.preload('/models/ai/scene.glb');

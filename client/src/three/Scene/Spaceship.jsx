@@ -27,7 +27,7 @@ export default function Spaceship({ setPortalMesh }) {
     const responsiveScale = isMobile ? 0.45 : 1.0;
 
     // Load the GLTF portal model
-    const { scene } = useGLTF('/models/portal/scene.gltf');
+    const { scene } = useGLTF('/models/portal/scene.glb');
 
     // Auto-scale, center and recolor to titanium sci-fi look
     const customizedModel = useMemo(() => {
@@ -157,4 +157,4 @@ export default function Spaceship({ setPortalMesh }) {
 }
 
 // Pre-load the portal asset to avoid stuttering
-useGLTF.preload('/models/portal/scene.gltf');
+useGLTF.preload('/models/portal/scene.glb');
