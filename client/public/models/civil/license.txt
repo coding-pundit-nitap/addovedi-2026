@@ -1,0 +1,11 @@
+Model Information:
+* title:	Detailed skyscraper gameready
+* source:	https://sketchfab.com/3d-models/detailed-skyscraper-gameready-f1cb32c1783f488d88d29358dac4f644
+* author:	LiBinZyu (https://sketchfab.com/LiBinZyu)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Detailed skyscraper gameready" (https://sketchfab.com/3d-models/detailed-skyscraper-gameready-f1cb32c1783f488d88d29358dac4f644) by LiBinZyu (https://sketchfab.com/LiBinZyu) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

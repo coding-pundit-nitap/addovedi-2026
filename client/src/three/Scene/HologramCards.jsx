@@ -418,6 +418,7 @@ export default function HologramCards() {
 
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [activeRotationIndex, setActiveRotationIndex] = useState(0);
+    const isMobile = window.innerWidth < 768;
 
     const startX = useRef(0);
     const isDragging = useRef(false);
@@ -459,7 +460,7 @@ export default function HologramCards() {
     useEffect(() => {
         const handleWheel = (e) => {
             if (isTransitioning || selectedDivision || isScrollLocked.current) return;
-            
+
             // Use dominant axis to prevent deltaX + deltaY cancelling each other out on trackpad
             const delta = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
             if (Math.abs(delta) > 20) {
@@ -469,7 +470,7 @@ export default function HologramCards() {
                 } else {
                     setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
                 }
-                
+
                 // Keep locked for 500ms to guarantee exactly ONE card transition per user trackpad sweep
                 setTimeout(() => {
                     isScrollLocked.current = false;
@@ -920,9 +921,9 @@ export default function HologramCards() {
 
             {/* Title Headers */}
             {!eventName && (
-                <LobbyHeader 
-                    selectedDivision={selectedDivision} 
-                    activeTitle={selectedDivision || CARD_DATA[activeRotationIndex]?.title} 
+                <LobbyHeader
+                    selectedDivision={selectedDivision}
+                    activeTitle={selectedDivision || CARD_DATA[activeRotationIndex]?.title}
                     sctrId={(selectedDivision ? CARD_DATA.findIndex(c => c.title === selectedDivision) : activeRotationIndex) + 1}
                 />
             )}
@@ -938,6 +939,41 @@ export default function HologramCards() {
             {selectedDivision === 'ROBOTICS & RC' && !eventName && (
                 <Suspense fallback={null}>
                     <RobotShowcase activeColor={activeColor} />
+                </Suspense>
+            )}
+
+            {/* Controller Hologram — Gaming Arena category page */}
+            {selectedDivision === 'GAMING ARENA' && !eventName && (
+                <Suspense fallback={null}>
+                    <ControllerShowcase activeColor={activeColor} />
+                </Suspense>
+            )}
+
+            {/* Coding Quest terminal Hologram — Coding Quest category page */}
+            {selectedDivision === 'CODING QUEST' && !eventName && (
+                <Suspense fallback={null}>
+                    <CodingShowcase activeColor={activeColor} />
+                </Suspense>
+            )}
+
+            {/* Civil City Hologram — Creative & Design category page */}
+            {selectedDivision === 'CREATIVE & DESIGN' && !eventName && (
+                <Suspense fallback={null}>
+                    <CivilShowcase activeColor={activeColor} />
+                </Suspense>
+            )}
+
+            {/* Transformer Hologram — Electrical Guild category page */}
+            {selectedDivision === 'ELECTRICAL GUILD' && !eventName && (
+                <Suspense fallback={null}>
+                    <ElectricalShowcase activeColor={activeColor} />
+                </Suspense>
+            )}
+
+            {/* Brain Hologram — AI & Data Science category page */}
+            {selectedDivision === 'AI & DATA SCIENCE' && !eventName && (
+                <Suspense fallback={null}>
+                    <AiShowcase activeColor={activeColor} />
                 </Suspense>
             )}
 
@@ -1013,7 +1049,7 @@ export default function HologramCards() {
 
             {/* HTML Back Nav Button */}
             {selectedDivision && !eventName && (
-                <Html position={[0, 0.4, -9.0]} center>
+                <Html position={[0, isMobile ? -3.2 : 0.4, -9.0]} center>
                     <button
                         onClick={handleBack}
                         className="pointer-events-auto px-10 py-3.5 bg-black text-[#00f0ff] hover:text-white border-2 border-[#00f0ff] font-mono text-[10px] tracking-[0.25em] font-black transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] relative overflow-hidden"
@@ -1034,8 +1070,8 @@ export default function HologramCards() {
                 </Html>
             )}
 
-            {/* Symmetrically aligned categories / sub-event cards (hidden on active event registration) */}
-            {!eventName && layoutCards.map((card, i) => (
+            {/* Symmetrically aligned categories / sub-event cards (hidden on active event registration or mobile sub-events deck) */}
+            {!eventName && (!isMobile || !selectedDivision) && layoutCards.map((card, i) => (
                 <SingleCard
                     key={card.title}
                     data={card}
@@ -1066,6 +1102,8 @@ function WeaponShowcase({ activeColor }) {
     const showRef = useRef();
     const ring1Ref = useRef();
     const ring2Ref = useRef();
+    const isMobile = window.innerWidth < 768;
+    const posY = isMobile ? 6.8 : 8.8;
 
     const { scene } = useGLTF('/models/gun/scene.gltf');
 
@@ -1088,7 +1126,7 @@ function WeaponShowcase({ activeColor }) {
         const t = clock.elapsedTime;
         if (showRef.current) {
             showRef.current.rotation.y = t * 0.12;
-            showRef.current.position.y = 8.8 + Math.sin(t * 0.5) * 0.2;
+            showRef.current.position.y = posY + Math.sin(t * 0.5) * 0.2;
         }
         if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.22;
         if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.14;
@@ -1096,15 +1134,15 @@ function WeaponShowcase({ activeColor }) {
 
     return (
         <group>
-            <group ref={showRef} position={[0, 8.8, -14.5]} scale={[0.18, 0.18, 0.18]}>
+            <group ref={showRef} position={[0, posY, -14.5]} scale={isMobile ? [0.10, 0.10, 0.10] : [0.18, 0.18, 0.18]}>
                 <primitive object={blueprintModel} rotation={[0, -Math.PI / 2, 0]} position={[0, -2.0, 0]} />
             </group>
 
-            <mesh ref={ring1Ref} position={[0, 8.8, -14.8]} rotation={[0, 0, 0]}>
+            <mesh ref={ring1Ref} position={[0, posY, -14.8]} rotation={[0, 0, 0]}>
                 <ringGeometry args={[3.2, 3.23, 64]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
             </mesh>
-            <mesh ref={ring2Ref} position={[0, 8.8, -14.9]} rotation={[0, 0, 0]}>
+            <mesh ref={ring2Ref} position={[0, posY, -14.9]} rotation={[0, 0, 0]}>
                 <ringGeometry args={[2.5, 2.52, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
@@ -1112,7 +1150,7 @@ function WeaponShowcase({ activeColor }) {
             <Html
                 transform
                 distanceFactor={7.5}
-                position={[0, 5.2, -14.5]}
+                position={[0, posY - 3.6, -14.5]}
                 style={{
                     color: '#00d9ff',
                     fontFamily: 'monospace',
@@ -1135,7 +1173,7 @@ function RobotShowcase({ activeColor }) {
     const robotRef = useRef();
     const ring1Ref = useRef();
     const ring2Ref = useRef();
-    
+
     // Bone refs to animate hands/arms
     const armLRef = useRef();
     const armRRef = useRef();
@@ -1264,21 +1302,507 @@ function RobotShowcase({ activeColor }) {
     );
 }
 
+// ── PS5 Controller Hologram (Gaming Arena Category Page) ────────────────────
+function ControllerShowcase({ activeColor }) {
+    const controllerRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/controller/scene.gltf');
+
+    // Auto-center + auto-scale the model via Box3
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.25,
+                });
+            }
+        });
+
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        // Desired display height ~12.0 units
+        const desiredHeight = 12.0;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (controllerRef.current) {
+            controllerRef.current.rotation.y = t * 0.15; // Slow rotation
+            controllerRef.current.rotation.x = Math.sin(t * 0.3) * 0.1; // Gentle sway tilt
+            controllerRef.current.position.y = 5.2 + Math.sin(t * 0.5) * 0.25; // Floating Y
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.20;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.12;
+    });
+
+    return (
+        <group>
+            {/* Model centered then scaled, positioned in background */}
+            <group ref={controllerRef} position={[0, 5.2, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive
+                    object={model}
+                    position={[-offset.x, -offset.y, -offset.z]}
+                    rotation={[0, 0, 0]}
+                />
+            </group>
+
+            {/* Orbiting rings */}
+            <mesh ref={ring1Ref} position={[0, 5.2, -14.8]}>
+                <ringGeometry args={[8.0, 8.08, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 5.2, -14.9]}>
+                <ringGeometry args={[6.0, 6.05, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+
+            <Html
+                transform
+                distanceFactor={7.5}
+                position={[0, 1.6, -14.5]}
+                style={{
+                    color: activeColor,
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    opacity: 0.4,
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                GAMING_INPUT: DUALSENSE_HOLOGRAPHIC_HUD
+            </Html>
+        </group>
+    );
+}
+
+// ── Ericsson Military Control Terminal Hologram (Coding Quest Category Page) ──
+function CodingShowcase({ activeColor }) {
+    const terminalRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/coding/scene.gltf');
+
+    // Auto-center + auto-scale the model via Box3
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.25,
+                });
+            }
+        });
+
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        // Desired display height ~7.0 units
+        const desiredHeight = 7.0;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (terminalRef.current) {
+            terminalRef.current.rotation.y = t * 0.12; // Slow rotation
+            terminalRef.current.rotation.x = Math.sin(t * 0.35) * 0.08; // Gentle sway tilt
+            terminalRef.current.position.y = 4.2 + Math.sin(t * 0.5) * 0.20; // Floating Y (lowered closer to camera path)
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.18;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.10;
+    });
+
+    return (
+        <group>
+            {/* Model centered then scaled, positioned in background */}
+            <group ref={terminalRef} position={[0, 4.2, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive
+                    object={model}
+                    position={[-offset.x, -offset.y, -offset.z]}
+                    rotation={[0.8, 0, 0]} // Tilted forward significantly so the screen faces the camera directly
+                />
+            </group>
+
+            {/* Orbiting rings */}
+            <mesh ref={ring1Ref} position={[0, 4.2, -14.8]}>
+                <ringGeometry args={[6.0, 6.06, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.2, -14.9]}>
+                <ringGeometry args={[4.6, 4.64, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+
+            <Html
+                transform
+                distanceFactor={7.5}
+                position={[0, 1.6, -14.5]}
+                style={{
+                    color: activeColor,
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    opacity: 0.4,
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                TERMINAL_UNIT: MILITARY_CONTROL_HUD
+            </Html>
+        </group>
+    );
+}
+
+// ── City Within the Stars Hologram (Creative & Design Category Page) ─────────
+function CivilShowcase({ activeColor }) {
+    const cityRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/civil/scene.gltf');
+
+    // Auto-center + auto-scale the model via Box3
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+
+        const meshes = [];
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.visible = true; // Show all parts of the optimized skyscraper
+                meshes.push(child);
+            }
+        });
+
+        // Apply pure neon wireframe materials matching other showcases
+        meshes.forEach((child) => {
+            child.material = new THREE.MeshBasicMaterial({
+                color: activeColor,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.25,
+            });
+
+            // Remove any remaining LineSegments overlays
+            const toRemove = child.children.filter(c => c.isLineSegments);
+            toRemove.forEach(c => child.remove(c));
+        });
+
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        // Desired display height ~14.0 units for a tall majestic skyscraper tower
+        const desiredHeight = 14.0;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (cityRef.current) {
+            cityRef.current.rotation.y = t * 0.08; // Very slow majestic spin
+            cityRef.current.rotation.x = Math.sin(t * 0.25) * 0.03 + 0.12; // Tighter vertical tilt for a tall tower
+            cityRef.current.position.y = 4.8 + Math.sin(t * 0.4) * 0.15; // Slow float
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.15;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.08;
+    });
+
+    return (
+        <group>
+            {/* Model centered then scaled, positioned in background */}
+            <group ref={cityRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive
+                    object={model}
+                    position={[-offset.x, -offset.y, -offset.z]}
+                    rotation={[0, 0, 0]}
+                />
+            </group>
+
+            {/* Orbiting rings */}
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[8.2, 8.28, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[6.2, 6.25, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+
+            <Html
+                transform
+                distanceFactor={7.5}
+                position={[0, 1.6, -14.5]}
+                style={{
+                    color: activeColor,
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    opacity: 0.4,
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                CIVIL_CORE: METROPOLIS_GRID_HUD
+            </Html>
+        </group>
+    );
+}
+
+// ── Transformer Hologram (Electrical Guild Category Page) ───────────────────
+function ElectricalShowcase({ activeColor }) {
+    const transformerRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/electrical/scene.gltf');
+
+    // Auto-center + auto-scale the model via Box3
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.10,
+                });
+            }
+        });
+
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        // Desired display height ~14.5 units (larger, matching the mecha and skyscraper)
+        const desiredHeight = 14.5;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (transformerRef.current) {
+            transformerRef.current.rotation.y = t * 0.12; // Slow rotation
+            transformerRef.current.rotation.x = Math.sin(t * 0.3) * 0.06 + 0.15; // Gentle sway tilt
+            transformerRef.current.position.y = 4.8 + Math.sin(t * 0.5) * 0.20; // Floating Y
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.18;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.10;
+    });
+
+    return (
+        <group>
+            {/* Model centered then scaled, positioned in background */}
+            <group ref={transformerRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive
+                    object={model}
+                    position={[-offset.x, -offset.y, -offset.z]}
+                    rotation={[0, 0, 0]}
+                />
+            </group>
+
+            {/* Orbiting rings */}
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[10.5, 10.58, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[8.0, 8.05, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+
+            <Html
+                transform
+                distanceFactor={7.5}
+                position={[0, 1.6, -14.5]}
+                style={{
+                    color: activeColor,
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    opacity: 0.4,
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                ELECTRICAL_CORE: TRANSFORMER_GRID_HUD
+            </Html>
+        </group>
+    );
+}
+
+// ── Cyber Brain Hologram (AI & Data Science Category Page) ──────────────────
+function AiShowcase({ activeColor }) {
+    const brainRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/ai/scene.gltf');
+
+    // Auto-center + auto-scale the model via Box3
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.10, // Reduced opacity for a subtle, elegant holographic glow
+                });
+            }
+        });
+
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        // Desired display height ~13.5 units
+        const desiredHeight = 13.5;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (brainRef.current) {
+            brainRef.current.rotation.y = t * 0.12; // Slow rotation
+            brainRef.current.rotation.x = Math.sin(t * 0.3) * 0.05 + 0.1; // Gentle sway tilt
+            brainRef.current.position.y = 4.8 + Math.sin(t * 0.5) * 0.20; // Floating Y
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.18;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.10;
+    });
+
+    return (
+        <group>
+            {/* Model centered then scaled, positioned in background */}
+            <group ref={brainRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive
+                    object={model}
+                    position={[-offset.x, -offset.y, -offset.z]}
+                    rotation={[0, 0, 0]}
+                />
+            </group>
+
+            {/* Orbiting rings */}
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[9.5, 9.58, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[7.2, 7.25, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+
+            <Html
+                transform
+                distanceFactor={7.5}
+                position={[0, 1.6, -14.5]}
+                style={{
+                    color: activeColor,
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    opacity: 0.4,
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                AI_CORE: NEURAL_BRAIN_HUD
+            </Html>
+        </group>
+    );
+}
+
 
 // ── Lobby Title Header ────────────────────────────────────────────────────────
 function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return null; // Completely hidden on mobile screens
+
+    const posY = selectedDivision ? 8.6 : 9.8;
+
     return (
-        <group position={[0, selectedDivision ? 8.6 : 9.8, -10.5]}>
+        <group position={[0, posY, -10.5]}>
             <mesh position={[0, -0.45, 0]}>
-                <planeGeometry args={[16, 0.03]} />
+                <planeGeometry args={[isMobile ? 2.8 : 16.0, 0.03]} />
                 <meshBasicMaterial color="#00d9ff" toneMapped={false} />
             </mesh>
             <Html
                 transform
-                distanceFactor={8.0}
+                distanceFactor={isMobile ? 27.0 : 8.0}
                 position={[0, 0, 0]}
                 style={{
-                    width: '750px',
+                    width: isMobile ? '240px' : '750px',
                     color: '#00d9ff',
                     textAlign: 'center',
                     fontFamily: 'monospace',
@@ -1287,10 +1811,10 @@ function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
                 }}
             >
                 <div style={{ textShadow: '0 0 10px rgba(0, 217, 255, 0.5)' }}>
-                    <div style={{ color: '#ffffff', opacity: 0.35, fontSize: '10px', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    <div style={{ color: '#ffffff', opacity: 0.35, fontSize: isMobile ? '4.5px' : '10px', letterSpacing: isMobile ? '1px' : '4px', textTransform: 'uppercase', marginBottom: '8px' }}>
                         // ACCESS TERMINAL SYNCED // SCTR_DATA_STREAM RESOLVED
                     </div>
-                    <div style={{ fontSize: '30px', fontWeight: 950, letterSpacing: '6px' }}>
+                    <div style={{ fontSize: isMobile ? '9px' : '30px', fontWeight: 950, letterSpacing: isMobile ? '2px' : '6px' }}>
                         {selectedDivision ? 'INITIALIZING' : 'ENGAGING'} SECTOR 0{sctrId}
                     </div>
                 </div>
@@ -1398,286 +1922,302 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 duration: 1.25,
                 delay: delay,
                 ease: 'back.out(1.1)'
-              });
+            });
 
-              gsap.to(cardRef.current.scale, {
-                  x: 1.0,
-                  y: 1.0,
-                  z: 1.0,
-                  duration: 1.25,
-                  delay: delay,
-                  ease: 'back.out(1.1)'
-              });
+            gsap.to(cardRef.current.scale, {
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+                duration: 1.25,
+                delay: delay,
+                ease: 'back.out(1.1)'
+            });
 
-              gsap.to(cardRef.current.rotation, {
-                  x: data.rot[0],
-                  y: data.rot[1],
-                  z: data.rot[2],
-                  duration: 1.25,
-                  delay: delay,
-                  ease: 'power3.out',
-                  onComplete: () => {
-                      setIsBlasting(false);
-                  }
-              });
-          }
-      }, [data.pos, data.rot, index]);
+            gsap.to(cardRef.current.rotation, {
+                x: data.rot[0],
+                y: data.rot[1],
+                z: data.rot[2],
+                duration: 1.25,
+                delay: delay,
+                ease: 'power3.out',
+                onComplete: () => {
+                    setIsBlasting(false);
+                }
+            });
+        }
+    }, [data.pos, data.rot, index]);
 
-      const currentAngle = useRef(null);
+    const currentAngle = useRef(null);
 
-      useEffect(() => {
-          currentAngle.current = null;
-      }, [selectedDivision]);
+    useEffect(() => {
+        currentAngle.current = null;
+    }, [selectedDivision]);
 
-      useFrame(({ clock }) => {
-          if (!cardRef.current || isTransitioning || isBlasting) return;
-          const t = clock.elapsedTime + index * 10;
+    useFrame(({ clock }) => {
+        if (!cardRef.current || isTransitioning || isBlasting) return;
+        const t = clock.elapsedTime + index * 10;
+        const isMobile = window.innerWidth < 768;
 
-          let targetX = data.pos[0];
-          let targetY = data.pos[1];
-          let targetZ = hovered ? data.pos[2] + 0.25 : data.pos[2];
+        let targetX = data.pos[0];
+        let targetY = data.pos[1];
+        let targetZ = (hovered && !isMobile) ? data.pos[2] + 0.25 : data.pos[2];
 
-          let baseRotY = data.rot[1];
+        let baseRotY = data.rot[1];
 
-          if (selectedDivision === null) {
-              const targetAngle = wrappedDiff * CAROUSEL_ANGLE_STEP;
-              if (currentAngle.current === null) {
-                  currentAngle.current = targetAngle;
-              }
-              const diffAngle = targetAngle - currentAngle.current;
-              const wrappedDiffAngle = Math.atan2(Math.sin(diffAngle), Math.cos(diffAngle));
-              currentAngle.current += wrappedDiffAngle * 0.05;
+        if (selectedDivision === null) {
+            if (isMobile) {
+                const targetAngle = wrappedDiff * CAROUSEL_ANGLE_STEP;
+                if (currentAngle.current === null) {
+                    currentAngle.current = targetAngle;
+                }
+                const diffAngle = targetAngle - currentAngle.current;
+                const wrappedDiffAngle = Math.atan2(Math.sin(diffAngle), Math.cos(diffAngle));
+                const lerpSpeed = 0.18;
+                currentAngle.current += wrappedDiffAngle * lerpSpeed;
 
-              baseRotY = -currentAngle.current * 0.75;
-              targetX = Math.sin(currentAngle.current) * CAROUSEL_RADIUS;
-              const baseZ = Math.cos(currentAngle.current) * CAROUSEL_RADIUS - CAROUSEL_RADIUS - CAROUSEL_OFFSET_Z;
-              targetZ = hovered ? baseZ + 0.25 : baseZ;
-              targetY = 3.3;
-          }
+                baseRotY = -currentAngle.current * 0.75;
+                targetX = Math.sin(currentAngle.current) * CAROUSEL_RADIUS;
+                const baseZ = Math.cos(currentAngle.current) * CAROUSEL_RADIUS - CAROUSEL_RADIUS - CAROUSEL_OFFSET_Z;
+                targetZ = (hovered) ? baseZ + 0.25 : baseZ;
+                targetY = 3.3;
+            } else {
+                // On laptop/desktop, bypass circular/cylindrical interpolation path.
+                // Using Cartesian targets directly moves cards in a straight line.
+                targetX = data.pos[0];
+                targetZ = (hovered) ? data.pos[2] + 0.25 : data.pos[2];
+                targetY = 3.3;
+                baseRotY = data.rot[1];
+            }
+        }
 
-          const targetScale = hovered ? 1.03 : 1.0;
+        const targetScale = (hovered && !isMobile) ? 1.03 : 1.0;
 
-          const targetRotX = hovered ? 0.02 : 0;
-          const targetRotY = hovered ? baseRotY - 0.02 : baseRotY;
-          const targetRotZ = 0;
+        const targetRotX = (hovered && !isMobile) ? 0.02 : 0;
+        const targetRotY = (hovered && !isMobile) ? baseRotY - 0.02 : baseRotY;
+        const targetRotZ = 0;
 
-          // Smoothly interpolate current state to targets (0.05 for liquid-smooth hydraulic transition)
-          cardRef.current.position.x = THREE.MathUtils.lerp(cardRef.current.position.x, targetX, 0.05);
-          cardRef.current.position.y = THREE.MathUtils.lerp(cardRef.current.position.y, targetY, 0.05);
-          cardRef.current.position.z = THREE.MathUtils.lerp(cardRef.current.position.z, targetZ, 0.05);
+        // Smoothly interpolate current state to targets (0.05 for liquid-smooth hydraulic transition)
+        cardRef.current.position.x = THREE.MathUtils.lerp(cardRef.current.position.x, targetX, 0.05);
+        cardRef.current.position.y = THREE.MathUtils.lerp(cardRef.current.position.y, targetY, 0.05);
+        cardRef.current.position.z = THREE.MathUtils.lerp(cardRef.current.position.z, targetZ, 0.05);
 
-          scaleVec.set(targetScale, targetScale, targetScale);
-          cardRef.current.scale.lerp(scaleVec, 0.05);
+        scaleVec.set(targetScale, targetScale, targetScale);
+        cardRef.current.scale.lerp(scaleVec, 0.05);
 
-          cardRef.current.rotation.x = THREE.MathUtils.lerp(cardRef.current.rotation.x, targetRotX, 0.05);
-          cardRef.current.rotation.y = THREE.MathUtils.lerp(cardRef.current.rotation.y, targetRotY, 0.05);
-          cardRef.current.rotation.z = THREE.MathUtils.lerp(cardRef.current.rotation.z, targetRotZ, 0.05);
+        cardRef.current.rotation.x = THREE.MathUtils.lerp(cardRef.current.rotation.x, targetRotX, 0.05);
+        cardRef.current.rotation.y = THREE.MathUtils.lerp(cardRef.current.rotation.y, targetRotY, 0.05);
+        cardRef.current.rotation.z = THREE.MathUtils.lerp(cardRef.current.rotation.z, targetRotZ, 0.05);
 
-          // Spin crystal faster when hovered
-          if (crystalRef.current) {
-              crystalRef.current.rotation.x = t * (hovered ? 1.1 : 0.4);
-              crystalRef.current.rotation.y = t * (hovered ? 1.6 : 0.65);
-          }
+        // Spin crystal faster when hovered
+        if (crystalRef.current) {
+            crystalRef.current.rotation.x = t * (hovered ? 1.1 : 0.4);
+            crystalRef.current.rotation.y = t * (hovered ? 1.6 : 0.65);
+        }
 
-          // Pulse the neon tubes' brightness
-          if (laserRef.current) {
-              laserRef.current.opacity = (isActive ? 0.75 : 0.25) + Math.sin(t * 6.0) * 0.15;
-          }
-      });
+        // Pulse the neon tubes' brightness
+        if (laserRef.current) {
+            laserRef.current.opacity = (isActive ? 0.75 : 0.25) + Math.sin(t * 6.0) * 0.15;
+        }
+    });
 
-      // Opacity filters
-      const finalOpacity = isActive ? (hovered ? 0.6 : 0.4) : (Math.abs(wrappedDiff) === 1 ? 0.12 : 0.03);
-      const frameOpacity = isActive ? (hovered ? 1.0 : 0.6) : (Math.abs(wrappedDiff) === 1 ? 0.3 : 0.08);
+    // Opacity filters
+    const finalOpacity = isActive ? (hovered ? 0.6 : 0.4) : (Math.abs(wrappedDiff) === 1 ? 0.12 : 0.03);
+    const frameOpacity = isActive ? (hovered ? 1.0 : 0.6) : (Math.abs(wrappedDiff) === 1 ? 0.3 : 0.08);
 
-      return (
-          <group>
-              <group ref={cardRef} position={data.pos} rotation={data.rot}>
-                  {/* 1. Floating Crystal behind the card */}
-                  <mesh ref={crystalRef} position={[0, 0, -1.8]} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
-                      <boxGeometry args={[0.9, 0.9, 0.9]} />
-                      <meshBasicMaterial color={data.color} wireframe transparent opacity={isActive ? (hovered ? 0.45 : 0.22) : 0.05} />
-                  </mesh>
+    return (
+        <group>
+            <group ref={cardRef} position={data.pos} rotation={data.rot}>
+                {/* 1. Floating Crystal behind the card */}
+                <mesh ref={crystalRef} position={[0, 0, -1.8]} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
+                    <boxGeometry args={[0.9, 0.9, 0.9]} />
+                    <meshBasicMaterial color={data.color} wireframe transparent opacity={isActive ? (hovered ? 0.45 : 0.22) : 0.05} />
+                </mesh>
 
-                  {/* 2. Glassmorphic 3D Box Panel (Dynamically handles pointer hover & clicking on the moving card!) */}
-                  <mesh
-                      geometry={cardGeo}
-                      onPointerOver={(e) => {
-                          if (isTransitioning || isBlasting) return;
-                          e.stopPropagation();
-                          setMeshHovered(true);
-                      }}
-                      onPointerOut={(e) => {
-                          e.stopPropagation();
-                          setMeshHovered(false);
-                      }}
-                      onClick={(e) => {
-                          if (isTransitioning || isBlasting) return;
-                          e.stopPropagation();
-                          onClickCard();
-                      }}
-                  >
-                      <meshPhysicalMaterial
-                          color="#04091a"
-                          transmission={0.88}
-                          opacity={finalOpacity}
-                          transparent
-                          roughness={0.1}
-                          metalness={0.25}
-                          ior={1.25}
-                          thickness={0.8}
-                          side={THREE.DoubleSide}
-                      />
-                  </mesh>
+                {/* 2. Glassmorphic 3D Box Panel (Dynamically handles pointer hover & clicking on the moving card!) */}
+                <mesh
+                    geometry={cardGeo}
+                    onPointerOver={(e) => {
+                        if (isTransitioning || isBlasting) return;
+                        e.stopPropagation();
+                        setMeshHovered(true);
+                    }}
+                    onPointerOut={(e) => {
+                        e.stopPropagation();
+                        setMeshHovered(false);
+                    }}
+                    onClick={(e) => {
+                        if (isTransitioning || isBlasting) return;
+                        e.stopPropagation();
+                        onClickCard();
+                    }}
+                >
+                    <meshPhysicalMaterial
+                        color="#04091a"
+                        transmission={0.88}
+                        opacity={finalOpacity}
+                        transparent
+                        roughness={0.1}
+                        metalness={0.25}
+                        ior={1.25}
+                        thickness={0.8}
+                        side={THREE.DoubleSide}
+                    />
+                </mesh>
 
-                  {/* 3. Glowing Neon Wire Border Frame */}
-                  <lineSegments geometry={cardEdgesGeo}>
-                      <lineBasicMaterial color={data.color} linewidth={isActive && hovered ? 4.0 : 2.0} opacity={frameOpacity} transparent />
-                  </lineSegments>
+                {/* 3. Glowing Neon Wire Border Frame */}
+                <lineSegments geometry={cardEdgesGeo}>
+                    <lineBasicMaterial color={data.color} linewidth={isActive && hovered ? 4.0 : 2.0} opacity={frameOpacity} transparent />
+                </lineSegments>
 
-                  {/* Glowing Vertical Neon Tubes on the sides */}
-                  <mesh position={[-1.9, 0, 0.06]} geometry={tubeGeo}>
-                      <meshBasicMaterial ref={laserRef} color={data.color} toneMapped={false} transparent opacity={isActive ? 0.8 : 0.25} />
-                  </mesh>
-                  <mesh position={[1.9, 0, 0.06]} geometry={tubeGeo}>
-                      <meshBasicMaterial color={data.color} toneMapped={false} transparent opacity={isActive ? 0.8 : 0.25} />
-                  </mesh>
+                {/* Glowing Vertical Neon Tubes on the sides */}
+                <mesh position={[-1.9, 0, 0.06]} geometry={tubeGeo}>
+                    <meshBasicMaterial ref={laserRef} color={data.color} toneMapped={false} transparent opacity={isActive ? 0.8 : 0.25} />
+                </mesh>
+                <mesh position={[1.9, 0, 0.06]} geometry={tubeGeo}>
+                    <meshBasicMaterial color={data.color} toneMapped={false} transparent opacity={isActive ? 0.8 : 0.25} />
+                </mesh>
 
-                  {/* Corner brackets */}
-                  <CornerBracket pos={[-1.85, 3.05, 0.06]} color={data.color} opacity={isActive ? 1.0 : 0.3} />
-                  <CornerBracket pos={[1.85, 3.05, 0.06]} color={data.color} rotation={[0, 0, -Math.PI / 2]} opacity={isActive ? 1.0 : 0.3} />
-                  <CornerBracket pos={[-1.85, -3.05, 0.06]} color={data.color} rotation={[0, 0, Math.PI / 2]} opacity={isActive ? 1.0 : 0.3} />
-                  <CornerBracket pos={[1.85, -3.05, 0.06]} color={data.color} rotation={[0, 0, Math.PI]} opacity={isActive ? 1.0 : 0.3} />
+                {/* Corner brackets */}
+                <CornerBracket pos={[-1.85, 3.05, 0.06]} color={data.color} opacity={isActive ? 1.0 : 0.3} />
+                <CornerBracket pos={[1.85, 3.05, 0.06]} color={data.color} rotation={[0, 0, -Math.PI / 2]} opacity={isActive ? 1.0 : 0.3} />
+                <CornerBracket pos={[-1.85, -3.05, 0.06]} color={data.color} rotation={[0, 0, Math.PI / 2]} opacity={isActive ? 1.0 : 0.3} />
+                <CornerBracket pos={[1.85, -3.05, 0.06]} color={data.color} rotation={[0, 0, Math.PI]} opacity={isActive ? 1.0 : 0.3} />
 
-                  {/* Inner Tech Grid Lines */}
-                  <mesh position={[0, 0, 0.005]} geometry={innerGridGeo}>
-                      <meshBasicMaterial color={data.color} wireframe transparent opacity={isActive ? 0.07 : 0.015} />
-                  </mesh>
+                {/* Inner Tech Grid Lines */}
+                <mesh position={[0, 0, 0.005]} geometry={innerGridGeo}>
+                    <meshBasicMaterial color={data.color} wireframe transparent opacity={isActive ? 0.07 : 0.015} />
+                </mesh>
 
-                  {/* 4. Text Content Overlay */}
-                  <Html
-                      transform
-                      distanceFactor={4.6}
-                      position={[0, 0, 0.1]}
-                      style={{
-                          width: '290px',
-                          color: '#ffffff',
-                          fontFamily: 'sans-serif',
-                          textAlign: 'center',
-                          userSelect: 'none',
-                          pointerEvents: 'none',
-                      }}
-                  >
-                      <div style={{
-                          padding: '15px 20px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          transition: 'all 0.3s ease',
-                          pointerEvents: 'none'
-                      }}>
-                          <div style={{
-                              marginBottom: '12px',
-                              filter: isActive && hovered ? `drop-shadow(0 0 8px ${data.color})` : 'none',
-                              transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : 'none',
-                              transition: 'transform 0.3s ease',
-                              opacity: isActive ? 1.0 : 0.35
-                          }}>
-                              {data.icon(data.color)}
-                          </div>
+                {/* 4. Text Content Overlay */}
+                <Html
+                    transform
+                    distanceFactor={4.6}
+                    position={[0, 0, 0.1]}
+                    style={{
+                        width: '290px',
+                        color: '#ffffff',
+                        fontFamily: 'sans-serif',
+                        textAlign: 'center',
+                        userSelect: 'none',
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <div style={{
+                        padding: '15px 20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        transition: 'all 0.3s ease',
+                        pointerEvents: 'none'
+                    }}>
+                        <div style={{
+                            marginBottom: '12px',
+                            filter: isActive && hovered ? `drop-shadow(0 0 8px ${data.color})` : 'none',
+                            transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : 'none',
+                            transition: 'transform 0.3s ease',
+                            opacity: isActive ? 1.0 : 0.35
+                        }}>
+                            {data.icon(data.color)}
+                        </div>
 
-                          <h2 style={{
-                              color: data.color,
-                              margin: '0 0 6px 0',
-                              fontSize: '18px',
-                              fontWeight: 950,
-                              letterSpacing: '1px',
-                              textTransform: 'uppercase',
-                              textShadow: isActive && hovered ? `0 0 10px ${data.color}` : 'none',
-                              lineHeight: 1.2,
-                              opacity: isActive ? 1.0 : 0.45
-                          }}>
-                              {data.title}
-                          </h2>
+                        <h2 style={{
+                            color: data.color,
+                            margin: '0 0 6px 0',
+                            fontSize: '18px',
+                            fontWeight: 950,
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase',
+                            textShadow: isActive && hovered ? `0 0 10px ${data.color}` : 'none',
+                            lineHeight: 1.2,
+                            opacity: isActive ? 1.0 : 0.45
+                        }}>
+                            {data.title}
+                        </h2>
 
-                          <h3 style={{
-                              color: '#ffffff',
-                              opacity: isActive ? (hovered ? 1.0 : 0.8) : 0.25,
-                              margin: '0 0 14px 0',
-                              fontSize: '10px',
-                              fontWeight: 800,
-                              letterSpacing: '1px',
-                              textTransform: 'uppercase',
-                          }}>
-                              {data.subtitle}
-                          </h3>
+                        <h3 style={{
+                            color: '#ffffff',
+                            opacity: isActive ? (hovered ? 1.0 : 0.8) : 0.25,
+                            margin: '0 0 14px 0',
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase',
+                        }}>
+                            {data.subtitle}
+                        </h3>
 
-                          {/* Detail fields are only visible on active categories or sub-events */}
-                          {isActive && (
-                              <>
-                                  <p style={{
-                                      color: '#ffffff',
-                                      opacity: hovered ? 0.8 : 0.55,
-                                      fontSize: '11px',
-                                      lineHeight: 1.3,
-                                      margin: '0 0 24px 0',
-                                      minHeight: '44px'
-                                  }}>
-                                      {data.desc}
-                                  </p>
+                        {/* Detail fields are only visible on active categories or sub-events */}
+                        {isActive && (
+                            <>
+                                <p style={{
+                                    color: '#ffffff',
+                                    opacity: hovered ? 0.8 : 0.55,
+                                    fontSize: '11px',
+                                    lineHeight: 1.3,
+                                    margin: '0 0 24px 0',
+                                    minHeight: '44px'
+                                }}>
+                                    {data.desc}
+                                </p>
 
-                                  {/* Launch / Register Button */}
-                                  <div
-                                      onMouseEnter={() => setBtnHovered(true)}
-                                      onMouseLeave={() => setBtnHovered(false)}
-                                      onClick={(e) => {
-                                          e.stopPropagation();
-                                          onLaunch(data);
-                                      }}
-                                      className="cursor-pointer"
-                                      style={{
-                                          border: `1.5px solid ${data.color}`,
-                                          background: hovered ? `${data.color}35` : `${data.color}18`,
-                                          padding: '8px 14px',
-                                          fontSize: '10px',
-                                          fontWeight: 900,
-                                          color: hovered ? '#ffffff' : data.color,
-                                          letterSpacing: '1px',
-                                          textTransform: 'uppercase',
-                                          borderRadius: '4px',
-                                          boxShadow: hovered ? `0 0 15px ${data.color}44` : 'none',
-                                          transition: 'all 0.3s ease',
-                                          userSelect: 'none',
-                                          pointerEvents: 'auto'
-                                      }}
-                                  >
-                                      {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
-                                  </div>
-                              </>
-                          )}
-                      </div>
-                  </Html>
-              </group>
-          </group>
-      );
-  });
+                                {/* Launch / Register Button */}
+                                <div
+                                    onMouseEnter={() => setBtnHovered(true)}
+                                    onMouseLeave={() => setBtnHovered(false)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onLaunch(data);
+                                    }}
+                                    className="cursor-pointer"
+                                    style={{
+                                        border: `1.5px solid ${data.color}`,
+                                        background: hovered ? `${data.color}35` : `${data.color}18`,
+                                        padding: '8px 14px',
+                                        fontSize: '10px',
+                                        fontWeight: 900,
+                                        color: hovered ? '#ffffff' : data.color,
+                                        letterSpacing: '1px',
+                                        textTransform: 'uppercase',
+                                        borderRadius: '4px',
+                                        boxShadow: hovered ? `0 0 15px ${data.color}44` : 'none',
+                                        transition: 'all 0.3s ease',
+                                        userSelect: 'none',
+                                        pointerEvents: 'auto'
+                                    }}
+                                >
+                                    {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </Html>
+            </group>
+        </group>
+    );
+});
 
-  // Decorative L-bracket corner elements
-  function CornerBracket({ pos, color, rotation = [0, 0, 0], opacity = 1.0 }) {
-      const points = useMemo(() => [
-          new THREE.Vector3(-0.3, 0, 0),
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(0, -0.3, 0)
-      ], []);
+// Decorative L-bracket corner elements
+function CornerBracket({ pos, color, rotation = [0, 0, 0], opacity = 1.0 }) {
+    const points = useMemo(() => [
+        new THREE.Vector3(-0.3, 0, 0),
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, -0.3, 0)
+    ], []);
 
-      const lineGeo = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
+    const lineGeo = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
 
-      return (
-          <line position={pos} rotation={rotation} geometry={lineGeo}>
-              <lineBasicMaterial color={color} linewidth={3.0} transparent opacity={opacity} />
-          </line>
-      );
-  }
+    return (
+        <line position={pos} rotation={rotation} geometry={lineGeo}>
+            <lineBasicMaterial color={color} linewidth={3.0} transparent opacity={opacity} />
+        </line>
+    );
+}
 
 // Pre-load assets to avoid stuttering
 useGLTF.preload('/models/gun/scene.gltf');
 useGLTF.preload('/models/mecha/scene.gltf');
+useGLTF.preload('/models/controller/scene.gltf');
+useGLTF.preload('/models/coding/scene.gltf');
+useGLTF.preload('/models/civil/scene.gltf');
+useGLTF.preload('/models/electrical/scene.gltf');
+useGLTF.preload('/models/ai/scene.gltf');

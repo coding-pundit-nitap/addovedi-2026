@@ -3,7 +3,7 @@
  * and solidify into bright, bold, clean text meshes in front of the camera.
  */
 
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text3D, Center } from '@react-three/drei';
 import * as THREE from 'three';
@@ -89,6 +89,15 @@ export default function TextParticles() {
     const showTextParticles = useStore(s => s.showTextParticles);
     const isEntered         = useStore(s => s.isEntered);
 
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    const isMobile = width < 768;
+    const responsiveScale = isMobile ? 0.45 : 1.0;
+
     const geoRef        = useRef();
     const matRef        = useRef();
     const textMatRefA   = useRef();  // "ADD" — blue
@@ -165,20 +174,19 @@ export default function TextParticles() {
 
             // Target: letter pixel position at Z = -5.2
             const px = mainPixels[i % mainPixels.length];
-            const tx = px[0] * MAIN_SCALE;
-            const ty = px[1] * MAIN_SCALE + MAIN_Y;
+            const tx = px[0] * MAIN_SCALE * responsiveScale;
+            const ty = px[1] * MAIN_SCALE * responsiveScale + MAIN_Y * responsiveScale;
             targetPos[i * 3]     = tx;
             targetPos[i * 3 + 1] = ty;
             targetPos[i * 3 + 2] = TEXT_Z;
 
-            const dx = tx, dy = ty - MAIN_Y;
+            const dx = tx, dy = ty - MAIN_Y * responsiveScale;
             rawDist[i] = Math.sqrt(dx * dx + dy * dy);
 
-            // Colour: red for ADD (negative X), blue for VEDI (positive X)
-            const col = tx < 0 ? COL_RED : COL_BLUE;
-            colArr[i * 3]     = col.r;
-            colArr[i * 3 + 1] = col.g;
-            colArr[i * 3 + 2] = col.b;
+            // Colour: pure white for ADDOVEDI particles
+            colArr[i * 3]     = 1.0;
+            colArr[i * 3 + 1] = 1.0;
+            colArr[i * 3 + 2] = 1.0;
         }
 
         // ── 2026 particles ────────────────────────────────────────────────────
@@ -193,17 +201,17 @@ export default function TextParticles() {
             burstPos[i * 3 + 2] = BURST_Z + (Math.random() - 0.5) * BURST_JITTER * 0.5;
 
             const px = pixels2026[li % pixels2026.length];
-            const tx = px[0] * Y2026_SCALE;
-            const ty = px[1] * Y2026_SCALE + Y2026_Y;
+            const tx = px[0] * Y2026_SCALE * responsiveScale;
+            const ty = px[1] * Y2026_SCALE * responsiveScale + Y2026_Y * responsiveScale;
             targetPos[i * 3]     = tx;
             targetPos[i * 3 + 1] = ty;
             targetPos[i * 3 + 2] = TEXT_Z; // Align with ADD and VEDI depth plane
 
-            const dx = tx, dy = ty - Y2026_Y;
+            const dx = tx, dy = ty - Y2026_Y * responsiveScale;
             rawDist[i] = Math.sqrt(dx * dx + dy * dy);
 
             // Subtle cyan / pink tints for digits
-            const charX = (tx + 1.8) / 3.6;  // 0->1 across 2026 width
+            const charX = (tx + 1.8 * responsiveScale) / (3.6 * responsiveScale + 0.001);  // 0->1 across 2026 width
             const isCyan = charX < 0.25 || (charX > 0.5 && charX < 0.75);
             const tint = isCyan ? new THREE.Color('#c6f5ff') : new THREE.Color('#ffc2e8');
             colArr[i * 3]     = tint.r;
@@ -221,7 +229,7 @@ export default function TextParticles() {
         }
 
         return { burstPos, targetPos, delays, colArr };
-    }, [mainPixels, pixels2026]);
+    }, [mainPixels, pixels2026, responsiveScale]);
 
     // ── Trigger particle animation ────────────────────────────────────────────
     useEffect(() => {
@@ -385,7 +393,7 @@ export default function TextParticles() {
             // Emissive color is kept at white #ffffff to allow the gradient emissiveMap to shine in its native colors
             textMatRefA.current.emissive.setHex(0xffffff);
             // Softer emissive intensity to preserve the glossy metallic specular reflections
-            textMatRefA.current.emissiveIntensity = 0.45 + Math.sin(time * 2.2) * 0.12;
+            textMatRefA.current.emissiveIntensity = 0.15 + Math.sin(time * 2.2) * 0.04;
         }
 
         // Cycle coolness palette for "VEDI" and "2026"
@@ -399,7 +407,7 @@ export default function TextParticles() {
         
         if (textMatRefV.current) {
             textMatRefV.current.emissive.setHex(0xffffff);
-            textMatRefV.current.emissiveIntensity = 0.45 + Math.sin(time * 1.8) * 0.12;
+            textMatRefV.current.emissiveIntensity = 0.15 + Math.sin(time * 1.8) * 0.04;
         }
         
         if (tagMatRef.current) {
@@ -408,8 +416,10 @@ export default function TextParticles() {
         }
     });
 
+    const posX = isMobile ? -0.15 : 0.0;
+
     return (
-        <>
+        <group position={[posX, 0, 0]}>
             {/* Particles layer */}
             <points frustumCulled={false}>
                 <bufferGeometry ref={geoRef}>
@@ -441,27 +451,25 @@ export default function TextParticles() {
 
             <group ref={textGroupRef}>
                 {/* ── "ADD" — solid 3D red, left of sun gap ── */}
-                <Center position={[-4.6, MAIN_Y, TEXT_Z + 0.05]}>
+                <Center position={[-4.6 * responsiveScale, MAIN_Y * responsiveScale, TEXT_Z + 0.05]}>
                     <Text3D
                         font="/fonts/ethnocentric_bold.typeface.json"
-                        size={1.5}
-                        height={0.28}
+                        size={1.5 * responsiveScale}
+                        height={0.28 * responsiveScale}
                         curveSegments={5}
                         bevelEnabled
-                        bevelThickness={0.03}
-                        bevelSize={0.02}
+                        bevelThickness={0.03 * responsiveScale}
+                        bevelSize={0.02 * responsiveScale}
                         bevelSegments={2}
                     >
                         ADD
                         <meshStandardMaterial
                             ref={textMatRefA}
-                            color="#e2e8f0"
-                            map={leftGradientTex}
+                            color="#ffffff"
                             emissive="#ffffff"
-                            emissiveMap={leftGradientTex}
-                            emissiveIntensity={0.45}
-                            metalness={1.0}
-                            roughness={0.05}
+                            emissiveIntensity={0.15}
+                            metalness={0.4}
+                            roughness={0.1}
                             toneMapped={false}
                             transparent
                             opacity={0}
@@ -470,27 +478,25 @@ export default function TextParticles() {
                 </Center>
 
                 {/* ── "VEDI" — solid 3D blue, right of sun gap ── */}
-                <Center position={[5.3, MAIN_Y, TEXT_Z + 0.05]}>
+                <Center position={[5.3 * responsiveScale, MAIN_Y * responsiveScale, TEXT_Z + 0.05]}>
                     <Text3D
                         font="/fonts/ethnocentric_bold.typeface.json"
-                        size={1.5}
-                        height={0.28}
+                        size={1.5 * responsiveScale}
+                        height={0.28 * responsiveScale}
                         curveSegments={5}
                         bevelEnabled
-                        bevelThickness={0.03}
-                        bevelSize={0.02}
+                        bevelThickness={0.03 * responsiveScale}
+                        bevelSize={0.02 * responsiveScale}
                         bevelSegments={2}
                     >
                         VEDI
                         <meshStandardMaterial
                             ref={textMatRefV}
-                            color="#e2e8f0"
-                            map={rightGradientTex}
+                            color="#ffffff"
                             emissive="#ffffff"
-                            emissiveMap={rightGradientTex}
-                            emissiveIntensity={0.45}
-                            metalness={1.0}
-                            roughness={0.05}
+                            emissiveIntensity={0.15}
+                            metalness={0.4}
+                            roughness={0.1}
                             toneMapped={false}
                             transparent
                             opacity={0}
@@ -499,15 +505,15 @@ export default function TextParticles() {
                 </Center>
 
                 {/* ── "2026" — solid 3D tag ── */}
-                <Center position={[0, Y2026_Y, TEXT_Z + 0.05]}>
+                <Center position={[0, Y2026_Y * responsiveScale, TEXT_Z + 0.05]}>
                     <Text3D
                         font="/fonts/ethnocentric_bold.typeface.json"
-                        size={0.36}
-                        height={0.08}
+                        size={0.36 * responsiveScale}
+                        height={0.08 * responsiveScale}
                         curveSegments={5}
                         bevelEnabled
-                        bevelThickness={0.015}
-                        bevelSize={0.01}
+                        bevelThickness={0.015 * responsiveScale}
+                        bevelSize={0.01 * responsiveScale}
                         bevelSegments={2}
                     >
                         2026
@@ -525,6 +531,6 @@ export default function TextParticles() {
                     </Text3D>
                 </Center>
             </group>
-        </>
+        </group>
     );
 }
