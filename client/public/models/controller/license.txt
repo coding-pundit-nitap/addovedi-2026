@@ -1,0 +1,11 @@
+Model Information:
+* title:	PS5 Controller
+* source:	https://sketchfab.com/3d-models/ps5-controller-b7bb9c5102a04cb0b1966c6d02bad7d6
+* author:	Taohid Animation (https://sketchfab.com/taohidanimation)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PS5 Controller" (https://sketchfab.com/3d-models/ps5-controller-b7bb9c5102a04cb0b1966c6d02bad7d6) by Taohid Animation (https://sketchfab.com/taohidanimation) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

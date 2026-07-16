@@ -1,0 +1,11 @@
+Model Information:
+* title:	Transformer (Survarium)
+* source:	https://sketchfab.com/3d-models/transformer-survarium-c75b355edd864b9eb4454235cd988961
+* author:	Vitaliy Kovalchuk (https://sketchfab.com/Domender)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Transformer (Survarium)" (https://sketchfab.com/3d-models/transformer-survarium-c75b355edd864b9eb4454235cd988961) by Vitaliy Kovalchuk (https://sketchfab.com/Domender) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

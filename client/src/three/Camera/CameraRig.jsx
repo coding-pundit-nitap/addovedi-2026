@@ -26,14 +26,23 @@ export default function CameraRig() {
     const tlRef = useRef(null);
 
     useEffect(() => {
+        const isMobile = window.innerWidth < 768;
+        const responsiveScale = isMobile ? 0.45 : 1.0;
+
         if (tlRef.current) {
             tlRef.current.kill();
             tlRef.current = null;
         }
 
         if (isEntered) {
-            // Direct load bypass check: if page is loaded directly at /event, position camera instantly inside VR lobby
-            if (useStore.getState().isEventPage && phaseRef.current === 'idle') {
+            // Guard: if we are already in warping or inside state, don't restart the animation!
+            if (phaseRef.current === 'warping' || phaseRef.current === 'inside') {
+                return;
+            }
+
+            const isAtEventRoute = location.pathname.startsWith('/event');
+            // Direct load or instant navbar click bypass: if we are at /event route, position camera instantly inside VR lobby
+            if (isAtEventRoute && phaseRef.current === 'idle') {
                 phaseRef.current = 'inside';
                 camera.position.set(0, 0.4, 0);
                 camera.rotation.set(0.42, 0, 0);
@@ -113,7 +122,7 @@ export default function CameraRig() {
 
             // ── Phase 1b: Rise straight up toward gun (2.5 → 3.5s) ──────────
             tl.to(camera.position, {
-                x: 0, y: 36, z: -145,
+                x: 0, y: 36 * responsiveScale, z: -145,
                 duration: 1.0,
                 ease: 'power2.out',
             }, 2.5);
@@ -137,7 +146,7 @@ export default function CameraRig() {
             // ── Phase 2: 2s Reveal Break — gun side profile straight ahead (3.5 → 5.5s) ──
             // Camera is centered at X=0; gun rotation.y = PI/2 shows its side profile perfectly
             tl.to(camera.position, {
-                x: 0, y: 38, z: -148,
+                x: 0, y: 38 * responsiveScale, z: -148,
                 duration: 2.0,
                 ease: 'sine.inOut',
             }, 3.5);
@@ -150,7 +159,7 @@ export default function CameraRig() {
 
             // ── Phase 3: Gun rotates to face barrel at camera (5.5 → 7.3s) ──
             tl.to(camera.position, {
-                x: 0, y: 38, z: -184,
+                x: 0, y: 38 * responsiveScale, z: -184,
                 duration: 1.8,
                 ease: 'power2.inOut',
             }, 5.5);
@@ -167,7 +176,7 @@ export default function CameraRig() {
             tl.call(() => useStore.getState().setShowSun(false), [], 7.3);
 
             tl.to(camera.position, {
-                x: 0, y: 38, z: -226,
+                x: 0, y: 38 * responsiveScale, z: -226,
                 duration: 1.5,
                 ease: 'power3.in',
             }, 7.3);
@@ -189,7 +198,7 @@ export default function CameraRig() {
                     setIsEventPage(false);
 
                     // Reset camera position to the barrel muzzle mouth to start exit glide
-                    camera.position.set(0, 38, -226);
+                    camera.position.set(0, 38 * responsiveScale, -226);
                     camera.rotation.set(0, 0, 0);
 
                     const exitTl = gsap.timeline({
@@ -241,16 +250,19 @@ export default function CameraRig() {
                 tlRef.current = null;
             }
         };
-    }, [isEntered]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isEntered, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useFrame(state => {
+        const isMobile = window.innerWidth < 768;
+        const motionMult = isMobile ? 0.0 : 1.0;
+
         if (phaseRef.current === 'inside') {
             const time = state.clock.elapsedTime;
             const shake = useStore.getState().shakeIntensity;
 
-            // Subtle, game-lobby style camera breathing motion
-            const breathingY = Math.sin(time * 0.75) * 0.08;
-            const breathingX = Math.cos(time * 0.6) * 0.04;
+            // Subtle, game-lobby style camera breathing motion (scaled on mobile)
+            const breathingY = Math.sin(time * 0.75) * 0.08 * motionMult;
+            const breathingX = Math.cos(time * 0.6) * 0.04 * motionMult;
 
             // Check if we are inside a category or sub-event deck
             const pathParts = location.pathname.split('/').filter(Boolean);
@@ -262,15 +274,16 @@ export default function CameraRig() {
             const targetRotX = 0.32;
 
             if (shake > 0) {
-                const shakeX = (Math.sin(time * 85) + Math.cos(time * 145)) * 0.7 * shake;
-                const shakeY = (Math.cos(time * 105) + Math.sin(time * 165)) * 1.3 * shake;
-                const shakeZ = Math.sin(time * 125) * 0.6 * shake;
+                const shakeMult = isMobile ? 0.4 : 1.0;
+                const shakeX = (Math.sin(time * 85) + Math.cos(time * 145)) * 0.7 * shake * shakeMult;
+                const shakeY = (Math.cos(time * 105) + Math.sin(time * 165)) * 1.3 * shake * shakeMult;
+                const shakeZ = Math.sin(time * 125) * 0.6 * shake * shakeMult;
 
                 camera.position.set(targetX + shakeX, targetY + shakeY, targetZ + shakeZ);
                 camera.rotation.set(
-                    targetRotX + (Math.sin(time * 95) + Math.cos(time * 135)) * 0.07 * shake,
-                    (Math.cos(time * 115) + Math.sin(time * 155)) * 0.05 * shake,
-                    (Math.sin(time * 135) * 0.05) * shake
+                    targetRotX + (Math.sin(time * 95) + Math.cos(time * 135)) * 0.07 * shake * shakeMult,
+                    (Math.cos(time * 115) + Math.sin(time * 155)) * 0.05 * shake * shakeMult,
+                    (Math.sin(time * 135) * 0.05) * shake * shakeMult
                 );
             } else {
                 camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.08);
@@ -289,19 +302,19 @@ export default function CameraRig() {
         const time = state.clock.elapsedTime;
         const speed = window.tunnelSpeed || 2;
 
-        // Stiff racing car suspension sways (tighter lateral and vertical float)
-        const swayX = Math.sin(time * 0.48) * 0.45;
-        const swayY = Math.cos(time * 0.56) * 0.15;
+        // Stiff racing car suspension sways (tighter lateral and vertical float, scaled on mobile)
+        const swayX = Math.sin(time * 0.48) * 0.45 * motionMult;
+        const swayY = Math.cos(time * 0.56) * 0.15 * motionMult;
 
         // Base eye-level Y sits low to the ground (Y = -1.0, which is 1.0 unit above the asphalt) inside the driver's cockpit
         camera.position.x = THREE.MathUtils.lerp(camera.position.x, swayX, 0.06);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, -1.0 + swayY, 0.06);
 
-        // High-frequency engine rumble and road vibration (scales up at high velocities)
-        const engineRumble = Math.sin(time * 85) * 0.004 * (speed / 18 + 0.25);
+        // High-frequency engine rumble and road vibration (scales up at high velocities, scaled on mobile)
+        const engineRumble = Math.sin(time * 85) * 0.004 * (speed / 18 + 0.25) * motionMult;
         camera.position.y += engineRumble;
 
-        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, -swayX * 0.04 + Math.cos(time * 95) * 0.0018 * (speed / 18 + 0.2), 0.06);
+        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, -swayX * 0.04 + Math.cos(time * 95) * 0.0018 * (speed / 18 + 0.2) * motionMult, 0.06);
         camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, -swayY * 0.03, 0.06);
         camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, -swayX * 0.02, 0.06);
     });

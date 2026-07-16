@@ -20,3 +20,44 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Custom scrollbar culling utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Mobile Sidebar Navigation Links ── */
+.mobile-nav-link {
+    position: relative;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(180,210,255,0.55);
+    padding: 12px 20px;
+    border-left: 2.5px solid transparent;
+    background: rgba(0, 217, 255, 0.02);
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+.mobile-nav-link:hover {
+    color: #00D9FF;
+    background: rgba(0, 217, 255, 0.08);
+    border-left: 2.5px solid rgba(0, 217, 255, 0.7);
+    text-shadow: 0 0 8px rgba(0,217,255,0.6);
+}
+.mobile-nav-link-active {
+    color: #00D9FF !important;
+    background: rgba(0, 217, 255, 0.12) !important;
+    border-left: 2.5px solid #00D9FF !important;
+    text-shadow: 0 0 10px #00D9FF !important;
+    box-shadow: inset 4px 0 12px rgba(0, 217, 255, 0.05);
+}

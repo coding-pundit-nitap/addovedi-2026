@@ -4,7 +4,7 @@
  * with a glowing title above the ring and a cyan energy field.
  */
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -16,6 +16,15 @@ export default function Spaceship({ setPortalMesh }) {
     const isEntered = useStore(s => s.isEntered);
     const gunRotationY = useStore(s => s.gunRotationY); // Keep rotation hook reference
     const sunDimFactor = useStore(s => s.sunDimFactor); // Fetch dim factor for smooth dimming
+
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    const isMobile = width < 768;
+    const responsiveScale = isMobile ? 0.45 : 1.0;
 
     // Load the GLTF portal model
     const { scene } = useGLTF('/models/portal/scene.gltf');
@@ -90,7 +99,7 @@ export default function Spaceship({ setPortalMesh }) {
         
         // If we are entering, fade out the float amplitude to 0 to stabilize portal center at Y=38
         const floatAmp = isEntered ? 0.0 : 1.2;
-        const targetY = 38 + Math.sin(t * 0.35) * floatAmp;
+        const targetY = (38 + Math.sin(t * 0.35) * floatAmp) * responsiveScale;
         
         if (portalRef.current) {
             // Smoothly lerp to center Y=38 as camera zoom flight approaches
@@ -115,7 +124,7 @@ export default function Spaceship({ setPortalMesh }) {
     });
 
     return (
-        <group ref={portalRef} position={[0, 38, -220]}>
+        <group ref={portalRef} position={[0, 38 * responsiveScale, -220]} scale={[responsiveScale, responsiveScale, responsiveScale]}>
             {/* Render centered titanium Magic Portal (shifted down by 7.1 to align circular ring center with Y=38) */}
             <primitive object={customizedModel} position={[0, -7.1, 0]} />
 

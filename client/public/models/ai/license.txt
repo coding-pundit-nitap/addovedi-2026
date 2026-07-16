@@ -1,0 +1,11 @@
+Model Information:
+* title:	Cyber brain AI
+* source:	https://sketchfab.com/3d-models/cyber-brain-ai-5c8bf975736b457eacf9b4b2212f63db
+* author:	3dUVpro (https://sketchfab.com/3dUVpro)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Cyber brain AI" (https://sketchfab.com/3d-models/cyber-brain-ai-5c8bf975736b457eacf9b4b2212f63db) by 3dUVpro (https://sketchfab.com/3dUVpro) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

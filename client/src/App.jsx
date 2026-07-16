@@ -5,21 +5,28 @@ import AppRoutes from "./routes/AppRoutes";
 import { useStore } from "./store/useStore";
 import { AnimatePresence, motion } from "framer-motion";
 
+
 export default function App() {
     const location = useLocation();
     const navigate = useNavigate();
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
 
+    const isTimelinePage = location.pathname === '/timeline';
+
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        
+        const isTimeline = location.pathname === '/timeline';
+
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
             return;
         }
+
+        // Bypass store-sync for standalone pages like /timeline
+        if (isTimeline) return;
 
         // Set store parameters
         useStore.getState().setIsEventPage(isEvent);
@@ -32,17 +39,19 @@ export default function App() {
 
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
+        // Don't redirect away from standalone pages
+        if (location.pathname === '/timeline') return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {
             navigate('/home');
         }
-    }, [isEventPage, location.pathname, navigate]);
+    }, [isEventPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <section className="relative h-screen w-full overflow-hidden bg-[#020617]">
-            {/* Common background 3D Canvas (persists WebGL context across routes) */}
-            <HeroCanvas />
+            {/* Common background 3D Canvas — hidden on standalone pages like /timeline */}
+            {!isTimelinePage && <HeroCanvas />}
 
             {/* Black Portal Flash (barrel entry blackout) */}
             <AnimatePresence>

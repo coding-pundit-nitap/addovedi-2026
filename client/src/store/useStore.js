@@ -30,6 +30,9 @@ export const useStore = create((set) => ({
     // Active category card slug inside the event lobby console
     activeCategorySlug: 'robotics-rc',
 
+    // Mobile Sidebar Nav drawer state
+    isSidebarOpen: false,
+
     // State Setters
     setCameraSpeed:       (v) => set({ cameraSpeed: v }),
     setTunnelIntensity:   (v) => set({ tunnelIntensity: v }),
@@ -45,4 +48,5 @@ export const useStore = create((set) => ({
     setSunDimFactor:      (v) => set({ sunDimFactor: v }),
     setShowSun:           (v) => set({ showSun: v }),
     setActiveCategorySlug: (v) => set({ activeCategorySlug: v }),
+    setIsSidebarOpen:     (v) => set({ isSidebarOpen: v }),
 }));

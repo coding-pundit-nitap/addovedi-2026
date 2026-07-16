@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 
 export default function HeroOverlay() {
+    const navigate = useNavigate();
     // 60 FPS direct-DOM speedometer loop to bypass React render cycle overhead
     useEffect(() => {
         let active = true;
@@ -26,7 +28,8 @@ export default function HeroOverlay() {
     
     // Connect Hub state & dynamic countdown timer
     const [isFooterOpen, setIsFooterOpen] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const isSidebarOpen = useStore(s => s.isSidebarOpen);
+    const setIsSidebarOpen = useStore(s => s.setIsSidebarOpen);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
@@ -425,6 +428,10 @@ export default function HeroOverlay() {
                                                 setIsFooterOpen(v => !v);
                                             } else if (label === 'HOME') {
                                                 setIsFooterOpen(false);
+                                            } else if (label === 'ARENA') {
+                                                navigate('/event');
+                                            } else if (label === 'TIMELINE') {
+                                                navigate('/timeline');
                                             }
                                         }}
                                         className={`nav-link-item${active ? ' nav-link-active' : ''}`}
@@ -488,7 +495,9 @@ export default function HeroOverlay() {
                             {/* ── Mobile Hamburger Toggle Button (Visible on mobile/tablet) ── */}
                             <div className="flex lg:hidden items-center relative z-10 pointer-events-auto">
                                 <button
-                                    onClick={() => setIsSidebarOpen(v => !v)}
+                                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                    aria-label="Toggle navigation menu"
+                                    aria-expanded={isSidebarOpen}
                                     className="relative w-12 h-12 flex items-center justify-center pointer-events-auto transition-all duration-300 hover:scale-105 active:scale-95"
                                     style={{
                                         background: 'rgba(2, 13, 26, 0.85)',
@@ -522,10 +531,10 @@ export default function HeroOverlay() {
                             {/* Backdrop overlay */}
                             <motion.div
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.55 }}
+                                animate={{ opacity: 1.0 }}
                                 exit={{ opacity: 0 }}
                                 onClick={() => setIsSidebarOpen(false)}
-                                className="fixed inset-0 bg-[#02060c] z-40 pointer-events-auto lg:hidden"
+                                className="fixed inset-0 bg-[#000000] z-40 pointer-events-auto lg:hidden"
                             />
 
                             {/* Floating Cyber Holographic Sidebar panel */}
@@ -534,9 +543,9 @@ export default function HeroOverlay() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                                className="fixed top-24 right-4 bottom-20 w-[290px] z-50 pointer-events-auto flex flex-col p-6 gap-6 shadow-[0_0_30px_rgba(0,217,255,0.25)] lg:hidden"
+                                className="fixed top-24 right-4 bottom-20 w-[290px] z-50 pointer-events-auto flex flex-col p-6 gap-6 shadow-[0_0_30px_rgba(0,217,255,0.25)] lg:hidden overflow-y-auto scrollbar-none"
                                 style={{
-                                    background: 'linear-gradient(135deg, rgba(2,12,24,0.96) 0%, rgba(1,6,15,0.98) 100%)',
+                                    background: '#000000',
                                     border: '1.5px solid rgba(0, 217, 255, 0.5)',
                                     backdropFilter: 'blur(16px)',
                                     clipPath: 'polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)',
@@ -560,6 +569,7 @@ export default function HeroOverlay() {
                                     }}>NAVIGATION MENU</span>
                                     <button
                                         onClick={() => setIsSidebarOpen(false)}
+                                        aria-label="Close navigation menu"
                                         className="text-gray-400 hover:text-white transition-colors"
                                         style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px' }}
                                     >
@@ -587,6 +597,10 @@ export default function HeroOverlay() {
                                                     setIsFooterOpen(v => !v);
                                                 } else if (label === 'HOME') {
                                                     setIsFooterOpen(false);
+                                                } else if (label === 'ARENA') {
+                                                    navigate('/event');
+                                                } else if (label === 'TIMELINE') {
+                                                    navigate('/timeline');
                                                 }
                                             }}
                                             className={`mobile-nav-link${active ? ' mobile-nav-link-active' : ''}`}
