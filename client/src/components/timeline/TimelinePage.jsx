@@ -85,6 +85,109 @@ const DAYS = [
     },
 ];
 
+const EVENT_COORDINATORS = {
+    'ROBOTICS RACE': [
+        { name: 'Akash Yadav', phone: '+91 94567 89012' },
+        { name: 'Simran Kaur', phone: '+91 92345 67890' }
+    ],
+    'BUG HUNT': [
+        { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
+        { name: 'Karan Patel', phone: '+91 87654 32109' }
+    ],
+    'BGMI QUALS': [
+        { name: 'Sneha Raj', phone: '+91 77777 66666' },
+        { name: 'Pooja Sharma', phone: '+91 66666 55555' }
+    ],
+    'CIRCUIT LAB': [
+        { name: 'Karan Patel', phone: '+91 87654 32109' },
+        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+    ],
+    'BYTE CODE': [
+        { name: 'Priya Nair', phone: '+91 76543 21098' },
+        { name: 'Siddharth Roy', phone: '+91 65432 10987' }
+    ],
+    'LINE FOLLOWER': [
+        { name: 'Simran Kaur', phone: '+91 92345 67890' },
+        { name: 'Shreya Nair', phone: '+91 96789 01234' }
+    ],
+    'AI CHALLENGE': [
+        { name: 'Priya Nair', phone: '+91 76543 21098' },
+        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+    ],
+    'POTTERY THROW': [
+        { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
+        { name: 'Meera Patel', phone: '+91 77890 12345' }
+    ],
+    'FIFA 1V1': [
+        { name: 'Amit Joshi', phone: '+91 55555 44444' },
+        { name: 'Rohit Verma', phone: '+91 44444 33333' }
+    ],
+    'DRONE WARS': [
+        { name: 'Akash Yadav', phone: '+91 94567 89012' },
+        { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+    ],
+    'HACKATHON': [
+        { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
+        { name: 'Neha Gupta', phone: '+91 54321 09876' }
+    ],
+    'VALORANT': [
+        { name: 'Aman Verma', phone: '+91 99999 88888' },
+        { name: 'Rahul Das', phone: '+91 88888 77777' }
+    ],
+    'DEEP LEARN': [
+        { name: 'Siddharth Roy', phone: '+91 65432 10987' },
+        { name: 'Neha Gupta', phone: '+91 54321 09876' }
+    ],
+    'BRIDGE BUILD': [
+        { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
+        { name: 'Ritika Sharma', phone: '+91 99012 34567' }
+    ],
+    'METAL WORKS': [
+        { name: 'Rohan Mehta', phone: '+91 99887 76655' },
+        { name: 'Aisha Khan', phone: '+91 88776 65544' }
+    ],
+    'QUIZ ARENA': [
+        { name: 'Sneha Raj', phone: '+91 77777 66666' },
+        { name: 'Dev Sharma', phone: '+91 91234 56789' }
+    ],
+    'MUSIC NIGHT': [
+        { name: 'Nikhil Bose', phone: '+91 92345 67890' },
+        { name: 'Rohit Verma', phone: '+91 44444 33333' }
+    ],
+    'ROBO SOCCER': [
+        { name: 'Akash Yadav', phone: '+91 94567 89012' },
+        { name: 'Mohit Jain', phone: '+91 95678 90123' }
+    ],
+    'APP BLITZ': [
+        { name: 'Priya Nair', phone: '+91 76543 21098' },
+        { name: 'Siddharth Roy', phone: '+91 65432 10987' }
+    ],
+    'VALORANT FINAL': [
+        { name: 'Aman Verma', phone: '+91 99999 88888' },
+        { name: 'Rahul Das', phone: '+91 88888 77777' }
+    ],
+    'CIRCUIT FINAL': [
+        { name: 'Karan Patel', phone: '+91 87654 32109' },
+        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+    ],
+    'BGMI GRAND': [
+        { name: 'Sneha Raj', phone: '+91 77777 66666' },
+        { name: 'Pooja Sharma', phone: '+91 66666 55555' }
+    ],
+    'ART EXHIBIT': [
+        { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
+        { name: 'Meera Patel', phone: '+91 77890 12345' }
+    ],
+    'AI SHOWCASE': [
+        { name: 'Priya Nair', phone: '+91 76543 21098' },
+        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+    ],
+    'CLOSING GALA': [
+        { name: 'Aman Verma', phone: '+91 99999 88888' },
+        { name: 'Sneha Raj', phone: '+91 77777 66666' }
+    ]
+};
+
 /* ═══════════════════════════════════════════
    SNAKE LAYOUT CALCULATOR
 ═══════════════════════════════════════════ */
@@ -835,6 +938,21 @@ function EventPanel({ ev, dayColor, visible }) {
                                 </div>
                             </div>
                         ))}
+
+                        {/* Event Heads Contact */}
+                        {EVENT_COORDINATORS[ev.title.toUpperCase()] && (
+                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '12px' }}>
+                                <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'7px', color:color, letterSpacing:'0.2em', opacity:0.65, marginBottom: '6px' }}>
+                                    EVENT HEADS
+                                </div>
+                                {EVENT_COORDINATORS[ev.title.toUpperCase()].map((c, i) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace', marginBottom: '4px' }}>
+                                        <span>{c.name}</span>
+                                        <span style={{ color: color }}>{c.phone}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Register button */}

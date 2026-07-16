@@ -425,13 +425,17 @@ export default function HeroOverlay() {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             if (label === 'CONNECT HUB') {
-                                                setIsFooterOpen(v => !v);
+                                                navigate('/connect');
                                             } else if (label === 'HOME') {
                                                 setIsFooterOpen(false);
                                             } else if (label === 'ARENA') {
                                                 navigate('/event');
                                             } else if (label === 'TIMELINE') {
                                                 navigate('/timeline');
+                                            } else if (label === 'ALLIANCES') {
+                                                navigate('/alliances');
+                                            } else if (label === 'CREW') {
+                                                navigate('/crew');
                                             }
                                         }}
                                         className={`nav-link-item${active ? ' nav-link-active' : ''}`}
@@ -594,13 +598,15 @@ export default function HeroOverlay() {
                                                 e.preventDefault();
                                                 setIsSidebarOpen(false);
                                                 if (label === 'CONNECT HUB') {
-                                                    setIsFooterOpen(v => !v);
+                                                    navigate('/connect');
                                                 } else if (label === 'HOME') {
                                                     setIsFooterOpen(false);
                                                 } else if (label === 'ARENA') {
                                                     navigate('/event');
                                                 } else if (label === 'TIMELINE') {
                                                     navigate('/timeline');
+                                                } else if (label === 'CREW') {
+                                                    navigate('/crew');
                                                 }
                                             }}
                                             className={`mobile-nav-link${active ? ' mobile-nav-link-active' : ''}`}
