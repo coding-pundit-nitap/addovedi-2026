@@ -578,6 +578,7 @@ export default function HologramCards() {
 
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [activeRotationIndex, setActiveRotationIndex] = useState(0);
+    const [backHovered, setBackHovered] = useState(false);
     const isMobile = window.innerWidth < 768;
 
     const startX = useRef(0);
@@ -1137,13 +1138,7 @@ export default function HologramCards() {
                 </Suspense>
             )}
 
-            {/* Left & Right floating holographic HUD consoles */}
-            {!eventName && (
-                <>
-                    <HudWidget position={[-10.5, 4.2, -9.5]} rotation={[0, 0.5, 0]} side="left" />
-                    <HudWidget position={[10.5, 4.2, -9.5]} rotation={[0, -0.5, 0]} side="right" />
-                </>
-            )}
+            {/* Left & Right floating holographic HUD consoles removed */}
 
             {/* 3D Shockwave expansion meshes (Multi-layered shockwaves) */}
             <mesh ref={shockwave1Ref} position={[0, 3.3, -9.6]}>
@@ -1209,23 +1204,36 @@ export default function HologramCards() {
 
             {/* HTML Back Nav Button */}
             {selectedDivision && !eventName && (
-                <Html position={[0, isMobile ? -3.2 : 0.4, -9.0]} center>
+                <Html position={[0, isMobile ? -3.2 : -0.6, -9.0]} center>
                     <button
                         onClick={handleBack}
-                        className="pointer-events-auto px-10 py-3.5 bg-black text-[#00f0ff] hover:text-white border-2 border-[#00f0ff] font-mono text-[10px] tracking-[0.25em] font-black transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] relative overflow-hidden"
+                        onMouseEnter={() => setBackHovered(true)}
+                        onMouseLeave={() => setBackHovered(false)}
+                        className="pointer-events-auto px-10 py-3.5 bg-black hover:text-white border-2 text-[10px] tracking-[0.25em] font-black transition-all duration-300 transform hover:scale-105 active:scale-95 relative overflow-hidden"
                         style={{
+                            fontFamily: "'Inter', sans-serif",
                             clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
-                            minWidth: '290px'
+                            minWidth: '290px',
+                            color: backHovered ? '#ffffff' : activeColor,
+                            borderColor: activeColor,
+                            boxShadow: backHovered
+                                ? `0 0 35px ${activeColor}`
+                                : `0 0 20px ${activeColor}55`,
                         }}
                     >
                         {/* Laser light scan sweep effect */}
-                        <span className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-transparent via-[#00f0ff]/30 to-transparent -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out" />
+                        <span 
+                            className="absolute inset-y-0 left-0 w-12 -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out" 
+                            style={{
+                                background: `linear-gradient(to right, transparent, ${activeColor}4d, transparent)`
+                            }}
+                        />
 
                         {/* Futuristic design markers */}
-                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal text-[#00f0ff]/50">SYS.RETURN</span>
-                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal text-[#00f0ff]/50">LOBBY_V2</span>
+                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>SYS.RETURN</span>
+                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>LOBBY_V2</span>
 
-                        [ ESC_RETURN_TO_DECK ]
+                        ESC_RETURN_TO_DECK
                     </button>
                 </Html>
             )}
@@ -1949,33 +1957,33 @@ function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
     const isMobile = window.innerWidth < 768;
     if (isMobile) return null; // Completely hidden on mobile screens
 
-    const posY = selectedDivision ? 8.6 : 9.8;
+    const posY = selectedDivision ? 7.4 : 9.8;
 
     return (
         <group position={[0, posY, -10.5]}>
-            <mesh position={[0, -0.45, 0]}>
-                <planeGeometry args={[isMobile ? 2.8 : 16.0, 0.03]} />
-                <meshBasicMaterial color="#00d9ff" toneMapped={false} />
-            </mesh>
             <Html
                 transform
                 distanceFactor={isMobile ? 27.0 : 8.0}
                 position={[0, 0, 0]}
                 style={{
                     width: isMobile ? '240px' : '750px',
-                    color: '#00d9ff',
+                    color: '#ffffff',
                     textAlign: 'center',
-                    fontFamily: 'monospace',
+                    fontFamily: "'Syne', sans-serif",
                     pointerEvents: 'none',
                     userSelect: 'none',
                 }}
             >
-                <div style={{ textShadow: '0 0 10px rgba(0, 217, 255, 0.5)' }}>
-                    <div style={{ color: '#ffffff', opacity: 0.35, fontSize: isMobile ? '4.5px' : '10px', letterSpacing: isMobile ? '1px' : '4px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                        // ACCESS TERMINAL SYNCED // SCTR_DATA_STREAM RESOLVED
-                    </div>
-                    <div style={{ fontSize: isMobile ? '9px' : '30px', fontWeight: 950, letterSpacing: isMobile ? '2px' : '6px' }}>
-                        {selectedDivision ? 'INITIALIZING' : 'ENGAGING'} SECTOR 0{sctrId}
+                <div style={{ textShadow: '0 0 15px rgba(255, 255, 255, 0.85), 0 0 30px rgba(0, 217, 255, 0.6)' }}>
+                    <div style={{
+                        fontSize: '34px',
+                        fontWeight: 800,
+                        letterSpacing: '8px',
+                        color: '#ffffff',
+                        textTransform: 'uppercase',
+                        whiteSpace: 'nowrap',
+                    }}>
+                        {selectedDivision ? 'INITIALIZING' : ''} ARENA 0{sctrId}
                     </div>
                 </div>
             </Html>
@@ -2049,11 +2057,62 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
     const [btnHovered, setBtnHovered] = useState(false);
     const hovered = isActive && (meshHovered || btnHovered);
     const [isBlasting, setIsBlasting] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    // Box Geometry: [Width, Height, Thickness] - Upscaled to look extra massive from ground level
-    const cardGeo = useMemo(() => new THREE.BoxGeometry(3.7, 6.1, 0.12), []);
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Chamfered 3D Card Geometry - with top-left and bottom-right corners cut
+    const cardGeo = useMemo(() => {
+        const shape = new THREE.Shape();
+        const w = 3.7;
+        const h = 6.1;
+        const c = 0.5; // Corner cut size
+        // Start top-left
+        shape.moveTo(-w / 2 + c, h / 2);
+        shape.lineTo(w / 2, h / 2);
+        shape.lineTo(w / 2, -h / 2 + c);
+        shape.lineTo(w / 2 - c, -h / 2);
+        shape.lineTo(-w / 2, -h / 2);
+        shape.lineTo(-w / 2, h / 2 - c);
+        shape.closePath();
+
+        const extrudeSettings = {
+            depth: 0.12,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 1,
+            bevelSize: 0.015,
+            bevelThickness: 0.015
+        };
+        const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        geo.center();
+        return geo;
+    }, []);
+
     const cardEdgesGeo = useMemo(() => new THREE.EdgesGeometry(cardGeo), [cardGeo]);
-    const innerGridGeo = useMemo(() => new THREE.PlaneGeometry(3.3, 5.7), []);
+
+    // Inner Grid Panel with matching chamfered cuts
+    const innerGridGeo = useMemo(() => {
+        const shape = new THREE.Shape();
+        const w = 3.3;
+        const h = 5.7;
+        const c = 0.45; // Corner cut size
+        // Start top-left
+        shape.moveTo(-w / 2 + c, h / 2);
+        shape.lineTo(w / 2, h / 2);
+        shape.lineTo(w / 2, -h / 2 + c);
+        shape.lineTo(w / 2 - c, -h / 2);
+        shape.lineTo(-w / 2, -h / 2);
+        shape.lineTo(-w / 2, h / 2 - c);
+        shape.closePath();
+        return new THREE.ShapeGeometry(shape);
+    }, []);
 
     // Cylinder geometries for neon light tubes
     const tubeGeo = useMemo(() => new THREE.CylinderGeometry(0.024, 0.024, 5.5, 8), []);
@@ -2251,19 +2310,19 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 {/* 4. Text Content Overlay */}
                 <Html
                     transform
-                    distanceFactor={4.6}
+                    distanceFactor={isMobile ? 7.2 : 4.6}
                     position={[0, 0, 0.1]}
                     style={{
-                        width: '290px',
+                        width: isMobile ? '180px' : '290px',
                         color: '#ffffff',
-                        fontFamily: 'sans-serif',
+                        fontFamily: "'Inter', sans-serif",
                         textAlign: 'center',
                         userSelect: 'none',
                         pointerEvents: 'none',
                     }}
                 >
                     <div style={{
-                        padding: '15px 20px',
+                        padding: isMobile ? '8px 10px' : '15px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -2271,9 +2330,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         pointerEvents: 'none'
                     }}>
                         <div style={{
-                            marginBottom: '12px',
+                            marginBottom: isMobile ? '6px' : '12px',
                             filter: isActive && hovered ? `drop-shadow(0 0 8px ${data.color})` : 'none',
-                            transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : 'none',
+                            transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : (isMobile ? 'scale(0.8)' : 'none'),
                             transition: 'transform 0.3s ease',
                             opacity: isActive ? 1.0 : 0.35
                         }}>
@@ -2282,14 +2341,17 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
 
                         <h2 style={{
                             color: data.color,
-                            margin: '0 0 6px 0',
-                            fontSize: '18px',
-                            fontWeight: 950,
-                            letterSpacing: '1px',
+                            margin: '0 0 4px 0',
+                            fontSize: isMobile
+                                ? (data.title === 'CODING QUEST' ? '18px' : '15px')
+                                : (data.title === 'CODING QUEST' ? '28px' : '23px'),
+                            fontWeight: 800,
+                            letterSpacing: isMobile ? '0.2px' : '0.5px',
                             textTransform: 'uppercase',
-                            textShadow: isActive && hovered ? `0 0 10px ${data.color}` : 'none',
-                            lineHeight: 1.2,
-                            opacity: isActive ? 1.0 : 0.45
+                            textShadow: isActive && hovered ? `0 0 12px ${data.color}` : 'none',
+                            lineHeight: 1.15,
+                            opacity: isActive ? 1.0 : 0.45,
+                            fontFamily: "'Syne', sans-serif"
                         }}>
                             {data.title}
                         </h2>
@@ -2297,11 +2359,12 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         <h3 style={{
                             color: '#ffffff',
                             opacity: isActive ? (hovered ? 1.0 : 0.8) : 0.25,
-                            margin: '0 0 14px 0',
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            letterSpacing: '1px',
+                            margin: isMobile ? '0 0 8px 0' : '0 0 14px 0',
+                            fontSize: isMobile ? '8.5px' : '12px',
+                            fontWeight: 700,
+                            letterSpacing: isMobile ? '1px' : '2px',
                             textTransform: 'uppercase',
+                            fontFamily: "'Rajdhani', sans-serif"
                         }}>
                             {data.subtitle}
                         </h3>
@@ -2311,11 +2374,12 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                             <>
                                 <p style={{
                                     color: '#ffffff',
-                                    opacity: hovered ? 0.8 : 0.55,
-                                    fontSize: '11px',
+                                    opacity: hovered ? 0.85 : 0.6,
+                                    fontSize: isMobile ? '9px' : '12.5px',
                                     lineHeight: 1.3,
-                                    margin: '0 0 24px 0',
-                                    minHeight: '44px'
+                                    margin: isMobile ? '0 0 12px 0' : '0 0 24px 0',
+                                    minHeight: isMobile ? '24px' : '44px',
+                                    fontFamily: "'Inter', sans-serif"
                                 }}>
                                     {data.desc}
                                 </p>
@@ -2330,22 +2394,32 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                                     }}
                                     className="cursor-pointer"
                                     style={{
-                                        border: `1.5px solid ${data.color}`,
-                                        background: hovered ? `${data.color}35` : `${data.color}18`,
-                                        padding: '8px 14px',
-                                        fontSize: '10px',
-                                        fontWeight: 900,
-                                        color: hovered ? '#ffffff' : data.color,
-                                        letterSpacing: '1px',
-                                        textTransform: 'uppercase',
-                                        borderRadius: '4px',
-                                        boxShadow: hovered ? `0 0 15px ${data.color}44` : 'none',
-                                        transition: 'all 0.3s ease',
+                                        position: 'relative',
+                                        display: 'inline-block',
+                                        padding: '1px',
+                                        clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                        background: btnHovered ? `#ffffff` : `linear-gradient(135deg, ${data.color}ee, #ffffff, ${data.color}cc)`,
                                         userSelect: 'none',
-                                        pointerEvents: 'auto'
+                                        pointerEvents: 'auto',
+                                        transition: 'transform 0.22s ease',
+                                        transform: btnHovered ? 'scale(1.05)' : 'none',
                                     }}
                                 >
-                                    {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
+                                    <div style={{
+                                        clipPath: 'polygon(5.5px 0, 100% 0, 100% calc(100% - 5.5px), calc(100% - 5.5px) 100%, 0 100%, 0 5.5px)',
+                                        background: btnHovered ? data.color : 'rgba(2, 10, 22, 0.95)',
+                                        padding: isMobile ? '6px 12px' : '11px 24px',
+                                        fontFamily: "'Inter', sans-serif",
+                                        fontSize: isMobile ? '9.5px' : '13px',
+                                        fontWeight: 900,
+                                        letterSpacing: '0.15em',
+                                        color: btnHovered ? '#000000' : '#ffffff',
+                                        textTransform: 'uppercase',
+                                        textShadow: btnHovered ? 'none' : `0 0 10px ${data.color}`,
+                                        transition: 'all 0.3s ease',
+                                    }}>
+                                        {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
+                                    </div>
                                 </div>
                             </>
                         )}
