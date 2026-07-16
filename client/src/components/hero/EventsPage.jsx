@@ -726,10 +726,10 @@ export default function EventsPage() {
                                     { label: 'HOME', path: '/home' },
                                     { label: 'ARENA', path: '/event' },
                                     { label: 'TIMELINE', path: '/timeline' },
-                                    { label: 'ALLIANCES', path: '/home#alliances' },
-                                    { label: 'CREW', path: '/home#crew' },
-                                    { label: 'CONNECT HUB', path: '/home#connect-hub' },
-                                ].map(({ label, path }) => (
+                                    { label: 'ALLIANCES', path: '/alliances' },
+                                    { label: 'CREW', path: '/crew' },
+                                    { label: 'CONNECT HUB', path: '/connect' },
+                                  ].map(({ label, path }) => (
                                     <a
                                         key={label}
                                         href={path}
@@ -750,9 +750,9 @@ export default function EventsPage() {
                                             } else if (path === '/home') {
                                                 e.preventDefault();
                                                 handleExit();
-                                            } else if (path === '/event') {
+                                            } else if (path === '/event' || path === '/timeline' || path === '/crew' || path === '/alliances' || path === '/connect') {
                                                 e.preventDefault();
-                                                navigate('/event');
+                                                navigate(path);
                                             }
                                         }}
                                         className={`mobile-nav-link ${path === '/event' && !activeCategory ? 'mobile-nav-link-active' : ''}`}
@@ -799,7 +799,7 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, email,
         { q: 'When will results be declared?', a: 'Results will be announced on the final day of the techfest.' },
     ];
 
-    const coordinators = [
+    const coordinators = activeEvent.heads || [
         { name: 'Dr. Sarah Connor', role: 'Chief Division Marshal', email: 'marshal@addovedi.org', phone: '+91 98765 43210' },
         { name: 'Agent John Doe', role: 'Telemetry Overseer', email: 'overseer@addovedi.org', phone: '+91 87654 32109' },
     ];
@@ -832,6 +832,19 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, email,
                     <p style={{ fontSize: isMobileModal ? '10px' : '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginTop: '8px' }}>
                         {activeEvent.desc}
                     </p>
+                    
+                    {/* Event Heads Contact (Always visible under desc) */}
+                    <div style={{ marginTop: '16px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '12px' }}>
+                        <div style={{ fontSize: '8px', letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '6px' }}>
+                            {'// DIRECT_COMMS'}
+                        </div>
+                        {coordinators.map((c, i) => (
+                            <div key={i} style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.65)', display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                                <span>{c.name}</span>
+                                <span style={{ color: activeEvent.color }}>{c.phone}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Stats Grid — 2x2 on mobile, stacked column on desktop */}

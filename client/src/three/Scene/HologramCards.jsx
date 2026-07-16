@@ -135,6 +135,10 @@ export const SUB_EVENTS = {
             color: '#ff1f4f',
             xp: '1,500 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
+                { name: 'Karan Patel', phone: '+91 87654 32109' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="10" rx="2"></rect>
@@ -149,6 +153,10 @@ export const SUB_EVENTS = {
             color: '#ff1f4f',
             xp: '2,500 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Priya Nair', phone: '+91 76543 21098' },
+                { name: 'Siddharth Roy', phone: '+91 65432 10987' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="16 18 22 12 16 6"></polyline>
@@ -163,6 +171,10 @@ export const SUB_EVENTS = {
             color: '#ff1f4f',
             xp: '3,000 XP',
             difficulty: 'ELITE',
+            heads: [
+                { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
+                { name: 'Neha Gupta', phone: '+91 54321 09876' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -180,6 +192,10 @@ export const SUB_EVENTS = {
             color: '#ff9d00',
             xp: '2,000 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Karan Patel', phone: '+91 87654 32109' },
+                { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="7"></circle>
@@ -194,6 +210,10 @@ export const SUB_EVENTS = {
             color: '#ff9d00',
             xp: '3,000 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Simran Kaur', phone: '+91 92345 67890' },
+                { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
@@ -209,6 +229,10 @@ export const SUB_EVENTS = {
             color: '#00d9ff',
             xp: '4,000 XP',
             difficulty: 'ELITE',
+            heads: [
+                { name: 'Akash Yadav', phone: '+91 94567 89012' },
+                { name: 'Mohit Jain', phone: '+91 95678 90123' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 2 22 22 22 12 2"></polygon>
@@ -224,6 +248,10 @@ export const SUB_EVENTS = {
             color: '#00d9ff',
             xp: '2,500 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Simran Kaur', phone: '+91 92345 67890' },
+                { name: 'Shreya Nair', phone: '+91 96789 01234' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -238,6 +266,10 @@ export const SUB_EVENTS = {
             color: '#00d9ff',
             xp: '3,500 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Akash Yadav', phone: '+91 94567 89012' },
+                { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -253,6 +285,10 @@ export const SUB_EVENTS = {
             color: '#1fff76',
             xp: '1,200 XP',
             difficulty: 'EASY',
+            heads: [
+                { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
+                { name: 'Kiran Verma', phone: '+91 98901 23456' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5L17.5 5.5a2.12 2.12 0 1 0-3-3L4.5 16.5z"></path>
@@ -266,6 +302,10 @@ export const SUB_EVENTS = {
             color: '#1fff76',
             xp: '1,800 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
+                { name: 'Ritika Sharma', phone: '+91 99012 34567' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -281,6 +321,10 @@ export const SUB_EVENTS = {
             color: '#1fff76',
             xp: '1,000 XP',
             difficulty: 'EASY',
+            heads: [
+                { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
+                { name: 'Meera Patel', phone: '+91 77890 12345' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -297,6 +341,10 @@ export const SUB_EVENTS = {
             color: '#9b5cff',
             xp: '3,000 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Aman Verma', phone: '+91 99999 88888' },
+                { name: 'Rahul Das', phone: '+91 88888 77777' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="6" width="20" height="12" rx="2"></rect>
@@ -311,6 +359,10 @@ export const SUB_EVENTS = {
             color: '#9b5cff',
             xp: '2,500 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Sneha Raj', phone: '+91 77777 66666' },
+                { name: 'Pooja Sharma', phone: '+91 66666 55555' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -324,6 +376,10 @@ export const SUB_EVENTS = {
             color: '#9b5cff',
             xp: '2,000 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Amit Joshi', phone: '+91 55555 44444' },
+                { name: 'Rohit Verma', phone: '+91 44444 33333' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -340,6 +396,10 @@ export const SUB_EVENTS = {
             color: '#2b5cff',
             xp: '3,500 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Priya Nair', phone: '+91 76543 21098' },
+                { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
@@ -354,6 +414,10 @@ export const SUB_EVENTS = {
             color: '#2b5cff',
             xp: '2,800 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Siddharth Roy', phone: '+91 65432 10987' },
+                { name: 'Neha Gupta', phone: '+91 54321 09876' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -369,6 +433,10 @@ export const SUB_EVENTS = {
             color: '#ffea00',
             xp: '2,600 XP',
             difficulty: 'HARD',
+            heads: [
+                { name: 'Rohan Mehta', phone: '+91 99887 76655' },
+                { name: 'Aisha Khan', phone: '+91 88776 65544' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6"></path>
@@ -382,6 +450,10 @@ export const SUB_EVENTS = {
             color: '#ffea00',
             xp: '2,200 XP',
             difficulty: 'MEDIUM',
+            heads: [
+                { name: 'Divya Menon', phone: '+91 77665 54433' },
+                { name: 'Tanya Singh', phone: '+91 66554 43322' }
+            ],
             icon: (color) => (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>

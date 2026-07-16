@@ -12,21 +12,21 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
 
-    const isTimelinePage = location.pathname === '/timeline';
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect';
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isTimeline = location.pathname === '/timeline';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect';
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
             return;
         }
 
-        // Bypass store-sync for standalone pages like /timeline
-        if (isTimeline) return;
+        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances or /connect
+        if (isStandalone) return;
 
         // Set store parameters
         useStore.getState().setIsEventPage(isEvent);
@@ -40,7 +40,7 @@ export default function App() {
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect') return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {
@@ -50,8 +50,8 @@ export default function App() {
 
     return (
         <section className="relative h-screen w-full overflow-hidden bg-[#020617]">
-            {/* Common background 3D Canvas — hidden on standalone pages like /timeline */}
-            {!isTimelinePage && <HeroCanvas />}
+            {/* Common background 3D Canvas — hidden on standalone pages like /timeline or /crew */}
+            {!isStandalonePage && <HeroCanvas />}
 
             {/* Black Portal Flash (barrel entry blackout) */}
             <AnimatePresence>

@@ -16,9 +16,9 @@ const NAV_LINKS = [
     { label: 'HOME',        path: '/home' },
     { label: 'ARENA',       path: '/event' },
     { label: 'TIMELINE',    path: '/timeline' },
-    { label: 'ALLIANCES',   path: null },
-    { label: 'CREW',        path: null },
-    { label: 'CONNECT HUB', path: null },
+    { label: 'ALLIANCES',   path: '/alliances' },
+    { label: 'CREW',        path: '/crew' },
+    { label: 'CONNECT HUB', path: '/connect' },
 ];
 
 /* ─── Shared CSS injected once ─── */
