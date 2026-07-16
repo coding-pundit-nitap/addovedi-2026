@@ -13,6 +13,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import AlliancesNav from './AlliancesNav';
 
+const API_BASE = window.location.origin.includes('localhost:5173')
+    ? 'http://localhost:5001/api'
+    : '/api';
+
 const SPONSORS_LIST = [
     { id: 'S01', name: 'NVIDIA', category: 'TITLE', sub: 'Technology Partner', logo: 'NV', desc: 'Accelerating AI and real-time graphics pipelines.', support: ['AI Arena', 'Rendering Server', 'GPU Workshops'], url: '#' },
     { id: 'S02', name: 'AMD', category: 'TITLE', sub: 'Hardware Sponsor', logo: 'AMD', desc: 'Powering high-frequency compute processors in coding grids.', support: ['Coding Arena', 'Host Servers', 'Hackathons'], url: '#' },
@@ -437,11 +441,42 @@ export default function AlliancesPage() {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [activeHoverBeam, setActiveHoverBeam] = useState(false);
 
+    const [sponsorsList, setSponsorsList] = useState(SPONSORS_LIST);
+
     // Sync window size state
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Fetch dynamic alliances from backend on load
+    useEffect(() => {
+        const fetchSponsors = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/alliances`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        const mapped = data.map((item, idx) => ({
+                            id: item._id || `S${idx}`,
+                            name: item.name,
+                            category: item.category,
+                            sub: item.sub,
+                            logo: item.logo,
+                            logoImage: item.logoImage,
+                            desc: item.desc,
+                            support: item.support,
+                            url: item.url
+                        }));
+                        setSponsorsList(mapped);
+                    }
+                }
+            } catch (err) {
+                console.log("Alliance list fetch failed, using offline static fallback.");
+            }
+        };
+        fetchSponsors();
     }, []);
 
     // Radial layout major sponsors around the core
@@ -640,7 +675,7 @@ export default function AlliancesPage() {
                             const angleRad = (radialAngles[i] * Math.PI) / 180;
                             const dx = Math.cos(angleRad) * radius;
                             const dy = Math.sin(angleRad) * radius;
-                            const sponsorItem = SPONSORS_LIST.find(s => s.name === name) || {};
+                            const sponsorItem = sponsorsList.find(s => s.name === name) || {};
                             return (
                                 <div
                                     key={name}
@@ -664,16 +699,28 @@ export default function AlliancesPage() {
                                         animationDelay: `${i * 0.15}s`
                                     }}
                                 >
-                                    <span style={{
-                                        fontFamily: "'Orbitron', monospace",
-                                        fontSize: isMobile ? '10px' : '13px',
-                                        fontWeight: 900,
-                                        letterSpacing: '0.05em',
-                                        color: '#fff',
-                                        textShadow: '0 0 8px rgba(0,229,255,0.45)'
-                                    }}>
-                                        {sponsorItem.logo}
-                                    </span>
+                                    {sponsorItem.logoImage ? (
+                                        <img 
+                                            src={sponsorItem.logoImage} 
+                                            alt={sponsorItem.name} 
+                                            style={{ 
+                                                width: '80%', 
+                                                height: '80%', 
+                                                objectFit: 'contain'
+                                            }} 
+                                        />
+                                    ) : (
+                                        <span style={{
+                                            fontFamily: "'Orbitron', monospace",
+                                            fontSize: isMobile ? '10px' : '13px',
+                                            fontWeight: 900,
+                                            letterSpacing: '0.05em',
+                                            color: '#fff',
+                                            textShadow: '0 0 8px rgba(0,229,255,0.45)'
+                                        }}>
+                                            {sponsorItem.logo}
+                                        </span>
+                                    )}
                                     <span style={{
                                         fontSize: '5.5px',
                                         fontFamily: 'monospace',
@@ -737,7 +784,7 @@ export default function AlliancesPage() {
                         </div>
 
                         {/* Dynamic Countup Statistics Strip */}
-                        <StatStrip finalPartners={SPONSORS_LIST.length} finalCategories={5} finalConnection={100} />
+                        <StatStrip finalPartners={sponsorsList.length} finalCategories={5} finalConnection={100} />
 
                         {/* Sponsor Cards Grid (3 Columns Desktop, 2 Columns Mobile) */}
                         <div style={{
@@ -747,7 +794,7 @@ export default function AlliancesPage() {
                             width: '100%',
                             marginTop: '20px'
                         }}>
-                            {SPONSORS_LIST.map((sponsor) => (
+                            {sponsorsList.map((sponsor) => (
                                 <SponsorCard
                                     key={sponsor.id}
                                     sponsor={sponsor}

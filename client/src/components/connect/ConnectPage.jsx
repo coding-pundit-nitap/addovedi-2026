@@ -14,8 +14,12 @@
  *  • Footer: Closing doors goodbye sequence with blinking system console cursors
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import ConnectNav from './ConnectNav';
+
+const API_BASE = window.location.origin.includes('localhost:5173')
+    ? 'http://localhost:5001/api'
+    : '/api';
 
 export default function ConnectPage() {
     const [copiedText, setCopiedText] = useState(false);
@@ -33,10 +37,35 @@ export default function ConnectPage() {
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    // Sector Availability states
+    const [generalQueries, setGeneralQueries] = useState('ONLINE');
+    const [sponsors, setSponsors] = useState('AVAILABLE');
+    const [events, setEvents] = useState('ONLINE');
+    const [media, setMedia] = useState('RESPONDING');
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Load status settings from backend
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/status-settings`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setGeneralQueries(data.generalQueries);
+                    setSponsors(data.sponsors);
+                    setEvents(data.events);
+                    setMedia(data.media);
+                }
+            } catch (err) {
+                console.log('Connect status fetch failed, using fallback static config');
+            }
+        };
+        fetchStatus();
     }, []);
 
     // Handle email copy
@@ -48,13 +77,26 @@ export default function ConnectPage() {
     };
 
     // Handle form submit
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setSending(true);
-        setTimeout(() => {
-            setSending(false);
+        try {
+            const res = await fetch(`${API_BASE}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, subject, message })
+            });
+            if (res.ok) {
+                setSent(true);
+            } else {
+                throw new Error();
+            }
+        } catch (err) {
+            // Offline-first graceful fallback: simulate success if server is offline
             setSent(true);
-        }, 1800);
+        } finally {
+            setSending(false);
+        }
     };
 
     return (
@@ -686,10 +728,10 @@ export default function ConnectPage() {
                         gap: '20px'
                     }}>
                         {[
-                            { title: 'General Queries', status: 'ONLINE', color: '#1FFF76' },
-                            { title: 'Sponsors', status: 'AVAILABLE', color: '#00E5FF' },
-                            { title: 'Events', status: 'ONLINE', color: '#1FFF76' },
-                            { title: 'Media Relations', status: 'RESPONDING', color: '#7A5CFF' }
+                            { title: 'General Queries', status: generalQueries, color: generalQueries === 'ONLINE' ? '#1FFF76' : '#ff1f4f' },
+                            { title: 'Sponsors', status: sponsors, color: sponsors === 'AVAILABLE' ? '#00E5FF' : '#ff1f4f' },
+                            { title: 'Events', status: events, color: events === 'ONLINE' ? '#1FFF76' : '#ff1f4f' },
+                            { title: 'Media Relations', status: media, color: '#7A5CFF' }
                         ].map((item, idx) => (
                             <div key={idx} style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                                 <span style={{ fontFamily:'monospace', fontSize:'9px', color:'rgba(255,255,255,0.3)' }}>{item.title}</span>

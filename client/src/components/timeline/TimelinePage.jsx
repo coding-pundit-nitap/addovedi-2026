@@ -261,7 +261,7 @@ function getHandAngle(hand) {
 
 /** Applies holographic material and animates individual parts */
 function HolographicClock() {
-    const { scene } = useGLTF('/models/steampunk_clock/scene.gltf');
+    const { scene } = useGLTF('/models/steampunk_clock/scene.glb');
     const time = useRef(0);
     const partsRef = useRef({}); // name → Object3D
 

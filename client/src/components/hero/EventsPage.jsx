@@ -1,9 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { SUB_EVENTS, slugify, CARD_DATA } from '../../three/Scene/HologramCards';
-import { useRef, useEffect } from 'react';
+
+const API_BASE = window.location.origin.includes('localhost:5173')
+    ? 'http://localhost:5001/api'
+    : '/api';
 
 // Event Rules & Details Directory
 const EVENT_RULES = {
@@ -117,17 +120,64 @@ export default function EventsPage() {
     const setIsSidebarOpen = useStore(s => s.setIsSidebarOpen);
     const isMobile = window.innerWidth < 768;
 
+    const [categoriesList, setCategoriesList] = useState(CARD_DATA);
+    const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
+
+    // Fetch dynamic database categories/sub-events on boot
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/events`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.categories && data.categories.length > 0) {
+                        const mappedCats = data.categories.map(c => ({
+                            title: c.title,
+                            subtitle: c.subtitle,
+                            desc: c.desc,
+                            color: c.color,
+                            xp: c.xp,
+                            difficulty: c.difficulty
+                        }));
+                        setCategoriesList(mappedCats);
+
+                        const mappedSubs = {};
+                        data.categories.forEach(c => {
+                            mappedSubs[c.title] = [];
+                        });
+                        data.subEvents.forEach(s => {
+                            if (!mappedSubs[s.categoryTitle]) mappedSubs[s.categoryTitle] = [];
+                            mappedSubs[s.categoryTitle].push({
+                                title: s.title,
+                                subtitle: s.subtitle,
+                                desc: s.desc,
+                                color: s.color,
+                                xp: s.xp,
+                                difficulty: s.difficulty,
+                                heads: s.heads || []
+                            });
+                        });
+                        setSubEventsData(mappedSubs);
+                    }
+                }
+            } catch (err) {
+                console.log("Failed dynamic event fetch, utilizing fallbacks");
+            }
+        };
+        fetchEvents();
+    }, []);
+
     const activeCategory = useMemo(() => {
         if (!categoryName) return null;
-        return CARD_DATA.find(c => slugify(c.title) === categoryName) || null;
-    }, [categoryName]);
+        return categoriesList.find(c => slugify(c.title) === categoryName) || null;
+    }, [categoryName, categoriesList]);
 
     const activeEvent = useMemo(() => {
         if (!activeCategory || !eventName) return null;
-        const eventsList = SUB_EVENTS[activeCategory.title];
+        const eventsList = subEventsData[activeCategory.title];
         if (!eventsList) return null;
         return eventsList.find(e => slugify(e.title) === eventName) || null;
-    }, [activeCategory, eventName]);
+    }, [activeCategory, eventName, subEventsData]);
 
     const handleExit = () => {
         setIsEntered(false);
@@ -353,7 +403,7 @@ export default function EventsPage() {
                 {isMobile && activeCategory && !activeEvent ? (
                     <div className="flex-1 w-full overflow-y-auto py-6 px-4 flex flex-col justify-center pointer-events-auto">
                         <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
-                            {(SUB_EVENTS[activeCategory.title] || []).map((subEvent) => (
+                            {(subEventsData[activeCategory.title] || []).map((subEvent) => (
                                 <motion.div
                                     key={subEvent.title}
                                     initial={{ opacity: 0, y: 15 }}
@@ -443,7 +493,7 @@ export default function EventsPage() {
                             <div
                                 className="flex flex-col md:flex-row gap-[6px] overflow-y-auto md:overflow-x-visible pb-0 md:pb-0 scrollbar-none"
                             >
-                                {CARD_DATA.map((card, i) => {
+                                {categoriesList.map((card, i) => {
                                     const isActive = activeCategorySlug === slugify(card.title);
                                     const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
                                     const ids = ['01', '02', '03', '04', '05', '06', '07'];
