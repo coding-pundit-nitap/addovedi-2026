@@ -15,9 +15,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function AdminPage() {
     const navigate = useNavigate();
@@ -73,7 +71,7 @@ export default function AdminPage() {
     const [editingSponsor, setEditingSponsor] = useState(null);
 
     // New Data Add states
-    const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code' });
+    const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
     const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
@@ -259,7 +257,7 @@ export default function AdminPage() {
             if (res.ok) {
                 fetchEvents();
                 setEditingCategory(null);
-                setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code' });
+                setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
                 alert('Category configuration saved');
             }
         } catch (err) {
@@ -714,6 +712,15 @@ export default function AdminPage() {
                                     <option value="bolt">Lightning Bolt Icon</option>
                                     <option value="gamepad">Gamepad Icon</option>
                                 </select>
+                                <select value={editingCategory ? editingCategory.modelType : newCat.modelType} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, modelType: e.target.value }) : setNewCat({ ...newCat, modelType: e.target.value })}>
+                                    <option value="coding">Coding Terminal Model</option>
+                                    <option value="mecha">Robot Mech Model</option>
+                                    <option value="controller">Controller Model</option>
+                                    <option value="civil">City Skyline Model</option>
+                                    <option value="electrical">Transformer Grid Model</option>
+                                    <option value="ai">Neural Brain Model</option>
+                                    <option value="gun">Gun Model</option>
+                                </select>
                                 <textarea style={{ gridColumn: isMobile ? 'auto' : 'span 3' }} placeholder="Category description..." value={editingCategory ? editingCategory.desc : newCat.desc} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, desc: e.target.value }) : setNewCat({ ...newCat, desc: e.target.value })} required />
                                 
                                 <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', display: 'flex', gap: '10px' }}>
@@ -736,6 +743,7 @@ export default function AdminPage() {
                                             <th>TITLE</th>
                                             <th>SUBTITLE</th>
                                             <th>DIFFICULTY</th>
+                                            <th>MODEL TYPE</th>
                                             <th>COLOR</th>
                                             <th>XP</th>
                                             <th>ACTIONS</th>
@@ -749,6 +757,7 @@ export default function AdminPage() {
                                                 <td>
                                                     <span style={{ color: cat.color }}>{cat.difficulty}</span>
                                                 </td>
+                                                <td style={{ fontFamily: 'monospace', color: '#00E5FF' }}>{cat.modelType || 'coding'}</td>
                                                 <td style={{ color: cat.color }}>{cat.color}</td>
                                                 <td>{cat.xp}</td>
                                                 <td>

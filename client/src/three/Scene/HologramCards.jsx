@@ -22,6 +22,7 @@ export const CARD_DATA = [
         color: '#00d9ff',
         xp: '8,000 XP',
         difficulty: 'ELITE',
+        modelType: 'mecha',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="10" rx="2"></rect>
@@ -37,6 +38,7 @@ export const CARD_DATA = [
         color: '#ff1f4f',
         xp: '5,000 XP',
         difficulty: 'HARD',
+        modelType: 'coding',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="16 18 22 12 16 6"></polyline>
@@ -52,6 +54,7 @@ export const CARD_DATA = [
         color: '#ff9d00',
         xp: '6,500 XP',
         difficulty: 'MEDIUM',
+        modelType: 'electrical',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -65,6 +68,7 @@ export const CARD_DATA = [
         color: '#9b5cff',
         xp: '6,000 XP',
         difficulty: 'HARD',
+        modelType: 'controller',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="6" width="20" height="12" rx="2"></rect>
@@ -79,6 +83,7 @@ export const CARD_DATA = [
         color: '#1fff76',
         xp: '4,500 XP',
         difficulty: 'EASY',
+        modelType: 'civil',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5L17.5 5.5a2.12 2.12 0 1 0-3-3L4.5 16.5z"></path>
@@ -93,6 +98,7 @@ export const CARD_DATA = [
         color: '#2b5cff',
         xp: '7,000 XP',
         difficulty: 'HARD',
+        modelType: 'ai',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
@@ -109,6 +115,7 @@ export const CARD_DATA = [
         color: '#ffea00',
         xp: '5,500 XP',
         difficulty: 'MEDIUM',
+        modelType: 'coding',
         icon: (color) => (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
@@ -467,9 +474,7 @@ export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
 
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 function getSvgIcon(type, color) {
     switch (type) {
@@ -531,7 +536,8 @@ export default function HologramCards() {
                             color: c.color,
                             xp: c.xp,
                             difficulty: c.difficulty,
-                            icon: (color) => getSvgIcon(c.iconType, color)
+                            icon: (color) => getSvgIcon(c.iconType, color),
+                            modelType: c.modelType || 'coding'
                         }));
                         setCategoriesList(mappedCats);
 
@@ -1095,47 +1101,68 @@ export default function HologramCards() {
                 </Suspense>
             )}
 
-            {/* Mecha Robot Hologram — Robotics & RC category page */}
-            {selectedDivision === 'ROBOTICS & RC' && !eventName && (
-                <Suspense fallback={null}>
-                    <RobotShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+            {/* Dynamically Render Model based on the Category Database configuration */}
+            {(() => {
+                if (eventName) return null;
+                
+                // Find the currently selected category object in the list
+                const activeCategoryObj = categoriesList.find(c => c.title === selectedDivision);
+                if (!activeCategoryObj) return null;
 
-            {/* Controller Hologram — Gaming Arena category page */}
-            {selectedDivision === 'GAMING ARENA' && !eventName && (
-                <Suspense fallback={null}>
-                    <ControllerShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+                const modelType = activeCategoryObj.modelType || 'coding';
 
-            {/* Coding Quest terminal Hologram — Coding Quest category page */}
-            {selectedDivision === 'CODING QUEST' && !eventName && (
-                <Suspense fallback={null}>
-                    <CodingShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Civil City Hologram — Creative & Design category page */}
-            {selectedDivision === 'CREATIVE & DESIGN' && !eventName && (
-                <Suspense fallback={null}>
-                    <CivilShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Transformer Hologram — Electrical Guild category page */}
-            {selectedDivision === 'ELECTRICAL GUILD' && !eventName && (
-                <Suspense fallback={null}>
-                    <ElectricalShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Brain Hologram — AI & Data Science category page */}
-            {selectedDivision === 'AI & DATA SCIENCE' && !eventName && (
-                <Suspense fallback={null}>
-                    <AiShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+                switch (modelType) {
+                    case 'mecha':
+                        return (
+                            <Suspense fallback={null}>
+                                <RobotShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'controller':
+                        return (
+                            <Suspense fallback={null}>
+                                <ControllerShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'civil':
+                        return (
+                            <Suspense fallback={null}>
+                                <CivilShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'electrical':
+                        return (
+                            <Suspense fallback={null}>
+                                <ElectricalShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'ai':
+                        return (
+                            <Suspense fallback={null}>
+                                <AiShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'gun':
+                        return (
+                            <Suspense fallback={null}>
+                                <WeaponShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'portal':
+                        return (
+                            <Suspense fallback={null}>
+                                <PortalShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'coding':
+                    default:
+                        return (
+                            <Suspense fallback={null}>
+                                <CodingShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                }
+            })()}
 
             {/* Left & Right floating holographic HUD consoles */}
             {!eventName && (
@@ -1938,6 +1965,71 @@ function AiShowcase({ activeColor }) {
                 }}
             >
                 AI_CORE: NEURAL_BRAIN_HUD
+            </Html>
+        </group>
+    );
+}
+
+
+function PortalShowcase({ activeColor }) {
+    const portalRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/portal/scene.glb');
+
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.12,
+                });
+            }
+        });
+        scene.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+        const desiredHeight = 13.5;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (portalRef.current) {
+            portalRef.current.rotation.y = t * 0.10;
+            portalRef.current.position.y = 4.8 + Math.sin(t * 0.45) * 0.22;
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.15;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.09;
+    });
+
+    return (
+        <group>
+            <group ref={portalRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive object={model} position={[-offset.x, -offset.y, -offset.z]} rotation={[0, 0, 0]} />
+            </group>
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[9.5, 9.58, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[7.2, 7.25, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
+                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
+                PORTAL_GATEWAY: ACTIVE
             </Html>
         </group>
     );

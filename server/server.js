@@ -43,13 +43,13 @@ const seedDatabase = async () => {
         if (catCount < 7) {
             await Category.deleteMany({});
             const defaultCats = [
-                { title: 'ROBOTICS & RC', subtitle: 'AUTONOMOUS MOTORS', desc: 'Race high-speed RC cars and program precise line followers.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot' },
-                { title: 'CODING QUEST', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons and optimize code structures.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code' },
-                { title: 'ELECTRICAL GUILD', subtitle: 'CIRCUIT DEBUGGING', desc: 'Master breadboard wiring, logic gates, and analog designs.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt' },
-                { title: 'GAMING ARENA', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad' },
-                { title: 'CREATIVE & DESIGN', subtitle: 'STRUCTURE & CLAY', desc: 'Build structural bridges, throw pottery, and exhibit fine arts.', color: '#1fff76', xp: '4,500 XP', difficulty: 'EASY', iconType: 'brush' },
-                { title: 'AI & DATA SCIENCE', subtitle: 'NEURAL CONSTRUCTS', desc: 'Train reinforcement agents and design deep learning models.', color: '#2b5cff', xp: '7,000 XP', difficulty: 'HARD', iconType: 'cpu' },
-                { title: 'WORKSHOP LAB', subtitle: 'KINETIC HARDWARE', desc: 'Operate industrial metalworks and build hardware machinery.', color: '#ffea00', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'tool' }
+                { title: 'ROBOTICS & RC', subtitle: 'AUTONOMOUS MOTORS', desc: 'Race high-speed RC cars and program precise line followers.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
+                { title: 'CODING QUEST', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons and optimize code structures.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
+                { title: 'ELECTRICAL GUILD', subtitle: 'CIRCUIT DEBUGGING', desc: 'Master breadboard wiring, logic gates, and analog designs.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt', modelType: 'electrical' },
+                { title: 'GAMING ARENA', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad', modelType: 'controller' },
+                { title: 'CREATIVE & DESIGN', subtitle: 'STRUCTURE & CLAY', desc: 'Build structural bridges, throw pottery, and exhibit fine arts.', color: '#1fff76', xp: '4,500 XP', difficulty: 'EASY', iconType: 'brush', modelType: 'civil' },
+                { title: 'AI & DATA SCIENCE', subtitle: 'NEURAL CONSTRUCTS', desc: 'Train reinforcement agents and design deep learning models.', color: '#2b5cff', xp: '7,000 XP', difficulty: 'HARD', iconType: 'cpu', modelType: 'ai' },
+                { title: 'WORKSHOP LAB', subtitle: 'KINETIC HARDWARE', desc: 'Operate industrial metalworks and build hardware machinery.', color: '#ffea00', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'tool', modelType: 'coding' }
             ];
             await Category.insertMany(defaultCats);
             console.log(`[SEED] Seeded 7 default categories`);

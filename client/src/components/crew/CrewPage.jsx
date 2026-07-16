@@ -596,10 +596,62 @@ export default function CrewPage() {
         );
     }, [deptsData]);
 
-    // Filter members list
+    // Filter & Sort members list by role hierarchy
     const filteredCrew = useMemo(() => {
-        if (filterDept === 'ALL') return allMembers;
-        return allMembers.filter(m => m.dept === filterDept);
+        const roleHierarchy = {
+            'PRESIDENT': 1,
+            'VICE PRESIDENT': 2,
+            'GENERAL SECRETARY': 3,
+            'TREASURER': 4,
+            'PUBLIC RELATIONS': 5,
+            'TECH LEAD': 6,
+            'EVENTS HEAD': 7,
+            'MEDIA HEAD': 8,
+            'ROBOTICS HEAD': 9,
+            'SPONSORSHIP HEAD': 10,
+            'SENIOR COORDINATOR': 11,
+            'COORDINATOR': 12,
+            'LOGISTICS MANAGER': 13,
+            'STAGE MANAGER': 14,
+            'HOSPITALITY HEAD': 15,
+            'HARDWARE ENGINEER': 16,
+            'FIRMWARE DEV': 17,
+            'CAD DESIGNER': 18,
+            'TEST ENGINEER': 19,
+            'DOCUMENTATION LEAD': 20,
+            'BACKEND DEVELOPER': 21,
+            'FULL STACK DEV': 22,
+            'DEVOPS ENGINEER': 23,
+            'UI/UX DESIGNER': 24,
+            'DATABASE ARCHITECT': 25,
+            'PHOTOGRAPHER': 26,
+            'VIDEOGRAPHER': 27,
+            'GRAPHIC DESIGNER': 28,
+            'SOCIAL MEDIA LEAD': 29,
+            'CORPORATE RELATIONS': 30,
+            'OUTREACH LEAD': 31,
+            'MARKETING ANALYST': 32
+        };
+
+        const getRolePriority = (role) => {
+            if (!role) return 999;
+            const cleanRole = role.toUpperCase().trim();
+            return roleHierarchy[cleanRole] || 100; // default for other roles
+        };
+
+        const crewList = filterDept === 'ALL' 
+            ? allMembers 
+            : allMembers.filter(m => m.dept === filterDept);
+
+        // Sort by role hierarchy priority first, then alphabetically by name
+        return [...crewList].sort((a, b) => {
+            const priorityA = getRolePriority(a.role);
+            const priorityB = getRolePriority(b.role);
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB;
+            }
+            return a.name.localeCompare(b.name);
+        });
     }, [filterDept, allMembers]);
 
     // Split filtered crew into rows of 4 (desktop) or 2 (mobile)

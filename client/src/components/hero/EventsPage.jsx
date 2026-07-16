@@ -4,9 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { SUB_EVENTS, slugify, CARD_DATA } from '../../three/Scene/HologramCards';
 
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 // Event Rules & Details Directory
 const EVENT_RULES = {
@@ -137,7 +135,8 @@ export default function EventsPage() {
                             desc: c.desc,
                             color: c.color,
                             xp: c.xp,
-                            difficulty: c.difficulty
+                            difficulty: c.difficulty,
+                            modelType: c.modelType || 'coding'
                         }));
                         setCategoriesList(mappedCats);
 

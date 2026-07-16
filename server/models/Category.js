@@ -32,6 +32,11 @@ const CategorySchema = new mongoose.Schema({
         type: String,
         required: true,
         default: 'code' // 'code' | 'robot' | 'bolt' | 'gamepad'
+    },
+    modelType: {
+        type: String,
+        required: true,
+        default: 'coding' // 'gun' | 'mecha' | 'controller' | 'coding' | 'civil' | 'electrical' | 'ai'
     }
 }, { timestamps: true });
 
