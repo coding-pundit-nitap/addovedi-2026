@@ -15,6 +15,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CrewNav from './CrewNav';
+import { API_BASE } from '../../constants/api';
 
 /* ════════════════════════════════════════════
    CREW DATA
@@ -88,10 +89,6 @@ const DEPTS = {
         ],
     },
 };
-
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
 
 /* ════════════════════════════════════════════
    BACKGROUND CANVAS (At 5-10% Opacity)

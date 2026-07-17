@@ -49,7 +49,7 @@ export default function App() {
     }, [isEventPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <section className="relative h-screen w-full overflow-hidden bg-[#020617]">
+        <section className="relative h-[100dvh] w-full overflow-hidden bg-[#020617]">
             {/* Common background 3D Canvas — hidden on standalone pages like /timeline or /crew */}
             {!isStandalonePage && <HeroCanvas />}
 
