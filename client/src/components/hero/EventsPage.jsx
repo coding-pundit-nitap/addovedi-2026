@@ -865,6 +865,88 @@ export default function EventsPage() {
                     </div>
                 </div>
 
+                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) */}
+                {!activeCategory && !activeEvent && (
+                    <div className="flex md:hidden w-full flex-col items-center gap-1.5 px-1 mt-1.5 pointer-events-auto z-20">
+                        {/* Small Heading: CATEGORIES */}
+                        <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#00d9ff] opacity-75 font-black uppercase">
+                            [ CATEGORIES ]
+                        </span>
+                        
+                        {/* Horizontal Scrollable Category List with scroll indicators */}
+                        <div className="w-full flex items-center gap-1 relative px-2">
+                            {/* Left Scroll Indicator: << */}
+                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
+                                &lt;&lt;
+                            </span>
+
+                            {/* Scrollable list */}
+                            <div className="flex-1 flex flex-row gap-2.5 overflow-x-auto py-1 px-1.5 scrollbar-none justify-start select-none">
+                                {categoriesList.map((card, i) => {
+                                    const isActive = activeCategorySlug === slugify(card.title);
+                                    const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
+                                    const shortNames = {
+                                        'ROBOTICS & RC': 'Robotics',
+                                        'CODING QUEST': 'Coding',
+                                        'ELECTRICAL GUILD': 'Electrical',
+                                        'GAMING ARENA': 'Gaming',
+                                        'CREATIVE & DESIGN': 'Creative',
+                                        'AI & DATA SCIENCE': 'AI & DS',
+                                        'WORKSHOP LAB': 'Workshop'
+                                    };
+                                    const displayName = shortNames[card.title] || card.title;
+                                    
+                                    return (
+                                        <button
+                                            key={card.title}
+                                            onClick={() => {
+                                                setActiveCategorySlug(slugify(card.title));
+                                            }}
+                                            className="category-para-btn-wrap shrink-0"
+                                            style={{
+                                                '--btn-border-color': isActive ? card.color : 'rgba(0, 217, 255, 0.22)',
+                                                transform: isActive ? 'scale(1.02)' : 'none',
+                                                cursor: 'pointer',
+                                                border: 'none',
+                                                background: 'none',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            <div
+                                                className="category-para-btn-inner"
+                                                style={{
+                                                    background: isActive
+                                                        ? `linear-gradient(180deg, ${card.color}25 0%, ${card.color}05 100%)`
+                                                        : 'rgba(4, 18, 34, 0.95)',
+                                                    color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+                                                    textShadow: isActive ? `0 0 10px ${card.color}ee` : 'none',
+                                                    boxShadow: isActive ? `0 0 15px ${card.color}35, inset 0 0 15px ${card.color}15` : 'none',
+                                                    padding: '6px 14px 6px 18px',
+                                                    fontSize: '10px',
+                                                    gap: '6px',
+                                                    clipPath: 'polygon(7.5px 0%, 100% 0%, calc(100% - 7.5px) 100%, 0% 100%)' // Slightly adjusted chamfer for smaller height
+                                                }}
+                                            >
+                                                <span style={{ fontSize: '13px', lineHeight: 1, color: isActive ? card.color : 'rgba(255, 255, 255, 0.45)' }}>
+                                                    {icons[i]}
+                                                </span>
+                                                <span style={{ fontSize: '9px', letterSpacing: '0.05em', fontWeight: 800, fontFamily: "'Rajdhani', sans-serif" }}>
+                                                    {displayName}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Right Scroll Indicator: >> */}
+                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
+                                &gt;&gt;
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Empty Center Space (Fills with 3D Hologram Cards on Desktop, or HTML Grid on Mobile) */}
                 {isMobile && activeCategory && !activeEvent ? (
                     <div
@@ -977,128 +1059,7 @@ export default function EventsPage() {
                     <div className="flex-1 w-full" />
                 )}
 
-                {/* ── DIVISION SELECTOR BUTTONS — Lobby only ── */}
-                <AnimatePresence>
-                    {!activeCategory && !activeEvent && (
-                        <motion.div
-                            key="division-deck"
-                            initial={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : 16 }}
-                            animate={{ opacity: 1, x: 0, y: 0 }}
-                            exit={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : 16 }}
-                            transition={{ duration: 0.35, ease: 'easeOut' }}
-                            className="pointer-events-auto z-20 w-auto fixed left-4 top-[24%] -translate-y-0 md:hidden"
-                            style={isMobile ? {
-                                background: 'rgba(2, 13, 26, 0.85)',
-                                border: '1.5px solid rgba(0, 217, 255, 0.35)',
-                                borderRadius: '24px',
-                                padding: '12px 6px',
-                                boxShadow: '0 0 20px rgba(0, 217, 255, 0.20)',
-                                backdropFilter: 'blur(12px)',
-                            } : undefined}
-                        >
-                            {/* Mobile swipe helper (hidden since it's vertical now) */}
-                            <div className="hidden md:flex items-center justify-between px-5 mb-1.5 text-[8px] tracking-[0.2em] text-cyan-400 font-mono opacity-70 select-none">
-                                <span>[ SECTORS_LIST ]</span>
-                            </div>
 
-                            <div
-                                className="flex flex-col md:flex-row gap-[6px] overflow-y-auto md:overflow-x-visible pb-0 md:pb-0 scrollbar-none"
-                            >
-                                {categoriesList.map((card, i) => {
-                                    const isActive = activeCategorySlug === slugify(card.title);
-                                    const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
-                                    const ids = ['01', '02', '03', '04', '05', '06', '07'];
-                                    return (
-                                        <button
-                                            key={card.title}
-                                            onClick={() => {
-                                                setActiveCategorySlug(slugify(card.title));
-                                            }}
-                                            style={{
-                                                flex: isMobile ? '0 0 auto' : '1 0 auto',
-                                                flexShrink: 0,
-                                                minWidth: isMobile ? '38px' : '95px',
-                                                width: isMobile ? '38px' : 'auto',
-                                                height: isMobile ? '38px' : 'auto',
-                                                position: 'relative',
-                                                background: isActive
-                                                    ? `linear-gradient(180deg, ${card.color}18 0%, ${card.color}08 100%)`
-                                                    : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)',
-                                                border: isMobile ? `1.5px solid ${isActive ? card.color : 'rgba(255,255,255,0.24)'}` : 'none',
-                                                borderTop: isMobile ? undefined : (isActive ? `2px solid ${card.color}` : '2px solid rgba(255,255,255,0.06)'),
-                                                borderLeft: isMobile ? undefined : (isActive ? `1px solid ${card.color}40` : '1px solid rgba(255,255,255,0.05)'),
-                                                borderRight: isMobile ? undefined : (isActive ? `1px solid ${card.color}40` : '1px solid rgba(255,255,255,0.05)'),
-                                                borderBottom: isMobile ? undefined : (isActive ? `1px solid ${card.color}30` : '1px solid rgba(255,255,255,0.04)'),
-                                                color: isActive ? card.color : 'rgba(255,255,255,0.35)',
-                                                padding: isMobile ? '0px' : '12px 6px 10px',
-                                                fontFamily: 'monospace',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                textAlign: 'center',
-                                                borderRadius: isMobile ? '50%' : '12px',
-                                                boxShadow: isActive ? (isMobile ? `0 0 10px ${card.color}50` : `0 0 20px ${card.color}25, inset 0 0 20px ${card.color}06`) : 'none',
-                                                clipPath: isMobile ? 'none' : 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% 100%, 0% 100%, 0% 4px)',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.borderColor = isMobile ? `${card.color}80` : undefined;
-                                                    if (!isMobile) {
-                                                        e.currentTarget.style.borderTopColor = `${card.color}80`;
-                                                    }
-                                                    e.currentTarget.style.background = `linear-gradient(180deg, ${card.color}10 0%, transparent 100%)`;
-                                                    e.currentTarget.style.color = card.color;
-                                                    e.currentTarget.style.boxShadow = `0 0 14px ${card.color}20`;
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.borderColor = isMobile ? 'rgba(255,255,255,0.1)' : undefined;
-                                                    if (!isMobile) {
-                                                        e.currentTarget.style.borderTopColor = 'rgba(255,255,255,0.06)';
-                                                    }
-                                                    e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)';
-                                                    e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }
-                                            }}
-                                        >
-                                            {isMobile ? (
-                                                <div style={{ fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', lineHeight: 1 }}>
-                                                    {icons[i]}
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    {/* Sector ID top-left */}
-                                                    <div style={{ position: 'absolute', top: '5px', left: '7px', fontSize: '6px', letterSpacing: '0.1em', opacity: isActive ? 0.9 : 0.3, color: isActive ? card.color : '#fff', fontWeight: 900 }}>
-                                                        SECT_{ids[i]}
-                                                    </div>
-
-                                                    {/* Active indicator dot top-right */}
-                                                    {isActive && (
-                                                        <span style={{ position: 'absolute', top: '6px', right: '7px', width: '5px', height: '5px', borderRadius: '50%', background: card.color, boxShadow: `0 0 8px ${card.color}`, display: 'inline-block' }} />
-                                                    )}
-
-                                                    {/* Icon */}
-                                                    <div style={{ fontSize: '18px', marginBottom: '6px', marginTop: '8px', lineHeight: 1 }}>{icons[i]}</div>
-
-                                                    {/* Title */}
-                                                    <div style={{ fontSize: '7px', letterSpacing: '0.18em', fontWeight: 900, lineHeight: 1.3 }}>
-                                                        {card.title}
-                                                    </div>
-
-                                                    {/* Active bottom bar */}
-                                                    {isActive && (
-                                                        <div style={{ position: 'absolute', bottom: 0, left: '20%', right: '20%', height: '2px', background: card.color, boxShadow: `0 0 8px ${card.color}` }} />
-                                                    )}
-                                                </>
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
 
                 {/* Registration Overlay Modal */}
