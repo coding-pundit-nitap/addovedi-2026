@@ -622,17 +622,29 @@ export default function HologramCards() {
         const handleWheel = (e) => {
             if (isTransitioning || selectedDivision || isScrollLocked.current) return;
 
-            // Use dominant axis to prevent deltaX + deltaY cancelling each other out on trackpad
-            const delta = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-            if (Math.abs(delta) > 20) {
+            // React to horizontal scrolling (deltaX) for trackpad left/right swipe
+            if (Math.abs(e.deltaX) > 10) {
                 isScrollLocked.current = true;
-                if (delta > 0) {
+                if (e.deltaX > 0) {
                     setActiveRotationIndex(prev => (prev + 1) % 7);
                 } else {
                     setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
                 }
+                // Cooldown of 450ms for responsive swipe sweeps
+                setTimeout(() => {
+                    isScrollLocked.current = false;
+                }, 450);
+                return;
+            }
 
-                // Keep locked for 500ms to guarantee exactly ONE card transition per user trackpad sweep
+            // Fallback: React to vertical scrolling (deltaY)
+            if (Math.abs(e.deltaY) > 20) {
+                isScrollLocked.current = true;
+                if (e.deltaY > 0) {
+                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                } else {
+                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                }
                 setTimeout(() => {
                     isScrollLocked.current = false;
                 }, 500);
@@ -1204,7 +1216,7 @@ export default function HologramCards() {
 
             {/* HTML Back Nav Button */}
             {selectedDivision && !eventName && (
-                <Html position={[0, isMobile ? -3.2 : -0.6, -9.0]} center>
+                <Html position={[0, isMobile ? -3.2 : -0.1, -9.0]} center>
                     <button
                         onClick={handleBack}
                         onMouseEnter={() => setBackHovered(true)}
@@ -1222,8 +1234,8 @@ export default function HologramCards() {
                         }}
                     >
                         {/* Laser light scan sweep effect */}
-                        <span 
-                            className="absolute inset-y-0 left-0 w-12 -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out" 
+                        <span
+                            className="absolute inset-y-0 left-0 w-12 -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out"
                             style={{
                                 background: `linear-gradient(to right, transparent, ${activeColor}4d, transparent)`
                             }}
@@ -1991,62 +2003,62 @@ function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
     );
 }
 
-// ── Floating HUD Widget ───────────────────────────────────────────────────────
-function HudWidget({ position, rotation, side }) {
-    const ref = useRef();
+// // ── Floating HUD Widget ───────────────────────────────────────────────────────
+// function HudWidget({ position, rotation, side }) {
+//     const ref = useRef();
 
-    useFrame(({ clock }) => {
-        if (!ref.current) return;
-        const t = clock.elapsedTime;
-        ref.current.position.y = position[1] + Math.sin(t * 1.2) * 0.15;
-        ref.current.rotation.y = rotation[1] + Math.cos(t * 0.8) * 0.02;
-    });
+//     useFrame(({ clock }) => {
+//         if (!ref.current) return;
+//         const t = clock.elapsedTime;
+//         ref.current.position.y = position[1] + Math.sin(t * 1.2) * 0.15;
+//         ref.current.rotation.y = rotation[1] + Math.cos(t * 0.8) * 0.02;
+//     });
 
-    const lines = side === 'left'
-        ? ['SYS_STATUS: READY', 'ARENA_LOBBY: ACTIVE', 'XP_BOOST: 2.0X', 'PING: 24MS']
-        : ['SERVERS: ONLINE', 'PLAYERS: 2,026', 'ACTIVE_QUESTS: 5', 'SEC_SECTOR: SECURE'];
+//     const lines = side === 'left'
+//         ? ['SYS_STATUS: READY', 'ARENA_LOBBY: ACTIVE', 'XP_BOOST: 2.0X', 'PING: 24MS']
+//         : ['SERVERS: ONLINE', 'PLAYERS: 2,026', 'ACTIVE_QUESTS: 5', 'SEC_SECTOR: SECURE'];
 
-    const accentColor = side === 'left' ? '#ff1f4f' : '#9b5cff';
+//     const accentColor = side === 'left' ? '#ff1f4f' : '#9b5cff';
 
-    const panelGeo = useMemo(() => new THREE.PlaneGeometry(2.0, 3.0), []);
-    const edgesGeo = useMemo(() => new THREE.EdgesGeometry(panelGeo), [panelGeo]);
+//     const panelGeo = useMemo(() => new THREE.PlaneGeometry(2.0, 3.0), []);
+//     const edgesGeo = useMemo(() => new THREE.EdgesGeometry(panelGeo), [panelGeo]);
 
-    return (
-        <group ref={ref} position={position} rotation={rotation}>
-            <mesh geometry={panelGeo}>
-                <meshBasicMaterial color={accentColor} transparent opacity={0.03} />
-            </mesh>
-            <lineSegments geometry={edgesGeo}>
-                <lineBasicMaterial color={accentColor} opacity={0.3} transparent />
-            </lineSegments>
+//     return (
+//         <group ref={ref} position={position} rotation={rotation}>
+//             <mesh geometry={panelGeo}>
+//                 <meshBasicMaterial color={accentColor} transparent opacity={0.03} />
+//             </mesh>
+//             <lineSegments geometry={edgesGeo}>
+//                 <lineBasicMaterial color={accentColor} opacity={0.3} transparent />
+//             </lineSegments>
 
-            <Html
-                transform
-                distanceFactor={4.5}
-                position={[0, 0, 0.02]}
-                style={{
-                    width: '180px',
-                    color: '#ffffff',
-                    fontFamily: 'monospace',
-                    textAlign: 'left',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                }}
-            >
-                <div style={{ padding: '10px' }}>
-                    <div style={{ color: accentColor, fontWeight: 'bold', fontSize: '11px', letterSpacing: '1px', marginBottom: '15px', textAlign: 'center' }}>
-                        [HUD_CONSOLE]
-                    </div>
-                    {lines.map((line) => (
-                        <div key={line} style={{ fontSize: '10px', opacity: 0.7, marginBottom: '8px' }}>
-                            {line}
-                        </div>
-                    ))}
-                </div>
-            </Html>
-        </group>
-    );
-}
+//             <Html
+//                 transform
+//                 distanceFactor={4.5}
+//                 position={[0, 0, 0.02]}
+//                 style={{
+//                     width: '180px',
+//                     color: '#ffffff',
+//                     fontFamily: 'monospace',
+//                     textAlign: 'left',
+//                     pointerEvents: 'none',
+//                     userSelect: 'none',
+//                 }}
+//             >
+//                 <div style={{ padding: '10px' }}>
+//                     <div style={{ color: accentColor, fontWeight: 'bold', fontSize: '11px', letterSpacing: '1px', marginBottom: '15px', textAlign: 'center' }}>
+//                         [HUD_CONSOLE]
+//                     </div>
+//                     {lines.map((line) => (
+//                         <div key={line} style={{ fontSize: '10px', opacity: 0.7, marginBottom: '8px' }}>
+//                             {line}
+//                         </div>
+//                     ))}
+//                 </div>
+//             </Html>
+//         </group>
+//     );
+// }
 
 // ── Single Hologram Card (Forward Reference Enabled for GSAP tracking) ────────
 const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selectedDivision, isActive, wrappedDiff, onClickCard }, ref) => {

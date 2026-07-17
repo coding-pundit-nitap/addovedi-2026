@@ -734,7 +734,10 @@ export default function EventsPage() {
 
                 {/* Empty Center Space (Fills with 3D Hologram Cards on Desktop, or HTML Grid on Mobile) */}
                 {isMobile && activeCategory && !activeEvent ? (
-                    <div className="flex-1 w-full overflow-y-auto pt-2 pb-6 px-4 flex flex-col justify-start pointer-events-auto scrollbar-none relative">
+                    <div 
+                        style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
+                        className="flex-1 w-full overflow-y-auto pt-2 pb-6 px-4 flex flex-col justify-start pointer-events-auto scrollbar-none relative"
+                    >
                         {/* Custom Animated Scroll Indicator Line */}
                         <div className="absolute right-1 top-[20%] bottom-[20%] w-[1.5px] bg-white/5 pointer-events-none z-20 rounded-full overflow-hidden">
                             <motion.div 
@@ -754,15 +757,21 @@ export default function EventsPage() {
                             />
                         </div>
                         <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
-                            {(subEventsData[activeCategory.title] || []).map((subEvent) => (
+                            {(subEventsData[activeCategory.title] || []).map((subEvent, idx) => (
                                 <motion.div
                                     key={subEvent.title}
                                     initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.05 }}
+                                    transition={{ 
+                                        duration: 0.35, 
+                                        delay: Math.min(idx * 0.05, 0.25), 
+                                        ease: 'easeOut'
+                                    }}
                                     className="event-card-cyber-wrap"
                                     style={{
                                         '--card-border-color': `${activeCategory.color}35`,
-                                        filter: `drop-shadow(0 0 8px ${activeCategory.color}15)`,
+                                        boxShadow: `0 0 10px ${activeCategory.color}12`,
                                     }}
                                 >
                                     <div className="event-card-cyber-inner">
@@ -1123,6 +1132,81 @@ export default function EventsPage() {
                             })}
                         </div>
                     ) : null}
+
+                    {/* Cyber Breadcrumbs Bar */}
+                    <div className="w-full flex flex-col items-center gap-1.5 mt-3">
+                        {/* Small high-tech bar */}
+                        <div 
+                            className="relative w-full h-[2px] rounded-full overflow-hidden"
+                            style={{
+                                background: activeCategory 
+                                    ? `linear-gradient(to right, transparent, ${activeCategory.color}70, transparent)` 
+                                    : 'linear-gradient(to right, transparent, rgba(0, 217, 255, 0.4), transparent)',
+                                boxShadow: activeCategory 
+                                    ? `0 0 8px ${activeCategory.color}20` 
+                                    : '0 0 8px rgba(0, 217, 255, 0.15)'
+                            }}
+                        >
+                            {/* Glowing scanning pulse */}
+                            <motion.div 
+                                className="absolute top-0 bottom-0 w-1/4"
+                                style={{
+                                    background: activeCategory 
+                                        ? `linear-gradient(to right, transparent, ${activeCategory.color}, transparent)` 
+                                        : 'linear-gradient(to right, transparent, #00d9ff, transparent)'
+                                }}
+                                animate={{
+                                    left: ['-25%', '100%']
+                                }}
+                                transition={{
+                                    duration: 4,
+                                    repeat: Infinity,
+                                    ease: 'linear'
+                                }}
+                            />
+                        </div>
+
+                        {/* Breadcrumbs Text */}
+                        <div 
+                            className="flex items-center gap-2 font-mono text-[9px] sm:text-[11px] tracking-[0.18em] uppercase select-none mt-1"
+                            style={{
+                                color: activeCategory ? activeCategory.color : '#00d9ff',
+                                textShadow: activeCategory 
+                                    ? `0 0 8px ${activeCategory.color}40` 
+                                    : '0 0 8px rgba(0, 217, 255, 0.4)'
+                            }}
+                        >
+                            <span 
+                                onClick={() => navigate('/event')} 
+                                className="cursor-pointer hover:text-white transition-colors duration-200"
+                            >
+                                LOBBY
+                            </span>
+                            {activeCategory && (
+                                <>
+                                    <span className="text-white/30 text-[8px] sm:text-[10px]">➔</span>
+                                    <span 
+                                        onClick={() => {
+                                            if (activeEvent) {
+                                                navigate(`/event/${categoryName}`);
+                                            }
+                                        }}
+                                        className={`transition-colors duration-200 ${activeEvent ? 'cursor-pointer hover:text-white' : 'font-bold text-white'}`}
+                                    >
+                                        {activeCategory.title}
+                                    </span>
+                                </>
+                            )}
+                            {activeEvent && (
+                                <>
+                                    <span className="text-white/30 text-[8px] sm:text-[10px]">➔</span>
+                                    <span className="text-white font-black">
+                                        {activeEvent.title}
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </motion.div>
 
