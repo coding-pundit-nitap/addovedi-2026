@@ -11,7 +11,8 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import AlliancesNav from './AlliancesNav';
+import CommonNav from '../common/CommonNav';
+import CommonLoader from '../common/CommonLoader';
 import { API_BASE } from '../../constants/api';
 
 const SPONSORS_LIST = [
@@ -483,10 +484,11 @@ export default function AlliancesPage() {
 
     // Entry power on sequence
     useEffect(() => {
-        const timer1 = setTimeout(() => setBooted(true), 1500);
-        const timer2 = setTimeout(() => setRadialActive(true), 2000);
-        return () => { clearTimeout(timer1); clearTimeout(timer2); };
-    }, []);
+        if (booted) {
+            const timer = setTimeout(() => setRadialActive(true), 500);
+            return () => clearTimeout(timer);
+        }
+    }, [booted]);
 
     // Energy reactor pulse cycle (every 7 seconds)
     useEffect(() => {
@@ -566,21 +568,12 @@ export default function AlliancesPage() {
             <BgCanvas />
 
             {/* ── Entry Sequence Screen ── */}
-            {!booted && (
-                <div style={{ position:'fixed', inset:0, zIndex:200, background:'#010307', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'12px' }}>
-                    <div style={{ fontFamily:"'Orbitron', monospace", fontSize:'10px', letterSpacing:'0.45em', color:'rgba(0, 229, 255, 0.6)' }}>
-                        ESTABLISHING ALLIANCE LINK
-                    </div>
-                    {/* Glowing reactor progress circle */}
-                    <div style={{ width:'40px', height:'40px', border:'2px dashed rgba(0,229,255,0.2)', borderTop:'2px solid #00E5FF', borderRadius:'50%', animation:'spin 1.5s linear infinite', marginTop:'10px' }} />
-                </div>
-            )}
+            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Alliances" />}
 
-            {booted && (
-                <>
+            <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
                     {/* Navigation */}
                     <div style={{ position:'relative', zIndex:20 }}>
-                        <AlliancesNav />
+                        <CommonNav />
                     </div>
 
                     {/* ── HERO SECTION: REACTOR CORE ── */}
@@ -860,8 +853,7 @@ export default function AlliancesPage() {
                             </button>
                         </div>
                     </div>
-                </>
-            )}
+            </div>
         </div>
     );
 }

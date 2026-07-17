@@ -4,6 +4,7 @@ import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
 import { useStore } from "./store/useStore";
 import { AnimatePresence, motion } from "framer-motion";
+import CommonSidebar from "./components/common/CommonSidebar";
 
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
 
             {/* Route overlays (HTML templates) */}
             <AppRoutes />
+            <CommonSidebar />
         </section>
     );
 }

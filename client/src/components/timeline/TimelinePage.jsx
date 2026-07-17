@@ -18,7 +18,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, AdaptiveDpr, AdaptiveEvents } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, AnimatePresence } from 'framer-motion';
-import TimelineNav from './TimelineNav';
+import CommonNav from '../common/CommonNav';
+import CommonLoader from '../common/CommonLoader';
 
 /* ═══════════════════════════════════════════
    MISSION DATA
@@ -540,62 +541,7 @@ function BgCanvas() {
     );
 }
 
-/* ═══════════════════════════════════════════
-   BOOT SEQUENCE
-═══════════════════════════════════════════ */
-function BootSeq({ onDone }) {
-    const [pct, setPct] = useState(0);
-    const [show, setShow] = useState(false);
-    const [flicker, setFlicker] = useState(false);
 
-    useEffect(() => {
-        const t0 = setTimeout(() => setShow(true), 300);
-        let start = null, raf;
-        const t1 = setTimeout(() => {
-            const go = ts => {
-                if (!start) start = ts;
-                const p = Math.min(100, Math.floor(((ts - start) / 1600) * 100));
-                setPct(p);
-                if (p < 100) raf = requestAnimationFrame(go);
-                else { setTimeout(() => { setFlicker(true); setTimeout(onDone, 450); }, 150); }
-            };
-            raf = requestAnimationFrame(go);
-        }, 450);
-        return () => { clearTimeout(t0); clearTimeout(t1); cancelAnimationFrame(raf); };
-    }, [onDone]);
-
-    return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 300,
-            background: '#06080F',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            animation: flicker ? 'bootFlick 0.45s steps(3,end) forwards' : 'none',
-        }}>
-            <style>{`
-                @keyframes bootFlick { 0%,100%{opacity:1}33%{opacity:0}66%{opacity:1}83%{opacity:0} }
-            `}</style>
-            {show && (
-                <div style={{ textAlign: 'center', fontFamily:"'Orbitron',monospace" }}>
-                    <div style={{ fontSize: 'clamp(9px,2vw,14px)', color: '#00E5FF', letterSpacing: '0.55em', marginBottom: '28px', textShadow: '0 0 20px #00E5FF', opacity: 0.9 }}>
-                        MISSION COMMAND CENTER
-                    </div>
-                    <div style={{ fontSize: 'clamp(9px,1.8vw,12px)', color: 'rgba(122,92,255,0.7)', letterSpacing: '0.4em', marginBottom: '24px' }}>
-                        SYSTEM INITIALIZING...
-                    </div>
-                    <div style={{ width:'min(320px,75vw)', height:'3px', background:'rgba(0,229,255,0.12)', borderRadius:'2px', overflow:'hidden', margin:'0 auto 16px' }}>
-                        <div style={{ height:'100%', width:`${pct}%`, background:'linear-gradient(90deg,#7A5CFF,#00E5FF)', boxShadow:'0 0 10px #00E5FF', transition:'width 0.04s linear', borderRadius:'2px' }} />
-                    </div>
-                    <div style={{ fontSize:'clamp(22px,5vw,44px)', fontWeight:900, color:'#00E5FF', textShadow:'0 0 30px #00E5FF,0 0 60px rgba(0,229,255,0.35)', letterSpacing:'0.08em' }}>
-                        {pct}%
-                    </div>
-                    <div style={{ marginTop:'10px', fontSize:'9px', color:'rgba(0,229,255,0.3)', letterSpacing:'0.3em' }}>
-                        ADDOVEDI 2026 // LOADING MISSION FILES
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
 
 /* ═══════════════════════════════════════════
    DAY SLOT CARD
@@ -1402,11 +1348,10 @@ export default function TimelinePage() {
             `}</style>
 
             <BgCanvas />
-            {!booted && <BootSeq onDone={handleBoot} />}
+            {!booted && <CommonLoader onDone={handleBoot} pageName="Timeline" />}
 
-            {/* ── Navbar — always visible, not faded by boot ── */}
             <div style={{ position:'relative', zIndex:20 }}>
-                <TimelineNav />
+                <CommonNav />
             </div>
 
             <div style={{

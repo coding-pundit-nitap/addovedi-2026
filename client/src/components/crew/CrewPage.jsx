@@ -14,7 +14,8 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CrewNav from './CrewNav';
+import CommonNav from '../common/CommonNav';
+import CommonLoader from '../common/CommonLoader';
 import { API_BASE } from '../../constants/api';
 
 /* ════════════════════════════════════════════
@@ -635,11 +636,7 @@ export default function CrewPage() {
         return () => clearInterval(interval);
     }, [filteredCrew.length, booted]);
 
-    // Initial page load simulated database sweep
-    useEffect(() => {
-        const timer = setTimeout(() => setBooted(true), 2400);
-        return () => clearTimeout(timer);
-    }, []);
+
 
     return (
         <div style={{ position:'fixed', inset:0, background:'#02050c', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
@@ -736,28 +733,12 @@ export default function CrewPage() {
 
             <BgCanvas />
 
-            {/* ── Entry Boot Loader ── */}
-            {!booted && (
-                <div style={{ position:'fixed', inset:0, zIndex:200, background:'#02050c', display:'flex', flexDirection:'column', alignItems:'center', justifyJoin:'center', gap:'12px', justifyContent: 'center' }}>
-                    <div style={{ fontFamily:"'Orbitron', monospace", fontSize:'10px', letterSpacing:'0.4em', color:'rgba(0, 229, 255, 0.7)' }}>
-                        CREW CONNECTION ESTABLISHED
-                    </div>
-                    {/* Energy wave sweep indicator */}
-                    <div style={{ position:'relative', width:'240px', height:'2px', background:'rgba(0,229,255,0.1)', overflow:'hidden', marginTop:'10px' }}>
-                        <div style={{
-                            position:'absolute', top:0, height:'100%', width:'100px',
-                            background:'linear-gradient(90deg, transparent, #00E5FF, transparent)',
-                            animation: 'sweepLine 2s ease-in-out infinite'
-                        }} />
-                    </div>
-                </div>
-            )}
+            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />}
 
-            {booted && (
-                <>
+            <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
                     {/* Navbar */}
                     <div style={{ position:'relative', zIndex:20 }}>
-                        <CrewNav />
+                        <CommonNav />
                     </div>
 
                     {/* Main Container */}
@@ -907,8 +888,7 @@ export default function CrewPage() {
                             }} />
                         </div>
                     </div>
-                </>
-            )}
+            </div>
         </div>
     );
 }
