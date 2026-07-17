@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+    import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
