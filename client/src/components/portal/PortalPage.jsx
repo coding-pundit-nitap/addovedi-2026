@@ -11,6 +11,11 @@ const GAMER_AVATARS = [
     { id: 'aegis', name: 'AEGIS_SENTINEL', color: '#F59E0B', desc: 'HEAVY MECHA VANGUARD', border: 'rgba(245, 158, 11, 0.4)' }
 ];
 
+const sanitizeUserForStorage = (userObj) => {
+     const { password, ...safeUser } = userObj || {};
+     return safeUser;
+ };
+
 export default function AuthModal() {
     const navigate = useNavigate();
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
@@ -51,7 +56,7 @@ export default function AuthModal() {
         // Load logged in user from localStorage
         const storedUser = localStorage.getItem('addovedi_user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            setUser(sanitizeUserForStorage(JSON.parse(storedUser)));
         }
         
         // Load registered events from localStorage
@@ -92,8 +97,9 @@ export default function AuthModal() {
         setTimeout(() => {
             setIsSubmitting(false);
             if (found) {
-                setUser(found);
-                localStorage.setItem('addovedi_user', JSON.stringify(found));
+                const safeFound = sanitizeUserForStorage(found);
+                 setUser(safeFound);
+                 localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
                 // Reload registrations
                 const storedRegs = localStorage.getItem('addovedi_registrations') || '[]';
                 setRegisteredEvents(JSON.parse(storedRegs));
@@ -131,10 +137,11 @@ export default function AuthModal() {
                 addovediId: '',
                 avatar: 'specter'
             };
-            allUsers.push(newUser);
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
-            setUser(newUser);
-            localStorage.setItem('addovedi_user', JSON.stringify(newUser));
+            allUsers.push(sanitizeUserForStorage(newUser));
+             localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers.map(sanitizeUserForStorage)));
+             const safeNewUser = sanitizeUserForStorage(newUser);
+             setUser(safeNewUser);
+             localStorage.setItem('addovedi_user', JSON.stringify(safeNewUser));
         }, 1200);
     };
 
@@ -167,17 +174,18 @@ export default function AuthModal() {
             };
             
             // Save inside both current user and registered users array
-            setUser(updatedUser);
-            localStorage.setItem('addovedi_user', JSON.stringify(updatedUser));
+            const safeUpdatedUser = sanitizeUserForStorage(updatedUser);
+             setUser(safeUpdatedUser);
+             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
             
             const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
             const idx = allUsers.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
             if (idx !== -1) {
-                allUsers[idx] = updatedUser;
+                allUsers[idx] = safeUpdatedUser;
             } else {
-                allUsers.push(updatedUser);
+                allUsers.push(safeUpdatedUser);
             }
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
+            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers.map(sanitizeUserForStorage)));
             setErrorMsg('');
         }, 1500);
     };
