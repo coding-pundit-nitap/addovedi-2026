@@ -13,6 +13,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
+import ScrollIndicator from '../common/ScrollIndicator';
 import { API_BASE } from '../../constants/api';
 
 const SPONSORS_LIST = [
@@ -499,8 +500,11 @@ export default function AlliancesPage() {
         return () => clearInterval(interval);
     }, [booted]);
 
+    const pageRef = useRef(null);
+
     return (
-        <div style={{ position:'fixed', inset:0, background:'#010307', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
+        <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#010307', zIndex:100, overflowY:'auto', overflowX:'hidden', WebkitOverflowScrolling:'touch' }}>
+            <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }

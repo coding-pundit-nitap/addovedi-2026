@@ -205,12 +205,13 @@ export default function CommonSidebar() {
                         <div className="mt-auto border-t border-[#00f0ff]/15 pt-6 flex flex-col gap-5 relative z-10">
                             <div className="flex items-center gap-2 text-[7.5px] tracking-widest font-black text-[#FF2EA6]" style={{ textShadow: '0 0 8px rgba(255,46,166,0.5)' }}>
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF2EA6] animate-pulse" style={{ boxShadow: '0 0 6px #FF2EA6' }} />
-                                <span>{activePath === '/event' ? 'PLAYER ACTIVE' : 'PLAYER CONNECTING...'}</span>
+                                <span>{localStorage.getItem('addovedi_user') ? 'PLAYER ACTIVE' : 'PLAYER CONNECTING...'}</span>
                             </div>
                             <div className="reg-btn-wrap w-full">
                                 <button
                                     onClick={() => {
-                                        handleNavigation('ARENA', '/event');
+                                        setIsSidebarOpen(false);
+                                        useStore.getState().setAuthModalOpen(true);
                                     }}
                                     className="reg-btn group w-full text-center flex justify-center items-center py-3.5 relative"
                                     style={{ cursor: 'pointer' }}
@@ -237,7 +238,9 @@ export default function CommonSidebar() {
                                     <span className="reg-fill" />
                                     {/* Label — always on top */}
                                     <div className="relative z-10 flex items-center justify-center gap-2">
-                                        <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(0,217,255,0.8), 0 0 20px rgba(0,217,255,0.4)', fontFamily: "'Orbitron', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.15em' }}>CREATE PLAYER</span>
+                                        <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(0,217,255,0.8), 0 0 20px rgba(0,217,255,0.4)', fontFamily: "'Orbitron', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.15em' }}>
+                                            {localStorage.getItem('addovedi_user') ? 'PLAYER PROFILE' : 'CREATE PLAYER'}
+                                        </span>
                                         <span
                                             className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none"
                                             style={{ color: '#00D9FF', textShadow: '0 0 10px #00D9FF' }}

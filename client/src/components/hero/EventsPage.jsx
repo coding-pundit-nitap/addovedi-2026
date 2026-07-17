@@ -293,6 +293,19 @@ export default function EventsPage() {
         return eventsList.find(e => slugify(e.title) === eventName) || null;
     }, [activeCategory, eventName, subEventsData]);
 
+    useEffect(() => {
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (loggedInUser && loggedInUser.isGlobalRegistered) {
+            setLeaderName(loggedInUser.name || '');
+            setLeaderUID(loggedInUser.addovediId || '');
+            setLeaderPhone(loggedInUser.phone || '');
+        } else {
+            setLeaderName('');
+            setLeaderUID('');
+            setLeaderPhone('');
+        }
+    }, [activeEvent]);
+
     const handleExit = () => {
         setIsEntered(false);
         setIsEventPage(false);
@@ -301,7 +314,23 @@ export default function EventsPage() {
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
+        
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
+
+        // Add to registrations list in localStorage
+        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+        if (!storedRegs.some(r => r.title === activeEvent.title)) {
+            storedRegs.push({
+                title: activeEvent.title,
+                category: activeCategory.title,
+                venue: activeEvent.venue || 'Main Arena',
+                teamName: teamName
+            });
+            localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
+        }
+
         setIsRegistered(true);
     };
 
@@ -1311,8 +1340,18 @@ export default function EventsPage() {
 // ── Tabbed Event Details Modal ───────────────────────────────────────────────
 function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leaderName, setLeaderName, leaderUID, setLeaderUID, leaderPhone, setLeaderPhone, teamSize, setTeamSize, members, setMembers, handleRegisterSubmit, isRegistered }) {
     const location = useLocation();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('register'); // Default to register
     const isMobileModal = window.innerWidth < 768;
+
+    const btnThemeStyles = {
+        '--btn-color-light': activeEvent?.color ? '#ffffff' : '#67e8f9',
+        '--btn-color-mid': activeEvent?.color ? activeEvent.color : '#06b6d4',
+        '--btn-color-dark': activeEvent?.color ? `${activeEvent.color}cc` : '#0891b2',
+        '--btn-color-glow': activeEvent?.color ? activeEvent.color : '#00D9FF',
+        '--glow-color-35': activeEvent?.color ? `${activeEvent.color}59` : 'rgba(0,217,255,0.35)',
+        '--glow-color-15': activeEvent?.color ? `${activeEvent.color}26` : 'rgba(0,217,255,0.15)',
+    };
 
     useEffect(() => {
         if (location.state?.initialTab) {
@@ -1751,198 +1790,243 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
                     )}
 
                     {/* ── Tab: Register Quest ── */}
-                    {activeTab === 'register' && (
-                        <>
-                            {!isRegistered ? (
-                                <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
-                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
-                                        {'// INITIATE_REGISTRATION_PROTOCOL'}
+                    {activeTab === 'register' && (() => {
+                        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+                        if (!loggedInUser) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                                    <div style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        borderRadius: '50%',
+                                        border: '2px solid #FF2EA6',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#FF2EA6',
+                                        fontSize: '20px',
+                                        fontWeight: 900,
+                                        boxShadow: '0 0 15px rgba(255, 46, 166, 0.4)',
+                                    }}>
+                                        ⚠
                                     </div>
-                                    <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
-                                        <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
-                                                <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
-                                                </label>
-                                                <div style={{ position: 'relative' }}>
-                                                    <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
-                                                        className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} onFocus={onFocus} onBlur={onBlur}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
-                                                </label>
-                                                <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
-                                                    className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
-                                                >
-                                                    {[1, 2, 3, 4, 5].map(n => (
-                                                        <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px' }}>
-                                            <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '8px' }}>
-                                                [ LEADER_METADATA ]
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                        <label htmlFor="leaderName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER NAME</label>
-                                                        <input id="leaderName" type="text" required placeholder="LEADER NAME..." value={leaderName} onChange={(e) => setLeaderName(e.target.value)}
-                                                            className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                        />
-                                                    </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                        <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
-                                                        <input id="leaderUID" type="text" required placeholder="G-XXXXXX" value={leaderUID} onChange={(e) => setLeaderUID(e.target.value)}
-                                                            className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                    <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
-                                                    <input id="leaderPhone" type="tel" required placeholder="+91 XXXXX XXXXX" value={leaderPhone} onChange={(e) => setLeaderPhone(e.target.value)}
-                                                        className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {members.length > 0 && (
-                                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '2px' }}>
-                                                    [ ADDITIONAL_MEMBERS_SLOTS ]
-                                                </div>
-                                                {members.map((m, idx) => (
-                                                    <div key={idx} style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', padding: '10px', marginBottom: '4px' }}>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)' }}>MEMBER #{idx + 2} NAME</label>
-                                                            <input type="text" required placeholder={`MEMBER #${idx + 2} NAME...`} value={m.name}
-                                                                onChange={(e) => {
-                                                                    const val = e.target.value;
-                                                                    setMembers(prev => {
-                                                                        const next = [...prev];
-                                                                        next[idx] = { ...next[idx], name: val };
-                                                                        return next;
-                                                                    });
-                                                                }}
-                                                                className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                            />
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)' }}>MEMBER #{idx + 2} UNIQUE ID // G-ID</label>
-                                                            <input type="text" required placeholder="G-XXXXXX" value={m.uid}
-                                                                onChange={(e) => {
-                                                                    const val = e.target.value;
-                                                                    setMembers(prev => {
-                                                                        const next = [...prev];
-                                                                        next[idx] = { ...next[idx], uid: val };
-                                                                        return next;
-                                                                    });
-                                                                }}
-                                                                className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                    <div>
+                                        <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>SECURE ACCESS KEY REQUIRED</h3>
+                                        <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                                            All event enlistments require player authentication. Establish connection with the database to register.
+                                        </p>
                                     </div>
-
-                                    <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: isMobileModal ? '10px' : '16px', marginTop: '14px' }}>
-                                        <button type="button" onClick={handleDownloadPDF}
-                                            style={{ 
-                                                flex: 1, 
-                                                padding: isMobileModal ? '8px 12px' : '12px', 
-                                                border: `1px solid ${activeEvent.color}60`, 
-                                                background: 'transparent', 
-                                                color: activeEvent.color, 
-                                                fontFamily: "'Orbitron', sans-serif", 
-                                                fontSize: isMobileModal ? '9px' : '11px', 
-                                                letterSpacing: '0.15em', 
-                                                fontWeight: 900, 
-                                                textTransform: 'uppercase', 
-                                                cursor: 'pointer', 
-                                                transition: 'all 0.2s',
-                                                clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
+                                    <div className="event-reg-btn-wrap" style={btnThemeStyles}>
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                useStore.getState().setAuthModalOpen(true);
                                             }}
-                                            onMouseEnter={(e) => { 
-                                                e.currentTarget.style.background = `${activeEvent.color}20`; 
-                                                e.currentTarget.style.boxShadow = `0 0 20px ${activeEvent.color}40`; 
-                                                e.currentTarget.style.transform = 'translateY(-1.5px)';
-                                            }}
-                                            onMouseLeave={(e) => { 
-                                                e.currentTarget.style.background = 'transparent'; 
-                                                e.currentTarget.style.boxShadow = 'none'; 
-                                                e.currentTarget.style.transform = 'none';
-                                            }}
-                                        >DOWNLOAD RULES ⭳</button>
-                                        <button type="submit"
-                                            style={{ 
-                                                flex: 1, 
-                                                padding: isMobileModal ? '8px 12px' : '12px', 
-                                                border: `1px solid ${activeEvent.color}`, 
-                                                background: activeEvent.color, 
-                                                color: '#000000', 
-                                                fontFamily: "'Orbitron', sans-serif", 
-                                                fontSize: isMobileModal ? '9px' : '11px', 
-                                                letterSpacing: '0.15em', 
-                                                fontWeight: 900, 
-                                                textTransform: 'uppercase', 
-                                                cursor: 'pointer', 
-                                                transition: 'all 0.2s', 
-                                                boxShadow: `0 0 20px ${activeEvent.color}40`,
-                                                clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
-                                            }}
-                                            onMouseEnter={(e) => { 
-                                                e.currentTarget.style.background = '#ffffff'; 
-                                                e.currentTarget.style.boxShadow = `0 0 25px #ffffff`; 
-                                                e.currentTarget.style.borderColor = '#ffffff';
-                                                e.currentTarget.style.transform = 'translateY(-1.5px)'; 
-                                            }}
-                                            onMouseLeave={(e) => { 
-                                                e.currentTarget.style.background = activeEvent.color; 
-                                                e.currentTarget.style.boxShadow = `0 0 20px ${activeEvent.color}40`; 
-                                                e.currentTarget.style.borderColor = activeEvent.color;
-                                                e.currentTarget.style.transform = 'none'; 
-                                            }}
-                                        >EXECUTE PROTOCOL</button>
+                                            className="event-reg-btn group py-3 px-8 text-xs font-bold font-mono"
+                                        >
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #0891b2 0%, #00D9FF 40%, #67e8f9 70%, #0891b2 100%)',
+                                                    backgroundSize: '250% 250%',
+                                                    animation: 'border-flow 2.8s ease infinite',
+                                                }}
+                                            />
+                                            <div
+                                                className="absolute"
+                                                style={{
+                                                    inset: '1.5px',
+                                                    clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                    background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                                }}
+                                            />
+                                            <span className="event-reg-fill" />
+                                            <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
+                                                <span>SIGN IN // REGISTER PLAYER</span>
+                                                <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
+                                            </span>
+                                        </button>
                                     </div>
-                                </form>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 12px' : '40px 20px', fontFamily: "'Rajdhani', sans-serif" }}>
-                                    <div style={{ position: 'relative', width: isMobileModal ? '70px' : '90px', height: isMobileModal ? '70px' : '90px', marginBottom: '20px' }}>
-                                        {[0, 1, 2].map(i => (
-                                            <div key={i} style={{ position: 'absolute', inset: `${i * 12}px`, borderRadius: '50%', border: `1px solid ${activeEvent.color}`, opacity: 0.6 - i * 0.15, boxShadow: `0 0 ${10 - i * 2}px ${activeEvent.color}` }} />
-                                        ))}
-                                        <div style={{ position: 'absolute', inset: '34px', borderRadius: '50%', background: activeEvent.color, boxShadow: `0 0 30px ${activeEvent.color}80`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>
-                                        REGISTRATION PROTOCOL // VERIFIED
-                                    </div>
-                                    <h3 style={{ fontSize: isMobileModal ? '16px' : '20px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', color: '#ffffff', textShadow: `0 0 20px ${activeEvent.color}60`, margin: '0 0 6px 0' }}>
-                                        MISSION ACCEPTED
-                                    </h3>
-                                    <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.6)', maxWidth: '400px', lineHeight: 1.8, marginBottom: '20px' }}>
-                                        Team callsign <span style={{ fontWeight: 900, color: activeEvent.color }}>{teamName}</span> successfully enrolled for <span style={{ color: '#fff', fontWeight: 700 }}>{activeEvent.title}</span>. Leader Unique ID <span style={{ fontWeight: 900, color: activeEvent.color }}>{leaderUID}</span> has been securely logged.
-                                    </p>
-                                    <button onClick={onClose}
-                                        style={{ padding: isMobileModal ? '12px 28px' : '14px 40px', background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.2em', fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.2s', boxShadow: `0 0 15px ${activeEvent.color}20`, clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.background = `${activeEvent.color}15`; e.currentTarget.style.boxShadow = `0 0 25px ${activeEvent.color}50`; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = `0 0 15px ${activeEvent.color}20`; }}
-                                    >CLOSE SESSION</button>
                                 </div>
-                            )}
-                        </>
-                    )}
+                            );
+                        }
+
+                        if (!loggedInUser.isGlobalRegistered) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                                    <div style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        borderRadius: '50%',
+                                        border: '2px solid #F59E0B',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#F59E0B',
+                                        fontSize: '20px',
+                                        fontWeight: 900,
+                                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                                    }}>
+                                        ℹ
+                                    </div>
+                                    <div>
+                                        <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>GLOBAL REGISTRATION REQUIRED</h3>
+                                        <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                                            Please compile your Addovedi global profile first to acquire a unique Addovedi ID. Only verified players can enlist in arena missions.
+                                        </p>
+                                    </div>
+                                    <div className="event-reg-btn-wrap" style={btnThemeStyles}>
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                useStore.getState().setAuthModalOpen(true);
+                                            }}
+                                            className="event-reg-btn group py-3 px-8 text-xs font-bold font-mono"
+                                        >
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #0891b2 0%, #00D9FF 40%, #67e8f9 70%, #0891b2 100%)',
+                                                    backgroundSize: '250% 250%',
+                                                    animation: 'border-flow 2.8s ease infinite',
+                                                }}
+                                            />
+                                            <div
+                                                className="absolute"
+                                                style={{
+                                                    inset: '1.5px',
+                                                    clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                    background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                                }}
+                                            />
+                                            <span className="event-reg-fill" />
+                                            <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
+                                                <span>COMPILE GLOBAL PROFILE</span>
+                                                <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Check if this event is already registered in localStorage
+                        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+                        const isCurrentEventRegistered = storedRegs.some(r => r.title === activeEvent.title);
+
+                        if (isCurrentEventRegistered || isRegistered) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
+                                    <div 
+                                        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-2 animate-bounce"
+                                        style={{
+                                            background: `${activeEvent.color}15`,
+                                            color: activeEvent.color,
+                                            border: `2px solid ${activeEvent.color}`,
+                                            boxShadow: `0 0 20px ${activeEvent.color}40`,
+                                        }}
+                                    >
+                                        ✓
+                                    </div>
+                                    <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
+                                        MISSION_SECURED
+                                    </h3>
+                                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: '400px', margin: 0 }}>
+                                        Your registration details have been synchronized with the database. Check your player profile dashboard to view mission enlists.
+                                    </p>
+                                </div>
+                            );
+                        }
+
+                        // Otherwise show normal form
+                        return (
+                            <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
+                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
+                                    {'// INITIATE_REGISTRATION_PROTOCOL'}
+                                </div>
+                                <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
+                                    <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
+                                            <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
+                                            </label>
+                                            <div style={{ position: 'relative' }}>
+                                                <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
+                                                    className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} onFocus={onFocus} onBlur={onBlur}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                            <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
+                                            </label>
+                                            <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
+                                                className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
+                                            >
+                                                {[1, 2, 3, 4, 5].map(n => (
+                                                    <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px' }}>
+                                        <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '8px' }}>
+                                            [ LEADER_METADATA ]
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                                    <label htmlFor="leaderName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER NAME</label>
+                                                    <input id="leaderName" type="text" required disabled value={leaderName}
+                                                        className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                                    <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
+                                                    <input id="leaderUID" type="text" required disabled value={leaderUID}
+                                                        className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
+                                                <input id="leaderPhone" type="tel" required disabled value={leaderPhone}
+                                                    className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="event-reg-btn-wrap" style={{ ...btnThemeStyles, marginTop: 'auto', alignSelf: 'flex-end', width: isMobileModal ? '100%' : 'auto' }}>
+                                    <button type="submit" className="event-reg-btn group py-3 px-10 text-xs font-bold font-mono w-full">
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{
+                                                background: `linear-gradient(135deg, ${activeEvent.color} 0%, #ffffff 50%, ${activeEvent.color} 100%)`,
+                                                backgroundSize: '250% 250%',
+                                                animation: 'border-flow 2.8s ease infinite',
+                                            }}
+                                        />
+                                        <div
+                                            className="absolute"
+                                            style={{
+                                                inset: '1.5px',
+                                                clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                            }}
+                                        />
+                                        <span className="event-reg-fill" />
+                                        <span className="relative z-10 flex items-center justify-center gap-1.5 font-bold" style={{ textShadow: `0 0 10px ${activeEvent.color}` }}>
+                                            CONFIRM ENLISTMENT
+                                            <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none">▶</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        );
+                    })()}
 
                     {/* ── Tab: FAQ Grid ── */}
                     {activeTab === 'faq' && (

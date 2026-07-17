@@ -33,6 +33,9 @@ export const useStore = create((set) => ({
     // Mobile Sidebar Nav drawer state
     isSidebarOpen: false,
 
+    // Auth Modal (Login/Register popup)
+    isAuthModalOpen: false,
+
     // State Setters
     setCameraSpeed: (v) => set({ cameraSpeed: v }),
     setTunnelIntensity: (v) => set({ tunnelIntensity: v }),
@@ -49,4 +52,5 @@ export const useStore = create((set) => ({
     setShowSun: (v) => set({ showSun: v }),
     setActiveCategorySlug: (v) => set({ activeCategorySlug: v }),
     setIsSidebarOpen: (v) => set({ isSidebarOpen: v }),
+    setAuthModalOpen: (v) => set({ isAuthModalOpen: v }),
 }));

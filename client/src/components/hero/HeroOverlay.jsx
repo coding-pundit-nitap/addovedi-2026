@@ -54,6 +54,7 @@ export default function HeroOverlay() {
     const setShowButton = useStore(s => s.setShowButton);
     const setShowLogo = useStore(s => s.setShowLogo);
     const setShowNavbar = useStore(s => s.setShowNavbar);
+    const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
     const handleEnterArena = () => {
         // Hide UI overlays so the cinematic fly-in is unobstructed
@@ -461,7 +462,7 @@ export default function HeroOverlay() {
                                 {/* ── REGISTER button — Electric Violet ── */}
                                 <div className="reg-btn-wrap">
                                     <button
-                                        onClick={handleEnterArena}
+                                        onClick={setAuthModalOpen ? () => setAuthModalOpen(true) : undefined    }
                                         className="reg-btn group"
                                     >
                                         {/* Border: animated cyan gradient */}

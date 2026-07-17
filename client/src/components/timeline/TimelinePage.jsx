@@ -1277,6 +1277,8 @@ export default function TimelinePage() {
     const [transitioning, setTransitioning] = useState(false);
     const [contentVisible, setContentVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const timelineRef = useRef(null);
 
     const now24 = useMemo(() => {
         const d = new Date();
@@ -1288,6 +1290,18 @@ export default function TimelinePage() {
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, []);
+
+    const handleScroll = () => {
+        const el = timelineRef.current;
+        if (!el) return;
+        const maxScroll = el.scrollHeight - el.clientHeight;
+        const progress = maxScroll > 0 ? Math.min(Math.max(el.scrollTop / maxScroll, 0), 1) : 0;
+        setScrollProgress(progress);
+    };
+
+    useEffect(() => {
+        handleScroll();
+    }, [booted, activeDay]);
 
     const handleBoot = useCallback(() => {
         setBooted(true);
@@ -1309,7 +1323,12 @@ export default function TimelinePage() {
     const day = DAYS[activeDay];
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'#06080F', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
+        <div
+            ref={timelineRef}
+            onScroll={handleScroll}
+            className="timeline-scroll-container"
+            style={{ position:'fixed', inset:0, background:'#06080F', zIndex:100, overflowY:'auto', overflowX:'hidden' }}
+        >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes nodePulse { 0%,100%{opacity:0.9}50%{opacity:1;box-shadow:0 0 18px currentColor} }
@@ -1345,7 +1364,54 @@ export default function TimelinePage() {
                     gap: 6px;
                     transition: background 0.3s ease;
                 }
+
+                .timeline-scroll-container {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .timeline-scroll-container::-webkit-scrollbar {
+                    width: 0;
+                    height: 0;
+                }
+
+                .scroll-indicator-track {
+                    position: fixed;
+                    right: 16px;
+                    top: 96px;
+                    bottom: 24px;
+                    width: 4px;
+                    background: rgba(0, 217, 255, 0.08);
+                    border-radius: 999px;
+                    box-shadow: inset 0 0 6px rgba(0, 217, 255, 0.08);
+                    z-index: 40;
+                    overflow: hidden;
+                }
+                .scroll-indicator-track::before {
+                    content: '';
+                    position: absolute;
+                    inset: 12px 0;
+                    background: linear-gradient(180deg, rgba(0, 217, 255, 0.1) 0%, transparent 40%, transparent 60%, rgba(0, 217, 255, 0.1) 100%);
+                    opacity: 0.8;
+                }
+                .scroll-indicator-thumb {
+                    position: absolute;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 10px;
+                    height: 34px;
+                    border-radius: 999px;
+                    background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.95), rgba(0, 217, 255, 0.35) 40%, transparent 72%);
+                    box-shadow: 0 0 18px rgba(0, 217, 255, 0.45), 0 0 6px rgba(255, 255, 255, 0.2);
+                    transition: top 0.08s ease-out;
+                }
             `}</style>
+
+            <div className="scroll-indicator-track">
+                <div
+                    className="scroll-indicator-thumb"
+                    style={{ top: `calc(${scrollProgress * 100}% )` }}
+                />
+            </div>
 
             <BgCanvas />
             {!booted && <CommonLoader onDone={handleBoot} pageName="Timeline" />}

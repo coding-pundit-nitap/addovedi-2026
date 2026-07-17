@@ -16,6 +16,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
+import ScrollIndicator from '../common/ScrollIndicator';
 import { API_BASE } from '../../constants/api';
 
 /* ════════════════════════════════════════════
@@ -626,6 +627,8 @@ export default function CrewPage() {
         return () => clearInterval(interval);
     }, [crewRows.length, booted, filterDept]);
 
+    const pageRef = useRef(null);
+
     // Auto active featured card selection cycle every 7 seconds
     useEffect(() => {
         if (!booted || filteredCrew.length === 0) return;
@@ -639,7 +642,8 @@ export default function CrewPage() {
 
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'#02050c', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
+        <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#02050c', zIndex:100, overflowY:'auto', overflowX:'hidden', WebkitOverflowScrolling:'touch' }}>
+            <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
