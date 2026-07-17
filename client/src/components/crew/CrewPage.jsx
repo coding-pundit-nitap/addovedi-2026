@@ -3,98 +3,409 @@
  *
  * A premium, AAA game character-select screen inspired by modern gaming UIs:
  *  • Hero header (100vh atmosphere) with loading boot and blue energy sweep
- *  • Stat strip counting up to 46 Members, 6 Divisions, 1 Mission
+ *  • Dual Tabs: Faculty Command (direct cards) & Student Squadron (section headings + cards)
+ *  • Stat strip counting up to total members
  *  • Responsive grid (4 cols desktop, 2 cols mobile) of glassmorphic character cards
  *  • Magnetic tilt cursor effect on portraits
- *  • Character select: Custom holographic frames, rotating background rings, corner brackets, glitch effects
- *  • Reveal overlays on hover (desktop) or tap (mobile)
- *  • Active featured card cycling every 6-8 seconds
+ *  • Reveal overlays on hover (desktop) or tap (mobile) showing complete socials & phone/email details
  *  • Slow-moving animated canvas background (opacity 5-10%)
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
-import { API_BASE } from '../../constants/api';
 
 /* ════════════════════════════════════════════
    CREW DATA
-════════════════════════════════════════════ */
-const DEPTS = {
-    EXECUTIVE: {
-        color: '#00E5FF', glow: 'rgba(0,229,255,0.4)', icon: '👑',
-        badge: 'cyan',
-        members: [
-            { id:'E01', name:'Aman Verma',    role:'PRESIDENT',          status:'MISSION READY',   skills:[{n:'Leadership',p:96},{n:'Strategy',p:90}], missions:['Coordinated 3-day Techfest','Led 46-member team','Secured 12+ sponsors'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'E02', name:'Sneha Raj',     role:'VICE PRESIDENT',     status:'ONLINE',          skills:[{n:'Operations',p:92},{n:'Leadership',p:88}],    missions:['Managed event logistics','Budget allocation','Team coordination'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'E03', name:'Rohan Mehta',   role:'GENERAL SECRETARY',  status:'CONNECTED',       skills:[{n:'Documentation',p:87},{n:'Admin',p:83}], missions:['Handled official letters','Managed registrations','MoU documentation'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'E04', name:'Aisha Khan',    role:'TREASURER',          status:'ONLINE',          skills:[{n:'Finance',p:94},{n:'Planning',p:82}],       missions:['Managed ₹5L+ budget','Vendor payments','Cost optimization'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'E05', name:'Dev Sharma',    role:'PUBLIC RELATIONS',   status:'MISSION READY',   skills:[{n:'PR',p:91},{n:'Media',p:86}],               missions:['Media outreach campaign','Press releases','College partnerships'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+   ════════════════════════════════════════════ */
+
+const FACULTY_CREW = [
+    {
+        id: 'FC01',
+        name: 'Dr. Amit Rawat',
+        role: 'CONVENER',
+        avatarSeed: 'Amit',
+        color: '#00E5FF',
+        glow: 'rgba(0,229,255,0.4)',
+        phone: '+91 98765 43201',
+        email: 'amit.rawat@addovedi.org',
+        linkedin: 'https://linkedin.com/',
+        insta: 'https://instagram.com/',
+        missions: ['Techfest Strategic Blueprinting', 'Department Integration Oversight']
     },
-    TECH: {
-        color: '#FF2CFB', glow: 'rgba(255,44,251,0.4)', icon: '💻',
-        badge: 'pink',
-        members: [
-            { id:'T01', name:'Vaibhav Singh',  role:'TECH LEAD',          status:'MISSION READY',   skills:[{n:'React',p:95},{n:'Three.js',p:88}],  missions:['Built festival website','3D interactive UI','Real-time event portal'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'T02', name:'Karan Patel',    role:'BACKEND DEVELOPER',  status:'ONLINE',          skills:[{n:'Node.js',p:90},{n:'REST APIs',p:92}],     missions:['API architecture','Database design','Auth systems'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'T03', name:'Priya Nair',     role:'FULL STACK DEV',     status:'CONNECTED',       skills:[{n:'Vue.js',p:85},{n:'Docker',p:80}],          missions:['Registration portal','Admin dashboard','Email automation'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'T04', name:'Arjun Kumar',    role:'DEVOPS ENGINEER',    status:'ONLINE',          skills:[{n:'AWS',p:87},{n:'Linux',p:91}],              missions:['Cloud deployment','Zero-downtime pipeline','Security hardening'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'T05', name:'Neha Gupta',     role:'UI/UX DESIGNER',     status:'MISSION READY',   skills:[{n:'Figma',p:94},{n:'Research',p:82}],         missions:['Design system','User journey mapping','Brand identity'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'T06', name:'Siddharth Roy',  role:'DATABASE ARCHITECT', status:'ONLINE',          skills:[{n:'PostgreSQL',p:89},{n:'Redis',p:85}],  missions:['Schema design','Query optimization','Data pipelines'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+    {
+        id: 'FC02',
+        name: 'Dr. Shalini Vyas',
+        role: 'CO-CONVENER',
+        avatarSeed: 'Shalini',
+        color: '#00E5FF',
+        glow: 'rgba(0,229,255,0.4)',
+        phone: '+91 98765 43202',
+        email: 'shalini.vyas@addovedi.org',
+        linkedin: 'https://linkedin.com/',
+        insta: 'https://instagram.com/',
+        missions: ['Academic & Technical Advisory', 'Curriculum Matching Oversight']
     },
-    EVENTS: {
-        color: '#7A5CFF', glow: 'rgba(122,92,255,0.4)', icon: '🎯',
-        badge: 'purple',
-        members: [
-            { id:'EV01', name:'Rahul Das',      role:'EVENTS HEAD',        status:'MISSION READY',   skills:[{n:'Coordination',p:93},{n:'Leadership',p:90}], missions:['Planned 25+ events','Venue coordination','Day-of execution'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'EV02', name:'Pooja Sharma',   role:'SENIOR COORDINATOR', status:'ONLINE',          skills:[{n:'Scheduling',p:90},{n:'Communication',p:88}],missions:['Speaker invitations','Timeline management','Backup planning'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'EV03', name:'Amit Joshi',     role:'LOGISTICS MANAGER',  status:'CONNECTED',       skills:[{n:'Procurement',p:87},{n:'Networking',p:80}],   missions:['Equipment procurement','Venue setup','Transport logistics'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'EV04', name:'Divya Menon',    role:'STAGE MANAGER',      status:'ONLINE',          skills:[{n:'Stage Mgmt',p:91},{n:'Crowd Control',p:86}],  missions:['Main stage operations','Sound & lighting','Green room management'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'EV05', name:'Tanya Singh',    role:'HOSPITALITY HEAD',   status:'MISSION READY',   skills:[{n:'Guest Relations',p:92},{n:'Coordination',p:85}],missions:['VIP guest management','Accommodation','Welcome protocol'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+    {
+        id: 'FC03',
+        name: 'Prof. Rajesh K. Patel',
+        role: 'FACULTY ADVISOR',
+        avatarSeed: 'Rajesh',
+        color: '#9b5cff',
+        glow: 'rgba(155,92,255,0.4)',
+        phone: '+91 98765 43203',
+        email: 'rajesh.patel@addovedi.org',
+        linkedin: 'https://linkedin.com/',
+        insta: 'https://instagram.com/',
+        missions: ['Student Squad Guidance', 'Event Protocol Supervision']
     },
-    MEDIA: {
-        color: '#FF9D00', glow: 'rgba(255,157,0,0.4)', icon: '📸',
-        badge: 'orange',
+    {
+        id: 'FC04',
+        name: 'Dr. Neha Chaturvedi',
+        role: 'FACULTY COORDINATOR',
+        avatarSeed: 'NehaC',
+        color: '#ff2cfb',
+        glow: 'rgba(255,44,251,0.4)',
+        phone: '+91 98765 43204',
+        email: 'neha.chaturvedi@addovedi.org',
+        linkedin: 'https://linkedin.com/',
+        insta: 'https://instagram.com/',
+        missions: ['Logistics & Venue Operations Coordination', 'Cross-Divisional Synchronization']
+    }
+];
+
+const STUDENT_SECTIONS = [
+    {
+        title: 'CHIEF HEAD',
+        color: '#00E5FF',
         members: [
-            { id:'M01', name:'Nikhil Bose',    role:'MEDIA HEAD',         status:'MISSION READY',   skills:[{n:'Direction',p:92},{n:'Branding',p:88}],       missions:['Social media strategy','Brand consistency','Content calendar'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'M02', name:'Shruti Agarwal', role:'PHOTOGRAPHER',       status:'ONLINE',          skills:[{n:'Photography',p:95},{n:'Lightroom',p:90}], missions:['Event photography','Portfolio creation','Press kit images'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'M03', name:'Rohit Verma',    role:'VIDEOGRAPHER',       status:'CONNECTED',       skills:[{n:'Video Editing',p:91},{n:'After Effects',p:85}],missions:['Teaser trailer','Live streams','After-movie production'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'M04', name:'Meera Patel',    role:'GRAPHIC DESIGNER',   status:'ONLINE',          skills:[{n:'Illustrator',p:93},{n:'Photoshop',p:90}], missions:['Poster series','Event banners','Social media templates'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'M05', name:'Vivek Mishra',   role:'SOCIAL MEDIA LEAD',  status:'MISSION READY',   skills:[{n:'Content',p:89},{n:'Copywriting',p:87}],      missions:['10K+ impressions campaign','Reel strategy','Influencer outreach'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+            {
+                id: 'SC01',
+                name: 'Aman Verma',
+                role: 'CHIEF HEAD',
+                avatarSeed: 'Aman',
+                color: '#00E5FF',
+                glow: 'rgba(0,229,255,0.4)',
+                phone: '+91 91111 22201',
+                email: 'aman.verma@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Overall Techfest Command', 'Led 46-member squadron', 'Strategic sponsor acquisition']
+            }
+        ]
     },
-    ROBOTICS: {
-        color: '#1FFF76', glow: 'rgba(31,255,118,0.4)', icon: '🤖',
-        badge: 'green',
+    {
+        title: 'ASST. HEAD',
+        color: '#00E5FF',
         members: [
-            { id:'R01', name:'Akash Yadav',    role:'ROBOTICS HEAD',      status:'MISSION READY',   skills:[{n:'Embedded C',p:92},{n:'Circuit Design',p:88}], missions:['Bot design oversight','Workshop facilitation','Competition judging'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'R02', name:'Simran Kaur',    role:'HARDWARE ENGINEER',  status:'ONLINE',          skills:[{n:'PCB Design',p:90},{n:'Arduino',p:93}],         missions:['Prototype fabrication','Sensor integration','Hardware testing'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'R03', name:'Gaurav Sharma',  role:'FIRMWARE DEV',       status:'CONNECTED',       skills:[{n:'RTOS',p:87},{n:'C++',p:90}],                  missions:['Motor control firmware','Sensor fusion','Real-time systems'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'R04', name:'Shreya Nair',    role:'CAD DESIGNER',       status:'ONLINE',          skills:[{n:'SolidWorks',p:91},{n:'3D Printing',p:88}],  missions:['Chassis design','3D printed components','Structural analysis'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'R05', name:'Mohit Jain',     role:'TEST ENGINEER',      status:'MISSION READY',   skills:[{n:'Testing',p:89},{n:'Debugging',p:91}],       missions:['System integration tests','Failure analysis','Test protocols'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'R06', name:'Anika Roy',      role:'DOCUMENTATION LEAD', status:'ONLINE',          skills:[{n:'Technical Writing',p:93},{n:'Research',p:88}],     missions:['Technical reports','Workshop materials','Knowledge base'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+            {
+                id: 'SC02',
+                name: 'Sneha Raj',
+                role: 'ASST. HEAD',
+                avatarSeed: 'Sneha',
+                color: '#00E5FF',
+                glow: 'rgba(0,229,255,0.4)',
+                phone: '+91 91111 22202',
+                email: 'sneha.raj@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Operations & Logistics supervision', 'Budget allocation & control', 'Direct wing coordination']
+            }
+        ]
     },
-    SPONSORS: {
-        color: '#FFD700', glow: 'rgba(255,215,0,0.4)', icon: '🤝',
-        badge: 'gold',
+    {
+        title: 'EVENT HEAD',
+        color: '#9b5cff',
         members: [
-            { id:'SP01', name:'Cap. Harsh',    role:'SPONSORSHIP HEAD',   status:'MISSION READY',   skills:[{n:'Negotiation',p:93},{n:'Networking',p:90}],       missions:['Secured 12+ sponsors','₹5L+ in sponsorships','Corporate decks'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'SP02', name:'Ritika Sharma', role:'CORPORATE RELATIONS', status:'ONLINE',         skills:[{n:'Communication',p:91},{n:'CRM',p:86}],            missions:['MNC partnerships','Cold outreach campaigns','Follow-up management'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'SP03', name:'Kiran Verma',   role:'OUTREACH LEAD',      status:'CONNECTED',       skills:[{n:'Outreach',p:88},{n:'Email Marketing',p:83}],    missions:['Email outreach (500+ contacts)','Response rate optimization','Data tracking'], social:{github:'#',linkedin:'#',instagram:'#'} },
-            { id:'SP04', name:'Sumit Patel',   role:'MARKETING ANALYST',  status:'ONLINE',          skills:[{n:'Market Research',p:89},{n:'Data Analysis',p:84}],missions:['Sponsor ROI reports','Industry research','Pricing strategy'], social:{github:'#',linkedin:'#',instagram:'#'} },
-        ],
+            {
+                id: 'SC03',
+                name: 'Rahul Das',
+                role: 'EVENT HEAD',
+                avatarSeed: 'Rahul',
+                color: '#9b5cff',
+                glow: 'rgba(155,92,255,0.4)',
+                phone: '+91 91111 22203',
+                email: 'rahul.das@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Planned 25+ events', 'Strategic timeline management', 'Day-of execution overseer']
+            }
+        ]
     },
-};
+    {
+        title: 'WEB HEAD',
+        color: '#ff2cfb',
+        members: [
+            {
+                id: 'SC04',
+                name: 'Vaibhav Singh',
+                role: 'WEB HEAD',
+                avatarSeed: 'Vaibhav',
+                color: '#ff2cfb',
+                glow: 'rgba(255,44,251,0.4)',
+                phone: '+91 91111 22204',
+                email: 'vaibhav.singh@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Interactive 3D portal architect', 'UI System lead dev', 'Production build pipeline deployment']
+            }
+        ]
+    },
+    {
+        title: 'DESIGN HEAD',
+        color: '#ff2cfb',
+        members: [
+            {
+                id: 'SC05',
+                name: 'Neha Gupta',
+                role: 'DESIGN HEAD',
+                avatarSeed: 'NehaG',
+                color: '#ff2cfb',
+                glow: 'rgba(255,44,251,0.4)',
+                phone: '+91 91111 22205',
+                email: 'neha.gupta@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Techfest brand architecture', 'Hologram lobby styling asset designs', 'User experience system layout']
+            }
+        ]
+    },
+    {
+        title: 'SPONSORS HEAD',
+        color: '#ffd700',
+        members: [
+            {
+                id: 'SC06',
+                name: 'Harsh Vardhan',
+                role: 'SPONSORS HEAD',
+                avatarSeed: 'Harsh',
+                color: '#ffd700',
+                glow: 'rgba(255,215,0,0.4)',
+                phone: '+91 91111 22206',
+                email: 'harsh.v@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Corporate sponsor networking', 'Outreach deck presentation', 'MNC partnerships development']
+            },
+            {
+                id: 'SC07',
+                name: 'Ritika Sharma',
+                role: 'SPONSORS HEAD',
+                avatarSeed: 'Ritika',
+                color: '#ffd700',
+                glow: 'rgba(255,215,0,0.4)',
+                phone: '+91 91111 22207',
+                email: 'ritika.s@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Corporate sponsorship pipeline management', 'Cold call campaign management', 'Sponsor ROI reporting']
+            },
+            {
+                id: 'SC08',
+                name: 'Kiran Verma',
+                role: 'SPONSORS HEAD',
+                avatarSeed: 'Kiran',
+                color: '#ffd700',
+                glow: 'rgba(255,215,0,0.4)',
+                phone: '+91 91111 22208',
+                email: 'kiran.v@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Email outreach strategy execution', 'Brand partnership development', 'Budget negotiation control']
+            }
+        ]
+    },
+    {
+        title: 'PR HEAD',
+        color: '#ff9d00',
+        members: [
+            {
+                id: 'SC09',
+                name: 'Dev Sharma',
+                role: 'PR HEAD',
+                avatarSeed: 'Dev',
+                color: '#ff9d00',
+                glow: 'rgba(255,157,0,0.4)',
+                phone: '+91 91111 22209',
+                email: 'dev.sharma@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Outreach and media distribution', 'College collaborations', 'Press release dissemination']
+            },
+            {
+                id: 'SC10',
+                name: 'Tanya Singh',
+                role: 'PR HEAD',
+                avatarSeed: 'Tanya',
+                color: '#ff9d00',
+                glow: 'rgba(255,157,0,0.4)',
+                phone: '+91 91111 22210',
+                email: 'tanya.singh@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Influencer outreach campaigns', 'Social media platform coordination', 'Visitor response tracking']
+            }
+        ]
+    },
+    {
+        title: 'DOCUMENTATION HEAD',
+        color: '#2b5cff',
+        members: [
+            {
+                id: 'SC11',
+                name: 'Anika Roy',
+                role: 'DOCUMENTATION HEAD',
+                avatarSeed: 'Anika',
+                color: '#2b5cff',
+                glow: 'rgba(43,92,255,0.4)',
+                phone: '+91 91111 22211',
+                email: 'anika.roy@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Rulebook drafting and formatting', 'Participant data records management', 'Techfest archives collation']
+            }
+        ]
+    },
+    {
+        title: 'FINANCE HEAD',
+        color: '#1fff76',
+        members: [
+            {
+                id: 'SC12',
+                name: 'Aisha Khan',
+                role: 'FINANCE HEAD',
+                avatarSeed: 'Aisha',
+                color: '#1fff76',
+                glow: 'rgba(31,255,118,0.4)',
+                phone: '+91 91111 22212',
+                email: 'aisha.khan@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Managed ₹5L+ accounts', 'Audited vendor invoices', 'Cost optimization strategizer']
+            }
+        ]
+    },
+    {
+        title: 'MERCHANDISE HEAD',
+        color: '#ffd700',
+        members: [
+            {
+                id: 'SC13',
+                name: 'Rohan Mehta',
+                role: 'MERCHANDISE HEAD',
+                avatarSeed: 'Rohan',
+                color: '#ffd700',
+                glow: 'rgba(255,215,0,0.4)',
+                phone: '+91 91111 22213',
+                email: 'rohan.mehta@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Designed squadron hoodies & badges', 'Vendor negotiation & dispatch pipeline', 'Inventory logs management']
+            },
+            {
+                id: 'SC14',
+                name: 'Shruti Agarwal',
+                role: 'MERCHANDISE HEAD',
+                avatarSeed: 'Shruti',
+                color: '#ffd700',
+                glow: 'rgba(255,215,0,0.4)',
+                phone: '+91 91111 22214',
+                email: 'shruti.a@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Visual identity printing logistics', 'Stock distribution across divisions', 'Accounting of merch transactions']
+            }
+        ]
+    },
+    {
+        title: 'DECORATION HEAD',
+        color: '#9b5cff',
+        members: [
+            {
+                id: 'SC15',
+                name: 'Priya Nair',
+                role: 'DECORATION HEAD',
+                avatarSeed: 'Priya',
+                color: '#9b5cff',
+                glow: 'rgba(155,92,255,0.4)',
+                phone: '+91 91111 22215',
+                email: 'priya.nair@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Lobby physical setup layout design', 'Futuristic cyberpunk neon prop designs', 'Main arena visual decoration']
+            },
+            {
+                id: 'SC16',
+                name: 'Amit Joshi',
+                role: 'DECORATION HEAD',
+                avatarSeed: 'AmitJ',
+                color: '#9b5cff',
+                glow: 'rgba(155,92,255,0.4)',
+                phone: '+91 91111 22216',
+                email: 'amit.joshi@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Decoration supply chain manager', 'Setup coordinator on campus grounds', 'Neon illumination assembly']
+            }
+        ]
+    },
+    {
+        title: 'VOLUNTEERS HEAD',
+        color: '#1fff76',
+        members: [
+            {
+                id: 'SC17',
+                name: 'Akash Yadav',
+                role: 'VOLUNTEERS HEAD',
+                avatarSeed: 'Akash',
+                color: '#1fff76',
+                glow: 'rgba(31,255,118,0.4)',
+                phone: '+91 91111 22217',
+                email: 'akash.yadav@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Enlisted 100+ volunteers', 'Strategic sector delegation mapping', 'Live briefing & crowd control']
+            }
+        ]
+    },
+    {
+        title: 'MANAGEMENT HEAD',
+        color: '#ff9d00',
+        members: [
+            {
+                id: 'SC18',
+                name: 'Siddharth Roy',
+                role: 'MANAGEMENT HEAD',
+                avatarSeed: 'Siddharth',
+                color: '#ff9d00',
+                glow: 'rgba(255,157,0,0.4)',
+                phone: '+91 91111 22218',
+                email: 'siddharth.roy@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Overarching event administration', 'Inter-departmental pipeline sync', 'Grievance redressal logs']
+            },
+            {
+                id: 'SC19',
+                name: 'Pooja Sharma',
+                role: 'MANAGEMENT HEAD',
+                avatarSeed: 'Pooja',
+                color: '#ff9d00',
+                glow: 'rgba(255,157,0,0.4)',
+                phone: '+91 91111 22219',
+                email: 'pooja.sharma@addovedi.org',
+                linkedin: 'https://linkedin.com/',
+                insta: 'https://instagram.com/',
+                missions: ['Hospitality scheduling supervision', 'Registration assistance coordination', 'Feedback survey reporting']
+            }
+        ]
+    }
+];
 
 /* ════════════════════════════════════════════
    BACKGROUND CANVAS (At 5-10% Opacity)
-════════════════════════════════════════════ */
+   ════════════════════════════════════════════ */
 function BgCanvas() {
     const ref = useRef(null);
 
@@ -107,40 +418,71 @@ function BgCanvas() {
         const onResize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
         window.addEventListener('resize', onResize);
 
-        const GRID = 60;
-        const particles = Array.from({ length: 60 }, () => ({
+        const particles = Array.from({ length: 45 }, () => ({
             x: Math.random() * W, y: Math.random() * H,
-            vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15,
-            r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.25 + 0.05,
-            c: '#00E5FF'
+            vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+            r: Math.random() * 1.5 + 0.8,
+            color: Math.random() > 0.5 ? '#00e5ff' : '#ff2cfb'
         }));
 
         let frame = 0;
         const tick = () => {
             ctx.clearRect(0, 0, W, H);
             
-            // Faint Grid
-            ctx.strokeStyle = 'rgba(0,217,255,0.02)';
+            // Faint Grid Backing
+            ctx.strokeStyle = 'rgba(0,217,255,0.015)';
             ctx.lineWidth = 1;
+            const GRID = 70;
             for (let x = 0; x < W; x += GRID) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
             for (let y = 0; y < H; y += GRID) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
-            // Floating Particles
+            // Draw Plexus lines first
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < particles.length; i++) {
+                const p1 = particles[i];
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        const alpha = (1 - dist / 100) * 0.12;
+                        ctx.strokeStyle = p1.color === '#00e5ff' ? `rgba(0, 229, 255, ${alpha})` : `rgba(255, 44, 251, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw Floating Particles
             particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
                 if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-                ctx.globalAlpha = p.a;
-                ctx.fillStyle = p.c;
+                
+                // Draw glowing dot
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 0.4;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fill();
+                
+                // Small inner core
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = 0.8;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * 0.5, 0, Math.PI * 2);
+                ctx.fill();
             });
 
-            // Very faint floating binary/system logs behind (5% opacity)
-            if (frame % 120 === 0) {
-                const logs = ['NODE_SYS_ACTIVE', 'DATABASE_SYNCED', 'SECURE_CONN', 'MISSION_STATUS_OK', 'AUTH_LEVEL_3'];
-                ctx.globalAlpha = 0.03;
+            ctx.globalAlpha = 1.0;
+
+            // Faint system diagnostic terminal feeds in background
+            if (frame % 150 === 0) {
+                const logs = ['NODE_SYS_ACTIVE', 'DATABASE_SYNCED', 'SECURE_CONN', 'MISSION_STATUS_NOMINAL', 'AUTH_LEVEL_3', 'HUD_INITIALIZED'];
+                ctx.globalAlpha = 0.04;
                 ctx.fillStyle = '#00E5FF';
                 ctx.font = '8px monospace';
                 ctx.fillText(logs[Math.floor(Math.random() * logs.length)], Math.random() * W, Math.random() * H);
@@ -158,27 +500,20 @@ function BgCanvas() {
 
 /* ════════════════════════════════════════════
    STATISTICS COUNT UP STRIP
-════════════════════════════════════════════ */
-function StatStrip({ finalMembers, finalDepts, finalMission }) {
+   ════════════════════════════════════════════ */
+function StatStrip({ finalMembers, finalMission }) {
     const [members, setMembers] = useState(0);
-    const [depts, setDepts] = useState(0);
     const [mission, setMission] = useState(0);
 
     useEffect(() => {
         let currentMembers = 0;
-        let currentDepts = 0;
         let currentMission = 0;
 
         const interval = setInterval(() => {
             let done = true;
             if (currentMembers < finalMembers) {
-                currentMembers = Math.min(currentMembers + 2, finalMembers);
+                currentMembers = Math.min(currentMembers + 1, finalMembers);
                 setMembers(currentMembers);
-                done = false;
-            }
-            if (currentDepts < finalDepts) {
-                currentDepts = Math.min(currentDepts + 1, finalDepts);
-                setDepts(currentDepts);
                 done = false;
             }
             if (currentMission < finalMission) {
@@ -188,10 +523,10 @@ function StatStrip({ finalMembers, finalDepts, finalMission }) {
             }
 
             if (done) clearInterval(interval);
-        }, 30);
+        }, 40);
 
         return () => clearInterval(interval);
-    }, [finalMembers, finalDepts, finalMission]);
+    }, [finalMembers, finalMission]);
 
     return (
         <div style={{
@@ -210,11 +545,7 @@ function StatStrip({ finalMembers, finalDepts, finalMission }) {
         }}>
             <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 'clamp(18px, 3.5vw, 32px)', fontWeight: 900, color: '#00E5FF', textShadow: '0 0 10px rgba(0, 229, 255, 0.5)' }}>{members.toString().padStart(2, '0')}</div>
-                <div style={{ fontSize: 'clamp(8px, 1.2vw, 10px)', color: 'rgba(255, 255, 255, 0.4)', marginTop: '4px' }}>MEMBERS</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 'clamp(18px, 3.5vw, 32px)', fontWeight: 900, color: '#FF2CFB', textShadow: '0 0 10px rgba(255, 44, 251, 0.5)' }}>{depts.toString().padStart(2, '0')}</div>
-                <div style={{ fontSize: 'clamp(8px, 1.2vw, 10px)', color: 'rgba(255, 255, 255, 0.4)', marginTop: '4px' }}>DEPARTMENTS</div>
+                <div style={{ fontSize: 'clamp(8px, 1.2vw, 10px)', color: 'rgba(255, 255, 255, 0.4)', marginTop: '4px' }}>OPERATIVES</div>
             </div>
             <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 'clamp(18px, 3.5vw, 32px)', fontWeight: 900, color: '#1FFF76', textShadow: '0 0 10px rgba(31, 255, 118, 0.5)' }}>{mission.toString().padStart(2, '0')}</div>
@@ -226,7 +557,7 @@ function StatStrip({ finalMembers, finalDepts, finalMission }) {
 
 /* ════════════════════════════════════════════
    CHARACTER SELECTION CARD COMPONENT
-════════════════════════════════════════════ */
+   ════════════════════════════════════════════ */
 function CrewCard({ member, isFeatured, isMobile }) {
     const cardRef = useRef(null);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -259,12 +590,11 @@ function CrewCard({ member, isFeatured, isMobile }) {
         }
     };
 
-    const initials = member.name.split(' ').map(w => w[0]).join('').slice(0, 2);
     const badgeColor = member.color;
+    const isOverlayVisible = isMobile ? tapExpanded : isHovered;
 
-    // Random slight float animation parameters
-    const floatDelay = useMemo(() => Math.random() * -5, []);
-    const floatDuration = useMemo(() => 4 + Math.random() * 2, []);
+    // Use a high-tech retro pixel seed avatar representation
+    const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${member.avatarSeed}`;
 
     return (
         <div
@@ -278,10 +608,10 @@ function CrewCard({ member, isFeatured, isMobile }) {
                 width: '100%',
                 aspectRatio: '0.72',
                 borderRadius: '12px',
-                border: '1px solid rgba(0, 229, 255, 0.15)',
+                border: '1.2px solid rgba(0, 229, 255, 0.15)',
                 background: isHovered || isFeatured 
-                    ? 'rgba(6, 12, 24, 0.85)' 
-                    : 'rgba(6, 12, 24, 0.55)',
+                    ? 'rgba(6, 12, 24, 0.92)' 
+                    : 'rgba(6, 12, 24, 0.65)',
                 backdropFilter: isHovered ? 'blur(16px)' : 'blur(8px)',
                 boxShadow: isFeatured 
                     ? `0 0 25px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.15)`
@@ -295,8 +625,6 @@ function CrewCard({ member, isFeatured, isMobile }) {
                 padding: '16px',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                animation: `cardFloat ${floatDuration}s ease-in-out infinite alternate`,
-                animationDelay: `${floatDelay}s`,
                 zIndex: isHovered ? 15 : 1
             }}
         >
@@ -322,7 +650,7 @@ function CrewCard({ member, isFeatured, isMobile }) {
                     background: `${badgeColor}12`,
                     textShadow: `0 0 8px ${badgeColor}80`
                 }}>
-                    {member.dept}
+                    SYSTEM CREW
                 </span>
                 <span style={{
                     fontFamily: 'monospace',
@@ -368,18 +696,19 @@ function CrewCard({ member, isFeatured, isMobile }) {
                     {/* Scanline overlay */}
                     <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 3px)', pointerEvents:'none', zIndex: 2 }} />
 
-                    {/* Initials Text Avatar */}
-                    <div style={{
-                        fontFamily: "'Orbitron', monospace",
-                        fontSize: '28px',
-                        fontWeight: 900,
-                        color: badgeColor,
-                        textShadow: `0 0 15px ${badgeColor}, 0 0 30px ${badgeColor}50`,
-                        zIndex: 1,
-                        letterSpacing: '0.05em'
-                    }}>
-                        {initials}
-                    </div>
+                    {/* Pixel Art Avatar Image */}
+                    <img 
+                        src={avatarUrl} 
+                        alt={member.name}
+                        style={{
+                            width: '80%',
+                            height: '80%',
+                            objectFit: 'contain',
+                            imageRendering: 'pixelated',
+                            zIndex: 1,
+                            opacity: 0.9
+                        }}
+                    />
                 </div>
 
                 {/* Cyber Corner Brackets */}
@@ -420,28 +749,28 @@ function CrewCard({ member, isFeatured, isMobile }) {
                 </div>
             </div>
 
-            {/* Hover Project / Social Slide-up Overlay (Fades up in under 0.2s) */}
+            {/* Hover Project / Social Slide-up Overlay */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'rgba(3, 8, 16, 0.96)',
+                background: 'rgba(3, 8, 16, 0.98)',
                 padding: '20px 16px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                opacity: (isMobile ? tapExpanded : isHovered) ? 1 : 0,
-                transform: (isMobile ? tapExpanded : isHovered) ? 'translateY(0%)' : 'translateY(15%)',
+                opacity: isOverlayVisible ? 1 : 0,
+                transform: isOverlayVisible ? 'translateY(0%)' : 'translateY(15%)',
                 transition: 'opacity 0.18s ease-out, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
                 zIndex: 10,
-                pointerEvents: (isMobile ? tapExpanded : isHovered) ? 'auto' : 'none',
-                border: `1px solid ${badgeColor}80`,
+                pointerEvents: isOverlayVisible ? 'auto' : 'none',
+                border: `1.2px solid ${badgeColor}`,
                 borderRadius: '12px'
             }}>
                 {/* Details list */}
                 <div>
                     <div style={{
                         fontFamily: "'Orbitron', monospace",
-                        fontSize: '8px',
+                        fontSize: isMobile ? '8px' : '12px',
                         letterSpacing: '0.2em',
                         color: badgeColor,
                         borderBottom: `1px solid ${badgeColor}30`,
@@ -453,59 +782,113 @@ function CrewCard({ member, isFeatured, isMobile }) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {member.missions.map((mission, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                <span style={{ color: badgeColor, fontSize: '9px', lineHeight: 1.3 }}>▶</span>
-                                <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>{mission}</span>
+                                <span style={{ color: badgeColor, fontSize: isMobile ? '8px' : '11px', lineHeight: 1.35 }}>▶</span>
+                                <span style={{ fontFamily: 'monospace', fontSize: isMobile ? '9px' : '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35 }}>{mission}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Social contact buttons */}
+                {/* Contacts & Social Networks */}
                 <div>
                     <div style={{
                         fontFamily: "'Orbitron', monospace",
-                        fontSize: '8px',
+                        fontSize: isMobile ? '8px' : '12px',
                         letterSpacing: '0.2em',
                         color: badgeColor,
                         borderBottom: `1px solid ${badgeColor}30`,
                         paddingBottom: '6px',
-                        marginBottom: '10px'
+                        marginBottom: '8px'
                     }}>
                         COMMUNICATIONS
                     </div>
+
+                    {/* Direct Contact info */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
+                        {member.phone && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: isMobile ? '9px' : '12.5px', fontFamily: 'monospace', color: '#fff' }}>
+                                <span style={{ color: badgeColor }}>📞</span>
+                                <a href={`tel:${member.phone}`} onClick={e => e.stopPropagation()} style={{ color: 'rgba(255, 255, 255, 0.85)', textDecoration: 'none' }} className="hover:text-white">
+                                    {member.phone}
+                                </a>
+                            </div>
+                        )}
+                        {member.email && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: isMobile ? '9px' : '12.5px', fontFamily: 'monospace', color: '#fff', overflow: 'hidden' }}>
+                                <span style={{ color: badgeColor }}>✉</span>
+                                <a href={`mailto:${member.email}`} onClick={e => e.stopPropagation()} style={{ color: 'rgba(255, 255, 255, 0.85)', textDecoration: 'none', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} className="hover:text-white">
+                                    {member.email}
+                                </a>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Socials buttons */}
                     <div style={{ display: 'flex', gap: '8px' }}>
-                        {['GITHUB', 'LINKEDIN', 'INSTAGRAM'].map(net => (
-                            <a
-                                key={net}
-                                href={member.social[net.toLowerCase()]}
-                                onClick={(e) => e.stopPropagation()} // Stop bubbling to expand event on mobile
-                                style={{
-                                    flex: 1,
-                                    textAlign: 'center',
-                                    fontFamily: "'Orbitron', monospace",
-                                    fontSize: '7.5px',
-                                    padding: '5px 0',
-                                    borderRadius: '4px',
-                                    border: `1px solid ${badgeColor}30`,
-                                    background: 'rgba(255,255,255,0.02)',
-                                    color: badgeColor,
-                                    textDecoration: 'none',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={e => {
-                                    e.currentTarget.style.borderColor = badgeColor;
-                                    e.currentTarget.style.background = `${badgeColor}15`;
-                                    e.currentTarget.style.color = '#fff';
-                                }}
-                                onMouseLeave={e => {
-                                    e.currentTarget.style.borderColor = `${badgeColor}30`;
-                                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                                    e.currentTarget.style.color = badgeColor;
-                                }}
-                            >
-                                {net}
-                            </a>
-                        ))}
+                        <a
+                            href={member.linkedin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                flex: 1,
+                                textAlign: 'center',
+                                fontFamily: "'Orbitron', monospace",
+                                fontSize: isMobile ? '7.5px' : '10px',
+                                padding: isMobile ? '6px 0' : '8px 0',
+                                borderRadius: '4px',
+                                border: `1.2px solid ${badgeColor}30`,
+                                background: 'rgba(255,255,255,0.02)',
+                                color: badgeColor,
+                                textDecoration: 'none',
+                                transition: 'all 0.2s',
+                                fontWeight: 'bold'
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = badgeColor;
+                                e.currentTarget.style.background = `${badgeColor}15`;
+                                e.currentTarget.style.color = '#fff';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = `${badgeColor}30`;
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                                e.currentTarget.style.color = badgeColor;
+                            }}
+                        >
+                            LINKEDIN
+                        </a>
+                        <a
+                            href={member.insta}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                flex: 1,
+                                textAlign: 'center',
+                                fontFamily: "'Orbitron', monospace",
+                                fontSize: isMobile ? '7.5px' : '10px',
+                                padding: isMobile ? '6px 0' : '8px 0',
+                                borderRadius: '4px',
+                                border: `1.2px solid ${badgeColor}30`,
+                                background: 'rgba(255,255,255,0.02)',
+                                color: badgeColor,
+                                textDecoration: 'none',
+                                transition: 'all 0.2s',
+                                fontWeight: 'bold'
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = badgeColor;
+                                e.currentTarget.style.background = `${badgeColor}15`;
+                                e.currentTarget.style.color = '#fff';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = `${badgeColor}30`;
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                                e.currentTarget.style.color = badgeColor;
+                            }}
+                        >
+                            INSTAGRAM
+                        </a>
                     </div>
                 </div>
             </div>
@@ -515,15 +898,13 @@ function CrewCard({ member, isFeatured, isMobile }) {
 
 /* ════════════════════════════════════════════
    MAIN CREW PAGE
-════════════════════════════════════════════ */
+   ════════════════════════════════════════════ */
 export default function CrewPage() {
     const [booted, setBooted] = useState(false);
-    const [filterDept, setFilterDept] = useState('ALL');
-    const [visibleRows, setVisibleRows] = useState(1);
-    const [featuredIndex, setFeaturedIndex] = useState(-1);
+    const [activeTab, setActiveTab] = useState('STUDENT'); // 'FACULTY' | 'STUDENT'
+    const [visibleSections, setVisibleSections] = useState(1);
+    const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-    const [dbCrew, setDbCrew] = useState([]);
 
     // Track window resize
     useEffect(() => {
@@ -532,128 +913,68 @@ export default function CrewPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch dynamic crew list from backend
-    useEffect(() => {
-        const fetchCrew = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/crew`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.length > 0) {
-                        setDbCrew(data);
-                    }
-                }
-            } catch (err) {
-                console.log("Failed to fetch crew from server, using local fallbacks");
-            }
-        };
-        fetchCrew();
-    }, []);
-
-    // Convert dbCrew (if available) or static DEPTS into the standard format
-    const deptsData = useMemo(() => {
-        if (!dbCrew || dbCrew.length === 0) return DEPTS;
-        
-        const mapped = {
-            EXECUTIVE: { color: '#00E5FF', glow: 'rgba(0,229,255,0.4)', icon: '👑', badge: 'cyan', members: [] },
-            TECH: { color: '#FF2CFB', glow: 'rgba(255,44,251,0.4)', icon: '💻', badge: 'pink', members: [] },
-            EVENTS: { color: '#7A5CFF', glow: 'rgba(122,92,255,0.4)', icon: '🎯', badge: 'purple', members: [] },
-            MEDIA: { color: '#FF9D00', glow: 'rgba(255,157,0,0.4)', icon: '📸', badge: 'orange', members: [] },
-            ROBOTICS: { color: '#1FFF76', glow: 'rgba(31,255,118,0.4)', icon: '🤖', badge: 'green', members: [] },
-            SPONSORS: { color: '#FFD700', glow: 'rgba(255,215,0,0.4)', icon: '🤝', badge: 'gold', members: [] }
-        };
-
-        dbCrew.forEach((member, idx) => {
-            let mappedCat = 'TECH';
-            if (member.category === 'CORE') mappedCat = 'EXECUTIVE';
-            else if (member.category === 'TECHNICAL') mappedCat = 'TECH';
-            else if (member.category === 'EVENTS') mappedCat = 'EVENTS';
-            else if (member.category === 'MEDIA') mappedCat = 'MEDIA';
-            else if (member.category === 'ROBOTICS') mappedCat = 'ROBOTICS';
-            else if (member.category === 'SPONSORS') mappedCat = 'SPONSORS';
-            else if (member.category === 'DESIGN') mappedCat = 'TECH';
-
-            mapped[mappedCat].members.push({
-                id: member._id || `M${idx}`,
-                name: member.name,
-                role: member.role,
-                status: member.featured ? 'MISSION READY' : 'CONNECTED',
-                skills: [{ n: member.statText, p: 90 }],
-                missions: [member.bio || 'Addovedi Division Lead'],
-                social: { github: '#', linkedin: '#', instagram: '#' },
-                avatar: member.avatar
-            });
-        });
-        
-        return mapped;
-    }, [dbCrew]);
-
-    const deptKeys = useMemo(() => Object.keys(deptsData), [deptsData]);
-    const allMembers = useMemo(() => {
-        return Object.entries(deptsData).flatMap(([deptKey, deptVal]) =>
-            deptVal.members.map(member => ({ ...member, dept: deptKey, color: deptVal.color, glow: deptVal.glow, badge: deptVal.badge }))
-        );
-    }, [deptsData]);
-
-    // Filter members list
-    const filteredCrew = useMemo(() => {
-        if (filterDept === 'ALL') return allMembers;
-        return allMembers.filter(m => m.dept === filterDept);
-    }, [filterDept, allMembers]);
-
-    // Split filtered crew into rows of 4 (desktop) or 2 (mobile)
+    // Split Faculty list into rows of 4 (desktop) or 2 (mobile)
     const cols = isMobile ? 2 : 4;
-    const crewRows = useMemo(() => {
+    const facultyRows = useMemo(() => {
         const rows = [];
-        for (let i = 0; i < filteredCrew.length; i += cols) {
-            rows.push(filteredCrew.slice(i, i + cols));
+        for (let i = 0; i < FACULTY_CREW.length; i += cols) {
+            rows.push(FACULTY_CREW.slice(i, i + cols));
         }
         return rows;
-    }, [filteredCrew, cols]);
+    }, [cols]);
 
-    // Crew card entry animation: trigger row reveal index over time
+    // Student total operatives count
+    const totalStudentCount = useMemo(() => {
+        return STUDENT_SECTIONS.reduce((acc, curr) => acc + curr.members.length, 0);
+    }, []);
+
+    // Card entry animation for Faculty rows
     useEffect(() => {
-        if (!booted) return;
-        setVisibleRows(1);
+        if (!booted || activeTab !== 'FACULTY') return;
+        setVisibleFacultyRows(1);
         const interval = setInterval(() => {
-            setVisibleRows(prev => {
-                if (prev >= crewRows.length) {
+            setVisibleFacultyRows(prev => {
+                if (prev >= facultyRows.length) {
                     clearInterval(interval);
                     return prev;
                 }
                 return prev + 1;
             });
-        }, 300); // reveals next row every 300ms
+        }, 220);
         return () => clearInterval(interval);
-    }, [crewRows.length, booted, filterDept]);
+    }, [facultyRows.length, booted, activeTab]);
+
+    // Card entry animation for Student sections
+    useEffect(() => {
+        if (!booted || activeTab !== 'STUDENT') return;
+        setVisibleSections(1);
+        const interval = setInterval(() => {
+            setVisibleSections(prev => {
+                if (prev >= STUDENT_SECTIONS.length) {
+                    clearInterval(interval);
+                    return prev;
+                }
+                return prev + 1;
+            });
+        }, 150); // reveals next section every 150ms
+        return () => clearInterval(interval);
+    }, [booted, activeTab]);
 
     const pageRef = useRef(null);
 
-    // Auto active featured card selection cycle every 7 seconds
-    useEffect(() => {
-        if (!booted || filteredCrew.length === 0) return;
-        const interval = setInterval(() => {
-            const randIdx = Math.floor(Math.random() * filteredCrew.length);
-            setFeaturedIndex(randIdx);
-        }, 7000);
-        return () => clearInterval(interval);
-    }, [filteredCrew.length, booted]);
-
-
-
     return (
-        <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#02050c', zIndex:100, overflowY:'auto', overflowX:'hidden', WebkitOverflowScrolling:'touch' }}>
+        <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.07) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255, 44, 251, 0.07) 0%, transparent 50%), #02050c',
+            zIndex: 100,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch'
+        }}>
             <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-                @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-                @keyframes sweepLine {
-                    0% { transform: scaleX(0); opacity: 0; left: 0; }
-                    25% { opacity: 0.8; }
-                    50% { transform: scaleX(1); opacity: 1; left: 0; }
-                    75% { opacity: 0.8; }
-                    100% { transform: scaleX(0); opacity: 0; left: 100%; }
-                }
                 @keyframes statusPulse { 0%,100%{opacity:.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.25)} }
                 
                 /* Magnetic Float Effect on Character Cards */
@@ -667,7 +988,7 @@ export default function CrewPage() {
                     position: absolute;
                     inset: 0;
                     border-radius: 12px;
-                    padding: 1px;
+                    padding: 1.2px;
                     background: linear-gradient(90deg, transparent, var(--border-glow-color, #00E5FF), transparent);
                     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                     -webkit-mask-composite: xor;
@@ -733,165 +1054,255 @@ export default function CrewPage() {
                 @keyframes rowIn {
                     to { opacity: 1; transform: translateY(0); }
                 }
+
+                /* Space Nebulae Orbit Animations */
+                @keyframes orbit-slow {
+                    0% { transform: translate(0px, 0px) scale(1); }
+                    50% { transform: translate(60px, -80px) scale(1.15); }
+                    100% { transform: translate(0px, 0px) scale(1); }
+                }
+                @keyframes orbit-reverse {
+                    0% { transform: translate(0px, 0px) scale(1.15); }
+                    50% { transform: translate(-70px, 60px) scale(0.9); }
+                    100% { transform: translate(0px, 0px) scale(1.15); }
+                }
             `}} />
 
             <BgCanvas />
 
+            {/* Glowing background nebula blobs */}
+            <div style={{
+                position: 'fixed',
+                top: '-15%', left: '-15%',
+                width: '60vw', height: '60vw',
+                background: 'radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%)',
+                filter: 'blur(120px)',
+                pointerEvents: 'none',
+                zIndex: 0,
+                animation: 'orbit-slow 25s ease-in-out infinite'
+            }} />
+            <div style={{
+                position: 'fixed',
+                bottom: '-15%', right: '-15%',
+                width: '65vw', height: '65vw',
+                background: 'radial-gradient(circle, rgba(255, 44, 251, 0.08) 0%, transparent 70%)',
+                filter: 'blur(140px)',
+                pointerEvents: 'none',
+                zIndex: 0,
+                animation: 'orbit-reverse 30s ease-in-out infinite'
+            }} />
+
             {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />}
 
             <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
-                    {/* Navbar */}
-                    <div style={{ position:'relative', zIndex:20 }}>
-                        <CommonNav />
+                {/* Navbar */}
+                <div style={{ position:'relative', zIndex:20 }}>
+                    <CommonNav />
+                </div>
+
+                {/* Main Container */}
+                <div style={{
+                    position: 'relative',
+                    zIndex: 10,
+                    width: '100%',
+                    maxWidth: '1280px',
+                    margin: '0 auto',
+                    padding: isMobile ? '108px 16px 40px' : '128px 40px 60px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    {/* Hero Header Section */}
+                    <div style={{ textAlign: 'center', marginTop: isMobile ? '10px' : '30px' }}>
+                        <div style={{
+                            fontFamily: "'Orbitron', monospace",
+                            fontSize: 'clamp(28px, 6.5vw, 68px)',
+                            fontWeight: 900,
+                            letterSpacing: '0.12em',
+                            color: '#FFF',
+                            textShadow: '0 0 35px rgba(0, 229, 255, 0.5), 0 0 70px rgba(0, 229, 255, 0.25)',
+                            lineHeight: 1,
+                            marginBottom: '12px'
+                        }}>
+                            ADDOVEDI CREW
+                        </div>
+                        <div style={{
+                            fontFamily: "'Orbitron', monospace",
+                            fontSize: 'clamp(8px, 1.5vw, 12px)',
+                            letterSpacing: '0.45em',
+                            color: 'rgba(0, 229, 255, 0.5)',
+                            textTransform: 'uppercase'
+                        }}>
+                            THE PEOPLE BEHIND THE MISSION
+                        </div>
                     </div>
 
-                    {/* Main Container */}
+                    {/* Animated Statistics Counter Strip */}
+                    <StatStrip 
+                        finalMembers={activeTab === 'FACULTY' ? FACULTY_CREW.length : totalStudentCount} 
+                        finalMission={1} 
+                    />
+
+                    {/* Futuristic Dual Section Tabs Selector */}
                     <div style={{
-                        position: 'relative',
-                        zIndex: 10,
-                        width: '100%',
-                        maxWidth: '1280px',
-                        margin: '0 auto',
-                        padding: isMobile ? '20px 16px 80px' : '40px 40px 100px',
                         display: 'flex',
-                        flexDirection: 'column'
+                        justifyContent: 'center',
+                        gap: '12px',
+                        marginBottom: '40px',
+                        padding: '0 8px'
                     }}>
-                        {/* Hero Header Section */}
-                        <div style={{ textAlign: 'center', marginTop: isMobile ? '10px' : '30px' }}>
-                            <div style={{
-                                fontFamily: "'Orbitron', monospace",
-                                fontSize: 'clamp(28px, 6.5vw, 68px)',
-                                fontWeight: 900,
-                                letterSpacing: '0.12em',
-                                color: '#FFF',
-                                textShadow: '0 0 35px rgba(0, 229, 255, 0.5), 0 0 70px rgba(0, 229, 255, 0.25)',
-                                lineHeight: 1,
-                                marginBottom: '12px'
-                            }}>
-                                ADDOVEDI CREW
-                            </div>
-                            <div style={{
-                                fontFamily: "'Orbitron', monospace",
-                                fontSize: 'clamp(8px, 1.5vw, 12px)',
-                                letterSpacing: '0.45em',
-                                color: 'rgba(0, 229, 255, 0.5)',
-                                textTransform: 'uppercase'
-                            }}>
-                                THE PEOPLE BEHIND THE MISSION
-                            </div>
-                        </div>
-
-                        {/* Animated Statistics Counter Strip */}
-                        <StatStrip finalMembers={allMembers.length} finalDepts={deptKeys.length} finalMission={1} />
-
-                        {/* Futuristic Department Selector Chips */}
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: '8px',
-                            flexWrap: 'wrap',
-                            marginBottom: '40px',
-                            padding: '0 8px'
-                        }}>
-                            {['ALL', ...deptKeys].map(key => {
-                                const deptColor = key === 'ALL' ? '#00E5FF' : deptsData[key].color;
-                                const isActive = filterDept === key;
-                                return (
-                                    <button
-                                        key={key}
-                                        onClick={() => setFilterDept(key)}
-                                        style={{
-                                            fontFamily: "'Orbitron', monospace",
-                                            fontSize: 'clamp(7.5px, 1.2vw, 10px)',
-                                            letterSpacing: '0.2em',
-                                            padding: '8px 16px',
-                                            borderRadius: '6px',
-                                            border: `1.5px solid ${isActive ? deptColor : 'rgba(255, 255, 255, 0.08)'}`,
-                                            color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.45)',
-                                            background: isActive ? `${deptColor}22` : 'rgba(255, 255, 255, 0.02)',
-                                            boxShadow: isActive ? `0 0 15px ${deptColor}40` : 'none',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.25s ease',
-                                            textTransform: 'uppercase',
-                                            clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
-                                        }}
-                                        onMouseEnter={e => {
-                                            if (!isActive) {
-                                                e.currentTarget.style.borderColor = deptColor;
-                                                e.currentTarget.style.color = '#fff';
-                                            }
-                                        }}
-                                        onMouseLeave={e => {
-                                            if (!isActive) {
-                                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.45)';
-                                            }
-                                        }}
-                                    >
-                                        {key}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* main character cards grid */}
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: isMobile ? '16px' : '28px'
-                        }}>
-                            {crewRows.slice(0, visibleRows).map((row, rowIdx) => (
-                                <div
-                                    key={rowIdx}
-                                    className="row-reveal"
+                        {[
+                            { key: 'FACULTY', label: 'FACULTY COMMAND' },
+                            { key: 'STUDENT', label: 'STUDENT SQUADRON' }
+                        ].map(tab => {
+                            const tabColor = '#00E5FF';
+                            const isActive = activeTab === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key)}
                                     style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                                        gap: isMobile ? '16px' : '28px',
-                                        width: '100%'
+                                        fontFamily: "'Orbitron', monospace",
+                                        fontSize: 'clamp(9px, 1.5vw, 12px)',
+                                        letterSpacing: '0.2em',
+                                        padding: isMobile ? '10px 16px' : '12px 28px',
+                                        borderRadius: '6px',
+                                        border: `1.5px solid ${isActive ? tabColor : 'rgba(255, 255, 255, 0.08)'}`,
+                                        color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.45)',
+                                        background: isActive ? `${tabColor}22` : 'rgba(255, 255, 255, 0.02)',
+                                        boxShadow: isActive ? `0 0 15px ${tabColor}40` : 'none',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.25s ease',
+                                        textTransform: 'uppercase',
+                                        clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(8px - 100%) 100%, 0 100%, 0 8px)'
+                                    }}
+                                    onMouseEnter={e => {
+                                        if (!isActive) {
+                                            e.currentTarget.style.borderColor = tabColor;
+                                            e.currentTarget.style.color = '#fff';
+                                        }
+                                    }}
+                                    onMouseLeave={e => {
+                                        if (!isActive) {
+                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                                            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.45)';
+                                        }
                                     }}
                                 >
-                                    {row.map((member, colIdx) => {
-                                        const globalIdx = filteredCrew.findIndex(c => c.id === member.id);
-                                        const isFeatured = globalIdx === featuredIndex;
-                                        return (
-                                            <CrewCard
-                                                key={member.id}
-                                                member={member}
-                                                isFeatured={isFeatured}
-                                                isMobile={isMobile}
-                                            />
-                                        );
-                                    })}
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Main Content Area */}
+                    {activeTab === 'FACULTY' ? (
+                        /* Direct Faculty Grid (Centered) */
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            gap: isMobile ? '32px 16px' : '28px',
+                            width: '100%'
+                        }}>
+                            {FACULTY_CREW.map((member) => (
+                                <div 
+                                    key={member.id}
+                                    style={{
+                                        width: isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)',
+                                        minWidth: isMobile ? '140px' : '240px',
+                                        maxWidth: '280px'
+                                    }}
+                                >
+                                    <CrewCard
+                                        member={member}
+                                        isFeatured={false}
+                                        isMobile={isMobile}
+                                    />
                                 </div>
                             ))}
                         </div>
+                    ) : (
+                        /* Section Headings + Centered Cards for Student Squadron */
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            {STUDENT_SECTIONS.slice(0, visibleSections).map((section) => (
+                                <div key={section.title} className="row-reveal" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                                    {/* Futuristic Cyber Section Header Centered */}
+                                    <div style={{
+                                        fontFamily: "'Orbitron', monospace",
+                                        fontSize: 'clamp(11px, 2vw, 15px)',
+                                        fontWeight: 900,
+                                        letterSpacing: '0.25em',
+                                        color: section.color,
+                                        marginTop: '24px',
+                                        marginBottom: '24px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '12px'
+                                    }}>
+                                        <span style={{ color: `${section.color}40`, fontSize: '10px' }}>&lt;</span>
+                                        <span style={{ color: `${section.color}80` }}>{section.title}</span>
+                                        <span style={{
+                                            fontSize: '8px',
+                                            fontWeight: 400,
+                                            color: 'rgba(255, 255, 255, 0.35)',
+                                            letterSpacing: '0.08em',
+                                            fontFamily: 'monospace',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            padding: '2px 6px',
+                                            borderRadius: '3px',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            Q: {section.members.length}
+                                        </span>
+                                        <span style={{ color: `${section.color}40`, fontSize: '10px' }}>&gt;</span>
+                                    </div>
 
-                        {/* Footer Segment */}
-                        <div style={{
-                            marginTop: '80px',
-                            borderTop: '1px solid rgba(0, 229, 255, 0.08)',
-                            paddingTop: '32px',
-                            textAlign: 'center',
-                            fontFamily: "'Orbitron', monospace",
-                            letterSpacing: '0.35em',
-                            fontSize: 'clamp(7.5px, 1.2vw, 9.5px)',
-                            color: 'rgba(0, 229, 255, 0.3)'
-                        }}>
-                            <div>ALL CREW MEMBERS VERIFIED // MISSION READY</div>
-                            <div style={{ marginTop: '8px', color: 'rgba(255,255,255,0.4)', textShadow: '0 0 10px rgba(0, 229, 255, 0.2)' }}>
-                                SEE YOU AT ADDOVEDI
-                            </div>
-                            <span style={{
-                                display: 'inline-block',
-                                width: '8px',
-                                height: '12px',
-                                background: '#00E5FF',
-                                marginTop: '12px',
-                                animation: 'statusPulse 1s ease-in-out infinite'
-                            }} />
+                                    {/* Cards Grid Centered */}
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center',
+                                        gap: isMobile ? '32px 16px' : '28px',
+                                        width: '100%',
+                                        marginBottom: '24px'
+                                    }}>
+                                        {section.members.map((member) => (
+                                            <div 
+                                                key={member.id}
+                                                style={{
+                                                    width: isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)',
+                                                    minWidth: isMobile ? '140px' : '240px',
+                                                    maxWidth: '280px'
+                                                }}
+                                            >
+                                                <CrewCard
+                                                    member={member}
+                                                    isFeatured={false}
+                                                    isMobile={isMobile}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
+                    )}
+
+                    {/* Footer Segment */}
+                    <div style={{
+                        marginTop: '36px',
+                        borderTop: '1px solid rgba(0, 229, 255, 0.05)',
+                        paddingTop: '16px',
+                        textAlign: 'center',
+                        fontFamily: "'Orbitron', monospace",
+                        letterSpacing: '0.25em',
+                        fontSize: 'clamp(6.5px, 1.1vw, 8px)',
+                        color: 'rgba(0, 229, 255, 0.25)'
+                    }}>
+                        <div>ALL OPERATIVES DEPLOYED // STATUS NOMINAL</div>
                     </div>
+                </div>
             </div>
         </div>
     );

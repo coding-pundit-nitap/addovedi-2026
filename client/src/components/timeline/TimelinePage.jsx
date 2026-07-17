@@ -1397,12 +1397,17 @@ export default function TimelinePage() {
                     position: absolute;
                     left: 50%;
                     transform: translate(-50%, -50%);
-                    width: 10px;
-                    height: 34px;
+                    width: 8px;
+                    height: 36px;
                     border-radius: 999px;
-                    background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.95), rgba(0, 217, 255, 0.35) 40%, transparent 72%);
-                    box-shadow: 0 0 18px rgba(0, 217, 255, 0.45), 0 0 6px rgba(255, 255, 255, 0.2);
-                    transition: top 0.08s ease-out;
+                    background: linear-gradient(180deg, #00E5FF, #FF2CFB);
+                    box-shadow: 0 0 12px rgba(0, 229, 255, 0.6), 0 0 24px rgba(255, 44, 251, 0.4);
+                    cursor: pointer;
+                    transition: opacity 0.2s, height 0.2s;
+                }
+                .scroll-indicator-thumb:hover {
+                    height: 46px;
+                    box-shadow: 0 0 16px rgba(0, 229, 255, 0.8), 0 0 32px rgba(255, 44, 251, 0.6);
                 }
             `}</style>
 
@@ -1423,7 +1428,7 @@ export default function TimelinePage() {
             <div style={{
                 position:'relative', zIndex:10,
                 minHeight:'calc(100vh - 88px)',
-                padding: isMobile ? '0 14px 40px' : '0 40px 50px',
+                padding: isMobile ? '88px 14px 40px' : '88px 40px 50px',
                 opacity: contentVisible ? 1 : 0,
                 transition:'opacity 0.4s ease',
                 display:'flex',
@@ -1491,7 +1496,7 @@ export default function TimelinePage() {
                             width: '160px',
                             flexShrink: 0,
                             position: 'sticky',
-                            top: '28px',
+                            top: '108px',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '12px',
@@ -1557,7 +1562,7 @@ export default function TimelinePage() {
                         </div>
 
                         {/* Right HUD Panel */}
-                        <div style={{ width:'260px', flexShrink:0, position:'sticky', top:'28px' }}>
+                        <div style={{ width:'260px', flexShrink:0, position:'sticky', top:'108px' }}>
                             <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'8px', color:'rgba(0,229,255,0.35)', letterSpacing:'0.3em', marginBottom:'10px' }}>
                                 MISSION BRIEFING
                             </div>
