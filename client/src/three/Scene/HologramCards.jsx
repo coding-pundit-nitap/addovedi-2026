@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { useStore } from '../../store/useStore';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../constants/api';
 
 export const CARD_DATA = [
     {
@@ -466,10 +467,6 @@ export const SUB_EVENTS = {
 export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
-
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
 
 function getSvgIcon(type, color) {
     switch (type) {

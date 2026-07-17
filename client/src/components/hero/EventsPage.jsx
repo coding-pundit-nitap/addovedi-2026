@@ -3,10 +3,7 @@ import { useStore } from '../../store/useStore';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { SUB_EVENTS, slugify, CARD_DATA } from '../../three/Scene/HologramCards';
-
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+import { API_BASE } from '../../constants/api';
 
 // Event Rules & Details Directory
 const EVENT_RULES = {

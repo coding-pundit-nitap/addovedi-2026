@@ -14,10 +14,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+import { API_BASE } from '../../constants/api';
 
 export default function AdminPage() {
     const navigate = useNavigate();

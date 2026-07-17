@@ -12,10 +12,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import AlliancesNav from './AlliancesNav';
-
-const API_BASE = window.location.origin.includes('localhost:5173')
-    ? 'http://localhost:5001/api'
-    : '/api';
+import { API_BASE } from '../../constants/api';
 
 const SPONSORS_LIST = [
     { id: 'S01', name: 'NVIDIA', category: 'TITLE', sub: 'Technology Partner', logo: 'NV', desc: 'Accelerating AI and real-time graphics pipelines.', support: ['AI Arena', 'Rendering Server', 'GPU Workshops'], url: '#' },
