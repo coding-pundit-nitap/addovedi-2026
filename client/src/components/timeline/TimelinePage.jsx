@@ -17,7 +17,9 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, AdaptiveDpr, AdaptiveEvents } from '@react-three/drei';
 import * as THREE from 'three';
-import TimelineNav from './TimelineNav';
+import { motion, AnimatePresence } from 'framer-motion';
+import CommonNav from '../common/CommonNav';
+import CommonLoader from '../common/CommonLoader';
 
 /* ═══════════════════════════════════════════
    MISSION DATA
@@ -187,6 +189,23 @@ const EVENT_COORDINATORS = {
         { name: 'Sneha Raj', phone: '+91 77777 66666' }
     ]
 };
+
+/* ═══════════════════════════════════════════
+   EVENT STATUS CALCULATOR
+═══════════════════════════════════════════ */
+const parseTimeToMinutes = (timeStr) => {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.trim().split(':').map(Number);
+    return (h || 0) * 60 + (m || 0);
+};
+
+export function getEventStatus(ev, now24) {
+    const startMin = parseTimeToMinutes(ev.time);
+    const endMin = parseTimeToMinutes(ev.end);
+    if (now24 > endMin) return 'COMPLETED';
+    if (now24 >= startMin && now24 <= endMin) return 'LIVE';
+    return 'UPCOMING';
+}
 
 /* ═══════════════════════════════════════════
    SNAKE LAYOUT CALCULATOR
@@ -522,62 +541,7 @@ function BgCanvas() {
     );
 }
 
-/* ═══════════════════════════════════════════
-   BOOT SEQUENCE
-═══════════════════════════════════════════ */
-function BootSeq({ onDone }) {
-    const [pct, setPct] = useState(0);
-    const [show, setShow] = useState(false);
-    const [flicker, setFlicker] = useState(false);
 
-    useEffect(() => {
-        const t0 = setTimeout(() => setShow(true), 300);
-        let start = null, raf;
-        const t1 = setTimeout(() => {
-            const go = ts => {
-                if (!start) start = ts;
-                const p = Math.min(100, Math.floor(((ts - start) / 1600) * 100));
-                setPct(p);
-                if (p < 100) raf = requestAnimationFrame(go);
-                else { setTimeout(() => { setFlicker(true); setTimeout(onDone, 450); }, 150); }
-            };
-            raf = requestAnimationFrame(go);
-        }, 450);
-        return () => { clearTimeout(t0); clearTimeout(t1); cancelAnimationFrame(raf); };
-    }, [onDone]);
-
-    return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 300,
-            background: '#06080F',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            animation: flicker ? 'bootFlick 0.45s steps(3,end) forwards' : 'none',
-        }}>
-            <style>{`
-                @keyframes bootFlick { 0%,100%{opacity:1}33%{opacity:0}66%{opacity:1}83%{opacity:0} }
-            `}</style>
-            {show && (
-                <div style={{ textAlign: 'center', fontFamily:"'Orbitron',monospace" }}>
-                    <div style={{ fontSize: 'clamp(9px,2vw,14px)', color: '#00E5FF', letterSpacing: '0.55em', marginBottom: '28px', textShadow: '0 0 20px #00E5FF', opacity: 0.9 }}>
-                        MISSION COMMAND CENTER
-                    </div>
-                    <div style={{ fontSize: 'clamp(9px,1.8vw,12px)', color: 'rgba(122,92,255,0.7)', letterSpacing: '0.4em', marginBottom: '24px' }}>
-                        SYSTEM INITIALIZING...
-                    </div>
-                    <div style={{ width:'min(320px,75vw)', height:'3px', background:'rgba(0,229,255,0.12)', borderRadius:'2px', overflow:'hidden', margin:'0 auto 16px' }}>
-                        <div style={{ height:'100%', width:`${pct}%`, background:'linear-gradient(90deg,#7A5CFF,#00E5FF)', boxShadow:'0 0 10px #00E5FF', transition:'width 0.04s linear', borderRadius:'2px' }} />
-                    </div>
-                    <div style={{ fontSize:'clamp(22px,5vw,44px)', fontWeight:900, color:'#00E5FF', textShadow:'0 0 30px #00E5FF,0 0 60px rgba(0,229,255,0.35)', letterSpacing:'0.08em' }}>
-                        {pct}%
-                    </div>
-                    <div style={{ marginTop:'10px', fontSize:'9px', color:'rgba(0,229,255,0.3)', letterSpacing:'0.3em' }}>
-                        ADDOVEDI 2026 // LOADING MISSION FILES
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
 
 /* ═══════════════════════════════════════════
    DAY SLOT CARD
@@ -593,7 +557,7 @@ function DaySlot({ day, isActive, onClick, revealed }) {
                 cursor: 'pointer',
                 border: `1px solid ${isActive ? day.color : hov ? day.color + '70' : 'rgba(0,229,255,0.18)'}`,
                 borderRadius: '8px',
-                padding: 'clamp(10px,2vw,16px) clamp(14px,2.5vw,22px)',
+                padding: '8px 16px',
                 background: isActive
                     ? `linear-gradient(135deg, ${day.color}18, ${day.color}08)`
                     : hov ? 'rgba(0,229,255,0.06)' : 'rgba(0,229,255,0.03)',
@@ -602,8 +566,8 @@ function DaySlot({ day, isActive, onClick, revealed }) {
                 transition: 'all 0.25s ease',
                 opacity: revealed ? 1 : 0,
                 transitionDelay: revealed ? '0.1s' : '0s',
-                minWidth: 'clamp(90px,18vw,160px)',
-                flex: 1,
+                minWidth: '110px',
+                flex: '0 1 auto',
             }}
         >
             <div style={{ fontFamily:"'Orbitron',monospace" }}>
@@ -735,103 +699,336 @@ function MissionNode({ ev, isSelected, isCompleted, now24, onClick, revealed, da
 }
 
 /* ═══════════════════════════════════════════
-   SNAKE MAP (DESKTOP)
+   VERTICAL TIMELINE (DESKTOP)
 ═══════════════════════════════════════════ */
-function SnakeMap({ events, selectedId, onSelect, revealed, dayColor, now24 }) {
-    const laid = useMemo(() => getSnakeLayout(events), [events]);
-    const rows = Math.ceil(events.length / ROW_CAPACITY);
+function VerticalTimeline({ events, selectedId, onSelect, revealed, dayColor, now24 }) {
+    const [hoveredId, setHoveredId] = useState(null);
 
     return (
-        <div style={{ position:'relative', width:'100%' }}>
-            {Array.from({ length: rows }, (_, rowIdx) => {
-                const rowItems = laid.filter(e => e.row === rowIdx);
-                const isRTL = rowIdx % 2 === 1;
+        <div style={{ position: 'relative', width: '100%', padding: '20px 0' }}>
+            {/* Winding Map Route / Zigzag Layout */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', position: 'relative', zIndex: 1 }}>
+                {events.map((ev, i) => {
+                    const isLeft = i % 2 === 0;
+                    const catInfo = CATEGORY_ICONS[ev.category] || { icon: '◆', color: '#00E5FF' };
+                    const isSelected = selectedId === ev.id;
+                    const isHovered = hoveredId === ev.id;
+                    const status = getEventStatus(ev, now24);
+                    
+                    const statusText = status === 'LIVE' ? 'LIVE NOW' : status === 'COMPLETED' ? 'COMPLETED' : 'UPCOMING';
+                    const statusColor = status === 'LIVE' ? '#FF1F4F' : status === 'COMPLETED' ? '#1FFF76' : 'rgba(255,255,255,0.4)';
 
-                return (
-                    <div key={rowIdx} style={{ marginBottom: rowIdx < rows - 1 ? '32px' : 0 }}>
-                        {/* Node row */}
-                        <div style={{
-                            display:'flex',
-                            justifyContent: isRTL ? 'flex-end' : 'flex-start',
-                            gap:'0',
-                            position:'relative',
-                        }}>
-                            {/* Horizontal rail behind nodes */}
+                    const activeSize = '38px';
+                    const inactiveSize = '30px';
+                    const currentSize = isSelected || isHovered ? activeSize : inactiveSize;
+
+                    return (
+                        <div
+                            key={ev.id}
+                            style={{
+                                display: 'flex',
+                                width: '100%',
+                                position: 'relative',
+                                minHeight: '120px',
+                                alignItems: 'center',
+                                boxSizing: 'border-box'
+                            }}
+                        >
+                            {/* Left Side Container */}
                             <div style={{
-                                position:'absolute',
-                                top:'50%',
-                                left: rowItems.length > 0 ? `${(isRTL ? (ROW_CAPACITY - rowItems.length) : 0) * (100 / ROW_CAPACITY)}%` : '0',
-                                width: `${(rowItems.length - 1) * (100 / (ROW_CAPACITY - 1))}%`,
-                                height:'4px',
-                                transform:'translateY(-50%)',
-                                background:`linear-gradient(${isRTL ? '270deg' : '90deg'}, transparent, ${dayColor}40)`,
-                                zIndex:0,
-                                overflow:'visible',
-                                ...(isRTL ? { right:0, left:'auto' } : {}),
+                                width: '43%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                boxSizing: 'border-box',
+                                opacity: revealed ? 1 : 0,
+                                transform: revealed ? 'none' : `translateX(${isLeft ? '0' : '20px'})`,
+                                transition: `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s`,
                             }}>
-                                {/* Rail glow */}
-                                <div style={{
-                                    position:'absolute', inset:0,
-                                    background:`linear-gradient(${isRTL ? '270deg' : '90deg'}, transparent, ${dayColor})`,
-                                    opacity: revealed ? 0.6 : 0,
-                                    boxShadow:`0 0 8px ${dayColor}, 0 0 16px ${dayColor}50`,
-                                    transition:`opacity 0.8s ease ${0.5 + rowIdx * 0.3}s`,
-                                    borderRadius:'2px',
-                                }} />
-                                {/* Tiny rail particles */}
-                                {[0.2, 0.5, 0.8].map((pos, pi) => (
-                                    <div key={pi} style={{
-                                        position:'absolute', top:'50%',
-                                        left: isRTL ? `${(1 - pos) * 100}%` : `${pos * 100}%`,
-                                        transform:'translate(-50%,-50%)',
-                                        width:'4px', height:'4px',
-                                        borderRadius:'50%',
-                                        background:dayColor,
-                                        opacity: revealed ? 0.7 : 0,
-                                        animation: revealed ? `railParticle ${1.2 + pi * 0.4}s ease-in-out infinite ${pi * 0.5}s` : 'none',
-                                    }} />
-                                ))}
+                                {isLeft && (
+                                    <>
+                                        <TimelineCard
+                                            ev={ev}
+                                            catInfo={catInfo}
+                                            isSelected={isSelected}
+                                            isHovered={isHovered}
+                                            statusText={statusText}
+                                            statusColor={statusColor}
+                                            onClick={() => onSelect(ev)}
+                                            onMouseEnter={() => setHoveredId(ev.id)}
+                                            onMouseLeave={() => setHoveredId(null)}
+                                        />
+                                        {/* Junction dot */}
+                                        <div style={{
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: '50%',
+                                            background: isSelected || isHovered ? catInfo.color : `${dayColor}80`,
+                                            boxShadow: isSelected || isHovered ? `0 0 10px ${catInfo.color}` : 'none',
+                                            marginRight: '-3px',
+                                            zIndex: 6,
+                                            transition: 'all 0.3s ease'
+                                        }} />
+                                        {/* Connector line */}
+                                        <div style={{
+                                            width: '35px',
+                                            height: '2px',
+                                            background: isSelected || isHovered 
+                                                ? `linear-gradient(270deg, ${catInfo.color}, transparent)` 
+                                                : `linear-gradient(270deg, ${dayColor}30, transparent)`,
+                                            boxShadow: isSelected || isHovered ? `0 0 6px ${catInfo.color}` : 'none',
+                                            zIndex: 1,
+                                            transition: 'all 0.3s ease',
+                                        }} />
+                                    </>
+                                )}
                             </div>
 
-                            {/* Nodes */}
-                            {(isRTL ? [...rowItems].reverse() : rowItems).map((ev, nodeIdx) => (
-                                <div key={ev.id} style={{ flex: 1, display:'flex', justifyContent:'center', position:'relative', zIndex:2 }}>
-                                    <MissionNode
-                                        ev={ev}
-                                        isSelected={selectedId === ev.id}
-                                        isCompleted={parseInt(ev.time) * 60 < now24}
-                                        now24={now24}
-                                        onClick={() => onSelect(ev)}
-                                        revealed={revealed}
-                                        dayColor={dayColor}
-                                        delay={0.6 + rowIdx * 0.2 + nodeIdx * 0.08}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Vertical connector to next row */}
-                        {rowIdx < rows - 1 && (() => {
-                            const isNextRTL = (rowIdx + 1) % 2 === 1;
-                            const connectorSide = isRTL ? 'left' : 'right';
-                            return (
-                                <div style={{ position:'relative', height:'32px', display:'flex', alignItems:'stretch', justifyContent: connectorSide === 'right' ? 'flex-end' : 'flex-start' }}>
+                            {/* Center Node Container */}
+                            <div style={{
+                                width: '14%',
+                                display: 'flex',
+                                position: 'relative',
+                                zIndex: 5,
+                            }}>
+                                {/* Node Dot on Spine */}
+                                <div style={{
+                                    position: 'absolute',
+                                    left: isLeft ? '0px' : 'auto',
+                                    right: !isLeft ? '0px' : 'auto',
+                                    top: '50%',
+                                    transform: isLeft ? 'translate(-50%, -50%)' : 'translate(50%, -50%)',
+                                    zIndex: 5,
+                                    cursor: 'pointer',
+                                }}
+                                    onClick={() => onSelect(ev)}
+                                    onMouseEnter={() => setHoveredId(ev.id)}
+                                    onMouseLeave={() => setHoveredId(null)}
+                                >
                                     <div style={{
-                                        width:'4px',
-                                        background:`linear-gradient(to bottom, ${dayColor}, ${dayColor}40)`,
-                                        boxShadow:`0 0 8px ${dayColor}60`,
-                                        opacity: revealed ? 1 : 0,
-                                        transition:`opacity 0.5s ease ${0.8 + rowIdx * 0.3}s`,
-                                        marginLeft: connectorSide === 'right' ? 'calc(100% / 8 - 2px)' : undefined,
-                                        marginRight: connectorSide === 'left' ? 'calc(100% / 8 - 2px)' : undefined,
-                                        borderRadius:'2px',
-                                    }} />
+                                        width: currentSize,
+                                        height: currentSize,
+                                        borderRadius: '50%',
+                                        border: `2px solid ${isSelected || isHovered ? catInfo.color : dayColor + '70'}`,
+                                        background: isSelected || isHovered ? catInfo.color : '#06080F',
+                                        boxShadow: isSelected || isHovered ? `0 0 15px ${catInfo.color}, inset 0 0 5px #fff` : `0 0 5px ${dayColor}30`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: isSelected || isHovered ? '18px' : '14px',
+                                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                                        color: isSelected || isHovered ? '#000' : 'rgba(255,255,255,0.6)'
+                                    }}>
+                                        {catInfo.icon}
+                                    </div>
                                 </div>
-                            );
-                        })()}
+                            </div>
+
+                            {/* Right Side Container */}
+                            <div style={{
+                                width: '43%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                                boxSizing: 'border-box',
+                                opacity: revealed ? 1 : 0,
+                                transform: revealed ? 'none' : `translateX(${!isLeft ? '0' : '-20px'})`,
+                                transition: `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s`,
+                            }}>
+                                {!isLeft && (
+                                    <>
+                                        {/* Connector line */}
+                                        <div style={{
+                                            width: '35px',
+                                            height: '2px',
+                                            background: isSelected || isHovered 
+                                                ? `linear-gradient(90deg, ${catInfo.color}, transparent)` 
+                                                : `linear-gradient(90deg, ${dayColor}30, transparent)`,
+                                            boxShadow: isSelected || isHovered ? `0 0 6px ${catInfo.color}` : 'none',
+                                            zIndex: 1,
+                                            transition: 'all 0.3s ease',
+                                        }} />
+                                        {/* Junction dot */}
+                                        <div style={{
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: '50%',
+                                            background: isSelected || isHovered ? catInfo.color : `${dayColor}80`,
+                                            boxShadow: isSelected || isHovered ? `0 0 10px ${catInfo.color}` : 'none',
+                                            marginLeft: '-3px',
+                                            zIndex: 6,
+                                            transition: 'all 0.3s ease'
+                                        }} />
+                                        <TimelineCard
+                                            ev={ev}
+                                            catInfo={catInfo}
+                                            isSelected={isSelected}
+                                            isHovered={isHovered}
+                                            statusText={statusText}
+                                            statusColor={statusColor}
+                                            onClick={() => onSelect(ev)}
+                                            onMouseEnter={() => setHoveredId(ev.id)}
+                                            onMouseLeave={() => setHoveredId(null)}
+                                        />
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Zigzag diagonal wire connecting to next row's node (PCB trace) */}
+                            {i < events.length - 1 && (() => {
+                                return (
+                                    <svg
+                                        style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '43%',
+                                            width: '14%',
+                                            height: 'calc(100% + 30px)',
+                                            pointerEvents: 'none',
+                                            zIndex: 2,
+                                        }}
+                                        viewBox="0 0 100 100"
+                                        preserveAspectRatio="none"
+                                    >
+                                        <path
+                                            d={isLeft ? "M 0,0 L 0,20 L 100,80 L 100,100" : "M 100,0 L 100,20 L 0,80 L 0,100"}
+                                            fill="none"
+                                            stroke={isSelected || isHovered || selectedId === events[i+1].id || hoveredId === events[i+1].id ? catInfo.color : `${dayColor}40`}
+                                            strokeWidth="2.5"
+                                            strokeDasharray="6 4"
+                                            style={{
+                                                animation: 'strokeMove 0.8s linear infinite',
+                                                filter: isSelected || isHovered || selectedId === events[i+1].id || hoveredId === events[i+1].id ? `drop-shadow(0 0 5px ${catInfo.color})` : 'none',
+                                                transition: 'stroke 0.3s, filter 0.3s',
+                                            }}
+                                        />
+                                    </svg>
+                                );
+                            })()}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════
+   TIMELINE CARD (DESKTOP)
+═══════════════════════════════════════════ */
+function TimelineCard({ ev, catInfo, isSelected, isHovered, statusText, statusColor, onClick, onMouseEnter, onMouseLeave }) {
+    return (
+        <div
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            className="timeline-track-card-wrap"
+            style={{
+                width: '100%',
+                maxWidth: '320px',
+                '--btn-border-color': isSelected 
+                    ? catInfo.color 
+                    : isHovered 
+                        ? catInfo.color + 'aa' 
+                        : 'rgba(0, 229, 255, 0.15)',
+                transform: isSelected ? 'scale(1.02)' : isHovered ? 'translateY(-2px)' : 'none',
+                boxShadow: isSelected 
+                    ? `0 0 20px ${catInfo.color}35` 
+                    : isHovered 
+                        ? `0 0 12px ${catInfo.color}15` 
+                        : 'none',
+            }}
+        >
+            <div className="timeline-track-card-inner">
+                {/* Top header row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{
+                        fontFamily: "'Orbitron', monospace",
+                        fontSize: '9px',
+                        color: catInfo.color,
+                        letterSpacing: '0.12em',
+                        fontWeight: 700
+                    }}>
+                        {ev.time} – {ev.end}
+                    </span>
+                    
+                    {/* Live status badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{
+                            width: '5px',
+                            height: '5px',
+                            borderRadius: '50%',
+                            background: statusColor,
+                            boxShadow: statusColor !== 'rgba(255,255,255,0.4)' ? `0 0 6px ${statusColor}` : 'none',
+                            animation: statusText === 'LIVE NOW' ? 'slotPulse 1.2s ease-in-out infinite' : 'none'
+                        }} />
+                        <span style={{
+                            fontFamily: "'Orbitron', monospace",
+                            fontSize: '7px',
+                            color: statusColor,
+                            letterSpacing: '0.1em',
+                            fontWeight: 'bold'
+                        }}>
+                            {statusText}
+                        </span>
                     </div>
-                );
-            })}
+                </div>
+
+                {/* Main event info */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <h3 style={{
+                        fontFamily: "'Orbitron', monospace",
+                        fontSize: '13px',
+                        fontWeight: 900,
+                        color: '#ffffff',
+                        margin: 0,
+                        letterSpacing: '0.05em',
+                        textShadow: isSelected ? `0 0 8px ${catInfo.color}40` : 'none'
+                    }}>
+                        {ev.title}
+                    </h3>
+                    <p style={{
+                        fontFamily: "'Orbitron', monospace",
+                        fontSize: '8px',
+                        color: 'rgba(255,255,255,0.4)',
+                        margin: 0,
+                        letterSpacing: '0.1em'
+                    }}>
+                        {ev.subtitle}
+                    </p>
+                </div>
+
+                {/* Info row */}
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    borderTop: '1px solid rgba(255,255,255,0.06)',
+                    paddingTop: '8px',
+                    marginTop: '2px'
+                }}>
+                    <span style={{
+                        fontFamily: "'Orbitron', monospace",
+                        fontSize: '7px',
+                        color: 'rgba(255,255,255,0.3)',
+                        letterSpacing: '0.1em'
+                    }}>
+                        VENUE: <strong style={{ color: '#fff' }}>{ev.venue}</strong>
+                    </span>
+                    <span style={{
+                        fontFamily: "'Orbitron', monospace",
+                        fontSize: '7px',
+                        color: catInfo.color,
+                        border: `1px solid ${catInfo.color}40`,
+                        background: `${catInfo.color}08`,
+                        padding: '1.5px 6px',
+                        borderRadius: '3px',
+                        fontWeight: 700
+                    }}>
+                        {ev.category.toUpperCase()}
+                    </span>
+                </div>
+            </div>
         </div>
     );
 }
@@ -839,7 +1036,7 @@ function SnakeMap({ events, selectedId, onSelect, revealed, dayColor, now24 }) {
 /* ═══════════════════════════════════════════
    EVENT DETAIL PANEL (Right HUD)
 ═══════════════════════════════════════════ */
-function EventPanel({ ev, dayColor, visible }) {
+function EventPanel({ ev, dayColor, visible, onClose }) {
     const [scanPos, setScanPos] = useState(0);
     const raf = useRef(null);
 
@@ -872,6 +1069,30 @@ function EventPanel({ ev, dayColor, visible }) {
             display:'flex',
             flexDirection:'column',
         }}>
+            {/* Close Button */}
+            {onClose && (
+                <button
+                    onClick={onClose}
+                    style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '14px',
+                        color: color,
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        zIndex: 25,
+                        fontFamily: 'monospace',
+                        textShadow: `0 0 5px ${color}`
+                    }}
+                    aria-label="Close"
+                >
+                    ✕
+                </button>
+            )}
+
             {/* Corner brackets */}
             {[0,1,2,3].map(i => (
                 <div key={i} style={{
@@ -1056,6 +1277,8 @@ export default function TimelinePage() {
     const [transitioning, setTransitioning] = useState(false);
     const [contentVisible, setContentVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const timelineRef = useRef(null);
 
     const now24 = useMemo(() => {
         const d = new Date();
@@ -1067,6 +1290,18 @@ export default function TimelinePage() {
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, []);
+
+    const handleScroll = () => {
+        const el = timelineRef.current;
+        if (!el) return;
+        const maxScroll = el.scrollHeight - el.clientHeight;
+        const progress = maxScroll > 0 ? Math.min(Math.max(el.scrollTop / maxScroll, 0), 1) : 0;
+        setScrollProgress(progress);
+    };
+
+    useEffect(() => {
+        handleScroll();
+    }, [booted, activeDay]);
 
     const handleBoot = useCallback(() => {
         setBooted(true);
@@ -1088,7 +1323,12 @@ export default function TimelinePage() {
     const day = DAYS[activeDay];
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'#06080F', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
+        <div
+            ref={timelineRef}
+            onScroll={handleScroll}
+            className="timeline-scroll-container"
+            style={{ position:'fixed', inset:0, background:'#06080F', zIndex:100, overflowY:'auto', overflowX:'hidden' }}
+        >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes nodePulse { 0%,100%{opacity:0.9}50%{opacity:1;box-shadow:0 0 18px currentColor} }
@@ -1100,14 +1340,84 @@ export default function TimelinePage() {
                     100%{transform:translate(-50%,-50%) translateX(6px);opacity:0}
                 }
                 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+                @keyframes strokeMove {
+                    to {
+                        stroke-dashoffset: -20;
+                    }
+                }
+
+                .timeline-track-card-wrap {
+                    position: relative;
+                    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+                    background: var(--btn-border-color, rgba(0, 229, 255, 0.15));
+                    padding: 1.5px;
+                    cursor: pointer;
+                    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+                }
+                .timeline-track-card-inner {
+                    clip-path: polygon(11.2px 0, 100% 0, 100% calc(100% - 11.2px), calc(100% - 11.2px) 100%, 0 100%, 0 11.2px);
+                    background: rgba(6, 10, 22, 0.85);
+                    backdrop-filter: blur(12px);
+                    padding: 14px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    transition: background 0.3s ease;
+                }
+
+                .timeline-scroll-container {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .timeline-scroll-container::-webkit-scrollbar {
+                    width: 0;
+                    height: 0;
+                }
+
+                .scroll-indicator-track {
+                    position: fixed;
+                    right: 16px;
+                    top: 96px;
+                    bottom: 24px;
+                    width: 4px;
+                    background: rgba(0, 217, 255, 0.08);
+                    border-radius: 999px;
+                    box-shadow: inset 0 0 6px rgba(0, 217, 255, 0.08);
+                    z-index: 40;
+                    overflow: hidden;
+                }
+                .scroll-indicator-track::before {
+                    content: '';
+                    position: absolute;
+                    inset: 12px 0;
+                    background: linear-gradient(180deg, rgba(0, 217, 255, 0.1) 0%, transparent 40%, transparent 60%, rgba(0, 217, 255, 0.1) 100%);
+                    opacity: 0.8;
+                }
+                .scroll-indicator-thumb {
+                    position: absolute;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 10px;
+                    height: 34px;
+                    border-radius: 999px;
+                    background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.95), rgba(0, 217, 255, 0.35) 40%, transparent 72%);
+                    box-shadow: 0 0 18px rgba(0, 217, 255, 0.45), 0 0 6px rgba(255, 255, 255, 0.2);
+                    transition: top 0.08s ease-out;
+                }
             `}</style>
 
-            <BgCanvas />
-            {!booted && <BootSeq onDone={handleBoot} />}
+            <div className="scroll-indicator-track">
+                <div
+                    className="scroll-indicator-thumb"
+                    style={{ top: `calc(${scrollProgress * 100}% )` }}
+                />
+            </div>
 
-            {/* ── Navbar — always visible, not faded by boot ── */}
+            <BgCanvas />
+            {!booted && <CommonLoader onDone={handleBoot} pageName="Timeline" />}
+
             <div style={{ position:'relative', zIndex:20 }}>
-                <TimelineNav />
+                <CommonNav />
             </div>
 
             <div style={{
@@ -1176,29 +1486,67 @@ export default function TimelinePage() {
                 {/* ── Main Content: Desktop (Snake + Right Panel) / Mobile (list + bottom) ── */}
                 {!isMobile ? (
                     <div style={{ display:'flex', gap:'28px', alignItems:'flex-start' }}>
-                        {/* Snake Map */}
+                        {/* Left Column: Legend Deck */}
+                        <div style={{
+                            width: '160px',
+                            flexShrink: 0,
+                            position: 'sticky',
+                            top: '28px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                            padding: '16px',
+                            background: 'rgba(0,229,255,0.02)',
+                            borderRadius: '10px',
+                            border: '1px solid rgba(0,229,255,0.07)',
+                            backdropFilter: 'blur(8px)',
+                            opacity: contentVisible ? 1 : 0,
+                            transition: 'opacity 0.5s ease',
+                        }}>
+                            <div style={{
+                                fontFamily: "'Orbitron', monospace",
+                                fontSize: '8px',
+                                color: 'rgba(0,229,255,0.4)',
+                                letterSpacing: '0.25em',
+                                borderBottom: '1px solid rgba(0,229,255,0.1)',
+                                paddingBottom: '8px',
+                                marginBottom: '4px'
+                            }}>
+                                LEGEND DECK
+                            </div>
+                            {Object.entries(CATEGORY_ICONS).map(([cat, { icon, color }]) => (
+                                <div key={cat} style={{ display:'flex', alignItems:'center', gap:'10px', padding: '4px 0' }}>
+                                    <span style={{ fontSize:'16px', filter: `drop-shadow(0 0 4px ${color}50)`, color: color }}>{icon}</span>
+                                    <span style={{ fontFamily:"'Orbitron',monospace", fontSize: '9px', color: 'rgba(255,255,255,0.6)', letterSpacing:'0.12em', fontWeight: 600 }}>
+                                        {cat.toUpperCase()}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Center Column: Vertical Timeline */}
                         <div style={{
                             flex:1,
                             background:'rgba(0,229,255,0.02)',
                             border:'1px solid rgba(0,229,255,0.08)',
                             borderRadius:'12px',
-                            padding:'28px',
+                            padding:'28px 18px',
                             backdropFilter:'blur(8px)',
                             opacity: transitioning ? 0.3 : 1,
                             transform: transitioning ? 'scale(0.98)' : 'scale(1)',
                             transition:'opacity 0.35s, transform 0.35s',
                         }}>
                             {/* Day heading inside map */}
-                            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'28px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'28px', padding: '0 10px' }}>
                                 <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'11px', fontWeight:900, color: day.color, letterSpacing:'0.2em', textShadow:`0 0 10px ${day.color}` }}>
                                     {day.label} — {day.date}
                                 </div>
                                 <div style={{ flex:1, height:'1px', background:`linear-gradient(90deg, ${day.color}50, transparent)` }} />
                                 <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'8px', color:'rgba(255,255,255,0.3)', letterSpacing:'0.2em' }}>
-                                    MISSION ROUTE
+                                    CHRONOLOGICAL SCHEDULE
                                 </div>
                             </div>
-                            <SnakeMap
+                            <VerticalTimeline
                                 events={day.events}
                                 selectedId={selectedEv?.id}
                                 onSelect={setSelectedEv}
@@ -1238,34 +1586,70 @@ export default function TimelinePage() {
                             />
                         </div>
 
-                        {/* Mobile detail panel */}
-                        {selectedEv && (
-                            <div>
-                                <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'8px', color:'rgba(0,229,255,0.35)', letterSpacing:'0.3em', marginBottom:'10px' }}>
-                                    MISSION BRIEFING
-                                </div>
-                                <EventPanel ev={selectedEv} dayColor={day.color} visible={!!selectedEv && !transitioning} />
-                            </div>
-                        )}
+                        {/* Mobile detail panel (Modal Popup) */}
+                        <AnimatePresence>
+                            {selectedEv && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setSelectedEv(null)}
+                                    style={{
+                                        position: 'fixed',
+                                        inset: 0,
+                                        zIndex: 1000,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '16px',
+                                        background: 'rgba(0, 0, 0, 0.8)',
+                                        backdropFilter: 'blur(8px)',
+                                        WebkitBackdropFilter: 'blur(8px)',
+                                    }}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.92, y: 15 }}
+                                        animate={{ scale: 1, y: 0 }}
+                                        exit={{ scale: 0.92, y: 15 }}
+                                        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{
+                                            width: '100%',
+                                            maxWidth: '380px',
+                                            position: 'relative'
+                                        }}
+                                    >
+                                        <EventPanel 
+                                            ev={selectedEv} 
+                                            dayColor={day.color} 
+                                            visible={true} 
+                                            onClose={() => setSelectedEv(null)} 
+                                        />
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 )}
 
-                {/* ── Category Legend ── */}
-                <div style={{
-                    display:'flex', gap:'clamp(10px,2vw,18px)', flexWrap:'wrap', justifyContent:'center',
-                    padding:'14px', background:'rgba(0,229,255,0.02)', borderRadius:'8px',
-                    border:'1px solid rgba(0,229,255,0.07)',
-                    opacity: contentVisible ? 1 : 0, transition:'opacity 0.5s ease 1s',
-                }}>
-                    {Object.entries(CATEGORY_ICONS).map(([cat, { icon, color }]) => (
-                        <div key={cat} style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                            <span style={{ fontSize:'12px' }}>{icon}</span>
-                            <span style={{ fontFamily:"'Orbitron',monospace", fontSize:'7px', color:'rgba(255,255,255,0.3)', letterSpacing:'0.15em' }}>
-                                {cat.toUpperCase()}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                {/* ── Category Legend (Mobile only at the bottom) ── */}
+                {isMobile && (
+                    <div style={{
+                        display:'flex', gap:'clamp(10px,2vw,18px)', flexWrap:'wrap', justifyContent:'center',
+                        padding:'14px', background:'rgba(0,229,255,0.02)', borderRadius:'8px',
+                        border:'1px solid rgba(0,229,255,0.07)',
+                        opacity: contentVisible ? 1 : 0, transition:'opacity 0.5s ease 1s',
+                    }}>
+                        {Object.entries(CATEGORY_ICONS).map(([cat, { icon, color }]) => (
+                            <div key={cat} style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                                <span style={{ fontSize:'12px' }}>{icon}</span>
+                                <span style={{ fontFamily:"'Orbitron',monospace", fontSize:'7px', color:'rgba(255,255,255,0.3)', letterSpacing:'0.15em' }}>
+                                    {cat.toUpperCase()}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -14,12 +14,16 @@
  *  • Footer: Closing doors goodbye sequence with blinking system console cursors
  */
 
-import { useState, useEffect } from 'react';
-import ConnectNav from './ConnectNav';
+import { useState, useEffect, useRef } from 'react';
+import CommonNav from '../common/CommonNav';
+import CommonLoader from '../common/CommonLoader';
+import ScrollIndicator from '../common/ScrollIndicator';
 import { API_BASE } from '../../constants/api';
 
 export default function ConnectPage() {
+    const pageRef = useRef(null);
     const [copiedText, setCopiedText] = useState(false);
+    const [booted, setBooted] = useState(false);
     
     // Form fields
     const [name, setName] = useState('');
@@ -97,7 +101,10 @@ export default function ConnectPage() {
     };
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, overflowY:'auto', overflowX:'hidden' }}>
+        <>
+            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Connect" />}
+            <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, overflowY:'auto', overflowX:'hidden', opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
+            <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -145,7 +152,7 @@ export default function ConnectPage() {
 
             {/* Standalone Nav */}
             <div style={{ position:'relative', zIndex:50 }}>
-                <ConnectNav />
+                <CommonNav />
             </div>
 
             {/* ════════════════════════════════════════════
@@ -817,6 +824,7 @@ export default function ConnectPage() {
                     <span style={{ width: '4px', height: '10px', background: '#00E5FF', display: 'inline-block', animation: 'cursorBlink 1s infinite' }} />
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 }

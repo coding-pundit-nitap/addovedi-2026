@@ -4,6 +4,8 @@ import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
 import { useStore } from "./store/useStore";
 import { AnimatePresence, motion } from "framer-motion";
+import CommonSidebar from "./components/common/CommonSidebar";
+import AuthModal from "./components/portal/PortalPage";
 
 
 export default function App() {
@@ -11,6 +13,7 @@ export default function App() {
     const navigate = useNavigate();
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
+    const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
     const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
 
@@ -69,6 +72,12 @@ export default function App() {
 
             {/* Route overlays (HTML templates) */}
             <AppRoutes />
+            <CommonSidebar />
+
+            {/* Auth / Register Modal Popup */}
+            <AnimatePresence>
+                {isAuthModalOpen && <AuthModal />}
+            </AnimatePresence>
         </section>
     );
 }

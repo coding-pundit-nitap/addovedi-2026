@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+    import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -293,6 +293,19 @@ export default function EventsPage() {
         return eventsList.find(e => slugify(e.title) === eventName) || null;
     }, [activeCategory, eventName, subEventsData]);
 
+    useEffect(() => {
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (loggedInUser && loggedInUser.isGlobalRegistered) {
+            setLeaderName(loggedInUser.name || '');
+            setLeaderUID(loggedInUser.addovediId || '');
+            setLeaderPhone(loggedInUser.phone || '');
+        } else {
+            setLeaderName('');
+            setLeaderUID('');
+            setLeaderPhone('');
+        }
+    }, [activeEvent]);
+
     const handleExit = () => {
         setIsEntered(false);
         setIsEventPage(false);
@@ -301,7 +314,23 @@ export default function EventsPage() {
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
+        
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
+
+        // Add to registrations list in localStorage
+        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+        if (!storedRegs.some(r => r.title === activeEvent.title)) {
+            storedRegs.push({
+                title: activeEvent.title,
+                category: activeCategory.title,
+                venue: activeEvent.venue || 'Main Arena',
+                teamName: teamName
+            });
+            localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
+        }
+
         setIsRegistered(true);
     };
 
@@ -865,6 +894,88 @@ export default function EventsPage() {
                     </div>
                 </div>
 
+                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) */}
+                {!activeCategory && !activeEvent && (
+                    <div className="flex md:hidden w-full flex-col items-center gap-1.5 px-1 mt-1.5 pointer-events-auto z-20">
+                        {/* Small Heading: CATEGORIES */}
+                        <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#00d9ff] opacity-75 font-black uppercase">
+                            [ CATEGORIES ]
+                        </span>
+                        
+                        {/* Horizontal Scrollable Category List with scroll indicators */}
+                        <div className="w-full flex items-center gap-1 relative px-2">
+                            {/* Left Scroll Indicator: << */}
+                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
+                                &lt;&lt;
+                            </span>
+
+                            {/* Scrollable list */}
+                            <div className="flex-1 flex flex-row gap-2.5 overflow-x-auto py-1 px-1.5 scrollbar-none justify-start select-none">
+                                {categoriesList.map((card, i) => {
+                                    const isActive = activeCategorySlug === slugify(card.title);
+                                    const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
+                                    const shortNames = {
+                                        'ROBOTICS & RC': 'Robotics',
+                                        'CODING QUEST': 'Coding',
+                                        'ELECTRICAL GUILD': 'Electrical',
+                                        'GAMING ARENA': 'Gaming',
+                                        'CREATIVE & DESIGN': 'Creative',
+                                        'AI & DATA SCIENCE': 'AI & DS',
+                                        'WORKSHOP LAB': 'Workshop'
+                                    };
+                                    const displayName = shortNames[card.title] || card.title;
+                                    
+                                    return (
+                                        <button
+                                            key={card.title}
+                                            onClick={() => {
+                                                setActiveCategorySlug(slugify(card.title));
+                                            }}
+                                            className="category-para-btn-wrap shrink-0"
+                                            style={{
+                                                '--btn-border-color': isActive ? card.color : 'rgba(0, 217, 255, 0.22)',
+                                                transform: isActive ? 'scale(1.02)' : 'none',
+                                                cursor: 'pointer',
+                                                border: 'none',
+                                                background: 'none',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            <div
+                                                className="category-para-btn-inner"
+                                                style={{
+                                                    background: isActive
+                                                        ? `linear-gradient(180deg, ${card.color}25 0%, ${card.color}05 100%)`
+                                                        : 'rgba(4, 18, 34, 0.95)',
+                                                    color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+                                                    textShadow: isActive ? `0 0 10px ${card.color}ee` : 'none',
+                                                    boxShadow: isActive ? `0 0 15px ${card.color}35, inset 0 0 15px ${card.color}15` : 'none',
+                                                    padding: '6px 14px 6px 18px',
+                                                    fontSize: '10px',
+                                                    gap: '6px',
+                                                    clipPath: 'polygon(7.5px 0%, 100% 0%, calc(100% - 7.5px) 100%, 0% 100%)' // Slightly adjusted chamfer for smaller height
+                                                }}
+                                            >
+                                                <span style={{ fontSize: '13px', lineHeight: 1, color: isActive ? card.color : 'rgba(255, 255, 255, 0.45)' }}>
+                                                    {icons[i]}
+                                                </span>
+                                                <span style={{ fontSize: '9px', letterSpacing: '0.05em', fontWeight: 800, fontFamily: "'Rajdhani', sans-serif" }}>
+                                                    {displayName}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Right Scroll Indicator: >> */}
+                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
+                                &gt;&gt;
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Empty Center Space (Fills with 3D Hologram Cards on Desktop, or HTML Grid on Mobile) */}
                 {isMobile && activeCategory && !activeEvent ? (
                     <div
@@ -977,128 +1088,7 @@ export default function EventsPage() {
                     <div className="flex-1 w-full" />
                 )}
 
-                {/* ── DIVISION SELECTOR BUTTONS — Lobby only ── */}
-                <AnimatePresence>
-                    {!activeCategory && !activeEvent && (
-                        <motion.div
-                            key="division-deck"
-                            initial={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : 16 }}
-                            animate={{ opacity: 1, x: 0, y: 0 }}
-                            exit={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : 16 }}
-                            transition={{ duration: 0.35, ease: 'easeOut' }}
-                            className="pointer-events-auto z-20 w-auto fixed left-4 top-[24%] -translate-y-0 md:hidden"
-                            style={isMobile ? {
-                                background: 'rgba(2, 13, 26, 0.85)',
-                                border: '1.5px solid rgba(0, 217, 255, 0.35)',
-                                borderRadius: '24px',
-                                padding: '12px 6px',
-                                boxShadow: '0 0 20px rgba(0, 217, 255, 0.20)',
-                                backdropFilter: 'blur(12px)',
-                            } : undefined}
-                        >
-                            {/* Mobile swipe helper (hidden since it's vertical now) */}
-                            <div className="hidden md:flex items-center justify-between px-5 mb-1.5 text-[8px] tracking-[0.2em] text-cyan-400 font-mono opacity-70 select-none">
-                                <span>[ SECTORS_LIST ]</span>
-                            </div>
 
-                            <div
-                                className="flex flex-col md:flex-row gap-[6px] overflow-y-auto md:overflow-x-visible pb-0 md:pb-0 scrollbar-none"
-                            >
-                                {categoriesList.map((card, i) => {
-                                    const isActive = activeCategorySlug === slugify(card.title);
-                                    const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
-                                    const ids = ['01', '02', '03', '04', '05', '06', '07'];
-                                    return (
-                                        <button
-                                            key={card.title}
-                                            onClick={() => {
-                                                setActiveCategorySlug(slugify(card.title));
-                                            }}
-                                            style={{
-                                                flex: isMobile ? '0 0 auto' : '1 0 auto',
-                                                flexShrink: 0,
-                                                minWidth: isMobile ? '38px' : '95px',
-                                                width: isMobile ? '38px' : 'auto',
-                                                height: isMobile ? '38px' : 'auto',
-                                                position: 'relative',
-                                                background: isActive
-                                                    ? `linear-gradient(180deg, ${card.color}18 0%, ${card.color}08 100%)`
-                                                    : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)',
-                                                border: isMobile ? `1.5px solid ${isActive ? card.color : 'rgba(255,255,255,0.24)'}` : 'none',
-                                                borderTop: isMobile ? undefined : (isActive ? `2px solid ${card.color}` : '2px solid rgba(255,255,255,0.06)'),
-                                                borderLeft: isMobile ? undefined : (isActive ? `1px solid ${card.color}40` : '1px solid rgba(255,255,255,0.05)'),
-                                                borderRight: isMobile ? undefined : (isActive ? `1px solid ${card.color}40` : '1px solid rgba(255,255,255,0.05)'),
-                                                borderBottom: isMobile ? undefined : (isActive ? `1px solid ${card.color}30` : '1px solid rgba(255,255,255,0.04)'),
-                                                color: isActive ? card.color : 'rgba(255,255,255,0.35)',
-                                                padding: isMobile ? '0px' : '12px 6px 10px',
-                                                fontFamily: 'monospace',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                textAlign: 'center',
-                                                borderRadius: isMobile ? '50%' : '12px',
-                                                boxShadow: isActive ? (isMobile ? `0 0 10px ${card.color}50` : `0 0 20px ${card.color}25, inset 0 0 20px ${card.color}06`) : 'none',
-                                                clipPath: isMobile ? 'none' : 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% 100%, 0% 100%, 0% 4px)',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.borderColor = isMobile ? `${card.color}80` : undefined;
-                                                    if (!isMobile) {
-                                                        e.currentTarget.style.borderTopColor = `${card.color}80`;
-                                                    }
-                                                    e.currentTarget.style.background = `linear-gradient(180deg, ${card.color}10 0%, transparent 100%)`;
-                                                    e.currentTarget.style.color = card.color;
-                                                    e.currentTarget.style.boxShadow = `0 0 14px ${card.color}20`;
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.borderColor = isMobile ? 'rgba(255,255,255,0.1)' : undefined;
-                                                    if (!isMobile) {
-                                                        e.currentTarget.style.borderTopColor = 'rgba(255,255,255,0.06)';
-                                                    }
-                                                    e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)';
-                                                    e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }
-                                            }}
-                                        >
-                                            {isMobile ? (
-                                                <div style={{ fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', lineHeight: 1 }}>
-                                                    {icons[i]}
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    {/* Sector ID top-left */}
-                                                    <div style={{ position: 'absolute', top: '5px', left: '7px', fontSize: '6px', letterSpacing: '0.1em', opacity: isActive ? 0.9 : 0.3, color: isActive ? card.color : '#fff', fontWeight: 900 }}>
-                                                        SECT_{ids[i]}
-                                                    </div>
-
-                                                    {/* Active indicator dot top-right */}
-                                                    {isActive && (
-                                                        <span style={{ position: 'absolute', top: '6px', right: '7px', width: '5px', height: '5px', borderRadius: '50%', background: card.color, boxShadow: `0 0 8px ${card.color}`, display: 'inline-block' }} />
-                                                    )}
-
-                                                    {/* Icon */}
-                                                    <div style={{ fontSize: '18px', marginBottom: '6px', marginTop: '8px', lineHeight: 1 }}>{icons[i]}</div>
-
-                                                    {/* Title */}
-                                                    <div style={{ fontSize: '7px', letterSpacing: '0.18em', fontWeight: 900, lineHeight: 1.3 }}>
-                                                        {card.title}
-                                                    </div>
-
-                                                    {/* Active bottom bar */}
-                                                    {isActive && (
-                                                        <div style={{ position: 'absolute', bottom: 0, left: '20%', right: '20%', height: '2px', background: card.color, boxShadow: `0 0 8px ${card.color}` }} />
-                                                    )}
-                                                </>
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
 
                 {/* Registration Overlay Modal */}
@@ -1342,104 +1332,7 @@ export default function EventsPage() {
                 </div>
             </motion.div>
 
-            {/* ── Mobile Sidebar Navigation Drawer (Visible on mobile/tablet) ── */}
-            <AnimatePresence>
-                {isSidebarOpen && (
-                    <>
-                        {/* Backdrop overlay */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1.0 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsSidebarOpen(false)}
-                            className="fixed inset-0 bg-[#000000] z-45 pointer-events-auto lg:hidden"
-                        />
 
-                        {/* Floating Cyber Holographic Sidebar panel */}
-                        <motion.div
-                            initial={{ x: '100%', opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: '100%', opacity: 0 }}
-                            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                            className="fixed top-24 right-4 bottom-20 w-[290px] z-50 pointer-events-auto flex flex-col p-6 gap-6 shadow-[0_0_30px_rgba(0,217,255,0.25)] lg:hidden overflow-y-auto scrollbar-none"
-                            style={{
-                                background: '#000000',
-                                border: '1.5px solid rgba(0, 217, 255, 0.5)',
-                                backdropFilter: 'blur(16px)',
-                                clipPath: 'polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)',
-                            }}
-                        >
-                            {/* Holographic grid scanline bg */}
-                            <div className="absolute inset-0 pointer-events-none opacity-[0.15]" style={{
-                                backgroundImage: 'linear-gradient(rgba(0,217,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,217,255,0.2) 1px, transparent 1px)',
-                                backgroundSize: '16px 16px',
-                            }} />
-
-                            {/* Header / Brand */}
-                            <div className="flex items-center justify-between border-b border-[#00f0ff]/15 pb-4 relative z-10">
-                                <span style={{
-                                    fontFamily: "'Orbitron', monospace",
-                                    fontWeight: 900,
-                                    fontSize: '0.82rem',
-                                    letterSpacing: '0.25em',
-                                    color: '#00D9FF',
-                                    textShadow: '0 0 10px rgba(0,217,255,0.7)',
-                                }}>NAVIGATION MENU</span>
-                                <button
-                                    onClick={() => setIsSidebarOpen(false)}
-                                    aria-label="Close navigation menu"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px' }}
-                                >
-                                    ✕
-                                </button>
-                            </div>
-
-                            {/* Sidebar Links */}
-                            <div className="flex flex-col gap-2 relative z-10">
-                                {[
-                                    { label: 'HOME', path: '/home' },
-                                    { label: 'ARENA', path: '/event' },
-                                    { label: 'TIMELINE', path: '/timeline' },
-                                    { label: 'ALLIANCES', path: '/alliances' },
-                                    { label: 'CREW', path: '/crew' },
-                                    { label: 'CONNECT HUB', path: '/connect' },
-                                ].map(({ label, path }) => (
-                                    <a
-                                        key={label}
-                                        href={path}
-                                        onClick={(e) => {
-                                            setIsSidebarOpen(false);
-                                            // Handle relative hash links to take back to home routes
-                                            if (path.startsWith('/home#')) {
-                                                e.preventDefault();
-                                                setIsEntered(false);
-                                                setIsEventPage(false);
-                                                navigate(path);
-                                                // After navigation, scroll to the hash
-                                                const hash = path.split('#')[1];
-                                                setTimeout(() => {
-                                                    const el = document.getElementById(hash);
-                                                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                                }, 100);
-                                            } else if (path === '/home') {
-                                                e.preventDefault();
-                                                handleExit();
-                                            } else if (path === '/event' || path === '/timeline' || path === '/crew' || path === '/alliances' || path === '/connect') {
-                                                e.preventDefault();
-                                                navigate(path);
-                                            }
-                                        }}
-                                        className={`mobile-nav-link ${path === '/event' && !activeCategory ? 'mobile-nav-link-active' : ''}`}
-                                    >
-                                        <span style={{ position: 'relative', zIndex: 1 }}>{label}</span>
-                                    </a>
-                                ))}
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
         </>
     );
 }
@@ -1447,8 +1340,18 @@ export default function EventsPage() {
 // ── Tabbed Event Details Modal ───────────────────────────────────────────────
 function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leaderName, setLeaderName, leaderUID, setLeaderUID, leaderPhone, setLeaderPhone, teamSize, setTeamSize, members, setMembers, handleRegisterSubmit, isRegistered }) {
     const location = useLocation();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('register'); // Default to register
     const isMobileModal = window.innerWidth < 768;
+
+    const btnThemeStyles = {
+        '--btn-color-light': activeEvent?.color ? '#ffffff' : '#67e8f9',
+        '--btn-color-mid': activeEvent?.color ? activeEvent.color : '#06b6d4',
+        '--btn-color-dark': activeEvent?.color ? `${activeEvent.color}cc` : '#0891b2',
+        '--btn-color-glow': activeEvent?.color ? activeEvent.color : '#00D9FF',
+        '--glow-color-35': activeEvent?.color ? `${activeEvent.color}59` : 'rgba(0,217,255,0.35)',
+        '--glow-color-15': activeEvent?.color ? `${activeEvent.color}26` : 'rgba(0,217,255,0.15)',
+    };
 
     useEffect(() => {
         if (location.state?.initialTab) {
@@ -1887,198 +1790,243 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
                     )}
 
                     {/* ── Tab: Register Quest ── */}
-                    {activeTab === 'register' && (
-                        <>
-                            {!isRegistered ? (
-                                <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
-                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
-                                        {'// INITIATE_REGISTRATION_PROTOCOL'}
+                    {activeTab === 'register' && (() => {
+                        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+                        if (!loggedInUser) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                                    <div style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        borderRadius: '50%',
+                                        border: '2px solid #FF2EA6',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#FF2EA6',
+                                        fontSize: '20px',
+                                        fontWeight: 900,
+                                        boxShadow: '0 0 15px rgba(255, 46, 166, 0.4)',
+                                    }}>
+                                        ⚠
                                     </div>
-                                    <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
-                                        <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
-                                                <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
-                                                </label>
-                                                <div style={{ position: 'relative' }}>
-                                                    <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
-                                                        className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} onFocus={onFocus} onBlur={onBlur}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
-                                                </label>
-                                                <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
-                                                    className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
-                                                >
-                                                    {[1, 2, 3, 4, 5].map(n => (
-                                                        <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px' }}>
-                                            <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '8px' }}>
-                                                [ LEADER_METADATA ]
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                        <label htmlFor="leaderName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER NAME</label>
-                                                        <input id="leaderName" type="text" required placeholder="LEADER NAME..." value={leaderName} onChange={(e) => setLeaderName(e.target.value)}
-                                                            className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                        />
-                                                    </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                        <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
-                                                        <input id="leaderUID" type="text" required placeholder="G-XXXXXX" value={leaderUID} onChange={(e) => setLeaderUID(e.target.value)}
-                                                            className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                    <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
-                                                    <input id="leaderPhone" type="tel" required placeholder="+91 XXXXX XXXXX" value={leaderPhone} onChange={(e) => setLeaderPhone(e.target.value)}
-                                                        className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {members.length > 0 && (
-                                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '2px' }}>
-                                                    [ ADDITIONAL_MEMBERS_SLOTS ]
-                                                </div>
-                                                {members.map((m, idx) => (
-                                                    <div key={idx} style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', padding: '10px', marginBottom: '4px' }}>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)' }}>MEMBER #{idx + 2} NAME</label>
-                                                            <input type="text" required placeholder={`MEMBER #${idx + 2} NAME...`} value={m.name}
-                                                                onChange={(e) => {
-                                                                    const val = e.target.value;
-                                                                    setMembers(prev => {
-                                                                        const next = [...prev];
-                                                                        next[idx] = { ...next[idx], name: val };
-                                                                        return next;
-                                                                    });
-                                                                }}
-                                                                className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                            />
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)' }}>MEMBER #{idx + 2} UNIQUE ID // G-ID</label>
-                                                            <input type="text" required placeholder="G-XXXXXX" value={m.uid}
-                                                                onChange={(e) => {
-                                                                    const val = e.target.value;
-                                                                    setMembers(prev => {
-                                                                        const next = [...prev];
-                                                                        next[idx] = { ...next[idx], uid: val };
-                                                                        return next;
-                                                                    });
-                                                                }}
-                                                                className={inputClass} style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                    <div>
+                                        <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>SECURE ACCESS KEY REQUIRED</h3>
+                                        <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                                            All event enlistments require player authentication. Establish connection with the database to register.
+                                        </p>
                                     </div>
-
-                                    <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: isMobileModal ? '10px' : '16px', marginTop: '14px' }}>
-                                        <button type="button" onClick={handleDownloadPDF}
-                                            style={{ 
-                                                flex: 1, 
-                                                padding: isMobileModal ? '8px 12px' : '12px', 
-                                                border: `1px solid ${activeEvent.color}60`, 
-                                                background: 'transparent', 
-                                                color: activeEvent.color, 
-                                                fontFamily: "'Orbitron', sans-serif", 
-                                                fontSize: isMobileModal ? '9px' : '11px', 
-                                                letterSpacing: '0.15em', 
-                                                fontWeight: 900, 
-                                                textTransform: 'uppercase', 
-                                                cursor: 'pointer', 
-                                                transition: 'all 0.2s',
-                                                clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
+                                    <div className="event-reg-btn-wrap" style={btnThemeStyles}>
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                useStore.getState().setAuthModalOpen(true);
                                             }}
-                                            onMouseEnter={(e) => { 
-                                                e.currentTarget.style.background = `${activeEvent.color}20`; 
-                                                e.currentTarget.style.boxShadow = `0 0 20px ${activeEvent.color}40`; 
-                                                e.currentTarget.style.transform = 'translateY(-1.5px)';
-                                            }}
-                                            onMouseLeave={(e) => { 
-                                                e.currentTarget.style.background = 'transparent'; 
-                                                e.currentTarget.style.boxShadow = 'none'; 
-                                                e.currentTarget.style.transform = 'none';
-                                            }}
-                                        >DOWNLOAD RULES ⭳</button>
-                                        <button type="submit"
-                                            style={{ 
-                                                flex: 1, 
-                                                padding: isMobileModal ? '8px 12px' : '12px', 
-                                                border: `1px solid ${activeEvent.color}`, 
-                                                background: activeEvent.color, 
-                                                color: '#000000', 
-                                                fontFamily: "'Orbitron', sans-serif", 
-                                                fontSize: isMobileModal ? '9px' : '11px', 
-                                                letterSpacing: '0.15em', 
-                                                fontWeight: 900, 
-                                                textTransform: 'uppercase', 
-                                                cursor: 'pointer', 
-                                                transition: 'all 0.2s', 
-                                                boxShadow: `0 0 20px ${activeEvent.color}40`,
-                                                clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
-                                            }}
-                                            onMouseEnter={(e) => { 
-                                                e.currentTarget.style.background = '#ffffff'; 
-                                                e.currentTarget.style.boxShadow = `0 0 25px #ffffff`; 
-                                                e.currentTarget.style.borderColor = '#ffffff';
-                                                e.currentTarget.style.transform = 'translateY(-1.5px)'; 
-                                            }}
-                                            onMouseLeave={(e) => { 
-                                                e.currentTarget.style.background = activeEvent.color; 
-                                                e.currentTarget.style.boxShadow = `0 0 20px ${activeEvent.color}40`; 
-                                                e.currentTarget.style.borderColor = activeEvent.color;
-                                                e.currentTarget.style.transform = 'none'; 
-                                            }}
-                                        >EXECUTE PROTOCOL</button>
+                                            className="event-reg-btn group py-3 px-8 text-xs font-bold font-mono"
+                                        >
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #0891b2 0%, #00D9FF 40%, #67e8f9 70%, #0891b2 100%)',
+                                                    backgroundSize: '250% 250%',
+                                                    animation: 'border-flow 2.8s ease infinite',
+                                                }}
+                                            />
+                                            <div
+                                                className="absolute"
+                                                style={{
+                                                    inset: '1.5px',
+                                                    clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                    background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                                }}
+                                            />
+                                            <span className="event-reg-fill" />
+                                            <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
+                                                <span>SIGN IN // REGISTER PLAYER</span>
+                                                <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
+                                            </span>
+                                        </button>
                                     </div>
-                                </form>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 12px' : '40px 20px', fontFamily: "'Rajdhani', sans-serif" }}>
-                                    <div style={{ position: 'relative', width: isMobileModal ? '70px' : '90px', height: isMobileModal ? '70px' : '90px', marginBottom: '20px' }}>
-                                        {[0, 1, 2].map(i => (
-                                            <div key={i} style={{ position: 'absolute', inset: `${i * 12}px`, borderRadius: '50%', border: `1px solid ${activeEvent.color}`, opacity: 0.6 - i * 0.15, boxShadow: `0 0 ${10 - i * 2}px ${activeEvent.color}` }} />
-                                        ))}
-                                        <div style={{ position: 'absolute', inset: '34px', borderRadius: '50%', background: activeEvent.color, boxShadow: `0 0 30px ${activeEvent.color}80`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>
-                                        REGISTRATION PROTOCOL // VERIFIED
-                                    </div>
-                                    <h3 style={{ fontSize: isMobileModal ? '16px' : '20px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', color: '#ffffff', textShadow: `0 0 20px ${activeEvent.color}60`, margin: '0 0 6px 0' }}>
-                                        MISSION ACCEPTED
-                                    </h3>
-                                    <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.6)', maxWidth: '400px', lineHeight: 1.8, marginBottom: '20px' }}>
-                                        Team callsign <span style={{ fontWeight: 900, color: activeEvent.color }}>{teamName}</span> successfully enrolled for <span style={{ color: '#fff', fontWeight: 700 }}>{activeEvent.title}</span>. Leader Unique ID <span style={{ fontWeight: 900, color: activeEvent.color }}>{leaderUID}</span> has been securely logged.
-                                    </p>
-                                    <button onClick={onClose}
-                                        style={{ padding: isMobileModal ? '12px 28px' : '14px 40px', background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.2em', fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.2s', boxShadow: `0 0 15px ${activeEvent.color}20`, clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.background = `${activeEvent.color}15`; e.currentTarget.style.boxShadow = `0 0 25px ${activeEvent.color}50`; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = `0 0 15px ${activeEvent.color}20`; }}
-                                    >CLOSE SESSION</button>
                                 </div>
-                            )}
-                        </>
-                    )}
+                            );
+                        }
+
+                        if (!loggedInUser.isGlobalRegistered) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                                    <div style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        borderRadius: '50%',
+                                        border: '2px solid #F59E0B',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#F59E0B',
+                                        fontSize: '20px',
+                                        fontWeight: 900,
+                                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                                    }}>
+                                        ℹ
+                                    </div>
+                                    <div>
+                                        <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>GLOBAL REGISTRATION REQUIRED</h3>
+                                        <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                                            Please compile your Addovedi global profile first to acquire a unique Addovedi ID. Only verified players can enlist in arena missions.
+                                        </p>
+                                    </div>
+                                    <div className="event-reg-btn-wrap" style={btnThemeStyles}>
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                useStore.getState().setAuthModalOpen(true);
+                                            }}
+                                            className="event-reg-btn group py-3 px-8 text-xs font-bold font-mono"
+                                        >
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #0891b2 0%, #00D9FF 40%, #67e8f9 70%, #0891b2 100%)',
+                                                    backgroundSize: '250% 250%',
+                                                    animation: 'border-flow 2.8s ease infinite',
+                                                }}
+                                            />
+                                            <div
+                                                className="absolute"
+                                                style={{
+                                                    inset: '1.5px',
+                                                    clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                    background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                                }}
+                                            />
+                                            <span className="event-reg-fill" />
+                                            <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
+                                                <span>COMPILE GLOBAL PROFILE</span>
+                                                <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Check if this event is already registered in localStorage
+                        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+                        const isCurrentEventRegistered = storedRegs.some(r => r.title === activeEvent.title);
+
+                        if (isCurrentEventRegistered || isRegistered) {
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
+                                    <div 
+                                        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-2 animate-bounce"
+                                        style={{
+                                            background: `${activeEvent.color}15`,
+                                            color: activeEvent.color,
+                                            border: `2px solid ${activeEvent.color}`,
+                                            boxShadow: `0 0 20px ${activeEvent.color}40`,
+                                        }}
+                                    >
+                                        ✓
+                                    </div>
+                                    <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
+                                        MISSION_SECURED
+                                    </h3>
+                                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: '400px', margin: 0 }}>
+                                        Your registration details have been synchronized with the database. Check your player profile dashboard to view mission enlists.
+                                    </p>
+                                </div>
+                            );
+                        }
+
+                        // Otherwise show normal form
+                        return (
+                            <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
+                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
+                                    {'// INITIATE_REGISTRATION_PROTOCOL'}
+                                </div>
+                                <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
+                                    <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
+                                            <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
+                                            </label>
+                                            <div style={{ position: 'relative' }}>
+                                                <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
+                                                    className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} onFocus={onFocus} onBlur={onBlur}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                            <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
+                                            </label>
+                                            <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
+                                                className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
+                                            >
+                                                {[1, 2, 3, 4, 5].map(n => (
+                                                    <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', marginTop: '4px' }}>
+                                        <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', color: activeEvent.color, fontWeight: 900, marginBottom: '8px' }}>
+                                            [ LEADER_METADATA ]
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                                    <label htmlFor="leaderName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER NAME</label>
+                                                    <input id="leaderName" type="text" required disabled value={leaderName}
+                                                        className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                                    <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
+                                                    <input id="leaderUID" type="text" required disabled value={leaderUID}
+                                                        className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
+                                                <input id="leaderPhone" type="tel" required disabled value={leaderPhone}
+                                                    className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="event-reg-btn-wrap" style={{ ...btnThemeStyles, marginTop: 'auto', alignSelf: 'flex-end', width: isMobileModal ? '100%' : 'auto' }}>
+                                    <button type="submit" className="event-reg-btn group py-3 px-10 text-xs font-bold font-mono w-full">
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{
+                                                background: `linear-gradient(135deg, ${activeEvent.color} 0%, #ffffff 50%, ${activeEvent.color} 100%)`,
+                                                backgroundSize: '250% 250%',
+                                                animation: 'border-flow 2.8s ease infinite',
+                                            }}
+                                        />
+                                        <div
+                                            className="absolute"
+                                            style={{
+                                                inset: '1.5px',
+                                                clipPath: 'polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px)',
+                                                background: 'linear-gradient(135deg, #020e1a 0%, #041824 100%)',
+                                            }}
+                                        />
+                                        <span className="event-reg-fill" />
+                                        <span className="relative z-10 flex items-center justify-center gap-1.5 font-bold" style={{ textShadow: `0 0 10px ${activeEvent.color}` }}>
+                                            CONFIRM ENLISTMENT
+                                            <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none">▶</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        );
+                    })()}
 
                     {/* ── Tab: FAQ Grid ── */}
                     {activeTab === 'faq' && (

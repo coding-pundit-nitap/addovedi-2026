@@ -30,6 +30,44 @@ body {
   scrollbar-width: none;
 }
 
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-indicator-track {
+  position: fixed;
+  right: 16px;
+  top: 88px;
+  bottom: 24px;
+  width: 4px;
+  background: rgba(0, 217, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: inset 0 0 6px rgba(0, 217, 255, 0.08);
+  z-index: 40;
+  overflow: hidden;
+}
+
+.scroll-indicator-track::before {
+  content: '';
+  position: absolute;
+  inset: 12px 0;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.1) 0%, transparent 40%, transparent 60%, rgba(0, 217, 255, 0.1) 100%);
+  opacity: 0.8;
+}
+
+.scroll-indicator-thumb {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 32px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.95), rgba(0, 217, 255, 0.35) 40%, transparent 72%);
+  box-shadow: 0 0 18px rgba(0, 217, 255, 0.45), 0 0 6px rgba(255, 255, 255, 0.2);
+  transition: top 0.08s ease-out;
+}
+
 /* ── Mobile Sidebar Navigation Links ── */
 .mobile-nav-link {
     position: relative;
