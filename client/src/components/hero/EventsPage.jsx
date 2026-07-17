@@ -1,4 +1,4 @@
-    import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -316,7 +316,7 @@ export default function EventsPage() {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
-        
+
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
 
         // Add to registrations list in localStorage
@@ -894,14 +894,205 @@ export default function EventsPage() {
                     </div>
                 </div>
 
-                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) */}
-                {!activeCategory && !activeEvent && (
+                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) - Disabled in favor of vertical tab sidebar */}
+                {false && !activeCategory && !activeEvent && (
+                    <div className="flex md:hidden w-full flex-col items-center gap-1.5 px-1 mt-1.5 pointer-events-auto z-20">
+                    </div>
+                )}
+
+                {/* Mobile Telemetry Vertical Status Dock (Lobby Only) */}
+                {isMobile && !activeCategory && !activeEvent && (
+                    <div 
+                        className="fixed right-0 top-[12%] bottom-[12%] w-[54px] z-30 flex flex-col justify-between items-center py-4 pointer-events-none select-none"
+                        style={{
+                            background: 'linear-gradient(to left, rgba(2, 6, 16, 0.7) 0%, rgba(2, 6, 16, 0.2) 75%, transparent 100%)',
+                            padding: '12px 2px 12px 6px',
+                        }}
+                    >
+                        {/* Dynamic category color indicator dot & signal bar at the top */}
+                        <div className="flex flex-col items-center gap-1.5 mt-1">
+                            <span className="text-[6.5px] font-mono tracking-wider opacity-45 text-white font-black uppercase">SYS</span>
+                            <span 
+                                className="w-2 h-2 rounded-full transition-all duration-500"
+                                style={{
+                                    backgroundColor: activeCategorySlug 
+                                        ? categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#00d9ff'
+                                        : '#00d9ff',
+                                    boxShadow: activeCategorySlug
+                                        ? `0 0 10px ${categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#00d9ff'}`
+                                        : '0 0 6px #00d9ff',
+                                }}
+                            />
+                            
+                            {/* Graphic signal indicator bars */}
+                            <div className="flex gap-[1.5px] items-end h-[8px] mt-1 opacity-40">
+                                <div className="w-[1.5px] h-[3px] bg-emerald-400" />
+                                <div className="w-[1.5px] h-[5px] bg-emerald-400" />
+                                <div className="w-[1.5px] h-[7px] bg-emerald-400 animate-pulse" />
+                                <div className="w-[1.5px] h-[9px] bg-emerald-400" />
+                            </div>
+                        </div>
+
+                        {/* Vertically rotated text */}
+                        <div 
+                            className="font-mono text-[7px] font-black uppercase tracking-[0.35em] select-none opacity-45 text-white my-3"
+                            style={{
+                                writingMode: 'vertical-rl',
+                                transform: 'rotate(180deg)',
+                                transition: 'color 0.5s ease',
+                                color: activeCategorySlug 
+                                    ? categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#ffffff'
+                                    : '#ffffff'
+                            }}
+                        >
+                            {activeCategorySlug 
+                                ? (categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.title.replace(' & RC', '').replace(' & CS', '').replace('GUILD', '').replace('ARENA', '').trim() || 'LOBBY')
+                                : 'SYS_STATUS'}
+                        </div>
+
+                        {/* System Load Bars (Filler element to balance left sidebar height) */}
+                        <div className="flex flex-col gap-2 w-full items-center my-2 opacity-65">
+                            <div className="text-[5.5px] text-[#00d9ff] font-mono tracking-wider scale-90">[ SYS_LOAD ]</div>
+                            
+                            <div className="flex flex-col gap-1.5 w-full max-w-[32px]">
+                                <div className="flex flex-col gap-0.5">
+                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
+                                        <span>CPU</span>
+                                        <span>38%</span>
+                                    </div>
+                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
+                                        <div className="h-full bg-[#00d9ff]/70" style={{ width: '38%' }} />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
+                                        <span>RAM</span>
+                                        <span>74%</span>
+                                    </div>
+                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
+                                        <div className="h-full bg-purple-500/70" style={{ width: '74%' }} />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
+                                        <span>GPU</span>
+                                        <span>45%</span>
+                                    </div>
+                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
+                                        <div className="h-full bg-rose-500/70" style={{ width: '45%' }} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* System stats at the bottom */}
+                        <div className="flex flex-col items-center gap-2 mb-1 font-mono text-[6px] text-white/40 leading-none">
+                            <div className="flex flex-col items-center">
+                                <span className="text-[#00d9ff] font-bold">24ms</span>
+                                <span className="scale-75 opacity-60 mt-0.5">PING</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <span className="text-emerald-400 font-bold">60</span>
+                                <span className="scale-75 opacity-60 mt-0.5">FPS</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Mobile Categories Vertical Sidebar Dock (Lobby Only) */}
+                {isMobile && !activeCategory && !activeEvent && (
+                    <div 
+                        className="fixed left-0 top-[12%] bottom-[12%] w-[72px] z-30 flex flex-col justify-center items-center gap-2 pointer-events-auto select-none"
+                        style={{
+                            background: 'linear-gradient(to right, rgba(2, 6, 16, 0.75) 0%, rgba(2, 6, 16, 0.25) 75%, transparent 100%)',
+                            padding: '12px 6px 12px 2px',
+                        }}
+                    >
+
+
+                        {categoriesList.map((card, i) => {
+                            const isActive = activeCategorySlug === slugify(card.title);
+                            const icons = ['⚙', '⌨', '◉', '◈', '⚡', '✦', '⊕'];
+                            const shortNames = {
+                                'ROBOTICS & RC': 'Robotics',
+                                'CODING QUEST': 'Coding',
+                                'ELECTRICAL GUILD': 'Electric',
+                                'GAMING ARENA': 'Gaming',
+                                'CREATIVE & DESIGN': 'Creative',
+                                'AI & DATA SCIENCE': 'AI & DS',
+                                'WORKSHOP LAB': 'Workshop'
+                            };
+                            const displayName = shortNames[card.title] || card.title;
+                            
+                            return (
+                                <div
+                                    key={card.title}
+                                    style={{
+                                        padding: '1.2px',
+                                        background: isActive ? card.color : 'rgba(0, 217, 255, 0.15)',
+                                        clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                        boxShadow: isActive ? `0 0 12px ${card.color}45` : 'none',
+                                        transition: 'all 0.3s ease',
+                                    }}
+                                >
+                                    <button
+                                        onClick={() => {
+                                            setActiveCategorySlug(slugify(card.title));
+                                        }}
+                                        className="relative flex flex-col items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
+                                        style={{
+                                            width: '54px',
+                                            height: '50px',
+                                            background: isActive 
+                                                ? 'rgba(4, 18, 38, 0.98)'
+                                                : 'rgba(3, 14, 30, 0.95)',
+                                            border: 'none',
+                                            clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                        }}
+                                    >
+
+
+                                        {/* Icon */}
+                                        <span 
+                                            className="text-base leading-none"
+                                            style={{ 
+                                                color: isActive ? card.color : 'rgba(255, 255, 255, 0.45)',
+                                                textShadow: isActive ? `0 0 6px ${card.color}` : 'none'
+                                            }}
+                                        >
+                                            {icons[i]}
+                                        </span>
+
+                                        {/* Short Label */}
+                                        <span 
+                                            style={{ 
+                                                fontSize: '8.5px', 
+                                                fontWeight: 800, 
+                                                fontFamily: "'Rajdhani', sans-serif",
+                                                marginTop: '3.5px',
+                                                letterSpacing: '0.02em',
+                                                color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.55)',
+                                                textAlign: 'center',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {displayName}
+                                        </span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) - Disabled */}
+                {false && !activeCategory && !activeEvent && (
                     <div className="flex md:hidden w-full flex-col items-center gap-1.5 px-1 mt-1.5 pointer-events-auto z-20">
                         {/* Small Heading: CATEGORIES */}
                         <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#00d9ff] opacity-75 font-black uppercase">
                             [ CATEGORIES ]
                         </span>
-                        
+
                         {/* Horizontal Scrollable Category List with scroll indicators */}
                         <div className="w-full flex items-center gap-1 relative px-2">
                             {/* Left Scroll Indicator: << */}
@@ -924,7 +1115,7 @@ export default function EventsPage() {
                                         'WORKSHOP LAB': 'Workshop'
                                     };
                                     const displayName = shortNames[card.title] || card.title;
-                                    
+
                                     return (
                                         <button
                                             key={card.title}
@@ -1525,7 +1716,8 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @keyframes blink-cyber {
                     0%, 100% { opacity: 0.35; }
                     50% { opacity: 1; text-shadow: 0 0 8px ${activeEvent.color}; }
@@ -1676,7 +1868,7 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
                     paddingRight: '0',
                     scrollBehavior: 'smooth'
                 }} className="cyber-rules-scrollbar">
-                    
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${activeEvent.color}20`, paddingBottom: '10px', marginBottom: '14px', fontFamily: "'Orbitron', sans-serif", fontSize: '9px', letterSpacing: '0.2em', color: activeEvent.color, flexWrap: 'wrap', gap: '6px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5f57', boxShadow: '0 0 6px #ff5f57' }} />
@@ -1694,13 +1886,13 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
 
                     {/* Mobile swipe helper text overlay */}
                     {isMobileModal && (
-                        <div style={{ 
-                            fontSize: '7px', 
-                            fontFamily: "'Orbitron', sans-serif", 
-                            color: activeEvent.color, 
-                            letterSpacing: '0.15em', 
-                            marginBottom: '6px', 
-                            textAlign: 'right', 
+                        <div style={{
+                            fontSize: '7px',
+                            fontFamily: "'Orbitron', sans-serif",
+                            color: activeEvent.color,
+                            letterSpacing: '0.15em',
+                            marginBottom: '6px',
+                            textAlign: 'right',
                             animation: 'blink-cyber 2s infinite',
                             fontWeight: 900
                         }}>
@@ -1917,7 +2109,7 @@ function EventDetailsModal({ activeEvent, onClose, teamName, setTeamName, leader
                         if (isCurrentEventRegistered || isRegistered) {
                             return (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
-                                    <div 
+                                    <div
                                         className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-2 animate-bounce"
                                         style={{
                                             background: `${activeEvent.color}15`,

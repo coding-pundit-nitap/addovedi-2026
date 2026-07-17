@@ -2352,8 +2352,8 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                             color: data.color,
                             margin: '0 0 4px 0',
                             fontSize: isMobile
-                                ? (data.title === 'CODING QUEST' ? '18px' : '15px')
-                                : (data.title === 'CODING QUEST' ? '28px' : '23px'),
+                                ? (data.title === 'CODING QUEST' || data.title === 'CREATIVE & DESIGN' ? '18px' : '15px')
+                                : (data.title === 'CODING QUEST' || data.title === 'CREATIVE & DESIGN' ? '28px' : '23px'),
                             fontWeight: 800,
                             letterSpacing: isMobile ? '0.2px' : '0.5px',
                             textTransform: 'uppercase',
