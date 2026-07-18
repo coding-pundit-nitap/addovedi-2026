@@ -27,6 +27,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '8,000 XP',
         difficulty: 'ELITE',
         iconType: 'robot',
+        shortName: 'Robotics',
+        iconChar: '🤖',
+        id: '01',
         events: [
             {
                 title: 'LINE RUNNER',
@@ -59,7 +62,8 @@ export const CATEGORIES_WITH_EVENTS = [
                     venue: 'Lab Alpha',
                     mode: 'Team (2)',
                     registered: 60,
-                    prize: '₹10,000'
+                    prize: '₹10,000',
+                    status: 'LIVE'
                 }
             },
             {
@@ -93,7 +97,8 @@ export const CATEGORIES_WITH_EVENTS = [
                     venue: 'Rooftop A',
                     mode: 'Team (2)',
                     registered: 44,
-                    prize: '₹20,000'
+                    prize: '₹20,000',
+                    status: 'COMPLETED'
                 }
             },
             {
@@ -140,6 +145,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '5,000 XP',
         difficulty: 'HARD',
         iconType: 'code',
+        shortName: 'Coding',
+        iconChar: '💻',
+        id: '02',
         events: [
             {
                 title: 'BUG HUNT',
@@ -253,6 +261,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '6,500 XP',
         difficulty: 'MEDIUM',
         iconType: 'bolt',
+        shortName: 'Electrical',
+        iconChar: '⚡',
+        id: '03',
         events: [
             {
                 title: 'LOGIC QUEST',
@@ -332,6 +343,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '6,000 XP',
         difficulty: 'HARD',
         iconType: 'gamepad',
+        shortName: 'Gaming',
+        iconChar: '🎮',
+        id: '04',
         events: [
             {
                 title: 'BGMI CRUCIBLE',
@@ -445,6 +459,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '4,500 XP',
         difficulty: 'EASY',
         iconType: 'clay',
+        shortName: 'Creative',
+        iconChar: '🎨',
+        id: '05',
         events: [
             {
                 title: 'POTTERY ART',
@@ -558,6 +575,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '7,000 XP',
         difficulty: 'HARD',
         iconType: 'brain',
+        shortName: 'AI',
+        iconChar: '🧠',
+        id: '06',
         events: [
             {
                 title: 'MACHINE INTELLIGENCE',
@@ -619,6 +639,9 @@ export const CATEGORIES_WITH_EVENTS = [
         xp: '5,500 XP',
         difficulty: 'MEDIUM',
         iconType: 'gear',
+        shortName: 'Workshop',
+        iconChar: '⚙️',
+        id: '07',
         events: [
             {
                 title: 'KINETIC METALWORKS',
@@ -824,8 +847,47 @@ export const CARD_DATA = CATEGORIES_WITH_EVENTS
         color: cat.color,
         xp: cat.xp,
         difficulty: cat.difficulty,
-        icon: (color) => getSvgIcon(cat.iconType, color)
+        icon: (color) => getSvgIcon(cat.iconType, color),
+        shortName: cat.shortName || cat.title,
+        iconChar: cat.iconChar || '⚙️',
+        id: cat.id || '01'
     }));
+
+export const getCategoryMeta = (title) => {
+    const matched = CATEGORIES_WITH_EVENTS.find(cat => cat.title === title);
+    if (matched) {
+        return {
+            shortName: matched.shortName || title,
+            iconChar: matched.iconChar || '⚙️',
+            id: matched.id || '01'
+        };
+    }
+    // Dynamic generation if unknown category
+    return {
+        shortName: title.replace(/(QUEST|GUILD|ARENA|LAB|& RC|& DESIGN|& DATA SCIENCE)/g, '').trim(),
+        iconChar: '⚙️',
+        id: '01'
+    };
+};
+
+export const CATEGORY_ICONS = {};
+CATEGORIES_WITH_EVENTS.forEach(cat => {
+    const key = cat.shortName || cat.title.replace(/(QUEST|GUILD|ARENA|LAB|& RC|& DESIGN|& DATA SCIENCE)/g, '').trim();
+    CATEGORY_ICONS[key] = {
+        icon: cat.iconChar || '⚙️',
+        color: cat.color || '#00E5FF'
+    };
+    if (cat.events) {
+        cat.events.forEach(ev => {
+            if (ev.category) {
+                CATEGORY_ICONS[ev.category] = {
+                    icon: ev.iconChar || cat.iconChar || '⚙️',
+                    color: ev.color || cat.color || '#00E5FF'
+                };
+            }
+        });
+    }
+});
 
 export const SUB_EVENTS = {};
 CATEGORIES_WITH_EVENTS.forEach(cat => {
@@ -878,13 +940,15 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
                 id: slugify(ev.title),
                 title: ev.title,
                 subtitle: ev.subtitle,
-                category: ev.category || cat.title.replace(' & RC', '').replace(' & CS', '').replace('QUEST', '').replace('GUILD', '').replace('ARENA', '').replace(' & DESIGN', '').replace(' & DATA SCIENCE', '').trim(),
+                category: ev.category || cat.shortName || cat.title.replace(' & RC', '').replace(' & CS', '').replace('QUEST', '').replace('GUILD', '').replace('ARENA', '').replace(' & DESIGN', '').replace(' & DATA SCIENCE', '').trim(),
+                categorySlug: slugify(cat.title),
                 time: ev.timeline.time,
                 end: ev.timeline.end,
                 venue: ev.timeline.venue || 'Main Arena',
                 mode: ev.timeline.mode || 'Solo',
                 registered: ev.timeline.registered || 0,
                 prize: ev.timeline.prize || 'Trophies',
+                status: ev.timeline.status || 'UPCOMING',
                 desc: ev.desc
             });
         }
