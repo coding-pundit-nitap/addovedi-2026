@@ -8,6 +8,18 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Apply smooth scrolling and touch support to all elements */
+* {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -28,6 +40,49 @@ body {
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-indicator-track {
+  position: fixed;
+  right: 16px;
+  top: 88px;
+  bottom: 24px;
+  width: 4px;
+  background: rgba(0, 217, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: inset 0 0 6px rgba(0, 217, 255, 0.08);
+  z-index: 40;
+  overflow: hidden;
+}
+
+.scroll-indicator-track::before {
+  content: '';
+  position: absolute;
+  inset: 12px 0;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.1) 0%, transparent 40%, transparent 60%, rgba(0, 217, 255, 0.1) 100%);
+  opacity: 0.8;
+}
+
+.scroll-indicator-thumb {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 36px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #00E5FF, #FF2CFB);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6), 0 0 24px rgba(255, 44, 251, 0.4);
+  cursor: pointer;
+  transition: opacity 0.2s, height 0.2s;
+}
+.scroll-indicator-thumb:hover {
+  height: 46px;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.8), 0 0 32px rgba(255, 44, 251, 0.6);
 }
 
 /* ── Mobile Sidebar Navigation Links ── */

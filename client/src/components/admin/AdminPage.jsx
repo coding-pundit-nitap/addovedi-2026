@@ -12,10 +12,10 @@
  *  • Hybrid endpoint routing (local CORS port 5000 fallback or path mappings)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import ScrollIndicator from '../common/ScrollIndicator';
+import { API_BASE } from '../../constants/api';
 
 export default function AdminPage() {
     const navigate = useNavigate();
@@ -28,6 +28,7 @@ export default function AdminPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const pageRef = useRef(null);
     const [token, setToken] = useState(localStorage.getItem('admin_token') || '');
     const [username, setUsername] = useState(localStorage.getItem('admin_username') || '');
     
@@ -432,7 +433,8 @@ export default function AdminPage() {
        ========================================================================= */
     if (!token) {
         return (
-            <div style={{ position:'fixed', inset:0, background:'#05070D', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, overflowY:'auto' }}>
+            <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#05070D', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, overflowY:'auto' }}>
+            <ScrollIndicator scrollRef={pageRef} />
                 <style dangerouslySetInnerHTML={{ __html: `
                     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                     @keyframes blink { 0%,100%{opacity:0} 50%{opacity:1} }
@@ -536,7 +538,8 @@ export default function AdminPage() {
        2. ADMIN HQ DASHBOARD WORKSPACE (FRONTEND)
        ========================================================================= */
     return (
-        <div style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, display:'flex', flexDirection:'column', overflowY:'auto' }}>
+        <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, display:'flex', flexDirection:'column', overflowY:'auto' }}>
+        <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 .admin-tab-btn {

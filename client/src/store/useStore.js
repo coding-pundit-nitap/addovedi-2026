@@ -33,20 +33,24 @@ export const useStore = create((set) => ({
     // Mobile Sidebar Nav drawer state
     isSidebarOpen: false,
 
+    // Auth Modal (Login/Register popup)
+    isAuthModalOpen: false,
+
     // State Setters
-    setCameraSpeed:       (v) => set({ cameraSpeed: v }),
-    setTunnelIntensity:   (v) => set({ tunnelIntensity: v }),
-    setShakeIntensity:    (v) => set({ shakeIntensity: v }),
-    setShowLogo:          (v) => set({ showLogo: v }),
-    setShowNavbar:        (v) => set({ showNavbar: v }),
-    setShowButton:        (v) => set({ showButton: v }),
+    setCameraSpeed: (v) => set({ cameraSpeed: v }),
+    setTunnelIntensity: (v) => set({ tunnelIntensity: v }),
+    setShakeIntensity: (v) => set({ shakeIntensity: v }),
+    setShowLogo: (v) => set({ showLogo: v }),
+    setShowNavbar: (v) => set({ showNavbar: v }),
+    setShowButton: (v) => set({ showButton: v }),
     setShowTextParticles: (v) => set({ showTextParticles: v }),
-    setIsEntered:         (v) => set({ isEntered: v }),
-    setPortalFlash:       (v) => set({ portalFlash: v }),
-    setIsEventPage:       (v) => set({ isEventPage: v }),
-    setGunRotationY:      (v) => set({ gunRotationY: v }),
-    setSunDimFactor:      (v) => set({ sunDimFactor: v }),
-    setShowSun:           (v) => set({ showSun: v }),
+    setIsEntered: (v) => set({ isEntered: v }),
+    setPortalFlash: (v) => set({ portalFlash: v }),
+    setIsEventPage: (v) => set({ isEventPage: v }),
+    setGunRotationY: (v) => set({ gunRotationY: v }),
+    setSunDimFactor: (v) => set({ sunDimFactor: v }),
+    setShowSun: (v) => set({ showSun: v }),
     setActiveCategorySlug: (v) => set({ activeCategorySlug: v }),
-    setIsSidebarOpen:     (v) => set({ isSidebarOpen: v }),
+    setIsSidebarOpen: (v) => set({ isSidebarOpen: v }),
+    setAuthModalOpen: (v) => set({ isAuthModalOpen: v }),
 }));

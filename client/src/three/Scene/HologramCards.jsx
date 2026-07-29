@@ -13,468 +13,14 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { useStore } from '../../store/useStore';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../constants/api';
 
-export const CARD_DATA = [
-    {
-        title: 'ROBOTICS & RC',
-        subtitle: 'AUTONOMOUS MOTORS',
-        desc: 'Race high-speed RC cars and program precise line followers.',
-        color: '#00d9ff',
-        xp: '8,000 XP',
-        difficulty: 'ELITE',
-        modelType: 'mecha',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                <circle cx="12" cy="5" r="2"></circle>
-                <path d="M12 7v4M8 15h.01M16 15h.01"></path>
-            </svg>
-        ),
-    },
-    {
-        title: 'CODING QUEST',
-        subtitle: 'ALGORITHMIC WARFARE',
-        desc: 'Join high-speed hackathons and optimize code structures.',
-        color: '#ff1f4f',
-        xp: '5,000 XP',
-        difficulty: 'HARD',
-        modelType: 'coding',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
-                <line x1="14" y1="4" x2="10" y2="20"></line>
-            </svg>
-        ),
-    },
-    {
-        title: 'ELECTRICAL GUILD',
-        subtitle: 'CIRCUIT DEBUGGING',
-        desc: 'Master breadboard wiring, logic gates, and analog designs.',
-        color: '#ff9d00',
-        xp: '6,500 XP',
-        difficulty: 'MEDIUM',
-        modelType: 'electrical',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-        ),
-    },
-    {
-        title: 'GAMING ARENA',
-        subtitle: 'ESPORTS SHOWDOWN',
-        desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.',
-        color: '#9b5cff',
-        xp: '6,000 XP',
-        difficulty: 'HARD',
-        modelType: 'controller',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                <path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"></path>
-            </svg>
-        ),
-    },
-    {
-        title: 'CREATIVE & DESIGN',
-        subtitle: 'STRUCTURE & CLAY',
-        desc: 'Build structural bridges, throw pottery, and exhibit fine arts.',
-        color: '#1fff76',
-        xp: '4,500 XP',
-        difficulty: 'EASY',
-        modelType: 'civil',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5L17.5 5.5a2.12 2.12 0 1 0-3-3L4.5 16.5z"></path>
-                <path d="M12 5l7 7M9 8l7 7M3 21h18"></path>
-            </svg>
-        ),
-    },
-    {
-        title: 'AI & DATA SCIENCE',
-        subtitle: 'NEURAL CONSTRUCTS',
-        desc: 'Train reinforcement agents and design deep learning models.',
-        color: '#2b5cff',
-        xp: '7,000 XP',
-        difficulty: 'HARD',
-        modelType: 'ai',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-            </svg>
-        ),
-    },
-    {
-        title: 'WORKSHOP LAB',
-        subtitle: 'KINETIC HARDWARE',
-        desc: 'Operate industrial metalworks and build hardware machinery.',
-        color: '#ffea00',
-        xp: '5,500 XP',
-        difficulty: 'MEDIUM',
-        modelType: 'coding',
-        icon: (color) => (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-            </svg>
-        ),
-    }
-];
-
-export const slugify = (text) => {
-    if (!text) return '';
-    return text
-        .toLowerCase()
-        .replace(/&/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
-};
-
-export const SUB_EVENTS = {
-    'CODING QUEST': [
-        {
-            title: 'BUG HUNT',
-            subtitle: 'DIAGNOSTICS & DEBUGGING',
-            desc: 'Scan code segments and patch hidden compiler bugs under pressure.',
-            color: '#ff1f4f',
-            xp: '1,500 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                { name: 'Karan Patel', phone: '+91 87654 32109' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                    <path d="M12 2v2M5 5l1.5 1.5M19 5l-1.5 1.5M6 14h12M6 17h12"></path>
-                </svg>
-            )
-        },
-        {
-            title: 'BYTE CODE',
-            subtitle: 'ALGORITHMS & SPEED',
-            desc: 'Crack algorithmic constraints and design time-optimal data models.',
-            color: '#ff1f4f',
-            xp: '2,500 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Priya Nair', phone: '+91 76543 21098' },
-                { name: 'Siddharth Roy', phone: '+91 65432 10987' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-            )
-        },
-        {
-            title: 'WEB CRAFT',
-            subtitle: 'DASHBOARD INTERFACES',
-            desc: 'Design beautiful, responsive game visual overlay terminals.',
-            color: '#ff1f4f',
-            xp: '3,000 XP',
-            difficulty: 'ELITE',
-            heads: [
-                { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                { name: 'Neha Gupta', phone: '+91 54321 09876' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                    <polyline points="2 17 12 22 22 17"></polyline>
-                    <polyline points="2 12 12 17 22 12"></polyline>
-                </svg>
-            )
-        }
-    ],
-    'ELECTRICAL GUILD': [
-        {
-            title: 'LOGIC QUEST',
-            subtitle: 'TRUTH TABLES & CIRCUITS',
-            desc: 'Build gate systems and resolve high-frequency signals.',
-            color: '#ff9d00',
-            xp: '2,000 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Karan Patel', phone: '+91 87654 32109' },
-                { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="7"></circle>
-                    <polyline points="12 9 12 12 14 14"></polyline>
-                </svg>
-            )
-        },
-        {
-            title: 'MAZE RUNNER',
-            subtitle: 'AUTONOMOUS PCB BOARDS',
-            desc: 'Program microcontrollers to solve breadboard electrical mazes.',
-            color: '#ff9d00',
-            xp: '3,000 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                </svg>
-            )
-        }
-    ],
-    'ROBOTICS & RC': [
-        {
-            title: 'ROBO WARS',
-            subtitle: 'COMBAT ARENA',
-            desc: 'Destroy opponents in a steel-caged combat arena showdown.',
-            color: '#00d9ff',
-            xp: '4,000 XP',
-            difficulty: 'ELITE',
-            heads: [
-                { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                { name: 'Mohit Jain', phone: '+91 95678 90123' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 2 22 22 22 12 2"></polygon>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-            )
-        },
-        {
-            title: 'LINE RUNNER',
-            subtitle: 'INFRARED ACCELERATION',
-            desc: 'Design line followers that lock onto grid courses in record time.',
-            color: '#00d9ff',
-            xp: '2,500 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                { name: 'Shreya Nair', phone: '+91 96789 01234' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-            )
-        },
-        {
-            title: 'DRONE PILOT',
-            subtitle: 'AERIAL ACCELERATOR',
-            desc: 'Fly precision micro drones through complex vertical ring gates.',
-            color: '#00d9ff',
-            xp: '3,500 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                </svg>
-            )
-        }
-    ],
-    'CREATIVE & DESIGN': [
-        {
-            title: 'PROPEL',
-            subtitle: 'PNEUMATIC PROPULSION',
-            desc: 'Assemble model rockets and launch them high using air-pressure pumps.',
-            color: '#1fff76',
-            xp: '1,200 XP',
-            difficulty: 'EASY',
-            heads: [
-                { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                { name: 'Kiran Verma', phone: '+91 98901 23456' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5L17.5 5.5a2.12 2.12 0 1 0-3-3L4.5 16.5z"></path>
-                </svg>
-            )
-        },
-        {
-            title: 'TRUSS BUILD',
-            subtitle: 'BALSA WOOD BRIDGES',
-            desc: 'Glue together truss bridges and load test them to the absolute break limit.',
-            color: '#1fff76',
-            xp: '1,800 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                { name: 'Ritika Sharma', phone: '+91 99012 34567' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-            )
-        },
-        {
-            title: 'POTTERY ART',
-            subtitle: 'CLAY VISIONS',
-            desc: 'Sculpt customized pots on motorized spinning potter wheels.',
-            color: '#1fff76',
-            xp: '1,000 XP',
-            difficulty: 'EASY',
-            heads: [
-                { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
-                { name: 'Meera Patel', phone: '+91 77890 12345' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                </svg>
-            )
-        }
-    ],
-    'GAMING ARENA': [
-        {
-            title: 'VALORANT',
-            subtitle: '5V5 SEARCH & DESTROY',
-            desc: 'Coordinate agent tactics on stage screens for gaming domination.',
-            color: '#9b5cff',
-            xp: '3,000 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Aman Verma', phone: '+91 99999 88888' },
-                { name: 'Rahul Das', phone: '+91 88888 77777' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                    <path d="M6 12h4M8 10v4"></path>
-                </svg>
-            )
-        },
-        {
-            title: 'BGMI CRUCIBLE',
-            subtitle: 'SURVIVAL BR',
-            desc: 'Drop in teams, clear hostile drops, and survive the gaming circle.',
-            color: '#9b5cff',
-            xp: '2,500 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Sneha Raj', phone: '+91 77777 66666' },
-                { name: 'Pooja Sharma', phone: '+91 66666 55555' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                </svg>
-            )
-        },
-        {
-            title: 'FIFA PRO',
-            subtitle: '1V1 ESPORTS',
-            desc: 'Compete in high-frequency bracket matches on console screens.',
-            color: '#9b5cff',
-            xp: '2,000 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Amit Joshi', phone: '+91 55555 44444' },
-                { name: 'Rohit Verma', phone: '+91 44444 33333' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10"></path>
-                </svg>
-            )
-        }
-    ],
-    'AI & DATA SCIENCE': [
-        {
-            title: 'MACHINE INTELLIGENCE',
-            subtitle: 'NEURAL NETWORKS & TELEMETRY',
-            desc: 'Solve deep learning model matrices and run predictive simulations.',
-            color: '#2b5cff',
-            xp: '3,500 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Priya Nair', phone: '+91 76543 21098' },
-                { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                </svg>
-            )
-        },
-        {
-            title: 'NEURAL HACK',
-            subtitle: 'TRANSFORMER TUNING',
-            desc: 'Optimize custom transformers and train computer vision parameters.',
-            color: '#2b5cff',
-            xp: '2,800 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Siddharth Roy', phone: '+91 65432 10987' },
-                { name: 'Neha Gupta', phone: '+91 54321 09876' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                </svg>
-            )
-        }
-    ],
-    'WORKSHOP LAB': [
-        {
-            title: 'KINETIC METALWORKS',
-            subtitle: 'HARDWARE MACHINERY',
-            desc: 'Cut and construct architectural rigs using industrial lathe tools.',
-            color: '#ffea00',
-            xp: '2,600 XP',
-            difficulty: 'HARD',
-            heads: [
-                { name: 'Rohan Mehta', phone: '+91 99887 76655' },
-                { name: 'Aisha Khan', phone: '+91 88776 65544' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6"></path>
-                </svg>
-            )
-        },
-        {
-            title: 'CAD BLUEPRINTS',
-            subtitle: 'SOLID MODELLING',
-            desc: 'Render complex 3D hardware schematics and mechanical parts.',
-            color: '#ffea00',
-            xp: '2,200 XP',
-            difficulty: 'MEDIUM',
-            heads: [
-                { name: 'Divya Menon', phone: '+91 77665 54433' },
-                { name: 'Tanya Singh', phone: '+91 66554 43322' }
-            ],
-            icon: (color) => (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                </svg>
-            )
-        }
-    ]
-};
+import { CARD_DATA, SUB_EVENTS, slugify } from '../../data/events';
+export { CARD_DATA, SUB_EVENTS, slugify };
 
 export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 function getSvgIcon(type, color) {
     switch (type) {
@@ -584,6 +130,7 @@ export default function HologramCards() {
 
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [activeRotationIndex, setActiveRotationIndex] = useState(0);
+    const [backHovered, setBackHovered] = useState(false);
     const isMobile = window.innerWidth < 768;
 
     const startX = useRef(0);
@@ -627,17 +174,29 @@ export default function HologramCards() {
         const handleWheel = (e) => {
             if (isTransitioning || selectedDivision || isScrollLocked.current) return;
 
-            // Use dominant axis to prevent deltaX + deltaY cancelling each other out on trackpad
-            const delta = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-            if (Math.abs(delta) > 20) {
+            // React to horizontal scrolling (deltaX) for trackpad left/right swipe
+            if (Math.abs(e.deltaX) > 10) {
                 isScrollLocked.current = true;
-                if (delta > 0) {
+                if (e.deltaX > 0) {
                     setActiveRotationIndex(prev => (prev + 1) % 7);
                 } else {
                     setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
                 }
+                // Cooldown of 450ms for responsive swipe sweeps
+                setTimeout(() => {
+                    isScrollLocked.current = false;
+                }, 450);
+                return;
+            }
 
-                // Keep locked for 500ms to guarantee exactly ONE card transition per user trackpad sweep
+            // Fallback: React to vertical scrolling (deltaY)
+            if (Math.abs(e.deltaY) > 20) {
+                isScrollLocked.current = true;
+                if (e.deltaY > 0) {
+                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                } else {
+                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                }
                 setTimeout(() => {
                     isScrollLocked.current = false;
                 }, 500);
@@ -840,6 +399,10 @@ export default function HologramCards() {
             } else if (count === 2) {
                 if (idx === 0) { x = -2.5; z = -9.6; rotY = 0.1; }
                 if (idx === 1) { x = 2.5; z = -9.6; rotY = -0.1; }
+            } else if (count > 0) {
+                const spacing = count > 3 ? 10.0 / (count - 1) : 4.5;
+                x = (idx - (count - 1) / 2) * spacing;
+                rotY = -x * 0.035;
             }
 
             return {
@@ -1164,13 +727,7 @@ export default function HologramCards() {
                 }
             })()}
 
-            {/* Left & Right floating holographic HUD consoles */}
-            {!eventName && (
-                <>
-                    <HudWidget position={[-10.5, 4.2, -9.5]} rotation={[0, 0.5, 0]} side="left" />
-                    <HudWidget position={[10.5, 4.2, -9.5]} rotation={[0, -0.5, 0]} side="right" />
-                </>
-            )}
+            {/* Left & Right floating holographic HUD consoles removed */}
 
             {/* 3D Shockwave expansion meshes (Multi-layered shockwaves) */}
             <mesh ref={shockwave1Ref} position={[0, 3.3, -9.6]}>
@@ -1236,23 +793,36 @@ export default function HologramCards() {
 
             {/* HTML Back Nav Button */}
             {selectedDivision && !eventName && (
-                <Html position={[0, isMobile ? -3.2 : 0.4, -9.0]} center>
+                <Html position={[0, isMobile ? -3.2 : -0.1, -9.0]} center>
                     <button
                         onClick={handleBack}
-                        className="pointer-events-auto px-10 py-3.5 bg-black text-[#00f0ff] hover:text-white border-2 border-[#00f0ff] font-mono text-[10px] tracking-[0.25em] font-black transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] relative overflow-hidden"
+                        onMouseEnter={() => setBackHovered(true)}
+                        onMouseLeave={() => setBackHovered(false)}
+                        className="pointer-events-auto px-10 py-3.5 bg-black hover:text-white border-2 text-[10px] tracking-[0.25em] font-black transition-all duration-300 transform hover:scale-105 active:scale-95 relative overflow-hidden"
                         style={{
+                            fontFamily: "'Inter', sans-serif",
                             clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
-                            minWidth: '290px'
+                            minWidth: '290px',
+                            color: backHovered ? '#ffffff' : activeColor,
+                            borderColor: activeColor,
+                            boxShadow: backHovered
+                                ? `0 0 35px ${activeColor}`
+                                : `0 0 20px ${activeColor}55`,
                         }}
                     >
                         {/* Laser light scan sweep effect */}
-                        <span className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-transparent via-[#00f0ff]/30 to-transparent -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out" />
+                        <span
+                            className="absolute inset-y-0 left-0 w-12 -translate-x-12 hover:translate-x-[300px] transition-transform duration-1000 ease-out"
+                            style={{
+                                background: `linear-gradient(to right, transparent, ${activeColor}4d, transparent)`
+                            }}
+                        />
 
                         {/* Futuristic design markers */}
-                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal text-[#00f0ff]/50">SYS.RETURN</span>
-                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal text-[#00f0ff]/50">LOBBY_V2</span>
+                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>SYS.RETURN</span>
+                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>LOBBY_V2</span>
 
-                        [ ESC_RETURN_TO_DECK ]
+                        ESC_RETURN_TO_DECK
                     </button>
                 </Html>
             )}
@@ -2041,96 +1611,96 @@ function LobbyHeader({ selectedDivision, activeTitle, sctrId }) {
     const isMobile = window.innerWidth < 768;
     if (isMobile) return null; // Completely hidden on mobile screens
 
-    const posY = selectedDivision ? 8.6 : 9.8;
+    const posY = selectedDivision ? 7.4 : 9.8;
 
     return (
         <group position={[0, posY, -10.5]}>
-            <mesh position={[0, -0.45, 0]}>
-                <planeGeometry args={[isMobile ? 2.8 : 16.0, 0.03]} />
-                <meshBasicMaterial color="#00d9ff" toneMapped={false} />
-            </mesh>
             <Html
                 transform
                 distanceFactor={isMobile ? 27.0 : 8.0}
                 position={[0, 0, 0]}
                 style={{
                     width: isMobile ? '240px' : '750px',
-                    color: '#00d9ff',
-                    textAlign: 'center',
-                    fontFamily: 'monospace',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                }}
-            >
-                <div style={{ textShadow: '0 0 10px rgba(0, 217, 255, 0.5)' }}>
-                    <div style={{ color: '#ffffff', opacity: 0.35, fontSize: isMobile ? '4.5px' : '10px', letterSpacing: isMobile ? '1px' : '4px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                        // ACCESS TERMINAL SYNCED // SCTR_DATA_STREAM RESOLVED
-                    </div>
-                    <div style={{ fontSize: isMobile ? '9px' : '30px', fontWeight: 950, letterSpacing: isMobile ? '2px' : '6px' }}>
-                        {selectedDivision ? 'INITIALIZING' : 'ENGAGING'} SECTOR 0{sctrId}
-                    </div>
-                </div>
-            </Html>
-        </group>
-    );
-}
-
-// ── Floating HUD Widget ───────────────────────────────────────────────────────
-function HudWidget({ position, rotation, side }) {
-    const ref = useRef();
-
-    useFrame(({ clock }) => {
-        if (!ref.current) return;
-        const t = clock.elapsedTime;
-        ref.current.position.y = position[1] + Math.sin(t * 1.2) * 0.15;
-        ref.current.rotation.y = rotation[1] + Math.cos(t * 0.8) * 0.02;
-    });
-
-    const lines = side === 'left'
-        ? ['SYS_STATUS: READY', 'ARENA_LOBBY: ACTIVE', 'XP_BOOST: 2.0X', 'PING: 24MS']
-        : ['SERVERS: ONLINE', 'PLAYERS: 2,026', 'ACTIVE_QUESTS: 5', 'SEC_SECTOR: SECURE'];
-
-    const accentColor = side === 'left' ? '#ff1f4f' : '#9b5cff';
-
-    const panelGeo = useMemo(() => new THREE.PlaneGeometry(2.0, 3.0), []);
-    const edgesGeo = useMemo(() => new THREE.EdgesGeometry(panelGeo), [panelGeo]);
-
-    return (
-        <group ref={ref} position={position} rotation={rotation}>
-            <mesh geometry={panelGeo}>
-                <meshBasicMaterial color={accentColor} transparent opacity={0.03} />
-            </mesh>
-            <lineSegments geometry={edgesGeo}>
-                <lineBasicMaterial color={accentColor} opacity={0.3} transparent />
-            </lineSegments>
-
-            <Html
-                transform
-                distanceFactor={4.5}
-                position={[0, 0, 0.02]}
-                style={{
-                    width: '180px',
                     color: '#ffffff',
-                    fontFamily: 'monospace',
-                    textAlign: 'left',
+                    textAlign: 'center',
+                    fontFamily: "'Syne', sans-serif",
                     pointerEvents: 'none',
                     userSelect: 'none',
                 }}
             >
-                <div style={{ padding: '10px' }}>
-                    <div style={{ color: accentColor, fontWeight: 'bold', fontSize: '11px', letterSpacing: '1px', marginBottom: '15px', textAlign: 'center' }}>
-                        [HUD_CONSOLE]
+                <div style={{ textShadow: '0 0 15px rgba(255, 255, 255, 0.85), 0 0 30px rgba(0, 217, 255, 0.6)' }}>
+                    <div style={{
+                        fontSize: '34px',
+                        fontWeight: 800,
+                        letterSpacing: '8px',
+                        color: '#ffffff',
+                        textTransform: 'uppercase',
+                        whiteSpace: 'nowrap',
+                    }}>
+                        {selectedDivision ? 'INITIALIZING' : ''} ARENA 0{sctrId}
                     </div>
-                    {lines.map((line) => (
-                        <div key={line} style={{ fontSize: '10px', opacity: 0.7, marginBottom: '8px' }}>
-                            {line}
-                        </div>
-                    ))}
                 </div>
             </Html>
         </group>
     );
 }
+
+// // ── Floating HUD Widget ───────────────────────────────────────────────────────
+// function HudWidget({ position, rotation, side }) {
+//     const ref = useRef();
+
+//     useFrame(({ clock }) => {
+//         if (!ref.current) return;
+//         const t = clock.elapsedTime;
+//         ref.current.position.y = position[1] + Math.sin(t * 1.2) * 0.15;
+//         ref.current.rotation.y = rotation[1] + Math.cos(t * 0.8) * 0.02;
+//     });
+
+//     const lines = side === 'left'
+//         ? ['SYS_STATUS: READY', 'ARENA_LOBBY: ACTIVE', 'XP_BOOST: 2.0X', 'PING: 24MS']
+//         : ['SERVERS: ONLINE', 'PLAYERS: 2,026', 'ACTIVE_QUESTS: 5', 'SEC_SECTOR: SECURE'];
+
+//     const accentColor = side === 'left' ? '#ff1f4f' : '#9b5cff';
+
+//     const panelGeo = useMemo(() => new THREE.PlaneGeometry(2.0, 3.0), []);
+//     const edgesGeo = useMemo(() => new THREE.EdgesGeometry(panelGeo), [panelGeo]);
+
+//     return (
+//         <group ref={ref} position={position} rotation={rotation}>
+//             <mesh geometry={panelGeo}>
+//                 <meshBasicMaterial color={accentColor} transparent opacity={0.03} />
+//             </mesh>
+//             <lineSegments geometry={edgesGeo}>
+//                 <lineBasicMaterial color={accentColor} opacity={0.3} transparent />
+//             </lineSegments>
+
+//             <Html
+//                 transform
+//                 distanceFactor={4.5}
+//                 position={[0, 0, 0.02]}
+//                 style={{
+//                     width: '180px',
+//                     color: '#ffffff',
+//                     fontFamily: 'monospace',
+//                     textAlign: 'left',
+//                     pointerEvents: 'none',
+//                     userSelect: 'none',
+//                 }}
+//             >
+//                 <div style={{ padding: '10px' }}>
+//                     <div style={{ color: accentColor, fontWeight: 'bold', fontSize: '11px', letterSpacing: '1px', marginBottom: '15px', textAlign: 'center' }}>
+//                         [HUD_CONSOLE]
+//                     </div>
+//                     {lines.map((line) => (
+//                         <div key={line} style={{ fontSize: '10px', opacity: 0.7, marginBottom: '8px' }}>
+//                             {line}
+//                         </div>
+//                     ))}
+//                 </div>
+//             </Html>
+//         </group>
+//     );
+// }
 
 // ── Single Hologram Card (Forward Reference Enabled for GSAP tracking) ────────
 const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selectedDivision, isActive, wrappedDiff, onClickCard }, ref) => {
@@ -2141,11 +1711,62 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
     const [btnHovered, setBtnHovered] = useState(false);
     const hovered = isActive && (meshHovered || btnHovered);
     const [isBlasting, setIsBlasting] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    // Box Geometry: [Width, Height, Thickness] - Upscaled to look extra massive from ground level
-    const cardGeo = useMemo(() => new THREE.BoxGeometry(3.7, 6.1, 0.12), []);
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Chamfered 3D Card Geometry - with top-left and bottom-right corners cut
+    const cardGeo = useMemo(() => {
+        const shape = new THREE.Shape();
+        const w = 3.7;
+        const h = 6.1;
+        const c = 0.5; // Corner cut size
+        // Start top-left
+        shape.moveTo(-w / 2 + c, h / 2);
+        shape.lineTo(w / 2, h / 2);
+        shape.lineTo(w / 2, -h / 2 + c);
+        shape.lineTo(w / 2 - c, -h / 2);
+        shape.lineTo(-w / 2, -h / 2);
+        shape.lineTo(-w / 2, h / 2 - c);
+        shape.closePath();
+
+        const extrudeSettings = {
+            depth: 0.12,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 1,
+            bevelSize: 0.015,
+            bevelThickness: 0.015
+        };
+        const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        geo.center();
+        return geo;
+    }, []);
+
     const cardEdgesGeo = useMemo(() => new THREE.EdgesGeometry(cardGeo), [cardGeo]);
-    const innerGridGeo = useMemo(() => new THREE.PlaneGeometry(3.3, 5.7), []);
+
+    // Inner Grid Panel with matching chamfered cuts
+    const innerGridGeo = useMemo(() => {
+        const shape = new THREE.Shape();
+        const w = 3.3;
+        const h = 5.7;
+        const c = 0.45; // Corner cut size
+        // Start top-left
+        shape.moveTo(-w / 2 + c, h / 2);
+        shape.lineTo(w / 2, h / 2);
+        shape.lineTo(w / 2, -h / 2 + c);
+        shape.lineTo(w / 2 - c, -h / 2);
+        shape.lineTo(-w / 2, -h / 2);
+        shape.lineTo(-w / 2, h / 2 - c);
+        shape.closePath();
+        return new THREE.ShapeGeometry(shape);
+    }, []);
 
     // Cylinder geometries for neon light tubes
     const tubeGeo = useMemo(() => new THREE.CylinderGeometry(0.024, 0.024, 5.5, 8), []);
@@ -2343,19 +1964,19 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 {/* 4. Text Content Overlay */}
                 <Html
                     transform
-                    distanceFactor={4.6}
+                    distanceFactor={isMobile ? 7.2 : 4.6}
                     position={[0, 0, 0.1]}
                     style={{
-                        width: '290px',
+                        width: isMobile ? '180px' : '290px',
                         color: '#ffffff',
-                        fontFamily: 'sans-serif',
+                        fontFamily: "'Inter', sans-serif",
                         textAlign: 'center',
                         userSelect: 'none',
                         pointerEvents: 'none',
                     }}
                 >
                     <div style={{
-                        padding: '15px 20px',
+                        padding: isMobile ? '8px 10px' : '15px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -2363,9 +1984,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         pointerEvents: 'none'
                     }}>
                         <div style={{
-                            marginBottom: '12px',
+                            marginBottom: isMobile ? '6px' : '12px',
                             filter: isActive && hovered ? `drop-shadow(0 0 8px ${data.color})` : 'none',
-                            transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : 'none',
+                            transform: isActive && hovered ? 'scale(1.1) rotate(4deg)' : (isMobile ? 'scale(0.8)' : 'none'),
                             transition: 'transform 0.3s ease',
                             opacity: isActive ? 1.0 : 0.35
                         }}>
@@ -2374,14 +1995,17 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
 
                         <h2 style={{
                             color: data.color,
-                            margin: '0 0 6px 0',
-                            fontSize: '18px',
-                            fontWeight: 950,
-                            letterSpacing: '1px',
+                            margin: '0 0 4px 0',
+                            fontSize: isMobile
+                                ? (data.title === 'CODING QUEST' || data.title === 'CREATIVE & DESIGN' ? '18px' : '15px')
+                                : (data.title === 'CODING QUEST' || data.title === 'CREATIVE & DESIGN' ? '28px' : '23px'),
+                            fontWeight: 800,
+                            letterSpacing: isMobile ? '0.2px' : '0.5px',
                             textTransform: 'uppercase',
-                            textShadow: isActive && hovered ? `0 0 10px ${data.color}` : 'none',
-                            lineHeight: 1.2,
-                            opacity: isActive ? 1.0 : 0.45
+                            textShadow: isActive && hovered ? `0 0 12px ${data.color}` : 'none',
+                            lineHeight: 1.15,
+                            opacity: isActive ? 1.0 : 0.45,
+                            fontFamily: "'Syne', sans-serif"
                         }}>
                             {data.title}
                         </h2>
@@ -2389,11 +2013,12 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         <h3 style={{
                             color: '#ffffff',
                             opacity: isActive ? (hovered ? 1.0 : 0.8) : 0.25,
-                            margin: '0 0 14px 0',
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            letterSpacing: '1px',
+                            margin: isMobile ? '0 0 8px 0' : '0 0 14px 0',
+                            fontSize: isMobile ? '8.5px' : '12px',
+                            fontWeight: 700,
+                            letterSpacing: isMobile ? '1px' : '2px',
                             textTransform: 'uppercase',
+                            fontFamily: "'Rajdhani', sans-serif"
                         }}>
                             {data.subtitle}
                         </h3>
@@ -2403,11 +2028,12 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                             <>
                                 <p style={{
                                     color: '#ffffff',
-                                    opacity: hovered ? 0.8 : 0.55,
-                                    fontSize: '11px',
+                                    opacity: hovered ? 0.85 : 0.6,
+                                    fontSize: isMobile ? '9px' : '12.5px',
                                     lineHeight: 1.3,
-                                    margin: '0 0 24px 0',
-                                    minHeight: '44px'
+                                    margin: isMobile ? '0 0 12px 0' : '0 0 24px 0',
+                                    minHeight: isMobile ? '24px' : '44px',
+                                    fontFamily: "'Inter', sans-serif"
                                 }}>
                                     {data.desc}
                                 </p>
@@ -2422,22 +2048,32 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                                     }}
                                     className="cursor-pointer"
                                     style={{
-                                        border: `1.5px solid ${data.color}`,
-                                        background: hovered ? `${data.color}35` : `${data.color}18`,
-                                        padding: '8px 14px',
-                                        fontSize: '10px',
-                                        fontWeight: 900,
-                                        color: hovered ? '#ffffff' : data.color,
-                                        letterSpacing: '1px',
-                                        textTransform: 'uppercase',
-                                        borderRadius: '4px',
-                                        boxShadow: hovered ? `0 0 15px ${data.color}44` : 'none',
-                                        transition: 'all 0.3s ease',
+                                        position: 'relative',
+                                        display: 'inline-block',
+                                        padding: '1px',
+                                        clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                        background: btnHovered ? `#ffffff` : `linear-gradient(135deg, ${data.color}ee, #ffffff, ${data.color}cc)`,
                                         userSelect: 'none',
-                                        pointerEvents: 'auto'
+                                        pointerEvents: 'auto',
+                                        transition: 'transform 0.22s ease',
+                                        transform: btnHovered ? 'scale(1.05)' : 'none',
                                     }}
                                 >
-                                    {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
+                                    <div style={{
+                                        clipPath: 'polygon(5.5px 0, 100% 0, 100% calc(100% - 5.5px), calc(100% - 5.5px) 100%, 0 100%, 0 5.5px)',
+                                        background: btnHovered ? data.color : 'rgba(2, 10, 22, 0.95)',
+                                        padding: isMobile ? '6px 12px' : '11px 24px',
+                                        fontFamily: "'Inter', sans-serif",
+                                        fontSize: isMobile ? '9.5px' : '13px',
+                                        fontWeight: 900,
+                                        letterSpacing: '0.15em',
+                                        color: btnHovered ? '#000000' : '#ffffff',
+                                        textTransform: 'uppercase',
+                                        textShadow: btnHovered ? 'none' : `0 0 10px ${data.color}`,
+                                        transition: 'all 0.3s ease',
+                                    }}>
+                                        {selectedDivision ? 'REGISTER NOW' : 'LAUNCH QUEST'}
+                                    </div>
                                 </div>
                             </>
                         )}
