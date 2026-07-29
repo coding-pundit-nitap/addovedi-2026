@@ -93,6 +93,7 @@ export default function CommonSidebar() {
     const setShowButton = useStore(s => s.setShowButton);
     const setShowLogo = useStore(s => s.setShowLogo);
     const setShowNavbar = useStore(s => s.setShowNavbar);
+    const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
     const activePath = location.pathname.startsWith('/event') ? '/event' : location.pathname;
 
@@ -239,7 +240,7 @@ export default function CommonSidebar() {
                                     {/* Label — always on top */}
                                     <div className="relative z-10 flex items-center justify-center gap-2">
                                         <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(0,217,255,0.8), 0 0 20px rgba(0,217,255,0.4)', fontFamily: "'Orbitron', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.15em' }}>
-                                            {localStorage.getItem('addovedi_user') ? 'PLAYER PROFILE' : 'CREATE PLAYER'}
+                                            {localStorage.getItem('addovedi_user') ? 'PLAYER HQ' : 'CREATE PLAYER'}
                                         </span>
                                         <span
                                             className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none"

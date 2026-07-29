@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import HeroOverlay from "../components/hero/HeroOverlay";
-import EventsPage from "../components/hero/EventsPage";
+import EventsPage from "../components/events/EventsPage";
 import TimelinePage from "../components/timeline/TimelinePage";
 import CrewPage from "../components/crew/CrewPage";
 import AlliancesPage from "../components/alliances/AlliancesPage";

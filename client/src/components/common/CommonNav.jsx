@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 
@@ -144,11 +144,51 @@ export default function CommonNav() {
     const activePath = location.pathname.startsWith('/event') ? '/event' : location.pathname;
     const badgeText = BADGE_MAP[activePath] || 'CORE PANEL // ACTIVE';
 
+    const isFixed = ['/crew', '/alliances', '/timeline', '/connect'].includes(location.pathname);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = (e) => {
+            const scrollTop = e.target.scrollTop || window.scrollY || 0;
+            setIsScrolled(scrollTop > 10);
+        };
+        window.addEventListener('scroll', handleScroll, true);
+        return () => window.removeEventListener('scroll', handleScroll, true);
+    }, []);
+
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-            <nav style={{ position:'relative', zIndex:20, width:'100%', height:'88px', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 clamp(12px,4vw,40px)', pointerEvents:'auto' }}>
-                <div style={{ position:'absolute', inset:0, pointerEvents:'none', background:'linear-gradient(180deg,rgba(0,217,255,.04) 0%,rgba(2,6,12,.55) 60%,rgba(0,217,255,.025) 100%)', backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,217,255,.025) 3px,rgba(0,217,255,.025) 4px)', animation:'common-nav-scan .3s linear infinite' }} />
+            <nav style={{
+                position: isFixed ? 'fixed' : 'relative',
+                top: isFixed ? 0 : 'auto',
+                left: isFixed ? 0 : 'auto',
+                right: isFixed ? 0 : 'auto',
+                zIndex: 100,
+                width: '100%',
+                height: '88px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 clamp(12px,4vw,40px)',
+                pointerEvents: 'auto',
+                background: 'transparent'
+            }}>
+                {/* Glassmorphic fade-out background layer */}
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                    background: isScrolled ? 'linear-gradient(to bottom, rgba(2, 6, 12, 0.88) 0%, rgba(2, 6, 12, 0.45) 55%, transparent 100%)' : 'transparent',
+                    backdropFilter: isScrolled ? 'blur(16px)' : 'none',
+                    WebkitBackdropFilter: isScrolled ? 'blur(16px)' : 'none',
+                    maskImage: isScrolled ? 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)' : 'none',
+                    WebkitMaskImage: isScrolled ? 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)' : 'none',
+                    transition: 'background 0.3s ease, backdrop-filter 0.3s ease, mask-image 0.3s ease, -webkit-mask-image 0.3s ease'
+                }} />
+
+                <div style={{ position:'absolute', inset:0, pointerEvents:'none', background: 'transparent', backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,217,255,.025) 3px,rgba(0,217,255,.025) 4px)', animation:'common-nav-scan .3s linear infinite', zIndex: 1 }} />
                 
                 {/* Logo */}
                 <div style={{ display:'flex', alignItems:'center', gap:'12px', fontFamily:'monospace', position:'relative', zIndex:10 }}>

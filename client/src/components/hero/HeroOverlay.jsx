@@ -23,6 +23,7 @@ export default function HeroOverlay() {
     const showNavbar = useStore(s => s.showNavbar);
     const showButton = useStore(s => s.showButton);
     const isEventPage = useStore(s => s.isEventPage);
+    const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
     const setIsEntered = useStore(s => s.setIsEntered);
     
@@ -451,12 +452,17 @@ export default function HeroOverlay() {
                             {/* ── Right: Player Status + Register Button (Hidden on mobile/tablet) ── */}
                             <div className="hidden lg:flex flex-col items-end gap-2 font-mono relative z-10">
                                 <div className="flex items-center gap-1.5 text-[8.5px] tracking-[0.15em] font-black"
-                                    style={{ color: 'rgba(255,46,166,0.9)', textShadow: '0 0 8px rgba(255,46,166,0.5)' }}>
+                                    style={{ 
+                                        color: localStorage.getItem('addovedi_user') ? 'rgba(0, 217, 255, 0.9)' : 'rgba(255,46,166,0.9)', 
+                                        textShadow: localStorage.getItem('addovedi_user') ? '0 0 8px rgba(0, 217, 255, 0.5)' : '0 0 8px rgba(255,46,166,0.5)' 
+                                    }}>
                                     <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
                                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                     </svg>
-                                    <span>PLAYER CONNECTING</span>
-                                    <span className="animate-pulse" style={{ color: '#FF2EA6', textShadow: '0 0 8px #FF2EA6' }}>....</span>
+                                    <span>{localStorage.getItem('addovedi_user') ? 'PLAYER ACTIVE' : 'PLAYER CONNECTING'}</span>
+                                    {!localStorage.getItem('addovedi_user') && (
+                                        <span className="animate-pulse" style={{ color: '#FF2EA6', textShadow: '0 0 8px #FF2EA6' }}>....</span>
+                                    )}
                                 </div>
 
                                 {/* ── REGISTER button — Electric Violet ── */}
@@ -487,7 +493,9 @@ export default function HeroOverlay() {
                                         <span className="reg-fill" />
                                         {/* Label — always on top */}
                                         <div className="relative z-10 flex items-center gap-2">
-                                            <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(0,217,255,0.8), 0 0 20px rgba(0,217,255,0.4)' }}>CREATE PLAYER</span>
+                                            <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(0,217,255,0.8), 0 0 20px rgba(0,217,255,0.4)' }}>
+                                                {localStorage.getItem('addovedi_user') ? 'PLAYER HQ' : 'CREATE PLAYER'}
+                                            </span>
                                             <span
                                                 className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none"
                                                 style={{ color: '#00D9FF', textShadow: '0 0 10px #00D9FF' }}
