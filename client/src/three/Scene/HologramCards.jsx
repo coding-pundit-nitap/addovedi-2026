@@ -63,6 +63,7 @@ export default function HologramCards() {
 
     const activeCategorySlug = useStore(state => state.activeCategorySlug);
     const setActiveCategorySlug = useStore(state => state.setActiveCategorySlug);
+    const isAuthModalOpen = useStore(state => state.isAuthModalOpen);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
@@ -632,6 +633,8 @@ export default function HologramCards() {
             });
         }
     });
+
+    if (isAuthModalOpen) return null;
 
     return (
         <group>

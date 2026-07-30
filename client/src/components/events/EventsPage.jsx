@@ -40,7 +40,35 @@ export default function EventsPage() {
     }, [teamSize]);
     const isSidebarOpen = useStore(s => s.isSidebarOpen);
     const setIsSidebarOpen = useStore(s => s.setIsSidebarOpen);
+    const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+    const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
+    const currentUser = useStore(s => s.currentUser);
     const isMobile = window.innerWidth < 768;
+
+    // Read registered events from localStorage to compute level/XP
+    const [registeredCount, setRegisteredCount] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('addovedi_registrations') || '[]').length; }
+        catch { return 0; }
+    });
+
+    // Recount whenever registration data might change (storage event)
+    useEffect(() => {
+        const onStorage = () => {
+            try {
+                const regs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+                setRegisteredCount(regs.length);
+            } catch { /**/ }
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
+
+    // XP per event = 200, level up every 3 events, max level 10
+    const totalXP = registeredCount * 200;
+    const playerLevel = Math.min(10, 1 + Math.floor(registeredCount / 3));
+    const xpForCurrentLevel = Math.floor(registeredCount / 3) * 600;
+    const xpForNextLevel = xpForCurrentLevel + 600;
+    const xpProgress = playerLevel >= 10 ? 100 : Math.round(((totalXP - xpForCurrentLevel) / 600) * 100);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
@@ -121,7 +149,7 @@ export default function EventsPage() {
         navigate('/home');
     };
 
-    const handleRegisterSubmit = (e) => {
+    const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
@@ -138,6 +166,28 @@ export default function EventsPage() {
                 teamName: teamName
             });
             localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
+            setRegisteredCount(storedRegs.length); // update level/XP bar live
+        }
+
+        // Post to backend database
+        try {
+            await fetch(`${API_BASE}/registrations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    eventTitle: activeEvent.title,
+                    categoryTitle: activeCategory.title,
+                    teamName: teamName,
+                    leaderName: leaderName,
+                    leaderUID: leaderUID,
+                    leaderPhone: leaderPhone,
+                    teamSize: teamSize,
+                    members: members,
+                    userEmail: loggedInUser.email || ''
+                })
+            });
+        } catch (err) {
+            console.error('Server registration error:', err);
         }
 
         setIsRegistered(true);
@@ -432,35 +482,48 @@ export default function EventsPage() {
 
                     {/* Right Side: Player Profile Widget & Back/Exit Button */}
                     <div className="flex items-center gap-6">
-                        {/* Gamer Profile HUD */}
-                        <div className="flex flex-col items-end border-r border-white/15 pr-6">
-                            <div className="flex items-center gap-2 text-white text-xs font-black tracking-widest">
-                                <span className="text-white/40">PLAYER:</span>
-                                <span>GUEST_RECRUIT_01</span>
-                                <span
-                                    className="px-1.5 py-0.5 rounded border text-[9px] transition-all duration-300"
-                                    style={{
-                                        color: activeCategory?.color || '#9b5cff',
-                                        borderColor: activeCategory ? `${activeCategory.color}30` : '#9b5cff30',
-                                        backgroundColor: activeCategory ? `${activeCategory.color}10` : '#9b5cff10'
-                                    }}
-                                >
-                                    LVL 01
-                                </span>
-                            </div>
-
-                            {/* XP Progress Bar */}
-                            <div className="flex items-center gap-2 mt-1.5">
-                                <div className="w-36 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/5">
-                                    <motion.div
-                                        className="h-full"
-                                        style={{ background: activeCategory ? `linear-gradient(to right, #00d9ff, ${activeCategory.color})` : 'linear-gradient(to right, #00d9ff, #9b5cff)' }}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: '42%' }}
-                                        transition={{ duration: 1.2, delay: 0.8, ease: 'easeOut' }}
-                                    />
+                        {/* Gamer Profile HUD — Display only */}
+                        <div
+                            className="flex flex-col items-end border-r border-white/15 pr-6"
+                        >
+                            <div className="flex flex-col items-end border-r border-white/15 pr-6">
+                                <div className="flex items-center gap-2 text-white text-xs font-black tracking-widest">
+                                    <span className="text-white/40">PLAYER:</span>
+                                    <span
+                                        style={{ textShadow: currentUser ? '0 0 8px rgba(0,217,255,0.5)' : 'none' }}
+                                    >
+                                        {currentUser
+                                            ? (currentUser.name || currentUser.email || 'OPERATIVE').toUpperCase().replace(/ /g, '_').slice(0, 16)
+                                            : 'GUEST_RECRUIT_01'
+                                        }
+                                    </span>
+                                    <span
+                                        className="px-1.5 py-0.5 rounded border text-[9px] transition-all duration-300"
+                                        style={{
+                                            color: activeCategory?.color || '#9b5cff',
+                                            borderColor: activeCategory ? `${activeCategory.color}30` : '#9b5cff30',
+                                            backgroundColor: activeCategory ? `${activeCategory.color}10` : '#9b5cff10'
+                                        }}
+                                    >
+                                        LVL {String(playerLevel).padStart(2, '0')}
+                                    </span>
                                 </div>
-                                <span className="text-[9px] font-bold text-white/50 tracking-wider">420/1000 XP</span>
+
+                                {/* XP Progress Bar */}
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <div className="w-36 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                                        <motion.div
+                                            className="h-full"
+                                            style={{ background: activeCategory ? `linear-gradient(to right, #00d9ff, ${activeCategory.color})` : 'linear-gradient(to right, #00d9ff, #9b5cff)' }}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${xpProgress}%` }}
+                                            transition={{ duration: 1.2, delay: 0.8, ease: 'easeOut' }}
+                                        />
+                                    </div>
+                                    <span className="text-[9px] font-bold text-white/50 tracking-wider">
+                                        {currentUser ? `${totalXP} XP` : '0 XP'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -709,250 +772,62 @@ export default function EventsPage() {
                     </div>
                 )}
 
-                {/* Mobile Telemetry Vertical Status Dock (Lobby Only) */}
+                {/* Mobile Categories Clean Vertical Left Sidebar Dock (Lobby Only) */}
                 {isMobile && !activeCategory && !activeEvent && (
                     <div 
-                        className="fixed right-0 top-[12%] bottom-[12%] w-[54px] z-30 flex flex-col justify-between items-center py-4 pointer-events-none select-none"
+                        className="fixed left-0 top-[12%] bottom-[12%] w-[60px] z-30 flex flex-col justify-center items-center gap-1.5 pointer-events-auto select-none border-y border-r border-[#00d9ff]/25 backdrop-blur-xl rounded-r-2xl shadow-[4px_0_20px_rgba(0,0,0,0.6)]"
                         style={{
-                            background: 'linear-gradient(to left, rgba(2, 6, 16, 0.7) 0%, rgba(2, 6, 16, 0.2) 75%, transparent 100%)',
-                            padding: '12px 2px 12px 6px',
+                            background: 'linear-gradient(180deg, rgba(3, 14, 30, 0.94) 0%, rgba(2, 8, 18, 0.9) 100%)',
+                            padding: '8px 4px',
                         }}
                     >
-                        {/* Dynamic category color indicator dot & signal bar at the top */}
-                        <div className="flex flex-col items-center gap-1.5 mt-1">
-                            <span className="text-[6.5px] font-mono tracking-wider opacity-45 text-white font-black uppercase">SYS</span>
-                            <span 
-                                className="w-2 h-2 rounded-full transition-all duration-500"
-                                style={{
-                                    backgroundColor: activeCategorySlug 
-                                        ? categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#00d9ff'
-                                        : '#00d9ff',
-                                    boxShadow: activeCategorySlug
-                                        ? `0 0 10px ${categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#00d9ff'}`
-                                        : '0 0 6px #00d9ff',
-                                }}
-                            />
-                            
-                            {/* Graphic signal indicator bars */}
-                            <div className="flex gap-[1.5px] items-end h-[8px] mt-1 opacity-40">
-                                <div className="w-[1.5px] h-[3px] bg-emerald-400" />
-                                <div className="w-[1.5px] h-[5px] bg-emerald-400" />
-                                <div className="w-[1.5px] h-[7px] bg-emerald-400 animate-pulse" />
-                                <div className="w-[1.5px] h-[9px] bg-emerald-400" />
-                            </div>
-                        </div>
-
-                        {/* Vertically rotated text */}
-                        <div 
-                            className="font-mono text-[7px] font-black uppercase tracking-[0.35em] select-none opacity-45 text-white my-3"
-                            style={{
-                                writingMode: 'vertical-rl',
-                                transform: 'rotate(180deg)',
-                                transition: 'color 0.5s ease',
-                                color: activeCategorySlug 
-                                    ? categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.color || '#ffffff'
-                                    : '#ffffff'
-                            }}
-                        >
-                            {activeCategorySlug 
-                                ? (categoriesList.find(c => slugify(c.title) === activeCategorySlug)?.title.replace(' & RC', '').replace(' & CS', '').replace('GUILD', '').replace('ARENA', '').trim() || 'LOBBY')
-                                : 'SYS_STATUS'}
-                        </div>
-
-                        {/* System Load Bars (Filler element to balance left sidebar height) */}
-                        <div className="flex flex-col gap-2 w-full items-center my-2 opacity-65">
-                            <div className="text-[5.5px] text-[#00d9ff] font-mono tracking-wider scale-90">[ SYS_LOAD ]</div>
-                            
-                            <div className="flex flex-col gap-1.5 w-full max-w-[32px]">
-                                <div className="flex flex-col gap-0.5">
-                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
-                                        <span>CPU</span>
-                                        <span>38%</span>
-                                    </div>
-                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
-                                        <div className="h-full bg-[#00d9ff]/70" style={{ width: '38%' }} />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
-                                        <span>RAM</span>
-                                        <span>74%</span>
-                                    </div>
-                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
-                                        <div className="h-full bg-purple-500/70" style={{ width: '74%' }} />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                    <div className="flex justify-between text-[4.5px] font-mono text-white/50">
-                                        <span>GPU</span>
-                                        <span>45%</span>
-                                    </div>
-                                    <div className="w-full h-[2px] bg-white/10 rounded-sm overflow-hidden">
-                                        <div className="h-full bg-rose-500/70" style={{ width: '45%' }} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* System stats at the bottom */}
-                        <div className="flex flex-col items-center gap-2 mb-1 font-mono text-[6px] text-white/40 leading-none">
-                            <div className="flex flex-col items-center">
-                                <span className="text-[#00d9ff] font-bold">24ms</span>
-                                <span className="scale-75 opacity-60 mt-0.5">PING</span>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <span className="text-emerald-400 font-bold">60</span>
-                                <span className="scale-75 opacity-60 mt-0.5">FPS</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Mobile Categories Vertical Sidebar Dock (Lobby Only) */}
-                {isMobile && !activeCategory && !activeEvent && (
-                    <div 
-                        className="fixed left-0 top-[12%] bottom-[12%] w-[72px] z-30 flex flex-col justify-center items-center gap-2 pointer-events-auto select-none"
-                        style={{
-                            background: 'linear-gradient(to right, rgba(2, 6, 16, 0.75) 0%, rgba(2, 6, 16, 0.25) 75%, transparent 100%)',
-                            padding: '12px 6px 12px 2px',
-                        }}
-                    >
-
-
-                        {categoriesList.map((card, i) => {
+                        {categoriesList.map((card) => {
                             const isActive = activeCategorySlug === slugify(card.title);
                             const meta = getCategoryMeta(card.title);
                             
                             return (
-                                <div
+                                <button
                                     key={card.title}
+                                    onClick={() => setActiveCategorySlug(slugify(card.title))}
+                                    className="relative flex flex-col items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer rounded-xl"
                                     style={{
-                                        padding: '1.2px',
-                                        background: isActive ? card.color : 'rgba(0, 217, 255, 0.15)',
-                                        clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                        width: '50px',
+                                        height: '44px',
+                                        background: isActive 
+                                            ? `linear-gradient(135deg, ${card.color}35 0%, ${card.color}15 100%)`
+                                            : 'rgba(255, 255, 255, 0.04)',
+                                        border: `1px solid ${isActive ? card.color : 'rgba(255, 255, 255, 0.08)'}`,
                                         boxShadow: isActive ? `0 0 12px ${card.color}45` : 'none',
-                                        transition: 'all 0.3s ease',
                                     }}
                                 >
-                                    <button
-                                        onClick={() => {
-                                            setActiveCategorySlug(slugify(card.title));
-                                        }}
-                                        className="relative flex flex-col items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
-                                        style={{
-                                            width: '54px',
-                                            height: '50px',
-                                            background: isActive 
-                                                ? 'rgba(4, 18, 38, 0.98)'
-                                                : 'rgba(3, 14, 30, 0.95)',
-                                            border: 'none',
-                                            clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
+                                    {/* Active neon indicator bar on left edge */}
+                                    {isActive && (
+                                        <span 
+                                            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full"
+                                            style={{ backgroundColor: card.color, boxShadow: `0 0 8px ${card.color}` }}
+                                        />
+                                    )}
+
+                                    {/* Short Label (Just the Name, No Emoji) */}
+                                    <span 
+                                        style={{ 
+                                            fontSize: '8.5px', 
+                                            fontWeight: 800, 
+                                            fontFamily: "'Rajdhani', sans-serif",
+                                            letterSpacing: '0.03em',
+                                            color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                                            textAlign: 'center',
+                                            whiteSpace: 'normal',
+                                            lineHeight: '1.1',
+                                            textTransform: 'uppercase',
+                                            textShadow: isActive ? `0 0 8px ${card.color}` : 'none'
                                         }}
                                     >
-
-
-                                        {/* Icon */}
-                                        <span 
-                                            className="text-base leading-none"
-                                            style={{ 
-                                                color: isActive ? card.color : 'rgba(255, 255, 255, 0.45)',
-                                                textShadow: isActive ? `0 0 6px ${card.color}` : 'none'
-                                            }}
-                                        >
-                                            {meta.iconChar}
-                                        </span>
-
-                                        {/* Short Label */}
-                                        <span 
-                                            style={{ 
-                                                fontSize: '8.5px', 
-                                                fontWeight: 800, 
-                                                fontFamily: "'Rajdhani', sans-serif",
-                                                marginTop: '3.5px',
-                                                letterSpacing: '0.02em',
-                                                color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.55)',
-                                                textAlign: 'center',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {meta.shortName}
-                                        </span>
-                                    </button>
-                                </div>
+                                        {meta.shortName}
+                                    </span>
+                                </button>
                             );
                         })}
-                    </div>
-                )}
-
-                {/* Mobile Categories Selector Bar (At the top, below top bar, lobby only) - Disabled */}
-                {false && !activeCategory && !activeEvent && (
-                    <div className="flex md:hidden w-full flex-col items-center gap-1.5 px-1 mt-1.5 pointer-events-auto z-20">
-                        {/* Small Heading: CATEGORIES */}
-                        <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#00d9ff] opacity-75 font-black uppercase">
-                            [ CATEGORIES ]
-                        </span>
-
-                        {/* Horizontal Scrollable Category List with scroll indicators */}
-                        <div className="w-full flex items-center gap-1 relative px-2">
-                            {/* Left Scroll Indicator: << */}
-                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
-                                &lt;&lt;
-                            </span>
-
-                            {/* Scrollable list */}
-                            <div className="flex-1 flex flex-row gap-2.5 overflow-x-auto py-1 px-1.5 scrollbar-none justify-start select-none">
-                                {categoriesList.map((card, i) => {
-                                    const isActive = activeCategorySlug === slugify(card.title);
-                                    const meta = getCategoryMeta(card.title);
-
-                                    return (
-                                        <button
-                                            key={card.title}
-                                            onClick={() => {
-                                                setActiveCategorySlug(slugify(card.title));
-                                            }}
-                                            className="category-para-btn-wrap shrink-0"
-                                            style={{
-                                                '--btn-border-color': isActive ? card.color : 'rgba(0, 217, 255, 0.22)',
-                                                transform: isActive ? 'scale(1.02)' : 'none',
-                                                cursor: 'pointer',
-                                                border: 'none',
-                                                background: 'none',
-                                                padding: 0,
-                                            }}
-                                        >
-                                            <div
-                                                className="category-para-btn-inner"
-                                                style={{
-                                                    background: isActive
-                                                        ? `linear-gradient(180deg, ${card.color}25 0%, ${card.color}05 100%)`
-                                                        : 'rgba(4, 18, 34, 0.95)',
-                                                    color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
-                                                    textShadow: isActive ? `0 0 10px ${card.color}ee` : 'none',
-                                                    boxShadow: isActive ? `0 0 15px ${card.color}35, inset 0 0 15px ${card.color}15` : 'none',
-                                                    padding: '6px 14px 6px 18px',
-                                                    fontSize: '10px',
-                                                    gap: '6px',
-                                                    clipPath: 'polygon(7.5px 0%, 100% 0%, calc(100% - 7.5px) 100%, 0% 100%)' // Slightly adjusted chamfer for smaller height
-                                                }}
-                                            >
-                                                <span style={{ fontSize: '13px', lineHeight: 1, color: isActive ? card.color : 'rgba(255, 255, 255, 0.45)' }}>
-                                                    {meta.iconChar}
-                                                </span>
-                                                <span style={{ fontSize: '9px', letterSpacing: '0.05em', fontWeight: 800, fontFamily: "'Rajdhani', sans-serif" }}>
-                                                    {meta.shortName}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Right Scroll Indicator: >> */}
-                            <span className="text-[9px] text-[#00d9ff] opacity-50 font-black animate-pulse select-none shrink-0" style={{ textShadow: '0 0 6px rgba(0, 217, 255, 0.8)' }}>
-                                &gt;&gt;
-                            </span>
-                        </div>
                     </div>
                 )}
 
@@ -993,7 +868,7 @@ export default function EventsPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex-1 w-full" />
+                    <div className="flex-1 w-full" style={isMobile && !activeCategory ? { paddingLeft: '60px' } : {}} />
                 )}
                 {/* Registration Overlay Modal */}
                 <EventModal
@@ -1073,11 +948,10 @@ export default function EventsPage() {
                                                 boxShadow: isActive ? `0 0 15px ${card.color}35, inset 0 0 15px ${card.color}15` : 'none',
                                             }}
                                         >
-                                            <span style={{ fontSize: '8px', color: isActive ? card.color : 'rgba(255, 255, 255, 0.4)', fontWeight: 700, fontFamily: "'Rajdhani', sans-serif" }}>
+                                            <span style={{ fontSize: '8.5px', color: isActive ? card.color : 'rgba(255, 255, 255, 0.4)', fontWeight: 700, fontFamily: "'Rajdhani', sans-serif" }}>
                                                 SECT_{meta.id}
                                             </span>
-                                            <span style={{ fontSize: '18px', lineHeight: 1 }}>{meta.iconChar}</span>
-                                            <span style={{ fontSize: '11.5px', letterSpacing: '0.08em', fontWeight: 800, fontFamily: "'Rajdhani', sans-serif" }}>
+                                            <span style={{ fontSize: '12px', letterSpacing: '0.08em', fontWeight: 800, fontFamily: "'Rajdhani', sans-serif" }}>
                                                 {card.title}
                                             </span>
                                         </div>

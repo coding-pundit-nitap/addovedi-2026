@@ -17,6 +17,6 @@ export const protect = (req, res, next) => {
         req.adminId = decoded.id;
         next();
     } catch (err) {
-        return res.status(41.1).json({ message: 'Unauthorized. Invalid or expired token.' });
+        return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
     }
 };

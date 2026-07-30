@@ -6,6 +6,7 @@ import allianceRoutes from './allianceRoutes.js';
 import statusRoutes from './statusRoutes.js';
 import messageRoutes from './messageRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
+import registrationRoutes from './registrationRoutes.js';
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use('/alliances', allianceRoutes);
 router.use('/status-settings', statusRoutes);
 router.use('/messages', messageRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/registrations', registrationRoutes);
 
 export default router;
