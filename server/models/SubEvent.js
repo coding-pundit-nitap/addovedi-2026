@@ -41,7 +41,13 @@ const SubEventSchema = new mongoose.Schema({
         type: String,
         required: true,
         default: 'code'
+    },
+    modelType: {
+        type: String,
+        required: false,
+        default: 'coding' // 'gun' | 'mecha' | 'controller' | 'coding' | 'civil' | 'electrical' | 'ai'
     }
 }, { timestamps: true });
 
 export default mongoose.model('SubEvent', SubEventSchema);
+

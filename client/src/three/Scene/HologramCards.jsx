@@ -102,7 +102,8 @@ export default function HologramCards() {
                                 xp: s.xp,
                                 difficulty: s.difficulty,
                                 heads: s.heads || [],
-                                icon: (color) => getSvgIcon(s.iconType, color)
+                                icon: (color) => getSvgIcon(s.iconType, color),
+                                modelType: s.modelType
                             });
                         });
                         setSubEventsData(mappedSubs);
@@ -667,15 +668,32 @@ export default function HologramCards() {
                 </Suspense>
             )}
 
-            {/* Dynamically Render Model based on the Category Database configuration */}
+            {/* Dynamically Render Model based on Category/Sub-Event Database configuration */}
             {(() => {
-                if (eventName) return null;
+                let modelType = null;
                 
-                // Find the currently selected category object in the list
-                const activeCategoryObj = categoriesList.find(c => c.title === selectedDivision);
-                if (!activeCategoryObj) return null;
+                if (eventName && selectedDivision) {
+                    // Check if current sub-event has a custom modelType, else fallback to category modelType
+                    const subs = subEventsData[selectedDivision] || [];
+                    const currentSub = subs.find(s => slugify(s.title) === eventName);
+                    if (currentSub && currentSub.modelType) {
+                        modelType = currentSub.modelType;
+                    }
+                }
 
-                const modelType = activeCategoryObj.modelType || 'coding';
+                if (!modelType && selectedDivision) {
+                    // Category modelType
+                    const activeCategoryObj = categoriesList.find(c => c.title === selectedDivision);
+                    if (activeCategoryObj) {
+                        modelType = activeCategoryObj.modelType;
+                    }
+                }
+
+                if (!modelType && !eventName && !selectedDivision) {
+                    return null; // Main lobby uses default background weapon showcase
+                }
+
+                modelType = modelType || 'coding';
 
                 switch (modelType) {
                     case 'mecha':

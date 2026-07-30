@@ -78,7 +78,7 @@ export default function AdminPage() {
 
     // New Data Add states
     const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
-    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
@@ -410,7 +410,7 @@ export default function AdminPage() {
             if (res.ok) {
                 fetchEvents();
                 setEditingSubEvent(null);
-                setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+                setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
                 alert('Sub-Event configuration saved');
             }
         } catch (err) {
@@ -1272,6 +1272,15 @@ export default function AdminPage() {
                                     <option value="HARD">HARD</option>
                                     <option value="ELITE">ELITE</option>
                                 </select>
+                                <select value={editingSubEvent ? (editingSubEvent.modelType || 'coding') : newSub.modelType} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, modelType: e.target.value }) : setNewSub({ ...newSub, modelType: e.target.value })}>
+                                    <option value="coding">Coding Terminal Model</option>
+                                    <option value="mecha">Robot Mech Model</option>
+                                    <option value="controller">Controller Model</option>
+                                    <option value="civil">City Skyline Model</option>
+                                    <option value="electrical">Transformer Grid Model</option>
+                                    <option value="ai">Neural Brain Model</option>
+                                    <option value="gun">Gun Model</option>
+                                </select>
 
                                 {/* Event Heads */}
                                 <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', padding: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '4px' }}>
@@ -1324,6 +1333,7 @@ export default function AdminPage() {
                                         <tr>
                                             <th>DIVISION</th>
                                             <th>EVENT TITLE</th>
+                                            <th>MODEL TYPE</th>
                                             <th>XP</th>
                                             <th>HEADS</th>
                                             <th>ACTIONS</th>
@@ -1332,10 +1342,11 @@ export default function AdminPage() {
                                     <tbody>
                                         {subEvents.map(sub => (
                                             <tr key={sub._id}>
-                                                <td style={{ color: 'rgba(255,255,255,0.4)' }}>{sub.categoryTitle}</td>
-                                                <td style={{ fontWeight: 600, color: sub.color }}>{sub.title}</td>
+                                                <td style={{ color: '#00E5FF', fontWeight: 600 }}>{sub.categoryTitle}</td>
+                                                <td style={{ fontWeight: 600 }}>{sub.title}</td>
+                                                <td style={{ fontFamily: 'monospace', color: '#00E5FF' }}>{sub.modelType || 'coding'}</td>
                                                 <td>{sub.xp}</td>
-                                                <td>{sub.heads.map(h => `${h.name} (${h.phone})`).join(', ')}</td>
+                                                <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
                                                         <button onClick={() => setEditingSubEvent(sub)} style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer' }}>EDIT</button>
