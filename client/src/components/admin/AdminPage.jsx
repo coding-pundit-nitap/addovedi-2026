@@ -65,6 +65,11 @@ export default function AdminPage() {
     const [alliances, setAlliances] = useState([]);
     const [loadingSponsors, setLoadingSponsors] = useState(false);
 
+    // Change Password state
+    const [changePwForm, setChangePwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    const [changePwLoading, setChangePwLoading] = useState(false);
+    const [changePwMsg, setChangePwMsg] = useState({ type: '', text: '' }); // type: 'success'|'error'
+
     // CRUD Forms states
     const [editingCategory, setEditingCategory] = useState(null);
     const [editingSubEvent, setEditingSubEvent] = useState(null);
@@ -72,12 +77,20 @@ export default function AdminPage() {
     const [editingSponsor, setEditingSponsor] = useState(null);
 
     // New Data Add states
-    const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code' });
+    const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
     const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    // Event Registrations state
+    const [registrations, setRegistrations] = useState([]);
+    const [registrationStats, setRegistrationStats] = useState(null);
+    const [loadingRegistrations, setLoadingRegistrations] = useState(false);
+    const [regSearchTerm, setRegSearchTerm] = useState('');
+    const [regViewMode, setRegViewMode] = useState('participants'); // 'participants' | 'events'
+    const [selectedEventRoster, setSelectedEventRoster] = useState(null);
 
     // Auto-fetch data on token auth state
     useEffect(() => {
@@ -87,6 +100,7 @@ export default function AdminPage() {
             fetchEvents();
             fetchCrew();
             fetchSponsors();
+            fetchRegistrations();
         }
     }, [token]);
 
@@ -223,6 +237,105 @@ export default function AdminPage() {
         }
     };
 
+    // Event Registrations fetching
+    const fetchRegistrations = async () => {
+        setLoadingRegistrations(true);
+        try {
+            const res = await fetch(`${API_BASE}/registrations`, { headers: getHeaders() });
+            if (res.ok) setRegistrations(await res.json());
+
+            const statsRes = await fetch(`${API_BASE}/registrations/stats`, { headers: getHeaders() });
+            if (statsRes.ok) setRegistrationStats(await statsRes.json());
+        } catch (err) {
+            console.error('Fetch Registrations Error:', err);
+        } finally {
+            setLoadingRegistrations(false);
+        }
+    };
+
+    const deleteRegistrationRecord = async (id) => {
+        if (!confirm('DELETE REGISTRATION RECORD PERMANENTLY?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/registrations/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if (res.ok) {
+                fetchRegistrations();
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setChangePwMsg({ type: '', text: '' });
+        if (changePwForm.newPassword !== changePwForm.confirmPassword) {
+            setChangePwMsg({ type: 'error', text: 'NEW PASSWORDS DO NOT MATCH.' });
+            return;
+        }
+        if (changePwForm.newPassword.length < 6) {
+            setChangePwMsg({ type: 'error', text: 'NEW PASSWORD MUST BE AT LEAST 6 CHARACTERS.' });
+            return;
+        }
+        setChangePwLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/auth/change-password`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({
+                    currentPassword: changePwForm.currentPassword,
+                    newPassword: changePwForm.newPassword
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to update password');
+            setChangePwMsg({ type: 'success', text: 'PASSWORD UPDATED SUCCESSFULLY. RE-LOGIN RECOMMENDED.' });
+            setChangePwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (err) {
+            setChangePwMsg({ type: 'error', text: err.message.toUpperCase() });
+        } finally {
+            setChangePwLoading(false);
+        }
+    };
+
+    const exportToCSV = (data, filename = 'addovedi_event_registrations.csv') => {
+        if (!data || !data.length) {
+            alert('No registration data available to export.');
+            return;
+        }
+        const headers = ['Event', 'Category', 'Team Name', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Registered At'];
+        const csvRows = [headers.join(',')];
+
+        data.forEach(r => {
+            const membersStr = (r.members || []).map(m => `${m.name || ''} (${m.uid || ''})`).join('; ');
+            const row = [
+                `"${r.eventTitle || ''}"`,
+                `"${r.categoryTitle || ''}"`,
+                `"${r.teamName || ''}"`,
+                `"${r.leaderName || ''}"`,
+                `"${r.leaderUID || ''}"`,
+                `"${r.userEmail || ''}"`,
+                `"${r.leaderPhone || ''}"`,
+                r.teamSize || 1,
+                `"${membersStr}"`,
+                `"${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}"`
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', filename);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
+
     // Events CRUD fetching
     const fetchEvents = async () => {
         setLoadingEvents(true);
@@ -258,7 +371,7 @@ export default function AdminPage() {
             if (res.ok) {
                 fetchEvents();
                 setEditingCategory(null);
-                setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code' });
+                setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
                 alert('Category configuration saved');
             }
         } catch (err) {
@@ -602,9 +715,11 @@ export default function AdminPage() {
             <div style={{ background: '#080C16', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '12px 24px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button onClick={() => setActiveTab('status')} className={`admin-tab-btn${activeTab === 'status' ? ' admin-tab-active' : ''}`}>SECTOR STATUS</button>
                 <button onClick={() => setActiveTab('messages')} className={`admin-tab-btn${activeTab === 'messages' ? ' admin-tab-active' : ''}`}>INBOX MESSAGES</button>
+                <button onClick={() => { setActiveTab('registrations'); fetchRegistrations(); }} className={`admin-tab-btn${activeTab === 'registrations' ? ' admin-tab-active' : ''}`}>EVENT REGISTRATIONS</button>
                 <button onClick={() => setActiveTab('events')} className={`admin-tab-btn${activeTab === 'events' ? ' admin-tab-active' : ''}`}>EVENTS DATABASE</button>
                 <button onClick={() => setActiveTab('crew')} className={`admin-tab-btn${activeTab === 'crew' ? ' admin-tab-active' : ''}`}>CREW PERSONNEL</button>
                 <button onClick={() => setActiveTab('sponsors')} className={`admin-tab-btn${activeTab === 'sponsors' ? ' admin-tab-active' : ''}`}>SPONSOR ALLIANCES</button>
+                <button onClick={() => { setActiveTab('security'); setChangePwMsg({ type: '', text: '' }); }} className={`admin-tab-btn${activeTab === 'security' ? ' admin-tab-active' : ''}`} style={{ marginLeft: 'auto', borderColor: activeTab === 'security' ? '#ff1f4f' : undefined, color: activeTab === 'security' ? '#ff1f4f' : undefined }}>⚙ SECURITY</button>
             </div>
 
             {/* Dashboard Workspace */}
@@ -690,6 +805,367 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {/* ── TAB: EVENT REGISTRATIONS ── */}
+                {activeTab === 'registrations' && (
+                    <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        {/* Header & KPI Summary Cards */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '12px', marginBottom: '20px' }}>
+                            <div>
+                                <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '12px', color: '#00E5FF', letterSpacing: '0.15em', margin: 0 }}>
+                                    EVENT REGISTRATION CONTROL & ROSTER DIRECTORY
+                                </h3>
+                                <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>
+                                    Real-time participant database, event enrollments, and roster breakdown
+                                </span>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    onClick={() => exportToCSV(registrations, 'addovedi_master_registrations.csv')} 
+                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '8px', fontWeight: 800, padding: '8px 14px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    EXPORT MASTER CSV
+                                </button>
+                                <button 
+                                    onClick={fetchRegistrations} 
+                                    style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00E5FF', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                                >
+                                    [ REFRESH ]
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* KPI Counter Row */}
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+                            <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,229,255,0.15)', padding: '16px', borderRadius: '6px' }}>
+                                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>TOTAL REGISTRATIONS</div>
+                                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '24px', fontWeight: 900, color: '#00E5FF', marginTop: '4px' }}>
+                                    {registrations.length}
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(155,92,255,0.2)', padding: '16px', borderRadius: '6px' }}>
+                                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>UNIQUE PARTICIPANTS (UID)</div>
+                                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '24px', fontWeight: 900, color: '#9b5cff', marginTop: '4px' }}>
+                                    {registrationStats?.uniqueParticipantsCount || new Set(registrations.map(r => r.leaderUID?.toLowerCase())).size}
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(31,255,118,0.2)', padding: '16px', borderRadius: '6px' }}>
+                                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>ACTIVE EVENT BREAKDOWN</div>
+                                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '24px', fontWeight: 900, color: '#1FFF76', marginTop: '4px' }}>
+                                    {registrationStats?.eventBreakdown?.length || new Set(registrations.map(r => r.eventTitle)).size} EVENTS
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* View Mode Switcher & Search Bar */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => { setRegViewMode('participants'); setSelectedEventRoster(null); }}
+                                    style={{
+                                        fontFamily: "'Orbitron', monospace", fontSize: '8.5px', fontWeight: 700, padding: '8px 16px', borderRadius: '4px', cursor: 'pointer',
+                                        background: regViewMode === 'participants' ? 'rgba(0,229,255,0.15)' : 'transparent',
+                                        color: regViewMode === 'participants' ? '#00E5FF' : 'rgba(255,255,255,0.4)',
+                                        border: regViewMode === 'participants' ? '1px solid #00E5FF' : '1px solid rgba(255,255,255,0.08)'
+                                    }}
+                                >
+                                    PARTICIPANT DIRECTORY & EVENT HISTORY
+                                </button>
+                                <button
+                                    onClick={() => setRegViewMode('events')}
+                                    style={{
+                                        fontFamily: "'Orbitron', monospace", fontSize: '8.5px', fontWeight: 700, padding: '8px 16px', borderRadius: '4px', cursor: 'pointer',
+                                        background: regViewMode === 'events' ? 'rgba(0,229,255,0.15)' : 'transparent',
+                                        color: regViewMode === 'events' ? '#00E5FF' : 'rgba(255,255,255,0.4)',
+                                        border: regViewMode === 'events' ? '1px solid #00E5FF' : '1px solid rgba(255,255,255,0.08)'
+                                    }}
+                                >
+                                    EVENT-WISE ROSTER BREAKDOWN
+                                </button>
+                            </div>
+
+                            <input
+                                type="text"
+                                placeholder="SEARCH BY NAME, EMAIL, UID, PHONE, TEAM, EVENT..."
+                                value={regSearchTerm}
+                                onChange={e => setRegSearchTerm(e.target.value)}
+                                style={{ width: isMobile ? '100%' : '360px', background: 'rgba(0,0,0,0.5)', border: '1.2px solid rgba(0,229,255,0.2)', color: '#FFF', padding: '8px 12px', fontSize: '10px' }}
+                            />
+                        </div>
+
+                        {loadingRegistrations ? (
+                            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '40px' }}>LOADING REGISTRATION RECORDS...</div>
+                        ) : registrations.length === 0 ? (
+                            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '40px' }}>NO REGISTRATIONS RECORDED YET</div>
+                        ) : regViewMode === 'participants' ? (
+                            /* PARTICIPANT DIRECTORY VIEW */
+                            <div style={{ overflowX: 'auto' }}>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>LEADER NAME & UID</th>
+                                            <th>EMAIL</th>
+                                            <th>TEAM NAME & SIZE</th>
+                                            <th>CONTACT PHONE</th>
+                                            <th>REGISTERED EVENTS (HISTORY)</th>
+                                            <th>REGISTRATION DATE</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {(() => {
+                                            // Filter registrations by search term
+                                            const filtered = registrations.filter(r => {
+                                                if (!regSearchTerm) return true;
+                                                const term = regSearchTerm.toLowerCase();
+                                                return (
+                                                    r.leaderName?.toLowerCase().includes(term) ||
+                                                    r.leaderUID?.toLowerCase().includes(term) ||
+                                                    r.teamName?.toLowerCase().includes(term) ||
+                                                    r.leaderPhone?.includes(term) ||
+                                                    r.userEmail?.toLowerCase().includes(term) ||
+                                                    r.eventTitle?.toLowerCase().includes(term)
+                                                );
+                                            });
+
+                                            // Build mapping of UID to all registered events
+                                            const userEventsMap = {};
+                                            registrations.forEach(r => {
+                                                const uidKey = (r.leaderUID || 'N/A').toUpperCase();
+                                                if (!userEventsMap[uidKey]) userEventsMap[uidKey] = [];
+                                                userEventsMap[uidKey].push(r.eventTitle);
+                                            });
+
+                                            return filtered.map(reg => {
+                                                const registeredEvents = userEventsMap[(reg.leaderUID || 'N/A').toUpperCase()] || [reg.eventTitle];
+                                                return (
+                                                    <tr key={reg._id}>
+                                                        <td>
+                                                            <div style={{ fontWeight: 700, color: '#FFF' }}>{reg.leaderName}</div>
+                                                            <div style={{ fontFamily: 'monospace', fontSize: '9.5px', color: '#00E5FF' }}>UID: {reg.leaderUID}</div>
+                                                        </td>
+                                                        <td>
+                                                            {reg.userEmail ? (
+                                                                <a
+                                                                    href={`mailto:${reg.userEmail}`}
+                                                                    style={{ color: '#a78bfa', fontFamily: 'monospace', fontSize: '10px', textDecoration: 'none', display: 'block', wordBreak: 'break-all' }}
+                                                                    title={`Send email to ${reg.userEmail}`}
+                                                                >
+                                                                    {reg.userEmail}
+                                                                </a>
+                                                            ) : (
+                                                                <span style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', fontSize: '9px' }}>N/A</span>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ fontWeight: 600 }}>{reg.teamName}</div>
+                                                            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>Size: {reg.teamSize} member(s)</div>
+                                                            {reg.members && reg.members.length > 0 && (
+                                                                <div style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.3)', marginTop: '2px' }}>
+                                                                    Members: {reg.members.map(m => `${m.name} (${m.uid})`).join(', ')}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td style={{ fontFamily: 'monospace', color: '#1FFF76' }}>
+                                                            {reg.leaderPhone}
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                                {Array.from(new Set(registeredEvents)).map((evTitle, idx) => (
+                                                                    <span key={idx} style={{
+                                                                        fontSize: '8px', fontFamily: "'Orbitron', monospace", fontWeight: 700, padding: '3px 8px', borderRadius: '4px',
+                                                                        background: evTitle === reg.eventTitle ? 'rgba(0,229,255,0.15)' : 'rgba(255,255,255,0.05)',
+                                                                        color: evTitle === reg.eventTitle ? '#00E5FF' : 'rgba(255,255,255,0.7)',
+                                                                        border: evTitle === reg.eventTitle ? '1px solid rgba(0,229,255,0.4)' : '1px solid rgba(255,255,255,0.1)'
+                                                                    }}>
+                                                                        {evTitle}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                        <td style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9.5px' }}>
+                                                            {reg.createdAt ? new Date(reg.createdAt).toLocaleString() : 'N/A'}
+                                                        </td>
+                                                        <td>
+                                                            <button 
+                                                                onClick={() => deleteRegistrationRecord(reg._id)} 
+                                                                style={{ padding: '4px 10px', border: '1px solid #ff1f4f', color: '#ff1f4f', background: 'transparent', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', borderRadius: '3px' }}
+                                                            >
+                                                                REMOVE
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            });
+                                        })()}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            /* EVENT-WISE ROSTER BREAKDOWN VIEW */
+                            <div>
+                                {/* Event Cards Grid */}
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+                                    {(() => {
+                                        // Aggregate registrations by event
+                                        const eventMap = {};
+                                        registrations.forEach(r => {
+                                            if (!eventMap[r.eventTitle]) {
+                                                eventMap[r.eventTitle] = {
+                                                    eventTitle: r.eventTitle,
+                                                    categoryTitle: r.categoryTitle,
+                                                    registrations: []
+                                                };
+                                            }
+                                            eventMap[r.eventTitle].registrations.push(r);
+                                        });
+
+                                        const eventsList = Object.values(eventMap).filter(ev => {
+                                            if (!regSearchTerm) return true;
+                                            const term = regSearchTerm.toLowerCase();
+                                            return ev.eventTitle.toLowerCase().includes(term) || ev.categoryTitle.toLowerCase().includes(term);
+                                        });
+
+                                        if (eventsList.length === 0) {
+                                            return <div style={{ color: 'rgba(255,255,255,0.3)', gridColumn: '1/-1', textAlign: 'center', padding: '20px' }}>NO EVENTS MATCHING SEARCH</div>;
+                                        }
+
+                                        return eventsList.map((evItem) => {
+                                            const isSelected = selectedEventRoster?.eventTitle === evItem.eventTitle;
+                                            return (
+                                                <div 
+                                                    key={evItem.eventTitle}
+                                                    onClick={() => setSelectedEventRoster(isSelected ? null : evItem)}
+                                                    style={{
+                                                        background: isSelected ? 'rgba(0,229,255,0.08)' : 'rgba(0,0,0,0.3)',
+                                                        border: isSelected ? '1.5px solid #00E5FF' : '1px solid rgba(255,255,255,0.08)',
+                                                        padding: '16px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s',
+                                                        boxShadow: isSelected ? '0 0 15px rgba(0,229,255,0.2)' : 'none'
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                        <div>
+                                                            <span style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", color: '#00E5FF', letterSpacing: '0.1em' }}>
+                                                                {evItem.categoryTitle}
+                                                            </span>
+                                                            <h4 style={{ fontFamily: "'Orbitron', monospace", fontSize: '13px', color: '#FFF', margin: '4px 0 0 0' }}>
+                                                                {evItem.eventTitle}
+                                                            </h4>
+                                                        </div>
+                                                        <span style={{
+                                                            fontSize: '11px', fontFamily: "'Orbitron', monospace", fontWeight: 900,
+                                                            background: '#00E5FF20', color: '#00E5FF', border: '1px solid #00E5FF50',
+                                                            padding: '4px 10px', borderRadius: '12px'
+                                                        }}>
+                                                            {evItem.registrations.length} {evItem.registrations.length === 1 ? 'TEAM' : 'TEAMS'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                                                            {isSelected ? '▲ HIDE ROSTER' : '▼ VIEW PARTICIPANTS'}
+                                                        </span>
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                exportToCSV(evItem.registrations, `${evItem.eventTitle.replace(/[^a-zA-Z0-9]/g, '_')}_roster.csv`);
+                                                            }}
+                                                            style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: '#00E5FF', padding: '3px 8px', borderRadius: '3px', cursor: 'pointer' }}
+                                                        >
+                                                            EXPORT CSV
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        });
+                                    })()}
+                                </div>
+
+                                {/* Selected Event Participant Roster Drawer */}
+                                {selectedEventRoster && (
+                                    <div style={{ background: 'rgba(2, 12, 26, 0.95)', border: '1.5px solid #00E5FF', padding: '20px', borderRadius: '8px', marginTop: '20px', boxShadow: '0 0 25px rgba(0,229,255,0.15)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,229,255,0.2)', paddingBottom: '12px', marginBottom: '16px' }}>
+                                            <div>
+                                                <span style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", color: '#00E5FF' }}>ROSTER BREAKDOWN FOR</span>
+                                                <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '15px', color: '#FFF', margin: '2px 0 0 0' }}>
+                                                    {selectedEventRoster.eventTitle} ({selectedEventRoster.registrations.length} REGISTERED TEAMS)
+                                                </h3>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button 
+                                                    onClick={() => exportToCSV(selectedEventRoster.registrations, `${selectedEventRoster.eventTitle}_roster.csv`)}
+                                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', padding: '6px 12px', background: 'rgba(0,229,255,0.15)', border: '1px solid #00E5FF', color: '#00E5FF', borderRadius: '4px', cursor: 'pointer' }}
+                                                >
+                                                    EXPORT THIS ROSTER CSV
+                                                </button>
+                                                <button 
+                                                    onClick={() => setSelectedEventRoster(null)}
+                                                    style={{ fontFamily: 'monospace', fontSize: '12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '0 8px' }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ overflowX: 'auto' }}>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>TEAM NAME</th>
+                                                        <th>LEADER NAME</th>
+                                                        <th>LEADER UID</th>
+                                                        <th>EMAIL</th>
+                                                        <th>PHONE NUMBER</th>
+                                                        <th>TEAM MEMBERS</th>
+                                                        <th>DATE REGISTERED</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {selectedEventRoster.registrations.map(r => (
+                                                        <tr key={r._id}>
+                                                            <td style={{ fontWeight: 700, color: '#FFF' }}>{r.teamName}</td>
+                                                            <td style={{ color: '#00E5FF' }}>{r.leaderName}</td>
+                                                            <td style={{ fontFamily: 'monospace' }}>{r.leaderUID}</td>
+                                                            <td>
+                                                                {r.userEmail ? (
+                                                                    <a
+                                                                        href={`mailto:${r.userEmail}`}
+                                                                        style={{ color: '#a78bfa', fontFamily: 'monospace', fontSize: '10px', textDecoration: 'none', wordBreak: 'break-all' }}
+                                                                        title={`Send email to ${r.userEmail}`}
+                                                                    >
+                                                                        {r.userEmail}
+                                                                    </a>
+                                                                ) : (
+                                                                    <span style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', fontSize: '9px' }}>N/A</span>
+                                                                )}
+                                                            </td>
+                                                            <td style={{ color: '#1FFF76', fontFamily: 'monospace' }}>{r.leaderPhone}</td>
+                                                            <td>
+                                                                {r.members && r.members.length > 0 ? (
+                                                                    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.7)' }}>
+                                                                        {r.members.map(m => `${m.name} (${m.uid})`).join(', ')}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}>Solo Participant</span>
+                                                                )}
+                                                            </td>
+                                                            <td style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9.5px' }}>
+                                                                {r.createdAt ? new Date(r.createdAt).toLocaleString() : 'N/A'}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ── TAB 3: EVENTS MANAGER ── */}
                 {activeTab === 'events' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -715,6 +1191,15 @@ export default function AdminPage() {
                                     <option value="bolt">Lightning Bolt Icon</option>
                                     <option value="gamepad">Gamepad Icon</option>
                                 </select>
+                                <select value={editingCategory ? editingCategory.modelType : newCat.modelType} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, modelType: e.target.value }) : setNewCat({ ...newCat, modelType: e.target.value })}>
+                                    <option value="coding">Coding Terminal Model</option>
+                                    <option value="mecha">Robot Mech Model</option>
+                                    <option value="controller">Controller Model</option>
+                                    <option value="civil">City Skyline Model</option>
+                                    <option value="electrical">Transformer Grid Model</option>
+                                    <option value="ai">Neural Brain Model</option>
+                                    <option value="gun">Gun Model</option>
+                                </select>
                                 <textarea style={{ gridColumn: isMobile ? 'auto' : 'span 3' }} placeholder="Category description..." value={editingCategory ? editingCategory.desc : newCat.desc} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, desc: e.target.value }) : setNewCat({ ...newCat, desc: e.target.value })} required />
                                 
                                 <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', display: 'flex', gap: '10px' }}>
@@ -737,6 +1222,7 @@ export default function AdminPage() {
                                             <th>TITLE</th>
                                             <th>SUBTITLE</th>
                                             <th>DIFFICULTY</th>
+                                            <th>MODEL TYPE</th>
                                             <th>COLOR</th>
                                             <th>XP</th>
                                             <th>ACTIONS</th>
@@ -750,6 +1236,7 @@ export default function AdminPage() {
                                                 <td>
                                                     <span style={{ color: cat.color }}>{cat.difficulty}</span>
                                                 </td>
+                                                <td style={{ fontFamily: 'monospace', color: '#00E5FF' }}>{cat.modelType || 'coding'}</td>
                                                 <td style={{ color: cat.color }}>{cat.color}</td>
                                                 <td>{cat.xp}</td>
                                                 <td>
@@ -1078,7 +1565,100 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {/* ── TAB: SECURITY — CHANGE PASSWORD ── */}
+                {activeTab === 'security' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '540px' }}>
+                        <div style={{ background: '#0D1320', padding: '28px', borderRadius: '8px', border: '1px solid rgba(255,31,79,0.25)', boxShadow: '0 0 20px rgba(255,31,79,0.05)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', borderBottom: '1px solid rgba(255,31,79,0.15)', paddingBottom: '14px' }}>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,31,79,0.1)', border: '1px solid rgba(255,31,79,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🔒</div>
+                                <div>
+                                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '13px', fontWeight: 900, color: '#ff1f4f', letterSpacing: '0.15em' }}>CHANGE ADMIN PASSWORD</div>
+                                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>OPERATOR: {username.toUpperCase()} // SECURITY PROTOCOL</div>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <label style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Current Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="Enter current password"
+                                        value={changePwForm.currentPassword}
+                                        onChange={e => setChangePwForm(f => ({ ...f, currentPassword: e.target.value }))}
+                                        required
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <label style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>New Password <span style={{ color: 'rgba(255,255,255,0.2)' }}>(min. 6 characters)</span></label>
+                                    <input
+                                        type="password"
+                                        placeholder="Enter new password"
+                                        value={changePwForm.newPassword}
+                                        onChange={e => setChangePwForm(f => ({ ...f, newPassword: e.target.value }))}
+                                        required
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <label style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="Re-enter new password"
+                                        value={changePwForm.confirmPassword}
+                                        onChange={e => setChangePwForm(f => ({ ...f, confirmPassword: e.target.value }))}
+                                        required
+                                        style={{ borderColor: changePwForm.confirmPassword && changePwForm.confirmPassword !== changePwForm.newPassword ? '#ff1f4f' : undefined }}
+                                    />
+                                    {changePwForm.confirmPassword && changePwForm.confirmPassword !== changePwForm.newPassword && (
+                                        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#ff1f4f' }}>Passwords do not match</span>
+                                    )}
+                                </div>
+
+                                {changePwMsg.text && (
+                                    <div style={{
+                                        padding: '10px 14px',
+                                        borderRadius: '4px',
+                                        fontFamily: 'monospace',
+                                        fontSize: '9.5px',
+                                        letterSpacing: '0.08em',
+                                        background: changePwMsg.type === 'success' ? 'rgba(31,255,118,0.06)' : 'rgba(255,31,79,0.08)',
+                                        border: `1px solid ${changePwMsg.type === 'success' ? 'rgba(31,255,118,0.3)' : 'rgba(255,31,79,0.3)'}`,
+                                        color: changePwMsg.type === 'success' ? '#1FFF76' : '#ff1f4f',
+                                        display: 'flex', alignItems: 'center', gap: '8px'
+                                    }}>
+                                        <span>{changePwMsg.type === 'success' ? '✓' : '✗'}</span>
+                                        <span>{changePwMsg.text}</span>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={changePwLoading}
+                                    style={{
+                                        fontFamily: "'Orbitron', monospace", fontSize: '9px', fontWeight: 900, letterSpacing: '0.2em',
+                                        padding: '12px 24px', border: 'none', borderRadius: '4px', cursor: changePwLoading ? 'not-allowed' : 'pointer',
+                                        background: changePwLoading ? 'rgba(255,31,79,0.3)' : 'linear-gradient(90deg, #c0132a 0%, #ff1f4f 100%)',
+                                        color: '#FFF', marginTop: '4px',
+                                        boxShadow: changePwLoading ? 'none' : '0 4px 14px rgba(255,31,79,0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {changePwLoading ? 'UPDATING CREDENTIALS...' : 'CONFIRM PASSWORD UPDATE'}
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Info box */}
+                        <div style={{ padding: '14px 18px', borderRadius: '6px', background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.12)', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', lineHeight: '1.6' }}>
+                            <span style={{ color: '#00E5FF', fontWeight: 700 }}>⚡ SECURITY NOTE:</span> After changing your password, your current session token will remain valid for its remaining duration (12 hours). For maximum security, terminate your current session and re-authenticate with the new credentials.
+                        </div>
+                    </div>
+                )}
+
             </main>
         </div>
     );
+
 }

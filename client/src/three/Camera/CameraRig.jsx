@@ -268,7 +268,9 @@ export default function CameraRig() {
             const pathParts = location.pathname.split('/').filter(Boolean);
             const hasCategory = pathParts.length >= 2;
 
-            const targetX = hasCategory ? 0 : breathingX;
+            // On mobile, the left sidebar is 60px wide — shift camera left so 3D cards visually center in remaining space
+            const mobileSidebarOffset = isMobile && !hasCategory ? -0.45 : 0;
+            const targetX = hasCategory ? 0 : breathingX + mobileSidebarOffset;
             const targetY = 0.4 + breathingY;
             const targetZ = hasCategory ? -1.0 : 1.0;
             const targetRotX = 0.32;

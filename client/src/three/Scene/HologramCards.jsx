@@ -63,6 +63,7 @@ export default function HologramCards() {
 
     const activeCategorySlug = useStore(state => state.activeCategorySlug);
     const setActiveCategorySlug = useStore(state => state.setActiveCategorySlug);
+    const isAuthModalOpen = useStore(state => state.isAuthModalOpen);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
@@ -82,7 +83,8 @@ export default function HologramCards() {
                             color: c.color,
                             xp: c.xp,
                             difficulty: c.difficulty,
-                            icon: (color) => getSvgIcon(c.iconType, color)
+                            icon: (color) => getSvgIcon(c.iconType, color),
+                            modelType: c.modelType || 'coding'
                         }));
                         setCategoriesList(mappedCats);
 
@@ -632,6 +634,8 @@ export default function HologramCards() {
         }
     });
 
+    if (isAuthModalOpen) return null;
+
     return (
         <group>
             {/* Ambient neon fill lights for the hologram chamber */}
@@ -663,47 +667,68 @@ export default function HologramCards() {
                 </Suspense>
             )}
 
-            {/* Mecha Robot Hologram — Robotics & RC category page */}
-            {selectedDivision === 'ROBOTICS & RC' && !eventName && (
-                <Suspense fallback={null}>
-                    <RobotShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+            {/* Dynamically Render Model based on the Category Database configuration */}
+            {(() => {
+                if (eventName) return null;
+                
+                // Find the currently selected category object in the list
+                const activeCategoryObj = categoriesList.find(c => c.title === selectedDivision);
+                if (!activeCategoryObj) return null;
 
-            {/* Controller Hologram — Gaming Arena category page */}
-            {selectedDivision === 'GAMING ARENA' && !eventName && (
-                <Suspense fallback={null}>
-                    <ControllerShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+                const modelType = activeCategoryObj.modelType || 'coding';
 
-            {/* Coding Quest terminal Hologram — Coding Quest category page */}
-            {selectedDivision === 'CODING QUEST' && !eventName && (
-                <Suspense fallback={null}>
-                    <CodingShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Civil City Hologram — Creative & Design category page */}
-            {selectedDivision === 'CREATIVE & DESIGN' && !eventName && (
-                <Suspense fallback={null}>
-                    <CivilShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Transformer Hologram — Electrical Guild category page */}
-            {selectedDivision === 'ELECTRICAL GUILD' && !eventName && (
-                <Suspense fallback={null}>
-                    <ElectricalShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
-            {/* Brain Hologram — AI & Data Science category page */}
-            {selectedDivision === 'AI & DATA SCIENCE' && !eventName && (
-                <Suspense fallback={null}>
-                    <AiShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
+                switch (modelType) {
+                    case 'mecha':
+                        return (
+                            <Suspense fallback={null}>
+                                <RobotShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'controller':
+                        return (
+                            <Suspense fallback={null}>
+                                <ControllerShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'civil':
+                        return (
+                            <Suspense fallback={null}>
+                                <CivilShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'electrical':
+                        return (
+                            <Suspense fallback={null}>
+                                <ElectricalShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'ai':
+                        return (
+                            <Suspense fallback={null}>
+                                <AiShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'gun':
+                        return (
+                            <Suspense fallback={null}>
+                                <WeaponShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'portal':
+                        return (
+                            <Suspense fallback={null}>
+                                <PortalShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'coding':
+                    default:
+                        return (
+                            <Suspense fallback={null}>
+                                <CodingShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                }
+            })()}
 
             {/* Left & Right floating holographic HUD consoles removed */}
 
@@ -1513,6 +1538,71 @@ function AiShowcase({ activeColor }) {
                 }}
             >
                 AI_CORE: NEURAL_BRAIN_HUD
+            </Html>
+        </group>
+    );
+}
+
+
+function PortalShowcase({ activeColor }) {
+    const portalRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/portal/scene.glb');
+
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.12,
+                });
+            }
+        });
+        scene.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+        const desiredHeight = 13.5;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (portalRef.current) {
+            portalRef.current.rotation.y = t * 0.10;
+            portalRef.current.position.y = 4.8 + Math.sin(t * 0.45) * 0.22;
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.15;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.09;
+    });
+
+    return (
+        <group>
+            <group ref={portalRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive object={model} position={[-offset.x, -offset.y, -offset.z]} rotation={[0, 0, 0]} />
+            </group>
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[9.5, 9.58, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[7.2, 7.25, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
+                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
+                PORTAL_GATEWAY: ACTIVE
             </Html>
         </group>
     );

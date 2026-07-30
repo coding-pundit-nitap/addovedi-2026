@@ -19,6 +19,7 @@ const sanitizeUserForStorage = (userObj) => {
 export default function AuthModal() {
     const navigate = useNavigate();
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
+    const setCurrentUser = useStore(s => s.setCurrentUser);
     const onClose = () => setAuthModalOpen(false);
 
     const handleOverlayClick = (e) => {
@@ -65,35 +66,55 @@ export default function AuthModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
+    const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+
     useEffect(() => {
-        // Load logged in user from localStorage
-        const storedUser = localStorage.getItem('addovedi_user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(sanitizeUserForStorage(parsedUser));
+        const syncUserAndRegs = () => {
+            // Load logged in user from localStorage
+            const storedUser = localStorage.getItem('addovedi_user');
+            if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                const safeUser = {
+                    ...sanitizeUserForStorage(parsedUser),
+                    isGlobalRegistered: true
+                };
+                setUser(safeUser);
+                
+                // Pre-populate globalForm with existing user data if available
+                setGlobalForm({
+                    gender: parsedUser.gender || '',
+                    dob: parsedUser.dob || '',
+                    college: parsedUser.college || '',
+                    department: parsedUser.department || '',
+                    year: parsedUser.year || '',
+                    state: parsedUser.state || '',
+                    city: parsedUser.city || '',
+                    emergencyContact: parsedUser.emergencyContact || '',
+                    avatar: parsedUser.avatar || 'specter'
+                });
+            } else {
+                setUser(null);
+            }
             
-            // Pre-populate globalForm with existing user data if available
-            setGlobalForm({
-                gender: parsedUser.gender || '',
-                dob: parsedUser.dob || '',
-                college: parsedUser.college || '',
-                department: parsedUser.department || '',
-                year: parsedUser.year || '',
-                state: parsedUser.state || '',
-                city: parsedUser.city || '',
-                emergencyContact: parsedUser.emergencyContact || '',
-                avatar: parsedUser.avatar || 'specter'
-            });
-        }
-        
-        // Load registered events from localStorage
-        const storedRegs = localStorage.getItem('addovedi_registrations');
-        if (storedRegs) {
-            setRegisteredEvents(JSON.parse(storedRegs));
-        } else {
-            setRegisteredEvents([]);
-        }
-    }, []);
+            // Load registered events from localStorage
+            const storedRegs = localStorage.getItem('addovedi_registrations');
+            if (storedRegs) {
+                try {
+                    setRegisteredEvents(JSON.parse(storedRegs));
+                } catch {
+                    setRegisteredEvents([]);
+                }
+            } else {
+                setRegisteredEvents([]);
+            }
+        };
+
+        syncUserAndRegs();
+
+        // Listen for storage events (e.g. registration completed in another tab or component)
+        window.addEventListener('storage', syncUserAndRegs);
+        return () => window.removeEventListener('storage', syncUserAndRegs);
+    }, [isAuthModalOpen]);
 
     // Handle Input change for Auth Form
     const handleAuthChange = (e) => {
@@ -124,9 +145,13 @@ export default function AuthModal() {
         setTimeout(() => {
             setIsSubmitting(false);
             if (found) {
-                const safeFound = sanitizeUserForStorage(found);
+                const safeFound = {
+                    ...sanitizeUserForStorage(found),
+                    isGlobalRegistered: true
+                };
                 setUser(safeFound);
                 localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
+                setCurrentUser(safeFound);
                 // Pre-populate globalForm with logged in user data
                 setGlobalForm({
                     gender: found.gender || '',
@@ -167,20 +192,34 @@ export default function AuthModal() {
         setIsSubmitting(true);
         setTimeout(() => {
             setIsSubmitting(false);
+            const seedCounter = parseInt(localStorage.getItem('addovedi_id_counter') || '142');
+            const newCounter = seedCounter + 1;
+            localStorage.setItem('addovedi_id_counter', newCounter.toString());
+            const generatedId = `ADV26-${newCounter.toString().padStart(4, '0')}`;
+
             const newUser = {
                 name: authForm.name,
                 email: authForm.email,
                 phone: authForm.phone,
                 password: authForm.password,
-                isGlobalRegistered: false,
-                addovediId: '',
+                college: 'NATIONAL INSTITUTE OF TECHNOLOGY',
+                department: 'COMPUTER SCIENCE & ENG.',
+                year: '3RD YEAR',
+                city: 'CAMPUS',
+                state: 'STATE HQ',
+                gender: 'RECRUIT',
+                dob: '2004-01-01',
+                emergencyContact: authForm.phone,
+                isGlobalRegistered: true,
+                addovediId: generatedId,
                 avatar: 'specter'
             };
             allUsers.push(newUser);
-             localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
-             const safeNewUser = sanitizeUserForStorage(newUser);
-             setUser(safeNewUser);
-             localStorage.setItem('addovedi_user', JSON.stringify(safeNewUser));
+            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
+            const safeNewUser = sanitizeUserForStorage(newUser);
+            setUser(safeNewUser);
+            localStorage.setItem('addovedi_user', JSON.stringify(safeNewUser));
+            setCurrentUser(safeNewUser);
         }, 1200);
     };
 
@@ -218,6 +257,7 @@ export default function AuthModal() {
             const safeUpdatedUser = sanitizeUserForStorage(updatedUser);
             setUser(safeUpdatedUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
+            setCurrentUser(safeUpdatedUser);
             
             const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
             const idx = allUsers.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
@@ -241,6 +281,7 @@ export default function AuthModal() {
     const handleLogout = () => {
         localStorage.removeItem('addovedi_user');
         setUser(null);
+        setCurrentUser(null);
         setIsEditing(false);
         setAuthForm({ name: '', email: '', phone: '', password: '' });
         setGlobalForm({
@@ -272,12 +313,12 @@ export default function AuthModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center select-none"
+            className="fixed inset-0 z-[99999] flex items-center justify-center select-none"
             onClick={handleOverlayClick}
             style={{
-                background: 'rgba(1, 3, 8, 0.85)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
+                background: 'rgba(2, 6, 18, 0.98)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
                 fontFamily: "'Rajdhani', sans-serif"
             }}
         >
@@ -409,7 +450,7 @@ export default function AuthModal() {
             {/* Main Content Area */}
             <div 
                 onClick={handleOverlayClick}
-                className="flex justify-center p-4 md:p-8 relative z-10 w-full max-w-5xl mx-auto max-h-[90vh] overflow-y-auto auth-modal-scrollbar"
+                className="flex justify-center p-4 md:p-8 relative z-10 w-full max-w-6xl mx-auto max-h-[90vh] overflow-y-auto auth-modal-scrollbar"
             >
                 <AnimatePresence mode="wait">
                     {!user ? (
@@ -792,15 +833,16 @@ export default function AuthModal() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
                             transition={{ duration: 0.4 }}
-                            className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 pointer-events-auto my-auto"
+                            className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-auto items-stretch my-auto"
                         >
                             {/* LEFT PANEL: Digital ID Card */}
-                            <div className="lg:col-span-5 flex flex-col items-center">
+                            <div className="lg:col-span-5 flex flex-col items-center justify-center">
                                 <div 
-                                    className="w-full max-w-[330px] h-[480px] p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between"
+                                    className="w-full max-w-[340px] p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between"
                                     style={{
                                         background: 'linear-gradient(185deg, #020712 0%, #041021 100%)',
-                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)'
+                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)',
+                                        minHeight: '460px'
                                     }}
                                 >
                                     <div className="scanner-line" />
@@ -895,7 +937,7 @@ export default function AuthModal() {
                                     <div className="w-full flex items-center justify-between border-t border-[#00d9ff]/15 pt-4 mt-3 relative z-10 select-none">
                                         <div className="flex flex-col items-start font-mono gap-1 text-[7px] text-white/40">
                                             <span>ISSUED: ADDOVEDI_OS</span>
-                                            <span>LEVEL: GUEST_LEVEL_1</span>
+                                            <span>LEVEL: OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}</span>
                                             <span>VERIFIER: SECURE_QR</span>
                                         </div>
 
@@ -959,6 +1001,7 @@ export default function AuthModal() {
                                     border: '1.5px solid rgba(0, 217, 255, 0.4)',
                                     clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
                                     backdropFilter: 'blur(20px)',
+                                    minHeight: '460px'
                                 }}
                             >
                                 <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00D9FF]" />
@@ -967,6 +1010,34 @@ export default function AuthModal() {
                                 <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00D9FF]" />
 
                                 <div>
+                                    {/* Player info strip */}
+                                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/5">
+                                        <div
+                                            className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black border flex-shrink-0"
+                                            style={{
+                                                background: `radial-gradient(circle, ${currentAvatarData.color}25 0%, #030c17 100%)`,
+                                                color: currentAvatarData.color,
+                                                borderColor: currentAvatarData.color,
+                                                textShadow: `0 0 8px ${currentAvatarData.color}`
+                                            }}
+                                        >
+                                            {user.name ? user.name[0].toUpperCase() : '?'}
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-white font-black text-sm tracking-wide truncate">{user.name}</span>
+                                            <span className="text-white/40 text-[9px] font-mono truncate">{user.email}</span>
+                                        </div>
+                                        <div className="ml-auto flex flex-col items-end gap-0.5 flex-shrink-0">
+                                            <span className="text-[8px] font-mono text-white/30">RANK</span>
+                                            <span
+                                                className="text-[9px] font-black tracking-widest"
+                                                style={{ color: currentAvatarData.color, fontFamily: "'Orbitron', monospace" }}
+                                            >
+                                                OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div className="flex items-center justify-between border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
                                         <div className="flex flex-col">
                                             <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '9px', fontWeight: 900, color: '#00D9FF', letterSpacing: '0.15em' }}>MISSION_ENLISTMENTS</span>
@@ -978,19 +1049,26 @@ export default function AuthModal() {
                                     </div>
 
                                     {registeredEvents.length === 0 ? (
-                                        <div className="py-12 flex flex-col items-center justify-center text-center gap-4 select-none">
-                                            <div className="w-12 h-12 rounded-full border border-dashed border-white/20 flex items-center justify-center text-white/25 font-bold animate-pulse">
-                                                ⚠
+                                        <div className="py-6 flex flex-col items-center justify-center text-center gap-3 select-none my-auto">
+                                            <div className="w-12 h-12 rounded-full border border-dashed border-[#00D9FF]/40 flex items-center justify-center text-[#00D9FF] font-bold text-lg shadow-[0_0_15px_rgba(0,217,255,0.2)]">
+                                                ⚔
                                             </div>
                                             <div>
-                                                <h3 className="text-white text-sm font-black tracking-widest uppercase">No Active Mission Registrations</h3>
-                                                <p className="text-xs text-white/45 mt-1 max-w-[280px] mx-auto leading-relaxed">
-                                                    You have not enlisted in any arena events. Launch the Arena console to join competitions.
+                                                <h3 className="text-white text-sm font-black tracking-widest uppercase" style={{ fontFamily: "'Orbitron', monospace" }}>No Active Mission Registrations</h3>
+                                                <p className="text-xs text-white/50 mt-1.5 max-w-[320px] mx-auto leading-relaxed">
+                                                    You are currently signed in as <span className="text-[#00D9FF] font-bold">{user.name}</span>. Launch event challenges in the Arena grid to register.
                                                 </p>
                                             </div>
+                                            <button
+                                                onClick={() => { onClose(); }}
+                                                className="mt-2 px-5 py-2.5 border border-[#00D9FF] bg-[#00D9FF]/10 text-[#00D9FF] text-[9.5px] font-black tracking-widest uppercase hover:bg-[#00D9FF]/25 transition-all cursor-pointer shadow-[0_0_12px_rgba(0,217,255,0.3)]"
+                                                style={{ fontFamily: "'Orbitron', monospace" }}
+                                            >
+                                                EXPLORE ARENA EVENTS ▶
+                                            </button>
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
+                                        <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1 auth-modal-scrollbar">
                                             {registeredEvents.map((reg, index) => (
                                                 <div 
                                                     key={reg.id || index}
@@ -1027,6 +1105,7 @@ export default function AuthModal() {
                                     )}
                                 </div>
 
+                                {/* Bottom CTA */}
                                 <div className="mt-8 pt-4 border-t border-[#00f0ff]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
                                     <div className="flex flex-col text-left">
                                         <span className="text-[9px] text-white/45 uppercase tracking-widest font-black">Ready to deploy?</span>

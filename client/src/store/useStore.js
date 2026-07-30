@@ -3,6 +3,14 @@ import { create } from 'zustand';
 const initialPath = typeof window !== 'undefined' ? window.location.pathname : '';
 const initialIsEvent = initialPath.startsWith('/event');
 
+// Helper: read logged-in user from localStorage on store init
+const getInitialUser = () => {
+    try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('addovedi_user') : null;
+        return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+};
+
 export const useStore = create((set) => ({
     // WebGL Timeline Variables
     cameraSpeed: 0,
@@ -36,6 +44,9 @@ export const useStore = create((set) => ({
     // Auth Modal (Login/Register popup)
     isAuthModalOpen: false,
 
+    // Currently logged-in player (mirrors localStorage addovedi_user)
+    currentUser: getInitialUser(),
+
     // State Setters
     setCameraSpeed: (v) => set({ cameraSpeed: v }),
     setTunnelIntensity: (v) => set({ tunnelIntensity: v }),
@@ -53,4 +64,5 @@ export const useStore = create((set) => ({
     setActiveCategorySlug: (v) => set({ activeCategorySlug: v }),
     setIsSidebarOpen: (v) => set({ isSidebarOpen: v }),
     setAuthModalOpen: (v) => set({ isAuthModalOpen: v }),
+    setCurrentUser: (v) => set({ currentUser: v }),
 }));
