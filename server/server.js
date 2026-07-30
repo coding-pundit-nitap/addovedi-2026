@@ -71,6 +71,7 @@ const seedDatabase = async () => {
                     xp: '1,500 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'code',
+                    modelType: 'coding',
                     heads: [
                         { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
                         { name: 'Karan Patel', phone: '+91 87654 32109' }
@@ -85,6 +86,7 @@ const seedDatabase = async () => {
                     xp: '2,500 XP',
                     difficulty: 'HARD',
                     iconType: 'code',
+                    modelType: 'coding',
                     heads: [
                         { name: 'Priya Nair', phone: '+91 76543 21098' },
                         { name: 'Siddharth Roy', phone: '+91 65432 10987' }
@@ -99,6 +101,7 @@ const seedDatabase = async () => {
                     xp: '3,000 XP',
                     difficulty: 'ELITE',
                     iconType: 'code',
+                    modelType: 'coding',
                     heads: [
                         { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
                         { name: 'Neha Gupta', phone: '+91 54321 09876' }
@@ -114,6 +117,7 @@ const seedDatabase = async () => {
                     xp: '2,000 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'bolt',
+                    modelType: 'electrical',
                     heads: [
                         { name: 'Karan Patel', phone: '+91 87654 32109' },
                         { name: 'Arjun Kumar', phone: '+91 91234 56789' }
@@ -128,6 +132,7 @@ const seedDatabase = async () => {
                     xp: '3,000 XP',
                     difficulty: 'HARD',
                     iconType: 'bolt',
+                    modelType: 'electrical',
                     heads: [
                         { name: 'Simran Kaur', phone: '+91 92345 67890' },
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
@@ -143,6 +148,7 @@ const seedDatabase = async () => {
                     xp: '4,000 XP',
                     difficulty: 'ELITE',
                     iconType: 'robot',
+                    modelType: 'mecha',
                     heads: [
                         { name: 'Akash Yadav', phone: '+91 94567 89012' },
                         { name: 'Mohit Jain', phone: '+91 95678 90123' }
@@ -157,6 +163,7 @@ const seedDatabase = async () => {
                     xp: '2,500 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'robot',
+                    modelType: 'mecha',
                     heads: [
                         { name: 'Simran Kaur', phone: '+91 92345 67890' },
                         { name: 'Shreya Nair', phone: '+91 96789 01234' }
@@ -171,6 +178,7 @@ const seedDatabase = async () => {
                     xp: '3,500 XP',
                     difficulty: 'HARD',
                     iconType: 'robot',
+                    modelType: 'mecha',
                     heads: [
                         { name: 'Akash Yadav', phone: '+91 94567 89012' },
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
@@ -186,6 +194,7 @@ const seedDatabase = async () => {
                     xp: '1,200 XP',
                     difficulty: 'EASY',
                     iconType: 'brush',
+                    modelType: 'civil',
                     heads: [
                         { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
                         { name: 'Kiran Verma', phone: '+91 98901 23456' }
@@ -200,6 +209,7 @@ const seedDatabase = async () => {
                     xp: '1,800 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'brush',
+                    modelType: 'civil',
                     heads: [
                         { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
                         { name: 'Ritika Sharma', phone: '+91 99012 34567' }
@@ -214,6 +224,7 @@ const seedDatabase = async () => {
                     xp: '1,000 XP',
                     difficulty: 'EASY',
                     iconType: 'brush',
+                    modelType: 'civil',
                     heads: [
                         { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
                         { name: 'Meera Patel', phone: '+91 77890 12345' }
@@ -229,6 +240,7 @@ const seedDatabase = async () => {
                     xp: '3,000 XP',
                     difficulty: 'HARD',
                     iconType: 'gamepad',
+                    modelType: 'gun',
                     heads: [
                         { name: 'Aman Verma', phone: '+91 99999 88888' },
                         { name: 'Rahul Das', phone: '+91 88888 77777' }
@@ -243,6 +255,7 @@ const seedDatabase = async () => {
                     xp: '2,500 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'gamepad',
+                    modelType: 'controller',
                     heads: [
                         { name: 'Sneha Raj', phone: '+91 77777 66666' },
                         { name: 'Pooja Sharma', phone: '+91 66666 55555' }
@@ -257,6 +270,7 @@ const seedDatabase = async () => {
                     xp: '2,000 XP',
                     difficulty: 'MEDIUM',
                     iconType: 'gamepad',
+                    modelType: 'controller',
                     heads: [
                         { name: 'Amit Joshi', phone: '+91 55555 44444' },
                         { name: 'Rohit Verma', phone: '+91 44444 33333' }
@@ -272,8 +286,9 @@ const seedDatabase = async () => {
                     xp: '3,500 XP',
                     difficulty: 'HARD',
                     iconType: 'cpu',
+                    modelType: 'ai',
                     heads: [
-                        { name: 'Priya Nair', phone: '+91 76543 21098' },
+                        { name: 'Priya Nair', phone: '+91 91111 22215' },
                         { name: 'Arjun Kumar', phone: '+91 91234 56789' }
                     ]
                 },
