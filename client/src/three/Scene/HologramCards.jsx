@@ -661,13 +661,6 @@ export default function HologramCards() {
                 />
             )}
 
-            {/* Background Holographic Weapon Showcase — main lobby only */}
-            {!eventName && !selectedDivision && (
-                <Suspense fallback={null}>
-                    <WeaponShowcase activeColor={activeColor} />
-                </Suspense>
-            )}
-
             {/* Dynamically Render Model based on Category/Sub-Event Database configuration */}
             {(() => {
                 let modelType = null;
@@ -690,7 +683,11 @@ export default function HologramCards() {
                 }
 
                 if (!modelType && !eventName && !selectedDivision) {
-                    return null; // Main lobby uses default background weapon showcase
+                    // Fallback to active category card modelType in main lobby
+                    const activeCard = categoriesList[activeRotationIndex];
+                    if (activeCard) {
+                        modelType = activeCard.modelType;
+                    }
                 }
 
                 modelType = modelType || 'coding';
