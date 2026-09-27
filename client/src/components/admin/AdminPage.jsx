@@ -385,6 +385,14 @@ export default function AdminPage() {
         }
     };
 
+    const startEditingSubEvent = (sub) => {
+        const safeHeads = Array.isArray(sub.heads) && sub.heads.length > 0 ? sub.heads.map(h => ({ name: h.name || '', phone: h.phone || '' })) : [];
+        while (safeHeads.length < 2) {
+            safeHeads.push({ name: '', phone: '' });
+        }
+        setEditingSubEvent({ ...sub, heads: safeHeads });
+    };
+
     // Category create/update/delete
     const saveCategory = async (e) => {
         e.preventDefault();
@@ -400,14 +408,22 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            if (res.ok) {
-                fetchEvents();
-                setEditingCategory(null);
-                setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
-                alert('Category configuration saved');
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to save category configuration');
             }
+
+            fetchEvents();
+            setEditingCategory(null);
+            setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
+            alert('Category configuration saved successfully!');
         } catch (err) {
-            alert(err.message);
+            alert(`Error Saving Category: ${err.message}`);
         }
     };
 
@@ -418,9 +434,19 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            if (res.ok) fetchEvents();
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to delete category');
+            }
+            fetchEvents();
+            alert('Category deleted successfully');
         } catch (err) {
-            alert(err.message);
+            alert(`Error: ${err.message}`);
         }
     };
 
@@ -439,14 +465,22 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            if (res.ok) {
-                fetchEvents();
-                setEditingSubEvent(null);
-                setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
-                alert('Sub-Event configuration saved');
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to save sub-event configuration');
             }
+
+            fetchEvents();
+            setEditingSubEvent(null);
+            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+            alert('Sub-Event configuration saved successfully!');
         } catch (err) {
-            alert(err.message);
+            alert(`Error Saving Sub-Event: ${err.message}`);
         }
     };
 
@@ -457,9 +491,19 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            if (res.ok) fetchEvents();
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to delete sub-event');
+            }
+            fetchEvents();
+            alert('Sub-Event deleted successfully');
         } catch (err) {
-            alert(err.message);
+            alert(`Error: ${err.message}`);
         }
     };
 
@@ -490,14 +534,22 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            if (res.ok) {
-                fetchCrew();
-                setEditingCrew(null);
-                setNewCrew({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
-                alert('Crew member profile saved');
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to save crew profile');
             }
+
+            fetchCrew();
+            setEditingCrew(null);
+            setNewCrew({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
+            alert('Crew member profile saved successfully!');
         } catch (err) {
-            alert(err.message);
+            alert(`Error Saving Crew: ${err.message}`);
         }
     };
 
@@ -508,9 +560,19 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            if (res.ok) fetchCrew();
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to delete crew member');
+            }
+            fetchCrew();
+            alert('Crew member deleted successfully');
         } catch (err) {
-            alert(err.message);
+            alert(`Error: ${err.message}`);
         }
     };
 
@@ -530,7 +592,6 @@ export default function AdminPage() {
     const saveSponsor = async (e) => {
         e.preventDefault();
         const rawPayload = editingSponsor || newSponsor;
-        // Parse support string into array
         const payload = {
             ...rawPayload,
             support: typeof rawPayload.support === 'string' 
@@ -549,14 +610,22 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            if (res.ok) {
-                fetchSponsors();
-                setEditingSponsor(null);
-                setNewSponsor({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', desc: '', support: '', url: '#' });
-                alert('Sponsor profile saved');
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to save sponsor profile');
             }
+
+            fetchSponsors();
+            setEditingSponsor(null);
+            setNewSponsor({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', desc: '', support: '', url: '#' });
+            alert('Sponsor profile saved successfully!');
         } catch (err) {
-            alert(err.message);
+            alert(`Error Saving Sponsor: ${err.message}`);
         }
     };
 
@@ -567,9 +636,19 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            if (res.ok) fetchSponsors();
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to delete sponsor');
+            }
+            fetchSponsors();
+            alert('Sponsor deleted successfully');
         } catch (err) {
-            alert(err.message);
+            alert(`Error: ${err.message}`);
         }
     };
 
@@ -1382,7 +1461,7 @@ export default function AdminPage() {
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button onClick={() => setEditingSubEvent(sub)} style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer' }}>EDIT</button>
+                                                        <button onClick={() => startEditingSubEvent(sub)} style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer' }}>EDIT</button>
                                                         <button onClick={() => deleteSubEvent(sub._id)} style={{ padding: '4px 10px', border: '1px solid #ff1f4f', color: '#ff1f4f', background: 'transparent', cursor: 'pointer' }}>DELETE</button>
                                                     </div>
                                                 </td>
