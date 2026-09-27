@@ -116,6 +116,23 @@ export default function AdminPage() {
         'Authorization': `Bearer ${token}`
     });
 
+    // Helper for safely parsing JSON or HTML/text error responses
+    const safeFetchJson = async (res) => {
+        try {
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                return await res.json();
+            }
+            const text = await res.text();
+            const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
+            return {
+                message: cleanText ? cleanText.substring(0, 250) : `Server returned non-JSON response (HTTP ${res.status} ${res.statusText || ''})`
+            };
+        } catch (err) {
+            return { message: err.message || 'Error processing response' };
+        }
+    };
+
     const handleImageUpload = async (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -132,7 +149,7 @@ export default function AdminPage() {
                 },
                 body: formData
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Upload failed');
             
             if (type === 'crew') {
@@ -160,7 +177,7 @@ export default function AdminPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: loginUser, password: loginPass })
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Authorization Failed');
             
             localStorage.setItem('admin_token', data.token);
@@ -186,11 +203,11 @@ export default function AdminPage() {
         try {
             const res = await fetch(`${API_BASE}/status-settings`);
             if (res.ok) {
-                const data = await res.json();
-                setGeneralQueries(data.generalQueries);
-                setSponsors(data.sponsors);
-                setEvents(data.events);
-                setMedia(data.media);
+                const data = await safeFetchJson(res);
+                if (data.generalQueries) setGeneralQueries(data.generalQueries);
+                if (data.sponsors) setSponsors(data.sponsors);
+                if (data.events) setEvents(data.events);
+                if (data.media) setMedia(data.media);
             }
         } catch (err) {
             console.error('Failed status fetch', err);
@@ -205,9 +222,18 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify({ generalQueries, sponsors, events, media })
             });
-            if (res.ok) alert('SYSTEM STATUS RE-CONFIGURED');
+            const data = await safeFetchJson(res);
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return;
+                }
+                throw new Error(data.message || 'Failed to update status');
+            }
+            alert('SYSTEM STATUS RE-CONFIGURED');
         } catch (err) {
-            alert('Failed to update status');
+            alert(`Status Update Error: ${err.message}`);
         } finally {
             setStatusSaving(false);
         }
@@ -218,7 +244,10 @@ export default function AdminPage() {
         setLoadingMessages(true);
         try {
             const res = await fetch(`${API_BASE}/messages`, { headers: getHeaders() });
-            if (res.ok) setMessages(await res.json());
+            if (res.ok) {
+                const data = await safeFetchJson(res);
+                if (Array.isArray(data)) setMessages(data);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -233,8 +262,11 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
+            const data = await safeFetchJson(res);
             if (res.ok) {
                 setMessages(prev => prev.filter(m => m._id !== id));
+            } else {
+                alert(data.message || 'Failed to delete message');
             }
         } catch (err) {
             alert(err.message);
@@ -246,10 +278,16 @@ export default function AdminPage() {
         setLoadingRegistrations(true);
         try {
             const res = await fetch(`${API_BASE}/registrations`, { headers: getHeaders() });
-            if (res.ok) setRegistrations(await res.json());
+            if (res.ok) {
+                const data = await safeFetchJson(res);
+                if (Array.isArray(data)) setRegistrations(data);
+            }
 
             const statsRes = await fetch(`${API_BASE}/registrations/stats`, { headers: getHeaders() });
-            if (statsRes.ok) setRegistrationStats(await statsRes.json());
+            if (statsRes.ok) {
+                const statsData = await safeFetchJson(statsRes);
+                setRegistrationStats(statsData);
+            }
         } catch (err) {
             console.error('Fetch Registrations Error:', err);
         } finally {
@@ -264,8 +302,11 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
+            const data = await safeFetchJson(res);
             if (res.ok) {
                 fetchRegistrations();
+            } else {
+                alert(data.message || 'Failed to delete registration record');
             }
         } catch (err) {
             alert(err.message);
@@ -277,7 +318,10 @@ export default function AdminPage() {
         setLoadingAuditLogs(true);
         try {
             const res = await fetch(`${API_BASE}/audit-logs?limit=150`, { headers: getHeaders() });
-            if (res.ok) setAuditLogs(await res.json());
+            if (res.ok) {
+                const data = await safeFetchJson(res);
+                if (Array.isArray(data)) setAuditLogs(data);
+            }
         } catch (err) {
             console.error('Fetch Audit Logs Error:', err);
         } finally {
@@ -292,8 +336,11 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
+            const data = await safeFetchJson(res);
             if (res.ok) {
                 setAuditLogs([]);
+            } else {
+                alert(data.message || 'Failed to purge audit logs');
             }
         } catch (err) {
             alert(err.message);
@@ -321,7 +368,7 @@ export default function AdminPage() {
                     newPassword: changePwForm.newPassword
                 })
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Failed to update password');
             setChangePwMsg({ type: 'success', text: 'PASSWORD UPDATED SUCCESSFULLY. RE-LOGIN RECOMMENDED.' });
             setChangePwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -374,9 +421,9 @@ export default function AdminPage() {
         try {
             const res = await fetch(`${API_BASE}/events`);
             if (res.ok) {
-                const data = await res.json();
-                setCategories(data.categories);
-                setSubEvents(data.subEvents);
+                const data = await safeFetchJson(res);
+                if (data.categories) setCategories(data.categories);
+                if (data.subEvents) setSubEvents(data.subEvents);
             }
         } catch (err) {
             console.error(err);
@@ -397,10 +444,11 @@ export default function AdminPage() {
     const saveCategory = async (e) => {
         e.preventDefault();
         const payload = editingCategory || newCat;
-        const url = editingCategory 
+        const isEdit = Boolean(editingCategory && editingCategory._id);
+        const url = isEdit 
             ? `${API_BASE}/events/category/${editingCategory._id}`
             : `${API_BASE}/events/category`;
-        const method = editingCategory ? 'PUT' : 'POST';
+        const method = isEdit ? 'PUT' : 'POST';
 
         try {
             const res = await fetch(url, {
@@ -408,14 +456,14 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
                     handleLogout();
                     return;
                 }
-                throw new Error(data.message || 'Failed to save category configuration');
+                throw new Error(data.message || `Failed to save category configuration (HTTP ${res.status})`);
             }
 
             fetchEvents();
@@ -434,7 +482,7 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
@@ -454,10 +502,11 @@ export default function AdminPage() {
     const saveSubEvent = async (e) => {
         e.preventDefault();
         const payload = editingSubEvent || newSub;
-        const url = editingSubEvent 
+        const isEdit = Boolean(editingSubEvent && editingSubEvent._id);
+        const url = isEdit 
             ? `${API_BASE}/events/sub/${editingSubEvent._id}`
             : `${API_BASE}/events/sub`;
-        const method = editingSubEvent ? 'PUT' : 'POST';
+        const method = isEdit ? 'PUT' : 'POST';
 
         try {
             const res = await fetch(url, {
@@ -465,14 +514,14 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
                     handleLogout();
                     return;
                 }
-                throw new Error(data.message || 'Failed to save sub-event configuration');
+                throw new Error(data.message || `Failed to save sub-event configuration (HTTP ${res.status})`);
             }
 
             fetchEvents();
@@ -491,7 +540,7 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
@@ -512,7 +561,10 @@ export default function AdminPage() {
         setLoadingCrew(true);
         try {
             const res = await fetch(`${API_BASE}/crew`);
-            if (res.ok) setCrew(await res.json());
+            if (res.ok) {
+                const data = await safeFetchJson(res);
+                if (Array.isArray(data)) setCrew(data);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -523,10 +575,11 @@ export default function AdminPage() {
     const saveCrew = async (e) => {
         e.preventDefault();
         const payload = editingCrew || newCrew;
-        const url = editingCrew 
+        const isEdit = Boolean(editingCrew && editingCrew._id);
+        const url = isEdit 
             ? `${API_BASE}/crew/${editingCrew._id}`
             : `${API_BASE}/crew`;
-        const method = editingCrew ? 'PUT' : 'POST';
+        const method = isEdit ? 'PUT' : 'POST';
 
         try {
             const res = await fetch(url, {
@@ -534,14 +587,14 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
                     handleLogout();
                     return;
                 }
-                throw new Error(data.message || 'Failed to save crew profile');
+                throw new Error(data.message || `Failed to save crew profile (HTTP ${res.status})`);
             }
 
             fetchCrew();
@@ -560,7 +613,7 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
@@ -581,7 +634,10 @@ export default function AdminPage() {
         setLoadingSponsors(true);
         try {
             const res = await fetch(`${API_BASE}/alliances`);
-            if (res.ok) setAlliances(await res.json());
+            if (res.ok) {
+                const data = await safeFetchJson(res);
+                if (Array.isArray(data)) setAlliances(data);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -599,10 +655,11 @@ export default function AdminPage() {
                 : rawPayload.support
         };
 
-        const url = editingSponsor 
+        const isEdit = Boolean(editingSponsor && editingSponsor._id);
+        const url = isEdit 
             ? `${API_BASE}/alliances/${editingSponsor._id}`
             : `${API_BASE}/alliances`;
-        const method = editingSponsor ? 'PUT' : 'POST';
+        const method = isEdit ? 'PUT' : 'POST';
 
         try {
             const res = await fetch(url, {
@@ -610,14 +667,14 @@ export default function AdminPage() {
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
                     handleLogout();
                     return;
                 }
-                throw new Error(data.message || 'Failed to save sponsor profile');
+                throw new Error(data.message || `Failed to save sponsor profile (HTTP ${res.status})`);
             }
 
             fetchSponsors();
@@ -636,7 +693,7 @@ export default function AdminPage() {
                 method: 'DELETE',
                 headers: getHeaders()
             });
-            const data = await res.json();
+            const data = await safeFetchJson(res);
             if (!res.ok) {
                 if (res.status === 401) {
                     alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
