@@ -32,10 +32,11 @@ const seedDatabase = async () => {
         // 1. Seed Admin Account if empty
         const adminCount = await Admin.countDocuments();
         if (adminCount === 0) {
-            const hashed = hashPassword('admin123');
+            const initialPass = process.env.ADMIN_INITIAL_PASSWORD || 'Addovedi_Secure_Admin_2026!#';
+            const hashed = hashPassword(initialPass);
             const admin = new Admin({ username: 'admin', password: hashed });
             await admin.save();
-            console.log(`[SEED] Admin account auto-created: admin / admin123`);
+            console.log(`[SEED] Admin account initialized. Set ADMIN_INITIAL_PASSWORD in .env for custom credentials.`);
         }
 
         // 2. Seed default categories if empty

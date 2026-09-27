@@ -7,6 +7,7 @@ import statusRoutes from './statusRoutes.js';
 import messageRoutes from './messageRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
 import registrationRoutes from './registrationRoutes.js';
+import auditRoutes from './auditRoutes.js';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use('/status-settings', statusRoutes);
 router.use('/messages', messageRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/registrations', registrationRoutes);
+router.use('/audit-logs', auditRoutes);
 
 export default router;

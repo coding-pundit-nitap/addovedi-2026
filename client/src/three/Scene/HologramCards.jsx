@@ -683,14 +683,11 @@ export default function HologramCards() {
                 }
 
                 if (!modelType && !eventName && !selectedDivision) {
-                    // Fallback to active category card modelType in main lobby
-                    const activeCard = categoriesList[activeRotationIndex];
-                    if (activeCard) {
-                        modelType = activeCard.modelType;
-                    }
+                    // Force Gun model on root /event route as requested
+                    modelType = 'gun';
                 }
 
-                modelType = modelType || 'coding';
+                modelType = modelType || 'gun';
 
                 switch (modelType) {
                     case 'mecha':
@@ -721,6 +718,13 @@ export default function HologramCards() {
                         return (
                             <Suspense fallback={null}>
                                 <AiShowcase activeColor={activeColor} />
+                            </Suspense>
+                        );
+                    case 'clock':
+                    case 'steampunk_clock':
+                        return (
+                            <Suspense fallback={null}>
+                                <ClockShowcase activeColor={activeColor} />
                             </Suspense>
                         );
                     case 'gun':
@@ -1558,6 +1562,75 @@ function AiShowcase({ activeColor }) {
     );
 }
 
+// ── Steampunk Clock Hologram (Mechanical Events Category Page) ─────────────
+function ClockShowcase({ activeColor }) {
+    const clockRef = useRef();
+    const ring1Ref = useRef();
+    const ring2Ref = useRef();
+
+    const { scene } = useGLTF('/models/steampunk_clock/scene.glb');
+
+    const { model, scale: autoScale, offset } = useMemo(() => {
+        scene.matrixAutoUpdate = true;
+        scene.traverse((child) => {
+            child.matrixAutoUpdate = true;
+            if (child.isMesh) {
+                child.frustumCulled = false;
+                child.material = new THREE.MeshBasicMaterial({
+                    color: activeColor,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.18,
+                });
+            }
+        });
+        scene.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        const desiredHeight = 12.0;
+        const modelHeight = size.y || 1;
+        const s = desiredHeight / modelHeight;
+
+        return { model: scene, scale: s, offset: center };
+    }, [scene, activeColor]);
+
+    useFrame(({ clock }) => {
+        const t = clock.elapsedTime;
+        if (clockRef.current) {
+            clockRef.current.rotation.y = t * 0.14;
+            clockRef.current.rotation.x = Math.sin(t * 0.3) * 0.08 + 0.1;
+            clockRef.current.position.y = 4.8 + Math.sin(t * 0.5) * 0.2;
+        }
+        if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.18;
+        if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.10;
+    });
+
+    return (
+        <group>
+            <group ref={clockRef} position={[0, 4.8, -14.5]} scale={[autoScale, autoScale, autoScale]}>
+                <primitive object={model} position={[-offset.x, -offset.y, -offset.z]} rotation={[0, 0, 0]} />
+            </group>
+            <mesh ref={ring1Ref} position={[0, 4.8, -14.8]}>
+                <ringGeometry args={[8.5, 8.58, 64]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh ref={ring2Ref} position={[0, 4.8, -14.9]}>
+                <ringGeometry args={[6.5, 6.55, 48]} />
+                <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
+            </mesh>
+            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
+                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
+                MECHANICAL_CORE: KINETIC_GEARS_HUD
+            </Html>
+        </group>
+    );
+}
+
 
 function PortalShowcase({ activeColor }) {
     const portalRef = useRef();
@@ -2127,3 +2200,4 @@ useGLTF.preload('/models/coding/scene.glb');
 useGLTF.preload('/models/civil/scene.glb');
 useGLTF.preload('/models/electrical/scene.glb');
 useGLTF.preload('/models/ai/scene.glb');
+useGLTF.preload('/models/steampunk_clock/scene.glb');
