@@ -92,6 +92,10 @@ export default function AdminPage() {
     const [regViewMode, setRegViewMode] = useState('participants'); // 'participants' | 'events'
     const [selectedEventRoster, setSelectedEventRoster] = useState(null);
 
+    // Audit Logs state
+    const [auditLogs, setAuditLogs] = useState([]);
+    const [loadingAuditLogs, setLoadingAuditLogs] = useState(false);
+
     // Auto-fetch data on token auth state
     useEffect(() => {
         if (token) {
@@ -262,6 +266,34 @@ export default function AdminPage() {
             });
             if (res.ok) {
                 fetchRegistrations();
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    // Audit Logs fetching
+    const fetchAuditLogs = async () => {
+        setLoadingAuditLogs(true);
+        try {
+            const res = await fetch(`${API_BASE}/audit-logs?limit=150`, { headers: getHeaders() });
+            if (res.ok) setAuditLogs(await res.json());
+        } catch (err) {
+            console.error('Fetch Audit Logs Error:', err);
+        } finally {
+            setLoadingAuditLogs(false);
+        }
+    };
+
+    const clearAuditLogsRecord = async () => {
+        if (!confirm('PERMANENTLY PURGE ALL SECURITY AUDIT LOGS?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/audit-logs`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if (res.ok) {
+                setAuditLogs([]);
             }
         } catch (err) {
             alert(err.message);
@@ -716,6 +748,7 @@ export default function AdminPage() {
                 <button onClick={() => setActiveTab('status')} className={`admin-tab-btn${activeTab === 'status' ? ' admin-tab-active' : ''}`}>SECTOR STATUS</button>
                 <button onClick={() => setActiveTab('messages')} className={`admin-tab-btn${activeTab === 'messages' ? ' admin-tab-active' : ''}`}>INBOX MESSAGES</button>
                 <button onClick={() => { setActiveTab('registrations'); fetchRegistrations(); }} className={`admin-tab-btn${activeTab === 'registrations' ? ' admin-tab-active' : ''}`}>EVENT REGISTRATIONS</button>
+                <button onClick={() => { setActiveTab('audit'); fetchAuditLogs(); }} className={`admin-tab-btn${activeTab === 'audit' ? ' admin-tab-active' : ''}`} style={{ borderColor: activeTab === 'audit' ? '#1FFF76' : undefined, color: activeTab === 'audit' ? '#1FFF76' : undefined }}>🛡 AUDIT LOGS</button>
                 <button onClick={() => setActiveTab('events')} className={`admin-tab-btn${activeTab === 'events' ? ' admin-tab-active' : ''}`}>EVENTS DATABASE</button>
                 <button onClick={() => setActiveTab('crew')} className={`admin-tab-btn${activeTab === 'crew' ? ' admin-tab-active' : ''}`}>CREW PERSONNEL</button>
                 <button onClick={() => setActiveTab('sponsors')} className={`admin-tab-btn${activeTab === 'sponsors' ? ' admin-tab-active' : ''}`}>SPONSOR ALLIANCES</button>
@@ -1665,6 +1698,80 @@ export default function AdminPage() {
                         <div style={{ padding: '14px 18px', borderRadius: '6px', background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.12)', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', lineHeight: '1.6' }}>
                             <span style={{ color: '#00E5FF', fontWeight: 700 }}>⚡ SECURITY NOTE:</span> After changing your password, your current session token will remain valid for its remaining duration (12 hours). For maximum security, terminate your current session and re-authenticate with the new credentials.
                         </div>
+                    </div>
+                )}
+
+                {/* ── TAB: SECURITY AUDIT & IP LOGS ── */}
+                {activeTab === 'audit' && (
+                    <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(31,255,118,0.2)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(31,255,118,0.15)', paddingBottom: '12px', marginBottom: '24px' }}>
+                            <div>
+                                <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '12px', color: '#1FFF76', letterSpacing: '0.15em', margin: 0 }}>
+                                    🛡 REAL-TIME SECURITY AUDIT & ACCESS LOGS
+                                </h3>
+                                <div style={{ fontSize: '9px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
+                                    TRACKING LOGINS, IP ADDRESSES & EVENT MODIFICATIONS
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={fetchAuditLogs} style={{ fontFamily: 'monospace', fontSize: '9.5px', padding: '6px 14px', background: 'rgba(0,229,255,0.08)', border: '1px solid #00E5FF', color: '#00E5FF', borderRadius: '4px', cursor: 'pointer' }}>
+                                    REFRESH LOGS
+                                </button>
+                                <button onClick={clearAuditLogsRecord} style={{ fontFamily: 'monospace', fontSize: '9.5px', padding: '6px 14px', background: 'rgba(255,31,79,0.08)', border: '1px solid #ff1f4f', color: '#ff1f4f', borderRadius: '4px', cursor: 'pointer' }}>
+                                    CLEAR HISTORY
+                                </button>
+                            </div>
+                        </div>
+
+                        {loadingAuditLogs ? (
+                            <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'monospace', color: '#1FFF76' }}>FETCHING REAL-TIME AUDIT RECORDS...</div>
+                        ) : auditLogs.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)' }}>NO AUDIT LOGS RECORDED YET. ALL LOGIN & EDIT ACTIONS WILL BE LOGGED HERE IN REAL TIME.</div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>TIMESTAMP (IST)</th>
+                                            <th>ACTION</th>
+                                            <th>OPERATOR</th>
+                                            <th>IP ADDRESS</th>
+                                            <th>STATUS</th>
+                                            <th>MODIFICATION DETAILS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {auditLogs.map((log) => (
+                                            <tr key={log._id}>
+                                                <td style={{ whiteSpace: 'nowrap', color: 'rgba(255,255,255,0.6)' }}>
+                                                    {new Date(log.createdAt || log.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                                                </td>
+                                                <td>
+                                                    <span style={{
+                                                        padding: '3px 8px', borderRadius: '3px', fontWeight: 700, fontSize: '9.5px',
+                                                        background: log.action.includes('FAIL') ? 'rgba(255,31,79,0.15)' : 'rgba(0,229,255,0.15)',
+                                                        color: log.action.includes('FAIL') ? '#ff1f4f' : '#00E5FF',
+                                                        border: `1px solid ${log.action.includes('FAIL') ? 'rgba(255,31,79,0.3)' : 'rgba(0,229,255,0.3)'}`
+                                                    }}>
+                                                        {log.action}
+                                                    </span>
+                                                </td>
+                                                <td style={{ fontWeight: 600, color: '#FFF' }}>{log.username || 'Admin'}</td>
+                                                <td style={{ color: '#1FFF76', fontFamily: 'monospace', fontWeight: 700 }}>{log.ipAddress || 'unknown'}</td>
+                                                <td>
+                                                    <span style={{ color: log.status === 'SUCCESS' ? '#1FFF76' : '#ff1f4f', fontWeight: 700 }}>
+                                                        {log.status === 'SUCCESS' ? '✓ SUCCESS' : '✗ FAILED'}
+                                                    </span>
+                                                </td>
+                                                <td style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', maxWidth: '350px', wordBreak: 'break-word' }}>
+                                                    {typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 )}
 
