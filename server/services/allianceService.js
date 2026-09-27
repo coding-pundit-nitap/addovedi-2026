@@ -5,12 +5,14 @@ export const getAlliancesList = async () => {
 };
 
 export const createAlliance = async (data) => {
-    const alliance = new Sponsor(data);
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    const alliance = new Sponsor(cleanData);
     return await alliance.save();
 };
 
 export const updateAlliance = async (id, data) => {
-    return await Sponsor.findByIdAndUpdate(id, data, { new: true });
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    return await Sponsor.findByIdAndUpdate(id, cleanData, { new: true, runValidators: true });
 };
 
 export const deleteAlliance = async (id) => {

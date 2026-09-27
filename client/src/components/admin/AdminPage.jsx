@@ -440,6 +440,12 @@ export default function AdminPage() {
         setEditingSubEvent({ ...sub, heads: safeHeads });
     };
 
+    const cleanPayload = (data) => {
+        if (!data || typeof data !== 'object') return data;
+        const { _id, __v, createdAt, updatedAt, ...rest } = data;
+        return rest;
+    };
+
     // Category create/update/delete
     const saveCategory = async (e) => {
         e.preventDefault();
@@ -454,7 +460,7 @@ export default function AdminPage() {
             const res = await fetch(url, {
                 method,
                 headers: getHeaders(),
-                body: JSON.stringify(payload)
+                body: JSON.stringify(cleanPayload(payload))
             });
             const data = await safeFetchJson(res);
             if (!res.ok) {
@@ -512,7 +518,7 @@ export default function AdminPage() {
             const res = await fetch(url, {
                 method,
                 headers: getHeaders(),
-                body: JSON.stringify(payload)
+                body: JSON.stringify(cleanPayload(payload))
             });
             const data = await safeFetchJson(res);
             if (!res.ok) {
@@ -585,7 +591,7 @@ export default function AdminPage() {
             const res = await fetch(url, {
                 method,
                 headers: getHeaders(),
-                body: JSON.stringify(payload)
+                body: JSON.stringify(cleanPayload(payload))
             });
             const data = await safeFetchJson(res);
             if (!res.ok) {
@@ -665,7 +671,7 @@ export default function AdminPage() {
             const res = await fetch(url, {
                 method,
                 headers: getHeaders(),
-                body: JSON.stringify(payload)
+                body: JSON.stringify(cleanPayload(payload))
             });
             const data = await safeFetchJson(res);
             if (!res.ok) {

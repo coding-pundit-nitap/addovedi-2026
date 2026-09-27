@@ -8,12 +8,14 @@ export const getEventsAndCategories = async () => {
 };
 
 export const createCategory = async (data) => {
-    const cat = new Category(data);
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    const cat = new Category(cleanData);
     return await cat.save();
 };
 
 export const updateCategory = async (id, data) => {
-    return await Category.findByIdAndUpdate(id, data, { new: true });
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    return await Category.findByIdAndUpdate(id, cleanData, { new: true, runValidators: true });
 };
 
 export const deleteCategoryAndCascade = async (id) => {
@@ -26,12 +28,14 @@ export const deleteCategoryAndCascade = async (id) => {
 };
 
 export const createSubEvent = async (data) => {
-    const sub = new SubEvent(data);
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    const sub = new SubEvent(cleanData);
     return await sub.save();
 };
 
 export const updateSubEvent = async (id, data) => {
-    return await SubEvent.findByIdAndUpdate(id, data, { new: true });
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    return await SubEvent.findByIdAndUpdate(id, cleanData, { new: true, runValidators: true });
 };
 
 export const deleteSubEvent = async (id) => {

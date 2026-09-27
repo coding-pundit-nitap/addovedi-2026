@@ -5,12 +5,14 @@ export const getCrewList = async () => {
 };
 
 export const createCrewMember = async (data) => {
-    const member = new Crew(data);
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    const member = new Crew(cleanData);
     return await member.save();
 };
 
 export const updateCrewMember = async (id, data) => {
-    return await Crew.findByIdAndUpdate(id, data, { new: true });
+    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    return await Crew.findByIdAndUpdate(id, cleanData, { new: true, runValidators: true });
 };
 
 export const deleteCrewMember = async (id) => {
