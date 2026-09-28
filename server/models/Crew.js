@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const SocialLinkSchema = new mongoose.Schema({
-    platform: { type: String, required: true },
-    url: { type: String, required: true }
+    platform: { type: String, required: false, default: '' },
+    url: { type: String, required: false, default: '' }
 });
 
 const CrewSchema = new mongoose.Schema({

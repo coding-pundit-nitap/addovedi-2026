@@ -443,6 +443,17 @@ export default function AdminPage() {
     const cleanPayload = (data) => {
         if (!data || typeof data !== 'object') return data;
         const { _id, __v, createdAt, updatedAt, ...rest } = data;
+        
+        // Filter out empty coordinator objects in sub-events
+        if (Array.isArray(rest.heads)) {
+            rest.heads = rest.heads.filter(h => h && (h.name?.trim() || h.phone?.trim()));
+        }
+        
+        // Filter out empty social links in crew members
+        if (Array.isArray(rest.links)) {
+            rest.links = rest.links.filter(l => l && (l.platform?.trim() || l.url?.trim()));
+        }
+
         return rest;
     };
 

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const HeadCoordinatorSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    phone: { type: String, required: true }
+    name: { type: String, required: false, default: '' },
+    phone: { type: String, required: false, default: '' }
 });
 
 const SubEventSchema = new mongoose.Schema({
