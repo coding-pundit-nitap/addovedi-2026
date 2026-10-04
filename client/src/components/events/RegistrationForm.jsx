@@ -182,17 +182,61 @@ export default function RegistrationForm({
                     MISSION_SECURED
                 </h3>
                 <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: '400px', margin: 0 }}>
-                    Your registration details have been synchronized with the database. Check your player profile dashboard to view mission enlists.
+                    Your registration details have been synchronized with Addovedi HQ. Proceed to Unstop to verify or complete event participation.
                 </p>
+                <button
+                    type="button"
+                    onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
+                    style={{
+                        marginTop: '12px',
+                        padding: '12px 24px',
+                        background: activeEvent.color,
+                        color: '#02050c',
+                        fontWeight: 900,
+                        fontFamily: "'Orbitron', sans-serif",
+                        fontSize: '12px',
+                        letterSpacing: '0.1em',
+                        border: 'none',
+                        cursor: 'pointer',
+                        boxShadow: `0 0 20px ${activeEvent.color}80`
+                    }}
+                >
+                    PROCEED TO UNSTOP REGISTRATION ↗
+                </button>
             </div>
         );
     }
 
+    const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
+
     return (
         <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
-            <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
-                {'// INITIATE_REGISTRATION_PROTOCOL'}
+            {/* ADDOVEDI ID & UNSTOP PARTNERSHIP CARD */}
+            <div style={{
+                background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(5, 12, 24, 0.95) 100%)',
+                border: `1px solid ${activeEvent.color}50`,
+                padding: '10px 14px',
+                borderRadius: '2px',
+                boxShadow: `0 0 15px ${activeEvent.color}15`
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: activeEvent.color }}>
+                            ADDOVEDI ID // OFFICIAL ACCESS TOKEN
+                        </div>
+                        <div style={{ fontSize: isMobileModal ? '15px' : '18px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, color: '#ffffff', letterSpacing: '0.15em', marginTop: '2px', textShadow: `0 0 10px ${activeEvent.color}80` }}>
+                            {addovediId}
+                        </div>
+                    </div>
+                    <span style={{ fontSize: '9px', background: `${activeEvent.color}20`, border: `1px solid ${activeEvent.color}50`, color: '#fff', padding: '4px 8px', borderRadius: '2px', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.08em' }}>
+                        UNSTOP PARTNERED
+                    </span>
+                </div>
+                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', lineHeight: 1.3 }}>
+                    Provide this Addovedi ID during registration on <strong>Unstop</strong>. Submitting redirects you to the official Unstop portal.
+                </div>
             </div>
+
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
                 <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
@@ -232,9 +276,9 @@ export default function RegistrationForm({
                                 />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
-                                <input id="leaderUID" type="text" required disabled value={leaderUID}
-                                    className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>ADDOVEDI ID // G-ID</label>
+                                <input id="leaderUID" type="text" required disabled value={addovediId || leaderUID}
+                                    className={inputClass} style={{ ...inputStyle, opacity: 0.8, color: activeEvent.color, fontWeight: 800, cursor: 'not-allowed' }}
                                 />
                             </div>
                         </div>
@@ -274,12 +318,12 @@ export default function RegistrationForm({
                                     />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                    <label htmlFor={`member${i}-uid`} style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>MEMBER {i + 2} UNIQUE ID // G-ID</label>
+                                    <label htmlFor={`member${i}-uid`} style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>MEMBER {i + 2} ADDOVEDI ID</label>
                                     <input
                                         id={`member${i}-uid`}
                                         type="text"
                                         required
-                                        placeholder={`ENTER MEMBER ${i + 2} G-ID...`}
+                                        placeholder={`ADV26-XXXX...`}
                                         value={member.uid || ''}
                                         onChange={(e) => {
                                             const updated = [...members];
@@ -318,8 +362,7 @@ export default function RegistrationForm({
                     />
                     <span className="event-reg-fill" />
                     <span className="relative z-10 flex items-center justify-center gap-1.5 font-bold" style={{ textShadow: `0 0 10px ${activeEvent.color}` }}>
-                        CONFIRM ENLISTMENT
-                        <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none">▶</span>
+                        PROCEED TO UNSTOP REGISTRATION ↗
                     </span>
                 </button>
             </div>

@@ -74,26 +74,16 @@ export default function EventsPage() {
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
     const [hoveredBtn, setHoveredBtn] = useState(null);
 
-    // Fetch dynamic database categories/sub-events on boot
+    // Fetch dynamic database sub-events on boot
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const res = await fetch(`${API_BASE}/events`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.categories && data.categories.length > 0) {
-                        const mappedCats = data.categories.map(c => ({
-                            title: c.title,
-                            subtitle: c.subtitle,
-                            desc: c.desc,
-                            color: c.color,
-                            xp: c.xp,
-                            difficulty: c.difficulty
-                        }));
-                        setCategoriesList(mappedCats);
-
+                    if (data.subEvents && data.subEvents.length > 0) {
                         const mappedSubs = {};
-                        data.categories.forEach(c => {
+                        CARD_DATA.forEach(c => {
                             mappedSubs[c.title] = [];
                         });
                         data.subEvents.forEach(s => {
@@ -105,10 +95,19 @@ export default function EventsPage() {
                                 color: s.color,
                                 xp: s.xp,
                                 difficulty: s.difficulty,
-                                heads: s.heads || []
+                                heads: s.heads || [],
+                                unstopUrl: s.unstopUrl || 'https://unstop.com'
                             });
                         });
-                        setSubEventsData(mappedSubs);
+                        setSubEventsData(prev => {
+                            const next = { ...prev };
+                            Object.keys(mappedSubs).forEach(cat => {
+                                if (mappedSubs[cat].length > 0) {
+                                    next[cat] = mappedSubs[cat];
+                                }
+                            });
+                            return next;
+                        });
                     }
                 }
             } catch (err) {
@@ -191,6 +190,10 @@ export default function EventsPage() {
         }
 
         setIsRegistered(true);
+
+        // Redirect user to Unstop registration page in a new tab
+        const targetUrl = activeEvent?.unstopUrl || 'https://unstop.com';
+        window.open(targetUrl, '_blank');
     };
 
     const handleCloseModal = () => {

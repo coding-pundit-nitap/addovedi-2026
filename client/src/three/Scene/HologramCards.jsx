@@ -68,28 +68,16 @@ export default function HologramCards() {
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
 
-    // Fetch dynamic events on mount
+    // Fetch dynamic sub-events from Admin Portal API on mount
     useEffect(() => {
         const fetchBackendEvents = async () => {
             try {
                 const res = await fetch(`${API_BASE}/events`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.categories && data.categories.length > 0) {
-                        const mappedCats = data.categories.map(c => ({
-                            title: c.title,
-                            subtitle: c.subtitle,
-                            desc: c.desc,
-                            color: c.color,
-                            xp: c.xp,
-                            difficulty: c.difficulty,
-                            icon: (color) => getSvgIcon(c.iconType, color),
-                            modelType: c.modelType || 'coding'
-                        }));
-                        setCategoriesList(mappedCats);
-
+                    if (data.subEvents && data.subEvents.length > 0) {
                         const mappedSubs = {};
-                        data.categories.forEach(c => {
+                        CARD_DATA.forEach(c => {
                             mappedSubs[c.title] = [];
                         });
                         data.subEvents.forEach(s => {
@@ -103,10 +91,19 @@ export default function HologramCards() {
                                 difficulty: s.difficulty,
                                 heads: s.heads || [],
                                 icon: (color) => getSvgIcon(s.iconType, color),
-                                modelType: s.modelType
+                                modelType: s.modelType,
+                                unstopUrl: s.unstopUrl || 'https://unstop.com'
                             });
                         });
-                        setSubEventsData(mappedSubs);
+                        setSubEventsData(prev => {
+                            const next = { ...prev };
+                            Object.keys(mappedSubs).forEach(cat => {
+                                if (mappedSubs[cat].length > 0) {
+                                    next[cat] = mappedSubs[cat];
+                                }
+                            });
+                            return next;
+                        });
                     }
                 }
             } catch (err) {

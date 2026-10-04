@@ -46,6 +46,11 @@ const SubEventSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: 'coding' // 'gun' | 'mecha' | 'controller' | 'coding' | 'civil' | 'electrical' | 'ai'
+    },
+    unstopUrl: {
+        type: String,
+        required: false,
+        default: 'https://unstop.com'
     }
 }, { timestamps: true });
 

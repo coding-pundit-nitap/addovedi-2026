@@ -36,7 +36,7 @@ export const useStore = create((set) => ({
     showSun: true,          // Determines if the sun is active in the scene
 
     // Active category card slug inside the event lobby console
-    activeCategorySlug: 'robotics-rc',
+    activeCategorySlug: 'robotics-protocol',
 
     // Mobile Sidebar Nav drawer state
     isSidebarOpen: false,

@@ -29,14 +29,17 @@ app.get('/api/status', (req, res) => {
 // Database seeding function
 const seedDatabase = async () => {
     try {
-        // 1. Seed Admin Account if empty
-        const adminCount = await Admin.countDocuments();
-        if (adminCount === 0) {
-            const initialPass = process.env.ADMIN_INITIAL_PASSWORD || 'Addovedi_Secure_Admin_2026!#';
-            const hashed = hashPassword(initialPass);
-            const admin = new Admin({ username: 'admin', password: hashed });
-            await admin.save();
-            console.log(`[SEED] Admin account initialized. Set ADMIN_INITIAL_PASSWORD in .env for custom credentials.`);
+        let admin = await Admin.findOne({ username: 'admin' });
+        if (!admin) {
+            const initialPass = process.env.ADMIN_INITIAL_PASSWORD;
+            if (!initialPass) {
+                console.warn('[SEED WARNING] ADMIN_INITIAL_PASSWORD not set in environment. Skipping initial admin creation.');
+            } else {
+                const hashed = hashPassword(initialPass);
+                admin = new Admin({ username: 'admin', password: hashed });
+                await admin.save();
+                console.log(`[SEED] Initial Admin account created from environment configuration.`);
+            }
         }
 
         // 2. Seed default categories if empty
@@ -44,13 +47,13 @@ const seedDatabase = async () => {
         if (catCount < 7) {
             await Category.deleteMany({});
             const defaultCats = [
-                { title: 'ROBOTICS & RC', subtitle: 'AUTONOMOUS MOTORS', desc: 'Race high-speed RC cars and program precise line followers.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
-                { title: 'CODING QUEST', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons and optimize code structures.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
-                { title: 'ELECTRICAL GUILD', subtitle: 'CIRCUIT DEBUGGING', desc: 'Master breadboard wiring, logic gates, and analog designs.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt', modelType: 'electrical' },
-                { title: 'GAMING ARENA', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad', modelType: 'controller' },
-                { title: 'CREATIVE & DESIGN', subtitle: 'STRUCTURE & CLAY', desc: 'Build structural bridges, throw pottery, and exhibit fine arts.', color: '#1fff76', xp: '4,500 XP', difficulty: 'EASY', iconType: 'brush', modelType: 'civil' },
-                { title: 'AI & DATA SCIENCE', subtitle: 'NEURAL CONSTRUCTS', desc: 'Train reinforcement agents and design deep learning models.', color: '#2b5cff', xp: '7,000 XP', difficulty: 'HARD', iconType: 'cpu', modelType: 'ai' },
-                { title: 'WORKSHOP LAB', subtitle: 'KINETIC HARDWARE', desc: 'Operate industrial metalworks and build hardware machinery.', color: '#ffea00', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'tool', modelType: 'coding' }
+                { title: 'ROBOTICS PROTOCOL', subtitle: 'AUTONOMOUS MECHA DYNAMICS', desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
+                { title: 'CYBER CODE', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
+                { title: 'SILICON SPECTRUM', subtitle: 'SIGNAL & MICROELECTRONICS', desc: 'Design VLSI chips, decode signal frequencies, and architect micro-embedded systems.', color: '#a78bfa', xp: '6,000 XP', difficulty: 'HARD', iconType: 'bolt', modelType: 'portal' },
+                { title: 'GAMING NEXUS', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA pro college esports tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad', modelType: 'controller' },
+                { title: 'URBAN BLUEPRINT', subtitle: 'STRUCTURAL ARCHITECTURE', desc: 'Build load-resistant truss bridges, throw ceramic pottery, and design eco-skyscrapers.', color: '#1fff76', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'bridge', modelType: 'civil' },
+                { title: 'MECHANICAL MATRIX', subtitle: 'KINETIC THERMODYNAMICS', desc: 'Operate industrial metalworks, design CAD 3D parts, and optimize thermodynamic rigs.', color: '#ffea00', xp: '7,000 XP', difficulty: 'HARD', iconType: 'gear', modelType: 'ai' },
+                { title: 'VOLTAGE GRID', subtitle: 'POWER & TRANSFORMER SYSTEMS', desc: 'Master transformer grid wiring, truth tables, and autonomous PCB electrical mazes.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt', modelType: 'electrical' }
             ];
             await Category.insertMany(defaultCats);
             console.log(`[SEED] Seeded 7 default categories`);
@@ -62,9 +65,9 @@ const seedDatabase = async () => {
         if (subCount === 0 || uniqueCategories.length < 7) {
             await SubEvent.deleteMany({});
             const defaultSubs = [
-                // 1. CODING QUEST
+                // 1. CYBER CODE
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'BUG HUNT',
                     subtitle: 'DIAGNOSTICS & DEBUGGING',
                     desc: 'Scan code segments and patch hidden compiler bugs under pressure.',
@@ -79,7 +82,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'BYTE CODE',
                     subtitle: 'ALGORITHMS & SPEED',
                     desc: 'Crack algorithmic constraints and design time-optimal data models.',
@@ -94,7 +97,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'WEB CRAFT',
                     subtitle: 'DASHBOARD INTERFACES',
                     desc: 'Design beautiful, responsive game visual overlay terminals.',
@@ -108,9 +111,9 @@ const seedDatabase = async () => {
                         { name: 'Neha Gupta', phone: '+91 54321 09876' }
                     ]
                 },
-                // 2. ELECTRICAL GUILD
+                // 2. VOLTAGE GRID
                 {
-                    categoryTitle: 'ELECTRICAL GUILD',
+                    categoryTitle: 'VOLTAGE GRID',
                     title: 'LOGIC QUEST',
                     subtitle: 'TRUTH TABLES & CIRCUITS',
                     desc: 'Build gate systems and resolve high-frequency signals.',
@@ -125,7 +128,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ELECTRICAL GUILD',
+                    categoryTitle: 'VOLTAGE GRID',
                     title: 'MAZE RUNNER',
                     subtitle: 'AUTONOMOUS PCB BOARDS',
                     desc: 'Program microcontrollers to solve breadboard electrical mazes.',
@@ -139,9 +142,9 @@ const seedDatabase = async () => {
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
                     ]
                 },
-                // 3. ROBOTICS & RC
+                // 3. ROBOTICS PROTOCOL
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'ROBO WARS',
                     subtitle: 'COMBAT ARENA',
                     desc: 'Destroy opponents in a steel-caged combat arena showdown.',
@@ -156,7 +159,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'LINE RUNNER',
                     subtitle: 'INFRARED ACCELERATION',
                     desc: 'Design line followers that lock onto grid courses in record time.',
@@ -171,7 +174,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'DRONE PILOT',
                     subtitle: 'AERIAL ACCELERATOR',
                     desc: 'Fly precision micro drones through complex vertical ring gates.',
@@ -185,31 +188,16 @@ const seedDatabase = async () => {
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
                     ]
                 },
-                // 4. CREATIVE & DESIGN
+                // 4. URBAN BLUEPRINT
                 {
-                    categoryTitle: 'CREATIVE & DESIGN',
-                    title: 'PROPEL',
-                    subtitle: 'PNEUMATIC PROPULSION',
-                    desc: 'Assemble model rockets and launch them high using air-pressure pumps.',
-                    color: '#1fff76',
-                    xp: '1,200 XP',
-                    difficulty: 'EASY',
-                    iconType: 'brush',
-                    modelType: 'civil',
-                    heads: [
-                        { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                        { name: 'Kiran Verma', phone: '+91 98901 23456' }
-                    ]
-                },
-                {
-                    categoryTitle: 'CREATIVE & DESIGN',
+                    categoryTitle: 'URBAN BLUEPRINT',
                     title: 'TRUSS BUILD',
                     subtitle: 'BALSA WOOD BRIDGES',
                     desc: 'Glue together truss bridges and load test them to the absolute break limit.',
                     color: '#1fff76',
                     xp: '1,800 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'brush',
+                    iconType: 'bridge',
                     modelType: 'civil',
                     heads: [
                         { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
@@ -217,23 +205,38 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CREATIVE & DESIGN',
+                    categoryTitle: 'URBAN BLUEPRINT',
                     title: 'POTTERY ART',
                     subtitle: 'CLAY VISIONS',
                     desc: 'Sculpt customized pots on motorized spinning potter wheels.',
                     color: '#1fff76',
                     xp: '1,000 XP',
                     difficulty: 'EASY',
-                    iconType: 'brush',
+                    iconType: 'clay',
                     modelType: 'civil',
                     heads: [
                         { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
                         { name: 'Meera Patel', phone: '+91 77890 12345' }
                     ]
                 },
-                // 5. GAMING ARENA
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'URBAN BLUEPRINT',
+                    title: 'ECO SKYSCRAPER',
+                    subtitle: 'GREEN BUILDING DESIGN',
+                    desc: 'Architect green energy efficient skyscrapers with sustainable materials.',
+                    color: '#1fff76',
+                    xp: '2,400 XP',
+                    difficulty: 'MEDIUM',
+                    iconType: 'bridge',
+                    modelType: 'civil',
+                    heads: [
+                        { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
+                        { name: 'Kiran Verma', phone: '+91 91111 22208' }
+                    ]
+                },
+                // 5. GAMING NEXUS
+                {
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'VALORANT',
                     subtitle: '5V5 SEARCH & DESTROY',
                     desc: 'Coordinate agent tactics on stage screens for gaming domination.',
@@ -241,14 +244,14 @@ const seedDatabase = async () => {
                     xp: '3,000 XP',
                     difficulty: 'HARD',
                     iconType: 'gamepad',
-                    modelType: 'gun',
+                    modelType: 'controller',
                     heads: [
                         { name: 'Aman Verma', phone: '+91 99999 88888' },
                         { name: 'Rahul Das', phone: '+91 88888 77777' }
                     ]
                 },
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'BGMI CRUCIBLE',
                     subtitle: 'SURVIVAL BR',
                     desc: 'Drop in teams, clear hostile drops, and survive the gaming circle.',
@@ -263,7 +266,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'FIFA PRO',
                     subtitle: '1V1 ESPORTS',
                     desc: 'Compete in high-frequency bracket matches on console screens.',
@@ -277,60 +280,63 @@ const seedDatabase = async () => {
                         { name: 'Rohit Verma', phone: '+91 44444 33333' }
                     ]
                 },
-                // 6. AI & DATA SCIENCE
+                // 6. SILICON SPECTRUM (ECE)
                 {
-                    categoryTitle: 'AI & DATA SCIENCE',
-                    title: 'MACHINE INTELLIGENCE',
-                    subtitle: 'NEURAL NETWORKS & TELEMETRY',
-                    desc: 'Solve deep learning model matrices and run predictive simulations.',
-                    color: '#2b5cff',
-                    xp: '3,500 XP',
-                    difficulty: 'HARD',
-                    iconType: 'cpu',
-                    modelType: 'ai',
-                    heads: [
-                        { name: 'Priya Nair', phone: '+91 91111 22215' },
-                        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                    ]
-                },
-                {
-                    categoryTitle: 'AI & DATA SCIENCE',
-                    title: 'NEURAL HACK',
-                    subtitle: 'TRANSFORMER TUNING',
-                    desc: 'Optimize custom transformers and train computer vision parameters.',
-                    color: '#2b5cff',
-                    xp: '2,800 XP',
+                    categoryTitle: 'SILICON SPECTRUM',
+                    title: 'SILICON LOGIC',
+                    subtitle: 'CHIP ARCHITECTURE',
+                    desc: 'Synthesize digital logic circuits and design micro-processor layouts.',
+                    color: '#a78bfa',
+                    xp: '2,200 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'cpu',
+                    iconType: 'bolt',
+                    modelType: 'portal',
                     heads: [
-                        { name: 'Siddharth Roy', phone: '+91 65432 10987' },
-                        { name: 'Neha Gupta', phone: '+91 54321 09876' }
+                        { name: 'Arjun Kumar', phone: '+91 91234 56789' },
+                        { name: 'Pooja Sharma', phone: '+91 66666 55555' }
                     ]
                 },
-                // 7. WORKSHOP LAB
                 {
-                    categoryTitle: 'WORKSHOP LAB',
+                    categoryTitle: 'SILICON SPECTRUM',
+                    title: 'SIGNAL MATRIX',
+                    subtitle: 'DSP & COMMUNICATIONS',
+                    desc: 'Filter noisy frequency bands and modulate high-speed RF wireless signals.',
+                    color: '#a78bfa',
+                    xp: '2,800 XP',
+                    difficulty: 'HARD',
+                    iconType: 'bolt',
+                    modelType: 'portal',
+                    heads: [
+                        { name: 'Karan Patel', phone: '+91 87654 32109' },
+                        { name: 'Simran Kaur', phone: '+91 92345 67890' }
+                    ]
+                },
+                // 7. MECHANICAL MATRIX
+                {
+                    categoryTitle: 'MECHANICAL MATRIX',
                     title: 'KINETIC METALWORKS',
                     subtitle: 'HARDWARE MACHINERY',
                     desc: 'Cut and construct architectural rigs using industrial lathe tools.',
                     color: '#ffea00',
                     xp: '2,600 XP',
                     difficulty: 'HARD',
-                    iconType: 'tool',
+                    iconType: 'gear',
+                    modelType: 'ai',
                     heads: [
                         { name: 'Rohan Mehta', phone: '+91 99887 76655' },
                         { name: 'Aisha Khan', phone: '+91 88776 65544' }
                     ]
                 },
                 {
-                    categoryTitle: 'WORKSHOP LAB',
+                    categoryTitle: 'MECHANICAL MATRIX',
                     title: 'CAD BLUEPRINTS',
                     subtitle: 'SOLID MODELLING',
                     desc: 'Render complex 3D hardware schematics and mechanical parts.',
                     color: '#ffea00',
                     xp: '2,200 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'tool',
+                    iconType: 'gear',
+                    modelType: 'ai',
                     heads: [
                         { name: 'Neha Gupta', phone: '+91 54321 09876' },
                         { name: 'Amit Joshi', phone: '+91 55555 44444' }

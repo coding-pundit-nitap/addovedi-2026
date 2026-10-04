@@ -1,9 +1,12 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'addovedi_jwt_secret_token_key_2026';
-
 export const protect = (req, res, next) => {
     try {
+        const JWT_SECRET = process.env.JWT_SECRET;
+        if (!JWT_SECRET) {
+            return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing in environment.' });
+        }
+
         let token;
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];

@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ScrollIndicator from '../common/ScrollIndicator';
 import { API_BASE } from '../../constants/api';
+import { CARD_DATA } from '../../data/events';
 
 export default function AdminPage() {
     const navigate = useNavigate();
@@ -53,7 +54,7 @@ export default function AdminPage() {
     const [loadingMessages, setLoadingMessages] = useState(false);
 
     // Events Database state
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState(CARD_DATA);
     const [subEvents, setSubEvents] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
 
@@ -78,7 +79,7 @@ export default function AdminPage() {
 
     // New Data Add states
     const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
-    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
@@ -422,7 +423,11 @@ export default function AdminPage() {
             const res = await fetch(`${API_BASE}/events`);
             if (res.ok) {
                 const data = await safeFetchJson(res);
-                if (data.categories) setCategories(data.categories);
+                if (data.categories && data.categories.length > 0) {
+                    setCategories(data.categories);
+                } else {
+                    setCategories(CARD_DATA);
+                }
                 if (data.subEvents) setSubEvents(data.subEvents);
             }
         } catch (err) {
@@ -437,7 +442,7 @@ export default function AdminPage() {
         while (safeHeads.length < 2) {
             safeHeads.push({ name: '', phone: '' });
         }
-        setEditingSubEvent({ ...sub, heads: safeHeads });
+        setEditingSubEvent({ ...sub, unstopUrl: sub.unstopUrl || 'https://unstop.com', heads: safeHeads });
     };
 
     const cleanPayload = (data) => {
@@ -1498,6 +1503,15 @@ export default function AdminPage() {
                                     </div>
                                 </div>
 
+                                 <input
+                                    type="url"
+                                    placeholder="Unstop Registration URL (e.g. https://unstop.com/o/bgmi-addovedi)"
+                                    value={editingSubEvent ? (editingSubEvent.unstopUrl || '') : newSub.unstopUrl}
+                                    onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, unstopUrl: e.target.value }) : setNewSub({ ...newSub, unstopUrl: e.target.value })}
+                                    style={{ gridColumn: isMobile ? 'auto' : 'span 3' }}
+                                    required
+                                />
+
                                 <textarea style={{ gridColumn: isMobile ? 'auto' : 'span 3' }} placeholder="Sub-event description..." value={editingSubEvent ? editingSubEvent.desc : newSub.desc} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, desc: e.target.value }) : setNewSub({ ...newSub, desc: e.target.value })} required />
                                 
                                 <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', display: 'flex', gap: '10px' }}>
@@ -1520,6 +1534,7 @@ export default function AdminPage() {
                                             <th>DIVISION</th>
                                             <th>EVENT TITLE</th>
                                             <th>MODEL TYPE</th>
+                                            <th>UNSTOP LINK</th>
                                             <th>XP</th>
                                             <th>HEADS</th>
                                             <th>ACTIONS</th>
@@ -1531,6 +1546,11 @@ export default function AdminPage() {
                                                 <td style={{ color: '#00E5FF', fontWeight: 600 }}>{sub.categoryTitle}</td>
                                                 <td style={{ fontWeight: 600 }}>{sub.title}</td>
                                                 <td style={{ fontFamily: 'monospace', color: '#00E5FF' }}>{sub.modelType || 'coding'}</td>
+                                                <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
+                                                    <a href={sub.unstopUrl || 'https://unstop.com'} target="_blank" rel="noreferrer" style={{ color: '#00E5FF', textDecoration: 'underline' }}>
+                                                        {sub.unstopUrl ? (sub.unstopUrl.length > 25 ? sub.unstopUrl.substring(0, 25) + '...' : sub.unstopUrl) : 'unstop.com'}
+                                                    </a>
+                                                </td>
                                                 <td>{sub.xp}</td>
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td>

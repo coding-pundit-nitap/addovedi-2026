@@ -20,9 +20,9 @@ export const GENERAL_RULES = [
 // Categories -> Events -> rules, coordinators, and timeline details.
 export const CATEGORIES_WITH_EVENTS = [
     {
-        title: 'ROBOTICS & RC',
-        subtitle: 'AUTONOMOUS MOTORS',
-        desc: 'Race high-speed RC cars and program precise line followers.',
+        title: 'ROBOTICS PROTOCOL',
+        subtitle: 'AUTONOMOUS MECHA DYNAMICS',
+        desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.',
         color: '#00d9ff',
         xp: '8,000 XP',
         difficulty: 'ELITE',
@@ -139,9 +139,9 @@ export const CATEGORIES_WITH_EVENTS = [
         ]
     },
     {
-        title: 'CODING QUEST',
+        title: 'CYBER CODE',
         subtitle: 'ALGORITHMIC WARFARE',
-        desc: 'Join high-speed hackathons and optimize code structures.',
+        desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.',
         color: '#ff1f4f',
         xp: '5,000 XP',
         difficulty: 'HARD',
@@ -256,92 +256,74 @@ export const CATEGORIES_WITH_EVENTS = [
         ]
     },
     {
-        title: 'ELECTRICAL GUILD',
-        subtitle: 'CIRCUIT DEBUGGING',
-        desc: 'Master breadboard wiring, logic gates, and analog designs.',
-        color: '#ff9d00',
-        xp: '6,500 XP',
-        difficulty: 'MEDIUM',
+        title: 'SILICON SPECTRUM',
+        subtitle: 'SIGNAL & MICROELECTRONICS',
+        desc: 'Design VLSI chips, decode signal frequencies, and architect micro-embedded systems.',
+        color: '#a78bfa',
+        xp: '6,000 XP',
+        difficulty: 'HARD',
         iconType: 'bolt',
-        modelType: 'electrical',
-        shortName: 'Electrical',
-        iconChar: '⚡',
+        modelType: 'portal',
+        shortName: 'ECE',
+        iconChar: '📡',
         id: '03',
         events: [
             {
-                title: 'LOGIC QUEST',
-                subtitle: 'TRUTH TABLES & CIRCUITS',
-                desc: 'Build gate systems and resolve high-frequency signals.',
-                xp: '2,000 XP',
+                title: 'SILICON LOGIC',
+                subtitle: 'CHIP ARCHITECTURE',
+                desc: 'Synthesize digital logic circuits and design micro-processor layouts.',
+                xp: '2,200 XP',
                 difficulty: 'MEDIUM',
                 heads: [
-                    { name: 'Karan Patel', phone: '+91 87654 32109' },
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+                    { name: 'Arjun Kumar', phone: '+91 91234 56789' },
+                    { name: 'Pooja Sharma', phone: '+91 66666 55555' }
                 ],
                 rules: [
-                    'Solve 15 core digital logic design problems.',
-                    'Use of simulators is allowed for validation.',
-                    'Submit schematic diagrams alongside truth tables.',
-                    'Ties broken by overall logic minimization efficiency.',
-                    'Allowed simulators: Logisim-evolution, Digital, or Multisim.',
-                    'All truth tables must be completed in standard SOP form.',
-                    'Gates must conform to standard IEEE schematic symbols.',
-                    'Late submissions face a penalty of 10% score reduction per 5 minutes.',
-                    'Group discussions are strictly disallowed during problem solving.',
-                    'Hardware description language (Verilog/VHDL) code must compile without warnings.',
-                    'Only standard library components can be used in schematic designs.'
+                    'Synthesize logic circuits under given constraints.',
+                    'Hardware description language (Verilog/VHDL) code must compile.'
                 ],
                 iconType: 'bolt',
                 timeline: {
                     day: 1,
-                    time: '10:30',
-                    end: '12:00',
-                    venue: 'Sigma Hall',
+                    time: '11:00',
+                    end: '13:00',
+                    venue: 'Silicon Lab',
                     mode: 'Solo',
-                    registered: 80,
-                    prize: '₹8,000'
+                    registered: 55,
+                    prize: '₹10,000'
                 }
             },
             {
-                title: 'MAZE RUNNER',
-                subtitle: 'AUTONOMOUS PCB BOARDS',
-                desc: 'Program microcontrollers to solve breadboard electrical mazes.',
-                xp: '3,000 XP',
+                title: 'SIGNAL MATRIX',
+                subtitle: 'DSP & COMMUNICATIONS',
+                desc: 'Filter noisy frequency bands and modulate high-speed RF wireless signals.',
+                xp: '2,800 XP',
                 difficulty: 'HARD',
                 heads: [
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+                    { name: 'Karan Patel', phone: '+91 87654 32109' },
+                    { name: 'Simran Kaur', phone: '+91 92345 67890' }
                 ],
                 rules: [
-                    'Configure microcontrollers to navigate a dynamic physical grid.',
-                    'Sensors must detect wall proximity within 2cm tolerances.',
-                    'Max 3 trial runs allowed per robot build.',
-                    'Fastest escape time secures the win.',
-                    'Microcontroller must be programmed on-board, no wireless control allowed.',
-                    'Chassis size must not exceed 20x20 cm footprint.',
-                    'Power source is limited to a maximum of 12V DC.',
-                    'The maze configuration will be altered slightly before each official run.',
-                    'Manual intervention during an active run results in run cancellation.',
-                    'Infrared or Ultrasonic sensor calibration must be done in the designated pit area.',
-                    'Ties will be broken by the robot weight (lighter robot wins).'
+                    'Filter signal spectrums within exact frequency windows.',
+                    'Matlab or Python signal processing tools allowed.'
                 ],
                 iconType: 'bolt',
                 timeline: {
                     day: 2,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Sigma Hall',
-                    mode: 'Solo',
-                    registered: 45,
-                    prize: '₹12,000'
+                    time: '14:00',
+                    end: '16:00',
+                    venue: 'Silicon Lab',
+                    mode: 'Team (2)',
+                    registered: 42,
+                    prize: '₹14,000'
                 }
             }
         ]
     },
     {
-        title: 'GAMING ARENA',
+        title: 'GAMING NEXUS',
         subtitle: 'ESPORTS SHOWDOWN',
-        desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.',
+        desc: 'Compete in Valorant, BGMI, and FIFA pro college esports tournaments.',
         color: '#9b5cff',
         xp: '6,000 XP',
         difficulty: 'HARD',
@@ -456,52 +438,18 @@ export const CATEGORIES_WITH_EVENTS = [
         ]
     },
     {
-        title: 'CREATIVE & DESIGN',
-        subtitle: 'STRUCTURE & CLAY',
-        desc: 'Build structural bridges, throw pottery, and exhibit fine arts.',
+        title: 'URBAN BLUEPRINT',
+        subtitle: 'STRUCTURAL ARCHITECTURE',
+        desc: 'Build load-resistant truss bridges, throw ceramic pottery, and design eco-skyscrapers.',
         color: '#1fff76',
-        xp: '4,500 XP',
-        difficulty: 'EASY',
-        iconType: 'clay',
+        xp: '5,500 XP',
+        difficulty: 'MEDIUM',
+        iconType: 'bridge',
         modelType: 'civil',
-        shortName: 'Creative',
-        iconChar: '🎨',
+        shortName: 'Civil',
+        iconChar: '🏗️',
         id: '05',
         events: [
-            {
-                title: 'POTTERY ART',
-                subtitle: 'CLAY VISIONS',
-                desc: 'Sculpt customized pots on motorized spinning potter wheels.',
-                xp: '1,000 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
-                    { name: 'Meera Patel', phone: '+91 77890 12345' }
-                ],
-                rules: [
-                    'Create clay pottery models based on theme given.',
-                    'Time allocated: 90 minutes.',
-                    'Clays and wheels provided at workstation.',
-                    'Judged on aesthetics, symmetry, and finish.',
-                    'Maximum height of the model must be under 30 cm.',
-                    'Only tools provided by the coordinators are allowed.',
-                    'Participants can choose between hand-building or wheel-throwing.',
-                    'Cracked structures during drying will lose points on structural integrity.',
-                    'No external paints or coloring agents can be used.',
-                    'Originality and interpretation of the theme carries 40% weight.',
-                    'Coordinators will bake the pieces for final inspection.'
-                ],
-                iconType: 'clay',
-                timeline: {
-                    day: 1,
-                    time: '15:00',
-                    end: '17:00',
-                    venue: 'Studio Gamma',
-                    mode: 'Solo',
-                    registered: 40,
-                    prize: '₹5,000'
-                }
-            },
             {
                 title: 'TRUSS BUILD',
                 subtitle: 'BALSA WOOD BRIDGES',
@@ -537,118 +485,78 @@ export const CATEGORIES_WITH_EVENTS = [
                 }
             },
             {
-                title: 'PROPEL',
-                subtitle: 'PNEUMATIC PROPULSION',
-                desc: 'Assemble model rockets and launch them high using air-pressure pumps.',
-                xp: '1,200 XP',
+                title: 'POTTERY ART',
+                subtitle: 'CLAY VISIONS',
+                desc: 'Sculpt customized pots on motorized spinning potter wheels.',
+                xp: '1,000 XP',
                 difficulty: 'EASY',
+                heads: [
+                    { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
+                    { name: 'Meera Patel', phone: '+91 77890 12345' }
+                ],
+                rules: [
+                    'Create clay pottery models based on theme given.',
+                    'Time allocated: 90 minutes.',
+                    'Clays and wheels provided at workstation.',
+                    'Judged on aesthetics, symmetry, and finish.',
+                    'Maximum height of the model must be under 30 cm.',
+                    'Only tools provided by the coordinators are allowed.',
+                    'Participants can choose between hand-building or wheel-throwing.',
+                    'Cracked structures during drying will lose points on structural integrity.',
+                    'No external paints or coloring agents can be used.',
+                    'Originality and interpretation of the theme carries 40% weight.',
+                    'Coordinators will bake the pieces for final inspection.'
+                ],
+                iconType: 'clay',
+                timeline: {
+                    day: 1,
+                    time: '15:00',
+                    end: '17:00',
+                    venue: 'Studio Gamma',
+                    mode: 'Solo',
+                    registered: 40,
+                    prize: '₹5,000'
+                }
+            },
+            {
+                title: 'ECO SKYSCRAPER',
+                subtitle: 'GREEN BUILDING DESIGN',
+                desc: 'Architect green energy efficient skyscrapers with sustainable materials.',
+                xp: '2,400 XP',
+                difficulty: 'MEDIUM',
                 heads: [
                     { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
                     { name: 'Kiran Verma', phone: '+91 91111 22208' }
                 ],
                 rules: [
-                    'Build model aircraft using balsa wood / composite material.',
-                    'Maximum wingspan: 1.2 meters.',
-                    'Evaluation based on flight duration and glider ratio.',
-                    'Structural integrity inspection prior to takeoff.',
-                    'Aircraft must be unpowered (pure glider) or rubber-band powered.',
-                    'Use of ready-made foam planes or commercial kits is prohibited.',
-                    'Launch must be done manually from the designated platform.',
-                    'Maximum takeoff weight must be under 800 grams.',
-                    'Aircraft must demonstrate stable flight for at least 5 seconds to score.',
-                    'Repairing models between rounds is allowed within 10 minutes.',
-                    'Judges base extra points on structural innovation and aerodynamic efficiency.'
+                    'Design green building prototypes with energy conservation standards.',
+                    'Blueprints must pass load distribution tests.'
                 ],
-                iconType: 'rocket',
+                iconType: 'bridge',
                 timeline: {
                     day: 3,
                     time: '13:00',
                     end: '15:00',
                     venue: 'Open Court',
-                    mode: 'Solo',
-                    registered: 50,
-                    prize: '₹6,000'
+                    mode: 'Team (3)',
+                    registered: 32,
+                    prize: '₹12,000'
                 }
             }
         ]
     },
     {
-        title: 'AI & DATA SCIENCE',
-        subtitle: 'NEURAL CONSTRUCTS',
-        desc: 'Train reinforcement agents and design deep learning models.',
-        color: '#2b5cff',
+        title: 'MECHANICAL MATRIX',
+        subtitle: 'KINETIC THERMODYNAMICS',
+        desc: 'Operate industrial metalworks, design CAD 3D parts, and optimize thermodynamic rigs.',
+        color: '#ffea00',
         xp: '7,000 XP',
         difficulty: 'HARD',
-        iconType: 'brain',
-        modelType: 'ai',
-        shortName: 'AI',
-        iconChar: '🧠',
-        id: '06',
-        events: [
-            {
-                title: 'MACHINE INTELLIGENCE',
-                subtitle: 'NEURAL NETWORKS & TELEMETRY',
-                desc: 'Solve deep learning model matrices and run predictive simulations.',
-                xp: '3,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Priya Nair', phone: '+91 91111 22215' },
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                ],
-                rules: [
-                    'Train and deploy machine learning models to solve real-world datasets.',
-                    'Execution outputs must use optimized algorithms.'
-                ],
-                iconType: 'brain',
-                timeline: {
-                    day: 1,
-                    time: '14:00',
-                    end: '16:00',
-                    venue: 'Hub Delta',
-                    mode: 'Team (3)',
-                    registered: 72,
-                    prize: '₹18,000'
-                }
-            },
-            {
-                title: 'NEURAL HACK',
-                subtitle: 'TRANSFORMER TUNING',
-                desc: 'Optimize custom transformers and train computer vision parameters.',
-                xp: '2,800 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Siddharth Roy', phone: '+91 91111 22218' },
-                    { name: 'Neha Gupta', phone: '+91 91111 22205' }
-                ],
-                rules: [
-                    'Transformer tuning configurations must run locally in provided test kernels.',
-                    'Only standard libraries are preloaded.'
-                ],
-                iconType: 'brain',
-                timeline: {
-                    day: 2,
-                    time: '10:30',
-                    end: '12:30',
-                    venue: 'Hub Delta',
-                    mode: 'Solo',
-                    registered: 60,
-                    prize: 'Certificate'
-                }
-            }
-        ]
-    },
-    {
-        title: 'WORKSHOP LAB',
-        subtitle: 'KINETIC HARDWARE',
-        desc: 'Operate industrial metalworks and build hardware machinery.',
-        color: '#ffea00',
-        xp: '5,500 XP',
-        difficulty: 'MEDIUM',
         iconType: 'gear',
-        modelType: 'steampunk_clock',
-        shortName: 'Workshop',
+        modelType: 'ai',
+        shortName: 'Mechanical',
         iconChar: '⚙️',
-        id: '07',
+        id: '06',
         events: [
             {
                 title: 'KINETIC METALWORKS',
@@ -698,6 +606,89 @@ export const CATEGORIES_WITH_EVENTS = [
                     mode: 'Solo',
                     registered: 40,
                     prize: '₹8,000'
+                }
+            }
+        ]
+    },
+    {
+        title: 'VOLTAGE GRID',
+        subtitle: 'POWER & TRANSFORMER SYSTEMS',
+        desc: 'Master transformer grid wiring, truth tables, and autonomous PCB electrical mazes.',
+        color: '#ff9d00',
+        xp: '6,500 XP',
+        difficulty: 'MEDIUM',
+        iconType: 'bolt',
+        modelType: 'electrical',
+        shortName: 'Electrical',
+        iconChar: '⚡',
+        id: '07',
+        events: [
+            {
+                title: 'LOGIC QUEST',
+                subtitle: 'TRUTH TABLES & CIRCUITS',
+                desc: 'Build gate systems and resolve high-frequency signals.',
+                xp: '2,000 XP',
+                difficulty: 'MEDIUM',
+                heads: [
+                    { name: 'Karan Patel', phone: '+91 87654 32109' },
+                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
+                ],
+                rules: [
+                    'Solve 15 core digital logic design problems.',
+                    'Use of simulators is allowed for validation.',
+                    'Submit schematic diagrams alongside truth tables.',
+                    'Ties broken by overall logic minimization efficiency.',
+                    'Allowed simulators: Logisim-evolution, Digital, or Multisim.',
+                    'All truth tables must be completed in standard SOP form.',
+                    'Gates must conform to standard IEEE schematic symbols.',
+                    'Late submissions face a penalty of 10% score reduction per 5 minutes.',
+                    'Group discussions are strictly disallowed during problem solving.',
+                    'Hardware description language (Verilog/VHDL) code must compile without warnings.',
+                    'Only standard library components can be used in schematic designs.'
+                ],
+                iconType: 'bolt',
+                timeline: {
+                    day: 1,
+                    time: '10:30',
+                    end: '12:00',
+                    venue: 'Sigma Hall',
+                    mode: 'Solo',
+                    registered: 80,
+                    prize: '₹8,000'
+                }
+            },
+            {
+                title: 'MAZE RUNNER',
+                subtitle: 'AUTONOMOUS PCB BOARDS',
+                desc: 'Program microcontrollers to solve breadboard electrical mazes.',
+                xp: '3,000 XP',
+                difficulty: 'HARD',
+                heads: [
+                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
+                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+                ],
+                rules: [
+                    'Configure microcontrollers to navigate a dynamic physical grid.',
+                    'Sensors must detect wall proximity within 2cm tolerances.',
+                    'Max 3 trial runs allowed per robot build.',
+                    'Fastest escape time secures the win.',
+                    'Microcontroller must be programmed on-board, no wireless control allowed.',
+                    'Chassis size must not exceed 20x20 cm footprint.',
+                    'Power source is limited to a maximum of 12V DC.',
+                    'The maze configuration will be altered slightly before each official run.',
+                    'Manual intervention during an active run results in run cancellation.',
+                    'Infrared or Ultrasonic sensor calibration must be done in the designated pit area.',
+                    'Ties will be broken by the robot weight (lighter robot wins).'
+                ],
+                iconType: 'bolt',
+                timeline: {
+                    day: 2,
+                    time: '13:00',
+                    end: '15:00',
+                    venue: 'Sigma Hall',
+                    mode: 'Solo',
+                    registered: 45,
+                    prize: '₹12,000'
                 }
             }
         ]
@@ -909,6 +900,7 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
             difficulty: ev.difficulty,
             heads: ev.heads,
             icon: (color) => getSvgIcon(ev.iconType || cat.iconType, color),
+            unstopUrl: ev.unstopUrl || `https://unstop.com/o/addovedi-2026-${slugify(ev.title)}`,
             venue: ev.timeline?.venue || 'Main Arena',
             mode: ev.timeline?.mode || 'Solo',
             registered: ev.timeline?.registered || 0,
