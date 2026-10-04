@@ -9,10 +9,26 @@ export const createRegistration = async (req, res) => {
             return res.status(400).json({ message: 'All required fields (eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone) must be provided.' });
         }
 
-        // Check for existing registration for this leader & event
-        const existing = await Registration.findOne({ leaderUID: leaderUID.trim(), eventTitle: eventTitle.trim() });
-        if (existing) {
-            return res.status(400).json({ message: `Participant with UID "${leaderUID}" is already registered for "${eventTitle}".` });
+        // Collect all incoming UIDs (leader + all team members)
+        const incomingUids = [
+            leaderUID.trim().toLowerCase(),
+            ...(Array.isArray(members) ? members.map(m => (m?.uid || '').trim().toLowerCase()) : [])
+        ].filter(Boolean);
+
+        // Check if any incoming UID is already registered in this event as a leader or team member
+        const existingRegistrations = await Registration.find({ eventTitle: eventTitle.trim() });
+        for (const reg of existingRegistrations) {
+            const existingUids = [
+                (reg.leaderUID || '').toLowerCase(),
+                ...(Array.isArray(reg.members) ? reg.members.map(m => (m?.uid || '').toLowerCase()) : [])
+            ].filter(Boolean);
+
+            const duplicateUid = incomingUids.find(uid => existingUids.includes(uid));
+            if (duplicateUid) {
+                return res.status(400).json({ 
+                    message: `Player with Addovedi ID "${duplicateUid.toUpperCase()}" is already registered under team "${reg.teamName}" for "${eventTitle}". Multiple team enlistments for the same event are forbidden.` 
+                });
+            }
         }
 
         const registration = new Registration({
