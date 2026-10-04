@@ -81,8 +81,10 @@ export default function HologramCards() {
                             mappedSubs[c.title] = [];
                         });
                         data.subEvents.forEach(s => {
-                            if (!mappedSubs[s.categoryTitle]) mappedSubs[s.categoryTitle] = [];
-                            mappedSubs[s.categoryTitle].push({
+                            const matchedCat = CARD_DATA.find(c => c.title.toLowerCase() === (s.categoryTitle || '').toLowerCase() || slugify(c.title) === slugify(s.categoryTitle || ''));
+                            const catKey = matchedCat ? matchedCat.title : s.categoryTitle;
+                            if (!mappedSubs[catKey]) mappedSubs[catKey] = [];
+                            mappedSubs[catKey].push({
                                 title: s.title,
                                 subtitle: s.subtitle,
                                 desc: s.desc,
@@ -91,16 +93,14 @@ export default function HologramCards() {
                                 difficulty: s.difficulty,
                                 heads: s.heads || [],
                                 icon: (color) => getSvgIcon(s.iconType, color),
-                                modelType: s.modelType,
+                                modelType: s.modelType || (matchedCat ? matchedCat.modelType : 'coding'),
                                 unstopUrl: s.unstopUrl || 'https://unstop.com'
                             });
                         });
                         setSubEventsData(prev => {
                             const next = { ...prev };
                             Object.keys(mappedSubs).forEach(cat => {
-                                if (mappedSubs[cat].length > 0) {
-                                    next[cat] = mappedSubs[cat];
-                                }
+                                next[cat] = mappedSubs[cat];
                             });
                             return next;
                         });

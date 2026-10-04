@@ -42,9 +42,10 @@ const seedDatabase = async () => {
             }
         }
 
-        // 2. Seed default categories if empty
+        // 2. Seed default categories if empty or legacy
         const catCount = await Category.countDocuments();
-        if (catCount < 7) {
+        const legacyCat = await Category.findOne({ title: { $in: ['ROBOTICS & RC', 'CODING QUEST', 'AI & DATA SCIENCE', 'WORKSHOP LAB', 'CREATIVE & DESIGN', 'GAMING ARENA', 'ELECTRICAL GUILD'] } });
+        if (catCount < 7 || legacyCat) {
             await Category.deleteMany({});
             const defaultCats = [
                 { title: 'ROBOTICS PROTOCOL', subtitle: 'AUTONOMOUS MECHA DYNAMICS', desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
@@ -59,10 +60,10 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded 7 default categories`);
         }
 
-        // 3. Seed default sub-events if empty
+        // 3. Seed default sub-events if empty or legacy
         const subCount = await SubEvent.countDocuments();
-        const uniqueCategories = await SubEvent.distinct('categoryTitle');
-        if (subCount === 0 || uniqueCategories.length < 7) {
+        const legacySub = await SubEvent.findOne({ categoryTitle: { $in: ['ROBOTICS & RC', 'CODING QUEST', 'AI & DATA SCIENCE', 'WORKSHOP LAB', 'CREATIVE & DESIGN', 'GAMING ARENA', 'ELECTRICAL GUILD'] } });
+        if (subCount === 0 || legacySub) {
             await SubEvent.deleteMany({});
             const defaultSubs = [
                 // 1. CYBER CODE
