@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 
 export default function RegistrationForm({
@@ -14,11 +15,15 @@ export default function RegistrationForm({
     members,
     setMembers,
     handleRegisterSubmit,
+    handleCancelRegistration,
     isRegistered,
     isMobileModal,
     btnThemeStyles
 }) {
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+    const [unstopInitiated, setUnstopInitiated] = useState(false);
+    const [unstopRefId, setUnstopRefId] = useState('');
+    const [isCancelling, setIsCancelling] = useState(false);
 
     const inputClass = `w-full bg-[#02050c]/85 border text-white placeholder-white/30 ${isMobileModal ? 'px-3 py-1.5' : 'px-4 py-2.5'} focus:outline-none transition-all duration-300 rounded-none tracking-wider`;
     const inputStyle = {
@@ -160,15 +165,19 @@ export default function RegistrationForm({
         );
     }
 
-    // Check if this event is already registered in localStorage
+    // Check local registration record
     const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-    const isCurrentEventRegistered = storedRegs.some(r => r.title === activeEvent.title);
+    const existingReg = storedRegs.find(r => r.title === activeEvent.title);
+    const isCurrentEventRegistered = Boolean(existingReg) || isRegistered;
 
-    if (isCurrentEventRegistered || isRegistered) {
+    const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
+
+    // If registration is already saved on website
+    if (isCurrentEventRegistered) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '30px 10px' : '50px 30px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
                 <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-2 animate-bounce"
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-1 animate-pulse"
                     style={{
                         background: `${activeEvent.color}15`,
                         color: activeEvent.color,
@@ -176,41 +185,177 @@ export default function RegistrationForm({
                         boxShadow: `0 0 20px ${activeEvent.color}40`,
                     }}
                 >
-                    ✓
+                    ⏳
                 </div>
                 <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    MISSION_SECURED
+                    UNSTOP_VERIFICATION_PENDING
                 </h3>
-                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: '400px', margin: 0 }}>
-                    Your registration details have been synchronized with Addovedi HQ. Proceed to Unstop to verify or complete event participation.
+                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
+                    Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
+                    {existingReg?.unstopRefId ? `Unstop Ref ID: ${existingReg.unstopRefId}` : 'Final verification pending against Unstop participant roster.'}
                 </p>
-                <button
-                    type="button"
-                    onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
-                    style={{
-                        marginTop: '12px',
-                        padding: '12px 24px',
-                        background: activeEvent.color,
-                        color: '#02050c',
-                        fontWeight: 900,
-                        fontFamily: "'Orbitron', sans-serif",
-                        fontSize: '12px',
-                        letterSpacing: '0.1em',
-                        border: 'none',
-                        cursor: 'pointer',
-                        boxShadow: `0 0 20px ${activeEvent.color}80`
-                    }}
-                >
-                    PROCEED TO UNSTOP REGISTRATION ↗
-                </button>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
+                    <button
+                        type="button"
+                        onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
+                        style={{
+                            padding: '12px',
+                            background: activeEvent.color,
+                            color: '#02050c',
+                            fontWeight: 900,
+                            fontFamily: "'Orbitron', sans-serif",
+                            fontSize: '12px',
+                            letterSpacing: '0.1em',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: `0 0 20px ${activeEvent.color}80`
+                        }}
+                    >
+                        RE-VISIT UNSTOP EVENT PAGE ↗
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={isCancelling}
+                        onClick={async () => {
+                            setIsCancelling(true);
+                            if (handleCancelRegistration) {
+                                await handleCancelRegistration();
+                            }
+                            setIsCancelling(false);
+                        }}
+                        style={{
+                            padding: '10px',
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            border: '1px solid rgba(239, 68, 68, 0.5)',
+                            color: '#f87171',
+                            fontWeight: 700,
+                            fontFamily: "'Orbitron', sans-serif",
+                            fontSize: '11px',
+                            letterSpacing: '0.08em',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
+                    </button>
+                </div>
             </div>
         );
     }
 
-    const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
+    // Handler when user submits initial team form to open Unstop
+    const handleInitiateUnstop = (e) => {
+        e.preventDefault();
+        if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
+
+        // Open Unstop portal in new tab
+        window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank');
+        setUnstopInitiated(true);
+    };
+
+    // Step 2: Unstop opened in new tab. Waiting for confirmation
+    if (unstopInitiated) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '30px 10px' : '40px 30px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
+                <div style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '50%',
+                    border: '2px solid #F59E0B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#F59E0B',
+                    fontSize: '24px',
+                    boxShadow: '0 0 20px rgba(245, 158, 11, 0.4)',
+                }}>
+                    ⏳
+                </div>
+
+                <div>
+                    <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '15px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.08em', margin: 0 }}>
+                        UNSTOP PORTAL OPENED IN NEW TAB
+                    </h3>
+                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', marginTop: '8px', maxWidth: '420px', lineHeight: 1.5 }}>
+                        Complete registration on <strong>Unstop</strong> using your Addovedi ID: <strong style={{ color: activeEvent.color }}>{addovediId}</strong>.
+                    </p>
+                </div>
+
+                <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                    <label style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.12em', color: 'rgba(255,255,255,0.6)' }}>
+                        UNSTOP REGISTRATION ID / APP NO. (OPTIONAL)
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="E.G. UNSTOP-102948"
+                        value={unstopRefId}
+                        onChange={(e) => setUnstopRefId(e.target.value)}
+                        className={inputClass}
+                        style={{ ...inputStyle, textTransform: 'uppercase' }}
+                    />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '6px' }}>
+                    <button
+                        type="button"
+                        onClick={(e) => handleRegisterSubmit(e, unstopRefId)}
+                        style={{
+                            padding: '12px',
+                            background: activeEvent.color,
+                            color: '#02050c',
+                            fontFamily: "'Orbitron', sans-serif",
+                            fontSize: '12px',
+                            fontWeight: 900,
+                            letterSpacing: '0.1em',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: `0 0 20px ${activeEvent.color}80`
+                        }}
+                    >
+                        I HAVE COMPLETED REGISTRATION ON UNSTOP ✓
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
+                        style={{
+                            padding: '10px',
+                            background: 'rgba(255,255,255,0.06)',
+                            border: `1px solid ${activeEvent.color}50`,
+                            color: '#fff',
+                            fontFamily: "'Orbitron', sans-serif",
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            letterSpacing: '0.08em',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        RE-OPEN UNSTOP TAB ↗
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setUnstopInitiated(false)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#f87171',
+                            fontSize: '11px',
+                            fontFamily: "'Orbitron', sans-serif",
+                            cursor: 'pointer',
+                            marginTop: '4px'
+                        }}
+                    >
+                        ✕ Cancel / I did not complete Unstop registration
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
+        <form onSubmit={handleInitiateUnstop} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
             {/* ADDOVEDI ID & UNSTOP PARTNERSHIP CARD */}
             <div style={{
                 background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(5, 12, 24, 0.95) 100%)',

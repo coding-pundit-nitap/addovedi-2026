@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import apiRouter from './routes/index.js';
+import { apiLimiter } from './middleware/rateLimiters.js';
 
 // Models for Seeding
 import Admin from './models/Admin.js';
@@ -15,8 +16,25 @@ import { hashPassword } from './utils/hash.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// Only the known frontend origins may call this API. Falls back to local
+// dev origins when ALLOWED_ORIGINS isn't set (e.g. local development).
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin(origin, callback) {
+        // Allow non-browser tools / same-origin requests with no Origin header.
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    }
+}));
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 // Mount API router
 app.use('/api', apiRouter);
@@ -24,6 +42,21 @@ app.use('/api', apiRouter);
 // Basic health check route
 app.get('/api/status', (req, res) => {
     res.json({ status: 'ok', message: 'Addovedi Techfest Command Server is active' });
+});
+
+// Centralized error handler: never leak stack traces / internals to clients.
+app.use((err, req, res, next) => {
+    if (err && err.message === 'Not allowed by CORS') {
+        return res.status(403).json({ message: 'Origin not allowed' });
+    }
+    if (err && (err.name === 'MulterError' || /unsupported file type/i.test(err.message || ''))) {
+        return res.status(400).json({ message: err.message });
+    }
+    console.error('[UNHANDLED ERROR]', err);
+    const isProd = process.env.NODE_ENV === 'production';
+    return res.status(err.status || 500).json({
+        message: isProd ? 'Internal server error' : (err.message || 'Internal server error')
+    });
 });
 
 // Database seeding function
@@ -42,11 +75,14 @@ const seedDatabase = async () => {
             }
         }
 
-        // 2. Seed default categories if empty or legacy
+        // 2. Seed default categories ONLY on a truly empty database.
+        // Previously this also fired whenever catCount dropped below 7 (e.g. an
+        // admin deleted a category), which wiped out all admin-made edits back
+        // to these hardcoded defaults on every server restart. That was the
+        // root cause of "admin portal changes don't stick" — seeding must never
+        // run again once real data exists.
         const catCount = await Category.countDocuments();
-        const legacyCat = await Category.findOne({ title: { $in: ['ROBOTICS & RC', 'CODING QUEST', 'AI & DATA SCIENCE', 'WORKSHOP LAB', 'CREATIVE & DESIGN', 'GAMING ARENA', 'ELECTRICAL GUILD'] } });
-        if (catCount < 7 || legacyCat) {
-            await Category.deleteMany({});
+        if (catCount === 0) {
             const defaultCats = [
                 { title: 'ROBOTICS PROTOCOL', subtitle: 'AUTONOMOUS MECHA DYNAMICS', desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
                 { title: 'CYBER CODE', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
@@ -60,11 +96,9 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded 7 default categories`);
         }
 
-        // 3. Seed default sub-events if empty or legacy
+        // 3. Seed default sub-events ONLY on a truly empty database (see note above).
         const subCount = await SubEvent.countDocuments();
-        const legacySub = await SubEvent.findOne({ categoryTitle: { $in: ['ROBOTICS & RC', 'CODING QUEST', 'AI & DATA SCIENCE', 'WORKSHOP LAB', 'CREATIVE & DESIGN', 'GAMING ARENA', 'ELECTRICAL GUILD'] } });
-        if (subCount === 0 || legacySub) {
-            await SubEvent.deleteMany({});
+        if (subCount === 0) {
             const defaultSubs = [
                 // 1. CYBER CODE
                 {
@@ -348,10 +382,9 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded default sub-events (${defaultSubs.length} items across 7 categories)`);
         }
 
-        // 4. Seed default crew members if empty or outdated
+        // 4. Seed default crew members ONLY on a truly empty database (see note above).
         const crewCount = await Crew.countDocuments();
-        if (crewCount < 10) {
-            await Crew.deleteMany({});
+        if (crewCount === 0) {
             const defaultCrew = [
                 // EXECUTIVE
                 { name: 'AMAN VERMA', role: 'PRESIDENT', category: 'CORE', statText: 'LEADERSHIP', statVal: 96, featured: true, featuredHeading: 'TECHFEST PRESIDENT', bio: 'Coordinated 3-day Techfest, Led 46-member team, Secured 12+ sponsors', links: [] },
@@ -400,10 +433,9 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded default crew members`);
         }
 
-        // 5. Seed default sponsors if empty or outdated
+        // 5. Seed default sponsors ONLY on a truly empty database (see note above).
         const sponsorCount = await Sponsor.countDocuments();
-        if (sponsorCount < 10) {
-            await Sponsor.deleteMany({});
+        if (sponsorCount === 0) {
             const defaultSponsors = [
                 { name: 'NVIDIA', category: 'TITLE', sub: 'Technology Partner', logo: 'NV', desc: 'Accelerating AI and real-time graphics pipelines.', support: ['AI Arena', 'Rendering Server', 'GPU Workshops'], url: '#' },
                 { name: 'AMD', category: 'TITLE', sub: 'Hardware Sponsor', logo: 'AMD', desc: 'Powering high-frequency compute processors in coding grids.', support: ['Coding Arena', 'Host Servers', 'Hackathons'], url: '#' },

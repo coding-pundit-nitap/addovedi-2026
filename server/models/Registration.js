@@ -43,6 +43,16 @@ const registrationSchema = new mongoose.Schema({
     userEmail: {
         type: String,
         trim: true
+    },
+    unstopRefId: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    status: {
+        type: String,
+        enum: ['PENDING_UNSTOP_VERIFICATION', 'VERIFIED', 'CANCELLED'],
+        default: 'PENDING_UNSTOP_VERIFICATION'
     }
 }, {
     timestamps: true

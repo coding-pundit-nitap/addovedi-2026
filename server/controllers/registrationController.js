@@ -1,11 +1,19 @@
 import Registration from '../models/Registration.js';
 
+const REQUIRED_STRING_FIELDS = ['eventTitle', 'categoryTitle', 'teamName', 'leaderName', 'leaderUID', 'leaderPhone'];
+
+// Escapes regex metacharacters so user-supplied search text is matched
+// literally instead of being interpreted as a (potentially catastrophic) pattern.
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Create a new event registration
 export const createRegistration = async (req, res) => {
     try {
-        const { eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, teamSize, members, userEmail } = req.body;
+        const { eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, teamSize, members, userEmail, unstopRefId } = req.body;
 
-        if (!eventTitle || !categoryTitle || !teamName || !leaderName || !leaderUID || !leaderPhone) {
+        if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {
             return res.status(400).json({ message: 'All required fields (eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone) must be provided.' });
         }
 
@@ -15,8 +23,8 @@ export const createRegistration = async (req, res) => {
             ...(Array.isArray(members) ? members.map(m => (m?.uid || '').trim().toLowerCase()) : [])
         ].filter(Boolean);
 
-        // Check if any incoming UID is already registered in this event as a leader or team member
-        const existingRegistrations = await Registration.find({ eventTitle: eventTitle.trim() });
+        // Check if any incoming UID is already registered in this event as a leader or team member (excluding CANCELLED)
+        const existingRegistrations = await Registration.find({ eventTitle: eventTitle.trim(), status: { $ne: 'CANCELLED' } });
         for (const reg of existingRegistrations) {
             const existingUids = [
                 (reg.leaderUID || '').toLowerCase(),
@@ -40,7 +48,11 @@ export const createRegistration = async (req, res) => {
             leaderPhone: leaderPhone.trim(),
             teamSize: Number(teamSize) || 1,
             members: Array.isArray(members) ? members : [],
-            userEmail: userEmail ? userEmail.trim() : ''
+            userEmail: userEmail ? userEmail.trim() : '',
+            unstopRefId: unstopRefId ? unstopRefId.trim() : ''
+            // status is intentionally never taken from the client — it always
+            // starts PENDING_UNSTOP_VERIFICATION (model default) and can only be
+            // advanced to VERIFIED by an authenticated admin via updateRegistrationStatus.
         });
 
         await registration.save();
@@ -57,14 +69,14 @@ export const getAllRegistrations = async (req, res) => {
         const { search, eventTitle, categoryTitle } = req.query;
         let filter = {};
 
-        if (eventTitle) {
+        if (eventTitle && typeof eventTitle === 'string') {
             filter.eventTitle = eventTitle;
         }
-        if (categoryTitle) {
+        if (categoryTitle && typeof categoryTitle === 'string') {
             filter.categoryTitle = categoryTitle;
         }
-        if (search) {
-            const regex = new RegExp(search, 'i');
+        if (search && typeof search === 'string') {
+            const regex = new RegExp(escapeRegExp(search.slice(0, 100)), 'i');
             filter.$or = [
                 { leaderName: regex },
                 { leaderUID: regex },
@@ -145,6 +157,64 @@ export const deleteRegistration = async (req, res) => {
             return res.status(404).json({ message: 'Registration record not found' });
         }
         return res.json({ message: 'Registration record deleted successfully' });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+// Cancel a registration (User initiated). Requires the leader's phone number
+// in addition to their Addovedi ID + event title, so cancelling someone else's
+// registration can't be done with just their publicly-guessable team ID.
+// This is a soft-cancel (status flips to CANCELLED) rather than a hard delete,
+// so the record is preserved for audit purposes and the UID/slot frees up for
+// re-registration (createRegistration excludes CANCELLED records already).
+export const cancelRegistration = async (req, res) => {
+    try {
+        const { eventTitle, leaderUID, leaderPhone } = req.body;
+        if (
+            typeof eventTitle !== 'string' || !eventTitle.trim() ||
+            typeof leaderUID !== 'string' || !leaderUID.trim() ||
+            typeof leaderPhone !== 'string' || !leaderPhone.trim()
+        ) {
+            return res.status(400).json({ message: 'eventTitle, leaderUID and leaderPhone are required' });
+        }
+
+        const result = await Registration.updateMany(
+            {
+                eventTitle: eventTitle.trim(),
+                leaderUID: leaderUID.trim(),
+                leaderPhone: leaderPhone.trim(),
+                status: { $ne: 'CANCELLED' }
+            },
+            { $set: { status: 'CANCELLED' } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'No matching registration found for the provided details' });
+        }
+
+        return res.json({ message: 'Registration cancelled successfully' });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+// Update status or Unstop Ref ID (Admin or User confirmation)
+export const updateRegistrationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, unstopRefId } = req.body;
+
+        const reg = await Registration.findById(id);
+        if (!reg) {
+            return res.status(404).json({ message: 'Registration record not found' });
+        }
+
+        if (status) reg.status = status;
+        if (unstopRefId !== undefined) reg.unstopRefId = unstopRefId;
+
+        await reg.save();
+        return res.json({ message: 'Registration updated successfully', registration: reg });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }

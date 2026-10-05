@@ -21,6 +21,7 @@ function EventDetailsModal({
     members,
     setMembers,
     handleRegisterSubmit,
+    handleCancelRegistration,
     isRegistered
 }) {
     const location = useLocation();
@@ -454,6 +455,7 @@ function EventDetailsModal({
                             members={members}
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
+                            handleCancelRegistration={handleCancelRegistration}
                             isRegistered={isRegistered}
                             isMobileModal={isMobileModal}
                             btnThemeStyles={btnThemeStyles}
@@ -501,6 +503,7 @@ export default function EventModal({
     members,
     setMembers,
     handleRegisterSubmit,
+    handleCancelRegistration,
     isRegistered
 }) {
     return (
@@ -589,6 +592,7 @@ export default function EventModal({
                             members={members}
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
+                            handleCancelRegistration={handleCancelRegistration}
                             isRegistered={isRegistered}
                         />
                     </motion.div>

@@ -749,7 +749,7 @@ export const CATEGORIES_WITH_EVENTS = [
 ];
 
 // Helper mapping for Category SVG Icons in Lobby Console Cards
-function getSvgIcon(type, color) {
+export function getSvgIcon(type, color) {
     switch (type) {
         case 'robot':
             return (
@@ -887,6 +887,61 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
         });
     }
 });
+
+// Merges categories fetched from the DB (via GET /api/events) into the shape
+// the UI expects (adds the non-persisted icon renderer + shortName/iconChar/id
+// display metadata). Falls back to the static CARD_DATA when the DB has none
+// yet. This is what makes admin-created/edited categories actually show up on
+// the public site instead of being silently discarded.
+export function mergeCategoriesFromDb(dbCategories) {
+    if (!Array.isArray(dbCategories) || dbCategories.length === 0) return CARD_DATA;
+    return dbCategories.map(cat => {
+        const meta = getCategoryMeta(cat.title);
+        return {
+            title: cat.title,
+            subtitle: cat.subtitle,
+            desc: cat.desc,
+            color: cat.color,
+            xp: cat.xp,
+            difficulty: cat.difficulty,
+            icon: (color) => getSvgIcon(cat.iconType, color),
+            modelType: cat.modelType || 'coding',
+            shortName: meta.shortName,
+            iconChar: meta.iconChar,
+            id: meta.id
+        };
+    });
+}
+
+// Buckets DB sub-events under the (DB-aware) category list, carrying through
+// iconType/modelType which earlier sync logic dropped.
+export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
+    const mapped = {};
+    categoriesList.forEach(c => { mapped[c.title] = []; });
+
+    (dbSubEvents || []).forEach(s => {
+        const matchedCat = categoriesList.find(c =>
+            c.title.toLowerCase() === (s.categoryTitle || '').toLowerCase() ||
+            slugify(c.title) === slugify(s.categoryTitle || '')
+        );
+        const catKey = matchedCat ? matchedCat.title : s.categoryTitle;
+        if (!mapped[catKey]) mapped[catKey] = [];
+        mapped[catKey].push({
+            title: s.title,
+            subtitle: s.subtitle,
+            desc: s.desc,
+            color: s.color,
+            xp: s.xp,
+            difficulty: s.difficulty,
+            heads: s.heads || [],
+            icon: (color) => getSvgIcon(s.iconType, color),
+            modelType: s.modelType || (matchedCat ? matchedCat.modelType : 'coding'),
+            unstopUrl: s.unstopUrl || 'https://unstop.com'
+        });
+    });
+
+    return mapped;
+}
 
 export const SUB_EVENTS = {};
 CATEGORIES_WITH_EVENTS.forEach(cat => {

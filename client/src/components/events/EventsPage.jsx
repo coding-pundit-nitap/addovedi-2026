@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta } from '../../data/events';
+import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
@@ -74,40 +74,19 @@ export default function EventsPage() {
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
     const [hoveredBtn, setHoveredBtn] = useState(null);
 
-    // Fetch dynamic database sub-events on boot
+    // Fetch dynamic database categories & sub-events on boot, so admin-portal
+    // edits (new/edited/deleted categories and sub-events) actually show up
+    // on the public site instead of being stuck on the static fallback data.
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const res = await fetch(`${API_BASE}/events`);
                 if (res.ok) {
                     const data = await res.json();
+                    const mergedCategories = mergeCategoriesFromDb(data.categories);
+                    setCategoriesList(mergedCategories);
                     if (data.subEvents && data.subEvents.length > 0) {
-                        const mappedSubs = {};
-                        CARD_DATA.forEach(c => {
-                            mappedSubs[c.title] = [];
-                        });
-                        data.subEvents.forEach(s => {
-                            const matchedCat = CARD_DATA.find(c => c.title.toLowerCase() === (s.categoryTitle || '').toLowerCase() || slugify(c.title) === slugify(s.categoryTitle || ''));
-                            const catKey = matchedCat ? matchedCat.title : s.categoryTitle;
-                            if (!mappedSubs[catKey]) mappedSubs[catKey] = [];
-                            mappedSubs[catKey].push({
-                                title: s.title,
-                                subtitle: s.subtitle,
-                                desc: s.desc,
-                                color: s.color,
-                                xp: s.xp,
-                                difficulty: s.difficulty,
-                                heads: s.heads || [],
-                                unstopUrl: s.unstopUrl || 'https://unstop.com'
-                            });
-                        });
-                        setSubEventsData(prev => {
-                            const next = { ...prev };
-                            Object.keys(mappedSubs).forEach(cat => {
-                                next[cat] = mappedSubs[cat];
-                            });
-                            return next;
-                        });
+                        setSubEventsData(mergeSubEventsFromDb(mergedCategories, data.subEvents));
                     }
                 }
             } catch (err) {
@@ -148,8 +127,8 @@ export default function EventsPage() {
         navigate('/home');
     };
 
-    const handleRegisterSubmit = async (e) => {
-        e.preventDefault();
+    const handleRegisterSubmit = async (e, unstopRefId = '') => {
+        if (e && e.preventDefault) e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
 
@@ -162,7 +141,8 @@ export default function EventsPage() {
                 title: activeEvent.title,
                 category: activeCategory.title,
                 venue: activeEvent.venue || 'Main Arena',
-                teamName: teamName
+                teamName: teamName,
+                unstopRefId: unstopRefId
             });
             localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
             setRegisteredCount(storedRegs.length); // update level/XP bar live
@@ -182,7 +162,9 @@ export default function EventsPage() {
                     leaderPhone: leaderPhone,
                     teamSize: teamSize,
                     members: members,
-                    userEmail: loggedInUser.email || ''
+                    userEmail: loggedInUser.email || '',
+                    unstopRefId: unstopRefId,
+                    status: 'PENDING_UNSTOP_VERIFICATION'
                 })
             });
         } catch (err) {
@@ -190,10 +172,40 @@ export default function EventsPage() {
         }
 
         setIsRegistered(true);
+    };
 
-        // Redirect user to Unstop registration page in a new tab
-        const targetUrl = activeEvent?.unstopUrl || 'https://unstop.com';
-        window.open(targetUrl, '_blank');
+    const handleCancelRegistration = async () => {
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        const userUid = loggedInUser?.addovediId || loggedInUser?.uniqueId || leaderUID;
+        const userPhone = loggedInUser?.phone || leaderPhone;
+
+        // Remove from localStorage
+        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
+        const updatedRegs = storedRegs.filter(r => r.title !== activeEvent?.title);
+        localStorage.setItem('addovedi_registrations', JSON.stringify(updatedRegs));
+        setRegisteredCount(updatedRegs.length);
+
+        // Cancel in the backend database (requires leaderPhone to prove ownership)
+        if (activeEvent?.title && userUid && userPhone) {
+            try {
+                await fetch(`${API_BASE}/registrations/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eventTitle: activeEvent.title,
+                        leaderUID: userUid,
+                        leaderPhone: userPhone
+                    })
+                });
+            } catch (err) {
+                console.error('Server cancel registration error:', err);
+            }
+        }
+
+        setIsRegistered(false);
+        setTeamName('');
+        setTeamSize(1);
+        setMembers([]);
     };
 
     const handleCloseModal = () => {
@@ -891,6 +903,7 @@ export default function EventsPage() {
                     members={members}
                     setMembers={setMembers}
                     handleRegisterSubmit={handleRegisterSubmit}
+                    handleCancelRegistration={handleCancelRegistration}
                     isRegistered={isRegistered}
                 />
 

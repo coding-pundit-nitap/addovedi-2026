@@ -15,47 +15,12 @@ import { useStore } from '../../store/useStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../constants/api';
 
-import { CARD_DATA, SUB_EVENTS, slugify } from '../../data/events';
+import { CARD_DATA, SUB_EVENTS, slugify, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 export { CARD_DATA, SUB_EVENTS, slugify };
 
 export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
-
-function getSvgIcon(type, color) {
-    switch (type) {
-        case 'robot':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                    <circle cx="12" cy="5" r="2"></circle>
-                    <path d="M12 7v4M8 15h.01M16 15h.01"></path>
-                </svg>
-            );
-        case 'bolt':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-            );
-        case 'gamepad':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                    <path d="M12 12h.01M16 10h.01M16 14h.01M6 12h4M8 10v4"></path>
-                </svg>
-            );
-        case 'code':
-        default:
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                    <line x1="14" y1="4" x2="10" y2="20"></line>
-                </svg>
-            );
-    }
-}
 
 export default function HologramCards() {
     const location = useLocation();
@@ -68,42 +33,19 @@ export default function HologramCards() {
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
 
-    // Fetch dynamic sub-events from Admin Portal API on mount
+    // Fetch dynamic categories & sub-events from the Admin Portal API on mount,
+    // so admin-created/edited categories (not just sub-events under existing
+    // static categories) actually render in the 3D lobby.
     useEffect(() => {
         const fetchBackendEvents = async () => {
             try {
                 const res = await fetch(`${API_BASE}/events`);
                 if (res.ok) {
                     const data = await res.json();
+                    const mergedCategories = mergeCategoriesFromDb(data.categories);
+                    setCategoriesList(mergedCategories);
                     if (data.subEvents && data.subEvents.length > 0) {
-                        const mappedSubs = {};
-                        CARD_DATA.forEach(c => {
-                            mappedSubs[c.title] = [];
-                        });
-                        data.subEvents.forEach(s => {
-                            const matchedCat = CARD_DATA.find(c => c.title.toLowerCase() === (s.categoryTitle || '').toLowerCase() || slugify(c.title) === slugify(s.categoryTitle || ''));
-                            const catKey = matchedCat ? matchedCat.title : s.categoryTitle;
-                            if (!mappedSubs[catKey]) mappedSubs[catKey] = [];
-                            mappedSubs[catKey].push({
-                                title: s.title,
-                                subtitle: s.subtitle,
-                                desc: s.desc,
-                                color: s.color,
-                                xp: s.xp,
-                                difficulty: s.difficulty,
-                                heads: s.heads || [],
-                                icon: (color) => getSvgIcon(s.iconType, color),
-                                modelType: s.modelType || (matchedCat ? matchedCat.modelType : 'coding'),
-                                unstopUrl: s.unstopUrl || 'https://unstop.com'
-                            });
-                        });
-                        setSubEventsData(prev => {
-                            const next = { ...prev };
-                            Object.keys(mappedSubs).forEach(cat => {
-                                next[cat] = mappedSubs[cat];
-                            });
-                            return next;
-                        });
+                        setSubEventsData(mergeSubEventsFromDb(mergedCategories, data.subEvents));
                     }
                 }
             } catch (err) {

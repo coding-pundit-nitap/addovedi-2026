@@ -20,3 +20,5 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://addovedi-2026.vercel.app
