@@ -150,19 +150,50 @@ export default function AdminPage() {
             });
             const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Upload failed');
-            
+
             if (type === 'crew') {
-                if (editingCrew) setEditingCrew({ ...editingCrew, avatar: data.url });
-                else setNewCrew({ ...newCrew, avatar: data.url });
+                if (editingCrew) {
+                    setEditingCrew({ ...editingCrew, avatar: data.url });
+                    // Persist immediately: a photo upload shouldn't be lost if the
+                    // admin navigates away without separately clicking "Save Edit".
+                    if (editingCrew._id) await persistField('crew', editingCrew._id, { avatar: data.url });
+                } else {
+                    setNewCrew({ ...newCrew, avatar: data.url });
+                }
             } else if (type === 'sponsor') {
-                if (editingSponsor) setEditingSponsor({ ...editingSponsor, logoImage: data.url });
-                else setNewSponsor({ ...newSponsor, logoImage: data.url });
+                if (editingSponsor) {
+                    setEditingSponsor({ ...editingSponsor, logoImage: data.url });
+                    if (editingSponsor._id) await persistField('alliances', editingSponsor._id, { logoImage: data.url });
+                } else {
+                    setNewSponsor({ ...newSponsor, logoImage: data.url });
+                }
             }
-            alert('Image uploaded successfully to Cloudinary');
+            alert('Image uploaded and saved successfully.');
         } catch (err) {
             alert(`Upload Error: ${err.message}`);
         } finally {
             setUploadingImage(false);
+        }
+    };
+
+    // Persists a single field on an already-existing record right away (used
+    // after an image upload) instead of waiting for the admin to separately
+    // submit the edit form.
+    const persistField = async (resource, id, fields) => {
+        try {
+            const res = await fetch(`${API_BASE}/${resource}/${id}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(fields)
+            });
+            if (!res.ok) {
+                const data = await safeFetchJson(res);
+                throw new Error(data.message || `Failed to save (HTTP ${res.status})`);
+            }
+            if (resource === 'crew') fetchCrew();
+            if (resource === 'alliances') fetchSponsors();
+        } catch (err) {
+            alert(`Error saving uploaded image: ${err.message}`);
         }
     };
 
