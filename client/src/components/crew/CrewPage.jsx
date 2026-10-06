@@ -16,9 +16,15 @@ import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 
-import { FACULTY_CREW, STUDENT_SECTIONS } from '../../data/crew';
+import { FACULTY_CREW, STUDENT_SECTIONS, mergeCrewFromDb } from '../../data/crew';
+import { API_BASE } from '../../constants/api';
 import BgCanvas from './BgCanvas';
 import CrewCard from './CrewCard';
+
+// How often the public page re-polls the database for admin-portal crew
+// edits while open. Not true real-time (that would need a WebSocket), but
+// close enough that changes show up within a few seconds without a reload.
+const CREW_POLL_INTERVAL_MS = 4000;
 
 
 /* ════════════════════════════════════════════
@@ -89,12 +95,34 @@ export default function CrewPage() {
     const [visibleSections, setVisibleSections] = useState(1);
     const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [studentSections, setStudentSections] = useState(STUDENT_SECTIONS);
 
     // Track window resize
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Fetch crew from the database, and keep polling so admin-portal edits
+    // (name/role/bio/avatar/category changes) show up on this page without
+    // requiring a manual reload.
+    useEffect(() => {
+        let cancelled = false;
+        const fetchCrew = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/crew`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
+                    const data = await res.json();
+                    setStudentSections(mergeCrewFromDb(data));
+                }
+            } catch (err) {
+                console.log('Failed dynamic crew fetch, utilizing fallbacks');
+            }
+        };
+        fetchCrew();
+        const interval = setInterval(fetchCrew, CREW_POLL_INTERVAL_MS);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     // Split Faculty list into rows of 4 (desktop) or 2 (mobile)
@@ -109,8 +137,8 @@ export default function CrewPage() {
 
     // Student total operatives count
     const totalStudentCount = useMemo(() => {
-        return STUDENT_SECTIONS.reduce((acc, curr) => acc + curr.members.length, 0);
-    }, []);
+        return studentSections.reduce((acc, curr) => acc + curr.members.length, 0);
+    }, [studentSections]);
 
     // Card entry animation for Faculty rows
     useEffect(() => {
@@ -134,7 +162,7 @@ export default function CrewPage() {
         setVisibleSections(1);
         const interval = setInterval(() => {
             setVisibleSections(prev => {
-                if (prev >= STUDENT_SECTIONS.length) {
+                if (prev >= studentSections.length) {
                     clearInterval(interval);
                     return prev;
                 }
@@ -142,7 +170,7 @@ export default function CrewPage() {
             });
         }, 150); // reveals next section every 150ms
         return () => clearInterval(interval);
-    }, [booted, activeTab]);
+    }, [booted, activeTab, studentSections.length]);
 
     const pageRef = useRef(null);
 
@@ -408,7 +436,7 @@ export default function CrewPage() {
                     ) : (
                         /* Section Headings + Centered Cards for Student Squadron */
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            {STUDENT_SECTIONS.slice(0, visibleSections).map((section) => (
+                            {studentSections.slice(0, visibleSections).map((section) => (
                                 <div key={section.title} className="row-reveal" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                                     {/* Futuristic Cyber Section Header Centered */}
                                     <div style={{

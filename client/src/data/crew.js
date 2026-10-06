@@ -382,3 +382,46 @@ export const STUDENT_SECTIONS = [
         ]
     }
 ];
+
+const CREW_COLOR_PALETTE = ['#00E5FF', '#9b5cff', '#1FFF76', '#ff1f4f', '#ffea00', '#ff9d00', '#ff2cfb'];
+
+// Builds the STUDENT_SECTIONS shape (grouped-by-category sections) from the
+// Crew documents returned by GET /api/crew, so admin-portal edits (name,
+// role, bio, avatar, links, category) actually render on the public site
+// instead of the page being stuck on this static fallback data forever.
+export function mergeCrewFromDb(dbCrew) {
+    if (!Array.isArray(dbCrew) || dbCrew.length === 0) return STUDENT_SECTIONS;
+
+    const order = [];
+    const buckets = {};
+    dbCrew.forEach(c => {
+        const key = (c.category || 'CORE').toUpperCase();
+        if (!buckets[key]) {
+            buckets[key] = [];
+            order.push(key);
+        }
+        buckets[key].push(c);
+    });
+
+    return order.map((key, idx) => {
+        const color = CREW_COLOR_PALETTE[idx % CREW_COLOR_PALETTE.length];
+        return {
+            title: key,
+            color,
+            members: buckets[key]
+                .slice()
+                .sort((a, b) => (Number(b.featured) - Number(a.featured)) || ((b.statVal || 0) - (a.statVal || 0)))
+                .map(c => ({
+                    id: c._id,
+                    name: c.name,
+                    role: c.role,
+                    avatar: c.avatar || '',
+                    avatarSeed: c.name,
+                    color,
+                    glow: `${color}66`,
+                    bio: c.bio || '',
+                    links: Array.isArray(c.links) ? c.links : []
+                }))
+        };
+    });
+}

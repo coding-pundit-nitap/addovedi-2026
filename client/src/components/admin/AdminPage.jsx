@@ -72,13 +72,11 @@ export default function AdminPage() {
     const [changePwMsg, setChangePwMsg] = useState({ type: '', text: '' }); // type: 'success'|'error'
 
     // CRUD Forms states
-    const [editingCategory, setEditingCategory] = useState(null);
     const [editingSubEvent, setEditingSubEvent] = useState(null);
     const [editingCrew, setEditingCrew] = useState(null);
     const [editingSponsor, setEditingSponsor] = useState(null);
 
     // New Data Add states
-    const [newCat, setNewCat] = useState({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
     const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
@@ -462,63 +460,9 @@ export default function AdminPage() {
         return rest;
     };
 
-    // Category create/update/delete
-    const saveCategory = async (e) => {
-        e.preventDefault();
-        const payload = editingCategory || newCat;
-        const isEdit = Boolean(editingCategory && editingCategory._id);
-        const url = isEdit 
-            ? `${API_BASE}/events/category/${editingCategory._id}`
-            : `${API_BASE}/events/category`;
-        const method = isEdit ? 'PUT' : 'POST';
-
-        try {
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(cleanPayload(payload))
-            });
-            const data = await safeFetchJson(res);
-            if (!res.ok) {
-                if (res.status === 401) {
-                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
-                    handleLogout();
-                    return;
-                }
-                throw new Error(data.message || `Failed to save category configuration (HTTP ${res.status})`);
-            }
-
-            fetchEvents();
-            setEditingCategory(null);
-            setNewCat({ title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' });
-            alert('Category configuration saved successfully!');
-        } catch (err) {
-            alert(`Error Saving Category: ${err.message}`);
-        }
-    };
-
-    const deleteCategory = async (id) => {
-        if (!confirm('DELETE CATEGORY? ALL CORRESPONDING SUB-EVENTS WILL BE CASCADED DELETED.')) return;
-        try {
-            const res = await fetch(`${API_BASE}/events/category/${id}`, {
-                method: 'DELETE',
-                headers: getHeaders()
-            });
-            const data = await safeFetchJson(res);
-            if (!res.ok) {
-                if (res.status === 401) {
-                    alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
-                    handleLogout();
-                    return;
-                }
-                throw new Error(data.message || 'Failed to delete category');
-            }
-            fetchEvents();
-            alert('Category deleted successfully');
-        } catch (err) {
-            alert(`Error: ${err.message}`);
-        }
-    };
+    // The 7 main event categories are fixed and intentionally NOT editable from
+    // the admin portal (only their sub-events are). See the read-only table in
+    // the Events Manager tab below.
 
     // SubEvent create/update/delete
     const saveSubEvent = async (e) => {
@@ -1360,53 +1304,17 @@ export default function AdminPage() {
                 {/* ── TAB 3: EVENTS MANAGER ── */}
                 {activeTab === 'events' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                        {/* Category CRUD Section */}
+                        {/* Categories: fixed, read-only. The 7 main divisions are permanent —
+                            only their sub-events are managed from this portal. */}
                         <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
-                            <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '24px' }}>
-                                {editingCategory ? 'EDIT DIVISION CATEGORY' : 'ADD NEW DIVISION CATEGORY'}
+                            <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '16px' }}>
+                                DIVISION CATEGORIES (FIXED)
                             </h3>
+                            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '20px' }}>
+                                The 7 main categories are fixed for this fest and cannot be added, edited, or deleted from here. Manage sub-events under them below.
+                            </p>
 
-                            <form onSubmit={saveCategory} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
-                                <input type="text" placeholder="Title (e.g. CODING QUEST)" value={editingCategory ? editingCategory.title : newCat.title} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, title: e.target.value.toUpperCase() }) : setNewCat({ ...newCat, title: e.target.value.toUpperCase() })} required />
-                                <input type="text" placeholder="Subtitle" value={editingCategory ? editingCategory.subtitle : newCat.subtitle} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, subtitle: e.target.value }) : setNewCat({ ...newCat, subtitle: e.target.value })} required />
-                                <input type="text" placeholder="XP Yield (e.g. 5,000 XP)" value={editingCategory ? editingCategory.xp : newCat.xp} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, xp: e.target.value }) : setNewCat({ ...newCat, xp: e.target.value })} required />
-                                <input type="text" placeholder="Color Hex (e.g. #ff1f4f)" value={editingCategory ? editingCategory.color : newCat.color} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, color: e.target.value }) : setNewCat({ ...newCat, color: e.target.value })} required />
-                                <select value={editingCategory ? editingCategory.difficulty : newCat.difficulty} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, difficulty: e.target.value }) : setNewCat({ ...newCat, difficulty: e.target.value })}>
-                                    <option value="MEDIUM">MEDIUM</option>
-                                    <option value="HARD">HARD</option>
-                                    <option value="ELITE">ELITE</option>
-                                </select>
-                                <select value={editingCategory ? editingCategory.iconType : newCat.iconType} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, iconType: e.target.value }) : setNewCat({ ...newCat, iconType: e.target.value })}>
-                                    <option value="code">Code Terminal Icon</option>
-                                    <option value="robot">Robot Mech Icon</option>
-                                    <option value="bolt">Lightning Bolt Icon</option>
-                                    <option value="gamepad">Gamepad Icon</option>
-                                </select>
-                                <select value={editingCategory ? editingCategory.modelType : newCat.modelType} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, modelType: e.target.value }) : setNewCat({ ...newCat, modelType: e.target.value })}>
-                                    <option value="coding">Coding Terminal Model</option>
-                                    <option value="mecha">Robot Mech Model</option>
-                                    <option value="controller">Controller Model</option>
-                                    <option value="civil">City Skyline Model</option>
-                                    <option value="electrical">Transformer Grid Model</option>
-                                    <option value="ai">Neural Brain Model</option>
-                                    <option value="gun">Gun Model</option>
-                                </select>
-                                <textarea style={{ gridColumn: isMobile ? 'auto' : 'span 3' }} placeholder="Category description..." value={editingCategory ? editingCategory.desc : newCat.desc} onChange={e => editingCategory ? setEditingCategory({ ...editingCategory, desc: e.target.value }) : setNewCat({ ...newCat, desc: e.target.value })} required />
-                                
-                                <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', display: 'flex', gap: '10px' }}>
-                                    <button type="submit" style={{ padding: '8px 24px', border: 'none', background: '#00E5FF', color: '#000', fontFamily: 'monospace', fontWeight: 900, cursor: 'pointer' }}>
-                                        {editingCategory ? 'SAVE EDIT' : 'ADD CATEGORY'}
-                                    </button>
-                                    {editingCategory && (
-                                        <button onClick={() => setEditingCategory(null)} style={{ padding: '8px 24px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontFamily: 'monospace', cursor: 'pointer' }}>
-                                            CANCEL
-                                        </button>
-                                    )}
-                                </div>
-                            </form>
-
-                            {/* Categories Table list */}
-                            <div style={{ marginTop: '30px' }}>
+                            <div>
                                 <table>
                                     <thead>
                                         <tr>
@@ -1416,7 +1324,6 @@ export default function AdminPage() {
                                             <th>MODEL TYPE</th>
                                             <th>COLOR</th>
                                             <th>XP</th>
-                                            <th>ACTIONS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1430,12 +1337,6 @@ export default function AdminPage() {
                                                 <td style={{ fontFamily: 'monospace', color: '#00E5FF' }}>{cat.modelType || 'coding'}</td>
                                                 <td style={{ color: cat.color }}>{cat.color}</td>
                                                 <td>{cat.xp}</td>
-                                                <td>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button onClick={() => setEditingCategory(cat)} style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer' }}>EDIT</button>
-                                                        <button onClick={() => deleteCategory(cat._id)} style={{ padding: '4px 10px', border: '1px solid #ff1f4f', color: '#ff1f4f', background: 'transparent', cursor: 'pointer' }}>DELETE</button>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

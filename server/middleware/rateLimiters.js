@@ -18,10 +18,14 @@ export const registrationLimiter = rateLimit({
     message: { message: 'Too many requests. Please try again later.' }
 });
 
-// Baseline limiter for all other API traffic.
+// Baseline limiter for all other API traffic. Sized generously because the
+// public site polls GET /api/events, /api/crew and /api/alliances every few
+// seconds (see client polling intervals) so admin-portal edits show up
+// without a manual reload — a single visitor browsing a few pages can
+// legitimately generate a few hundred GETs in a 15 minute window.
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 300,
+    limit: 1500,
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many requests. Please try again later.' }

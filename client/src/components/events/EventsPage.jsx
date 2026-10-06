@@ -74,14 +74,16 @@ export default function EventsPage() {
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
     const [hoveredBtn, setHoveredBtn] = useState(null);
 
-    // Fetch dynamic database categories & sub-events on boot, so admin-portal
-    // edits (new/edited/deleted categories and sub-events) actually show up
-    // on the public site instead of being stuck on the static fallback data.
+    // Fetch dynamic database categories & sub-events, and keep polling so
+    // admin-portal edits (new/edited/deleted categories and sub-events)
+    // actually show up on the public site within a few seconds instead of
+    // being stuck on the static fallback data until the next full reload.
     useEffect(() => {
+        let cancelled = false;
         const fetchEvents = async () => {
             try {
-                const res = await fetch(`${API_BASE}/events`);
-                if (res.ok) {
+                const res = await fetch(`${API_BASE}/events`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
                     const data = await res.json();
                     const mergedCategories = mergeCategoriesFromDb(data.categories);
                     setCategoriesList(mergedCategories);
@@ -94,6 +96,8 @@ export default function EventsPage() {
             }
         };
         fetchEvents();
+        const interval = setInterval(fetchEvents, 4000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     const activeCategory = useMemo(() => {

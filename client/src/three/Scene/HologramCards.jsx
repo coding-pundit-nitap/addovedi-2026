@@ -33,14 +33,15 @@ export default function HologramCards() {
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
 
-    // Fetch dynamic categories & sub-events from the Admin Portal API on mount,
-    // so admin-created/edited categories (not just sub-events under existing
-    // static categories) actually render in the 3D lobby.
+    // Fetch dynamic categories & sub-events from the Admin Portal API, and
+    // keep polling so admin-created/edited categories and sub-events render
+    // in the 3D lobby within a few seconds instead of needing a page reload.
     useEffect(() => {
+        let cancelled = false;
         const fetchBackendEvents = async () => {
             try {
-                const res = await fetch(`${API_BASE}/events`);
-                if (res.ok) {
+                const res = await fetch(`${API_BASE}/events`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
                     const data = await res.json();
                     const mergedCategories = mergeCategoriesFromDb(data.categories);
                     setCategoriesList(mergedCategories);
@@ -53,6 +54,8 @@ export default function HologramCards() {
             }
         };
         fetchBackendEvents();
+        const interval = setInterval(fetchBackendEvents, 4000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     const { categoryName, eventName } = useMemo(() => {

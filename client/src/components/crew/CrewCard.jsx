@@ -32,11 +32,27 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
         }
     };
 
-    const badgeColor = member.color;
+    const badgeColor = member.color || '#00E5FF';
     const isOverlayVisible = isMobile ? tapExpanded : isHovered;
 
-    // Use a high-tech retro pixel seed avatar representation
-    const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${member.avatarSeed}`;
+    // Prefer a real uploaded photo (admin-portal `avatar` field); fall back to
+    // a generated retro pixel-art avatar when none is set.
+    const avatarUrl = member.avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${member.avatarSeed || member.name}`;
+
+    // Missions list: static data provides `missions[]` directly; DB-sourced
+    // crew only has a free-text `bio`, so split it into bullet points.
+    const missions = Array.isArray(member.missions)
+        ? member.missions
+        : (member.bio ? member.bio.split(',').map(s => s.trim()).filter(Boolean) : []);
+
+    // Socials: static data has fixed `linkedin`/`insta` fields; DB-sourced
+    // crew has a generic `links: [{ platform, url }]` array instead.
+    const socialLinks = Array.isArray(member.links) && member.links.length > 0
+        ? member.links.filter(l => l?.url)
+        : [
+            ...(member.linkedin ? [{ platform: 'LinkedIn', url: member.linkedin }] : []),
+            ...(member.insta ? [{ platform: 'Instagram', url: member.insta }] : [])
+        ];
 
     return (
         <div
@@ -138,17 +154,17 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                     {/* Scanline overlay */}
                     <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 3px)', pointerEvents:'none', zIndex: 2 }} />
 
-                    {/* Pixel Art Avatar Image */}
-                    <img 
-                        src={avatarUrl} 
+                    {/* Portrait: real uploaded photo, or a generated pixel-art fallback */}
+                    <img
+                        src={avatarUrl}
                         alt={member.name}
                         style={{
-                            width: '80%',
-                            height: '80%',
-                            objectFit: 'contain',
-                            imageRendering: 'pixelated',
+                            width: member.avatar ? '100%' : '80%',
+                            height: member.avatar ? '100%' : '80%',
+                            objectFit: member.avatar ? 'cover' : 'contain',
+                            imageRendering: member.avatar ? 'auto' : 'pixelated',
                             zIndex: 1,
-                            opacity: 0.9
+                            opacity: member.avatar ? 1 : 0.9
                         }}
                     />
                 </div>
@@ -222,7 +238,7 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                         ACTIVE MISSIONS
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {member.missions.map((mission, idx) => (
+                        {missions.map((mission, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                                 <span style={{ color: badgeColor, fontSize: isMobile ? '8px' : '11px', lineHeight: 1.35 }}>▶</span>
                                 <span style={{ fontFamily: 'monospace', fontSize: isMobile ? '9px' : '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35 }}>{mission}</span>
@@ -266,72 +282,48 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                     </div>
 
                     {/* Socials buttons */}
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <a
-                            href={member.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                flex: 1,
-                                textAlign: 'center',
-                                fontFamily: "'Orbitron', monospace",
-                                fontSize: isMobile ? '7.5px' : '10px',
-                                padding: isMobile ? '6px 0' : '8px 0',
-                                borderRadius: '4px',
-                                border: `1.2px solid ${badgeColor}30`,
-                                background: 'rgba(255,255,255,0.02)',
-                                color: badgeColor,
-                                textDecoration: 'none',
-                                transition: 'all 0.2s',
-                                fontWeight: 'bold'
-                            }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.borderColor = badgeColor;
-                                e.currentTarget.style.background = `${badgeColor}15`;
-                                e.currentTarget.style.color = '#fff';
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.borderColor = `${badgeColor}30`;
-                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                                e.currentTarget.style.color = badgeColor;
-                            }}
-                        >
-                            LINKEDIN
-                        </a>
-                        <a
-                            href={member.insta}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                flex: 1,
-                                textAlign: 'center',
-                                fontFamily: "'Orbitron', monospace",
-                                fontSize: isMobile ? '7.5px' : '10px',
-                                padding: isMobile ? '6px 0' : '8px 0',
-                                borderRadius: '4px',
-                                border: `1.2px solid ${badgeColor}30`,
-                                background: 'rgba(255,255,255,0.02)',
-                                color: badgeColor,
-                                textDecoration: 'none',
-                                transition: 'all 0.2s',
-                                fontWeight: 'bold'
-                            }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.borderColor = badgeColor;
-                                e.currentTarget.style.background = `${badgeColor}15`;
-                                e.currentTarget.style.color = '#fff';
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.borderColor = `${badgeColor}30`;
-                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                                e.currentTarget.style.color = badgeColor;
-                            }}
-                        >
-                            INSTAGRAM
-                        </a>
-                    </div>
+                    {socialLinks.length > 0 && (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {socialLinks.map((link, idx) => (
+                                <a
+                                    key={idx}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{
+                                        flex: 1,
+                                        textAlign: 'center',
+                                        fontFamily: "'Orbitron', monospace",
+                                        fontSize: isMobile ? '7.5px' : '10px',
+                                        padding: isMobile ? '6px 0' : '8px 0',
+                                        borderRadius: '4px',
+                                        border: `1.2px solid ${badgeColor}30`,
+                                        background: 'rgba(255,255,255,0.02)',
+                                        color: badgeColor,
+                                        textDecoration: 'none',
+                                        transition: 'all 0.2s',
+                                        fontWeight: 'bold',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.borderColor = badgeColor;
+                                        e.currentTarget.style.background = `${badgeColor}15`;
+                                        e.currentTarget.style.color = '#fff';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.borderColor = `${badgeColor}30`;
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                                        e.currentTarget.style.color = badgeColor;
+                                    }}
+                                >
+                                    {(link.platform || 'LINK').toUpperCase()}
+                                </a>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

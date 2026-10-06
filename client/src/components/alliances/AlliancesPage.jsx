@@ -449,12 +449,14 @@ export default function AlliancesPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch dynamic alliances from backend on load
+    // Fetch dynamic alliances from backend, and keep polling so admin-portal
+    // edits show up within a few seconds instead of needing a page reload.
     useEffect(() => {
+        let cancelled = false;
         const fetchSponsors = async () => {
             try {
-                const res = await fetch(`${API_BASE}/alliances`);
-                if (res.ok) {
+                const res = await fetch(`${API_BASE}/alliances`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
                     const data = await res.json();
                     if (data && data.length > 0) {
                         const mapped = data.map((item, idx) => ({
@@ -476,6 +478,8 @@ export default function AlliancesPage() {
             }
         };
         fetchSponsors();
+        const interval = setInterval(fetchSponsors, 4000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     // Radial layout major sponsors around the core
