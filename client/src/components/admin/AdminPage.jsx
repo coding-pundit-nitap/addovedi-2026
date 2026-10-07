@@ -343,6 +343,32 @@ export default function AdminPage() {
         }
     };
 
+    // Flips a registration's verification status after the admin has checked
+    // it against the team's actual Unstop entry.
+    const setRegistrationStatus = async (id, status) => {
+        try {
+            const res = await fetch(`${API_BASE}/registrations/${id}`, {
+                method: 'PATCH',
+                headers: getHeaders(),
+                body: JSON.stringify({ status })
+            });
+            const data = await safeFetchJson(res);
+            if (res.ok) {
+                fetchRegistrations();
+            } else {
+                alert(data.message || 'Failed to update registration status');
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const REG_STATUS_META = {
+        VERIFIED: { label: 'VERIFIED', color: '#1FFF76' },
+        PENDING_UNSTOP_VERIFICATION: { label: 'PENDING', color: '#ffea00' },
+        CANCELLED: { label: 'CANCELLED', color: '#ff1f4f' }
+    };
+
     // Audit Logs fetching
     const fetchAuditLogs = async () => {
         setLoadingAuditLogs(true);
@@ -414,7 +440,7 @@ export default function AdminPage() {
             alert('No registration data available to export.');
             return;
         }
-        const headers = ['Event', 'Category', 'Team Name', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Registered At'];
+        const headers = ['Event', 'Category', 'Team Name', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Status', 'Unstop Ref ID', 'Registered At'];
         const csvRows = [headers.join(',')];
 
         data.forEach(r => {
@@ -429,6 +455,8 @@ export default function AdminPage() {
                 `"${r.leaderPhone || ''}"`,
                 r.teamSize || 1,
                 `"${membersStr}"`,
+                `"${r.status || ''}"`,
+                `"${r.unstopRefId || ''}"`,
                 `"${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}"`
             ];
             csvRows.push(row.join(','));
@@ -443,6 +471,74 @@ export default function AdminPage() {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+    };
+
+    const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+
+    // Opens a clean, styled print view in a new tab and triggers the browser's
+    // print dialog — the admin picks "Save as PDF" there for a printable PDF,
+    // with no extra PDF-generation dependency needed.
+    const printRegistrations = (title, data) => {
+        if (!data || !data.length) {
+            alert('No registration data available to print.');
+            return;
+        }
+        const win = window.open('', '_blank');
+        if (!win) {
+            alert('Please allow pop-ups for this site to print / save as PDF.');
+            return;
+        }
+        const rowsHtml = data.map(r => `
+            <tr>
+                <td>${escapeHtml(r.eventTitle)}</td>
+                <td>${escapeHtml(r.categoryTitle)}</td>
+                <td>${escapeHtml(r.teamName)}</td>
+                <td>${escapeHtml(r.leaderName)}<br/><span class="sub">${escapeHtml(r.leaderUID)}</span></td>
+                <td>${escapeHtml(r.leaderPhone)}${r.userEmail ? `<br/><span class="sub">${escapeHtml(r.userEmail)}</span>` : ''}</td>
+                <td>${(r.members || []).map(m => escapeHtml(`${m.name || ''} (${m.uid || ''})`)).join('<br/>') || '<span class="sub">Solo</span>'}</td>
+                <td>${escapeHtml((REG_STATUS_META[r.status] || REG_STATUS_META.PENDING_UNSTOP_VERIFICATION).label)}</td>
+                <td>${escapeHtml(r.unstopRefId) || '<span class="sub">&mdash;</span>'}</td>
+                <td class="sub">${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}</td>
+            </tr>
+        `).join('');
+
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>${escapeHtml(title)}</title>
+                <style>
+                    body { font-family: Arial, Helvetica, sans-serif; color: #111; padding: 24px; }
+                    h1 { font-size: 18px; margin: 0 0 4px; }
+                    .meta { font-size: 11px; color: #555; margin-bottom: 16px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+                    th, td { border: 1px solid #ccc; padding: 6px 7px; text-align: left; vertical-align: top; }
+                    th { background: #eee; }
+                    .sub { color: #777; font-size: 9px; }
+                    @media print { @page { size: landscape; margin: 12mm; } }
+                </style>
+            </head>
+            <body>
+                <h1>${escapeHtml(title)}</h1>
+                <div class="meta">Addovedi 2026 &mdash; Generated ${new Date().toLocaleString()} &mdash; ${data.length} record(s)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event</th><th>Category</th><th>Team</th><th>Leader</th><th>Contact</th>
+                            <th>Members</th><th>Status</th><th>Unstop Ref ID</th><th>Registered At</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 350);
     };
 
     // Events CRUD fetching
@@ -986,14 +1082,20 @@ export default function AdminPage() {
                             </div>
 
                             <div style={{ display: 'flex', gap: '8px' }}>
-                                <button 
-                                    onClick={() => exportToCSV(registrations, 'addovedi_master_registrations.csv')} 
+                                <button
+                                    onClick={() => exportToCSV(registrations, 'addovedi_master_registrations.csv')}
                                     style={{ fontFamily: "'Orbitron', monospace", fontSize: '8px', fontWeight: 800, padding: '8px 14px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     EXPORT MASTER CSV
                                 </button>
-                                <button 
-                                    onClick={fetchRegistrations} 
+                                <button
+                                    onClick={() => printRegistrations('Addovedi 2026 — Master Registration List', registrations)}
+                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '8px', fontWeight: 800, padding: '8px 14px', border: '1px solid #9b5cff', color: '#9b5cff', background: 'rgba(155,92,255,0.06)', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    PRINT / SAVE AS PDF
+                                </button>
+                                <button
+                                    onClick={fetchRegistrations}
                                     style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00E5FF', background: 'transparent', border: 'none', cursor: 'pointer' }}
                                 >
                                     [ REFRESH ]
@@ -1076,6 +1178,7 @@ export default function AdminPage() {
                                             <th>TEAM NAME & SIZE</th>
                                             <th>CONTACT PHONE</th>
                                             <th>REGISTERED EVENTS (HISTORY)</th>
+                                            <th>UNSTOP VERIFICATION</th>
                                             <th>REGISTRATION DATE</th>
                                             <th>ACTIONS</th>
                                         </tr>
@@ -1151,12 +1254,45 @@ export default function AdminPage() {
                                                                 ))}
                                                             </div>
                                                         </td>
+                                                        <td>
+                                                            {(() => {
+                                                                const meta = REG_STATUS_META[reg.status] || REG_STATUS_META.PENDING_UNSTOP_VERIFICATION;
+                                                                return (
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                                                                        <span style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", fontWeight: 800, padding: '3px 8px', borderRadius: '4px', color: meta.color, background: `${meta.color}18`, border: `1px solid ${meta.color}50` }}>
+                                                                            {meta.label}
+                                                                        </span>
+                                                                        {reg.unstopRefId && (
+                                                                            <span style={{ fontFamily: 'monospace', fontSize: '8.5px', color: 'rgba(255,255,255,0.5)' }}>
+                                                                                REF: {reg.unstopRefId}
+                                                                            </span>
+                                                                        )}
+                                                                        {reg.status !== 'VERIFIED' && reg.status !== 'CANCELLED' && (
+                                                                            <button
+                                                                                onClick={() => setRegistrationStatus(reg._id, 'VERIFIED')}
+                                                                                style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', fontWeight: 800, padding: '3px 7px', border: '1px solid #1FFF76', color: '#1FFF76', background: 'rgba(31,255,118,0.08)', borderRadius: '3px', cursor: 'pointer' }}
+                                                                            >
+                                                                                ✓ MARK VERIFIED
+                                                                            </button>
+                                                                        )}
+                                                                        {reg.status === 'VERIFIED' && (
+                                                                            <button
+                                                                                onClick={() => setRegistrationStatus(reg._id, 'PENDING_UNSTOP_VERIFICATION')}
+                                                                                style={{ fontFamily: 'monospace', fontSize: '7.5px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', textDecoration: 'underline' }}
+                                                                            >
+                                                                                undo
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })()}
+                                                        </td>
                                                         <td style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9.5px' }}>
                                                             {reg.createdAt ? new Date(reg.createdAt).toLocaleString() : 'N/A'}
                                                         </td>
                                                         <td>
-                                                            <button 
-                                                                onClick={() => deleteRegistrationRecord(reg._id)} 
+                                                            <button
+                                                                onClick={() => deleteRegistrationRecord(reg._id)}
                                                                 style={{ padding: '4px 10px', border: '1px solid #ff1f4f', color: '#ff1f4f', background: 'transparent', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', borderRadius: '3px' }}
                                                             >
                                                                 REMOVE
@@ -1233,15 +1369,26 @@ export default function AdminPage() {
                                                         <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
                                                             {isSelected ? '▲ HIDE ROSTER' : '▼ VIEW PARTICIPANTS'}
                                                         </span>
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                exportToCSV(evItem.registrations, `${evItem.eventTitle.replace(/[^a-zA-Z0-9]/g, '_')}_roster.csv`);
-                                                            }}
-                                                            style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: '#00E5FF', padding: '3px 8px', borderRadius: '3px', cursor: 'pointer' }}
-                                                        >
-                                                            EXPORT CSV
-                                                        </button>
+                                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    exportToCSV(evItem.registrations, `${evItem.eventTitle.replace(/[^a-zA-Z0-9]/g, '_')}_roster.csv`);
+                                                                }}
+                                                                style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", background: 'transparent', border: '1px solid rgba(0,229,255,0.4)', color: '#00E5FF', padding: '3px 8px', borderRadius: '3px', cursor: 'pointer' }}
+                                                            >
+                                                                CSV
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    printRegistrations(`${evItem.eventTitle} — Roster`, evItem.registrations);
+                                                                }}
+                                                                style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", background: 'transparent', border: '1px solid rgba(155,92,255,0.4)', color: '#9b5cff', padding: '3px 8px', borderRadius: '3px', cursor: 'pointer' }}
+                                                            >
+                                                                PDF
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             );
@@ -1260,13 +1407,19 @@ export default function AdminPage() {
                                                 </h3>
                                             </div>
                                             <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button 
+                                                <button
                                                     onClick={() => exportToCSV(selectedEventRoster.registrations, `${selectedEventRoster.eventTitle}_roster.csv`)}
                                                     style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', padding: '6px 12px', background: 'rgba(0,229,255,0.15)', border: '1px solid #00E5FF', color: '#00E5FF', borderRadius: '4px', cursor: 'pointer' }}
                                                 >
-                                                    EXPORT THIS ROSTER CSV
+                                                    EXPORT CSV
                                                 </button>
-                                                <button 
+                                                <button
+                                                    onClick={() => printRegistrations(`${selectedEventRoster.eventTitle} — Roster`, selectedEventRoster.registrations)}
+                                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', padding: '6px 12px', background: 'rgba(155,92,255,0.15)', border: '1px solid #9b5cff', color: '#9b5cff', borderRadius: '4px', cursor: 'pointer' }}
+                                                >
+                                                    PRINT / SAVE AS PDF
+                                                </button>
+                                                <button
                                                     onClick={() => setSelectedEventRoster(null)}
                                                     style={{ fontFamily: 'monospace', fontSize: '12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '0 8px' }}
                                                 >
@@ -1285,6 +1438,7 @@ export default function AdminPage() {
                                                         <th>EMAIL</th>
                                                         <th>PHONE NUMBER</th>
                                                         <th>TEAM MEMBERS</th>
+                                                        <th>UNSTOP VERIFICATION</th>
                                                         <th>DATE REGISTERED</th>
                                                     </tr>
                                                 </thead>
@@ -1316,6 +1470,39 @@ export default function AdminPage() {
                                                                 ) : (
                                                                     <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}>Solo Participant</span>
                                                                 )}
+                                                            </td>
+                                                            <td>
+                                                                {(() => {
+                                                                    const meta = REG_STATUS_META[r.status] || REG_STATUS_META.PENDING_UNSTOP_VERIFICATION;
+                                                                    return (
+                                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                                                                            <span style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", fontWeight: 800, padding: '3px 8px', borderRadius: '4px', color: meta.color, background: `${meta.color}18`, border: `1px solid ${meta.color}50` }}>
+                                                                                {meta.label}
+                                                                            </span>
+                                                                            {r.unstopRefId && (
+                                                                                <span style={{ fontFamily: 'monospace', fontSize: '8.5px', color: 'rgba(255,255,255,0.5)' }}>
+                                                                                    REF: {r.unstopRefId}
+                                                                                </span>
+                                                                            )}
+                                                                            {r.status !== 'VERIFIED' && r.status !== 'CANCELLED' && (
+                                                                                <button
+                                                                                    onClick={() => setRegistrationStatus(r._id, 'VERIFIED')}
+                                                                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', fontWeight: 800, padding: '3px 7px', border: '1px solid #1FFF76', color: '#1FFF76', background: 'rgba(31,255,118,0.08)', borderRadius: '3px', cursor: 'pointer' }}
+                                                                                >
+                                                                                    ✓ MARK VERIFIED
+                                                                                </button>
+                                                                            )}
+                                                                            {r.status === 'VERIFIED' && (
+                                                                                <button
+                                                                                    onClick={() => setRegistrationStatus(r._id, 'PENDING_UNSTOP_VERIFICATION')}
+                                                                                    style={{ fontFamily: 'monospace', fontSize: '7.5px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', textDecoration: 'underline' }}
+                                                                                >
+                                                                                    undo
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })()}
                                                             </td>
                                                             <td style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9.5px' }}>
                                                                 {r.createdAt ? new Date(r.createdAt).toLocaleString() : 'N/A'}
