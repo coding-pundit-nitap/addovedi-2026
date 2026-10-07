@@ -860,16 +860,15 @@ export default function AuthModal() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
                             transition={{ duration: 0.4 }}
-                            className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-auto items-stretch my-auto"
+                            className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto items-stretch my-auto"
                         >
                             {/* LEFT PANEL: Digital ID Card */}
-                            <div className="lg:col-span-5 flex flex-col items-center justify-center">
-                                <div 
-                                    className="w-full max-w-[340px] p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between"
+                            <div className="md:col-span-5 flex flex-col items-center justify-center">
+                                <div
+                                    className="w-full max-w-[340px] p-5 sm:p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between md:min-h-[460px]"
                                     style={{
                                         background: 'linear-gradient(185deg, #020712 0%, #041021 100%)',
-                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)',
-                                        minHeight: '460px'
+                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)'
                                     }}
                                 >
                                     <div className="scanner-line" />
@@ -903,14 +902,14 @@ export default function AuthModal() {
 
                                     <div className="relative mt-4 z-10">
                                         <div 
-                                            className="w-32 h-32 rounded-full flex items-center justify-center border-2 border-dashed relative animate-spin-slow"
+                                            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center border-2 border-dashed relative animate-spin-slow"
                                             style={{
                                                 borderColor: `${currentAvatarData.color}40`,
                                                 animationDuration: '15s'
                                             }}
                                         />
                                         <div 
-                                            className="w-28 h-28 rounded-full absolute top-2 left-2 flex items-center justify-center text-3xl font-black border-2"
+                                            className="w-20 h-20 sm:w-28 sm:h-28 rounded-full absolute top-2 left-2 flex items-center justify-center text-2xl sm:text-3xl font-black border-2"
                                             style={{
                                                 background: `radial-gradient(circle, ${currentAvatarData.color}25 0%, #030c17 100%)`,
                                                 color: currentAvatarData.color,
@@ -1021,14 +1020,13 @@ export default function AuthModal() {
                             </div>
 
                             {/* RIGHT PANEL: Registered Events List */}
-                            <div 
-                                className="lg:col-span-7 p-6 relative flex flex-col justify-between"
+                            <div
+                                className="md:col-span-7 p-5 sm:p-6 relative flex flex-col justify-between md:min-h-[460px]"
                                 style={{
                                     background: 'rgba(2, 7, 16, 0.85)',
                                     border: '1.5px solid rgba(0, 217, 255, 0.4)',
                                     clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
-                                    backdropFilter: 'blur(20px)',
-                                    minHeight: '460px'
+                                    backdropFilter: 'blur(20px)'
                                 }}
                             >
                                 <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00D9FF]" />
@@ -1036,7 +1034,7 @@ export default function AuthModal() {
                                 <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#00D9FF]" />
                                 <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00D9FF]" />
 
-                                <div>
+                                <div className="flex-1 flex flex-col min-h-0">
                                     {/* Player info strip */}
                                     <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/5">
                                         <div
@@ -1065,7 +1063,7 @@ export default function AuthModal() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
                                         <div className="flex flex-col">
                                             <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '9px', fontWeight: 900, color: '#00D9FF', letterSpacing: '0.15em' }}>MISSION_ENLISTMENTS</span>
                                             <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: '1.18rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>REGISTERED EVENTS</h2>
@@ -1076,7 +1074,7 @@ export default function AuthModal() {
                                     </div>
 
                                     {registeredEvents.length === 0 ? (
-                                        <div className="py-6 flex flex-col items-center justify-center text-center gap-3 select-none my-auto">
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 select-none py-6">
                                             <div className="w-12 h-12 rounded-full border border-dashed border-[#00D9FF]/40 flex items-center justify-center text-[#00D9FF] font-bold text-lg shadow-[0_0_15px_rgba(0,217,255,0.2)]">
                                                 ⚔
                                             </div>

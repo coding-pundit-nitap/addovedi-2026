@@ -277,6 +277,9 @@ export default function AdminPage() {
             if (res.ok) {
                 const data = await safeFetchJson(res);
                 if (Array.isArray(data)) setMessages(data);
+            } else if (res.status === 401) {
+                handleLogout();
+                alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
             }
         } catch (err) {
             console.error(err);
@@ -311,6 +314,10 @@ export default function AdminPage() {
             if (res.ok) {
                 const data = await safeFetchJson(res);
                 if (Array.isArray(data)) setRegistrations(data);
+            } else if (res.status === 401) {
+                handleLogout();
+                alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+                return;
             }
 
             const statsRes = await fetch(`${API_BASE}/registrations/stats`, { headers: getHeaders() });
@@ -377,6 +384,9 @@ export default function AdminPage() {
             if (res.ok) {
                 const data = await safeFetchJson(res);
                 if (Array.isArray(data)) setAuditLogs(data);
+            } else if (res.status === 401) {
+                handleLogout();
+                alert('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
             }
         } catch (err) {
             console.error('Fetch Audit Logs Error:', err);
