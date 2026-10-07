@@ -1,8 +1,14 @@
 import * as globalUserService from '../services/globalUserService.js';
+import { verifyTurnstileToken } from '../utils/turnstile.js';
 
 export const signup = async (req, res) => {
     try {
-        const user = await globalUserService.signup(req.body);
+        const { turnstileToken, ...payload } = req.body;
+        const captchaOk = await verifyTurnstileToken(turnstileToken, req.ip);
+        if (!captchaOk) {
+            return res.status(400).json({ message: 'CAPTCHA verification failed. Please try again.' });
+        }
+        const user = await globalUserService.signup(payload);
         return res.status(201).json(user);
     } catch (err) {
         return res.status(400).json({ message: err.message });

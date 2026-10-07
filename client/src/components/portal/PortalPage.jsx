@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { API_BASE } from '../../constants/api';
+import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
+import TurnstileWidget from '../common/TurnstileWidget';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
@@ -71,6 +72,11 @@ export default function AuthModal() {
     // Loading/scanning simulators
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    // CAPTCHA (Cloudflare Turnstile) token captured for sign-up, to deter
+    // scripted bulk account creation. Reset after every submit attempt since
+    // a Turnstile token is single-use.
+    const [captchaToken, setCaptchaToken] = useState('');
 
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
@@ -207,6 +213,10 @@ export default function AuthModal() {
             setErrorMsg('PASSWORD MUST BE AT LEAST 8 CHARACTERS.');
             return;
         }
+        if (TURNSTILE_SITE_KEY && !captchaToken) {
+            setErrorMsg('PLEASE COMPLETE THE SECURITY CHECK.');
+            return;
+        }
 
         setIsSubmitting(true);
         try {
@@ -217,7 +227,8 @@ export default function AuthModal() {
                     name: authForm.name,
                     email: authForm.email,
                     phone: authForm.phone,
-                    password: authForm.password
+                    password: authForm.password,
+                    turnstileToken: captchaToken
                 })
             });
             const data = await res.json();
@@ -234,6 +245,7 @@ export default function AuthModal() {
             setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
         } finally {
             setIsSubmitting(false);
+            setCaptchaToken('');
         }
     };
 
@@ -579,9 +591,20 @@ export default function AuthModal() {
                                     />
                                 </div>
 
+                                {activeTab === 'signup' && TURNSTILE_SITE_KEY && (
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] text-white/50 tracking-wider font-bold uppercase">Security Check</label>
+                                        <TurnstileWidget
+                                            onVerify={setCaptchaToken}
+                                            onExpire={() => setCaptchaToken('')}
+                                            onError={() => setCaptchaToken('')}
+                                        />
+                                    </div>
+                                )}
+
                                 {/* Error Log */}
                                 {errorMsg && (
-                                    <div 
+                                    <div
                                         className="border border-red-500/30 bg-red-950/20 text-red-400 p-2.5 text-[10px] tracking-wider font-semibold uppercase flex items-center gap-2 select-none"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >

@@ -22,3 +22,5 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         value: https://addovedi-2026.vercel.app
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
