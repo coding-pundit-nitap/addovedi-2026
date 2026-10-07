@@ -42,26 +42,32 @@ export const createRegistration = async (req, res) => {
             return res.status(400).json({ message: `Addovedi ID "${missingUid.toUpperCase()}" was not found. Every team member must have completed Addovedi sign-up first.` });
         }
 
-        // Collect all incoming UIDs (leader + all team members)
-        const incomingUids = [
-            leaderUID.trim().toLowerCase(),
-            ...(Array.isArray(members) ? members.map(m => (m?.uid || '').trim().toLowerCase()) : [])
-        ].filter(Boolean);
+        // Check if any incoming UID (leader or member) is already registered
+        // for this event, via a single indexed query rather than fetching
+        // every existing registration for the event and scanning it in JS —
+        // that approach gets slower with every registration added and would
+        // eventually block the server outright at high volume. The compound
+        // (eventTitle, leaderUID) / (eventTitle, members.uid) indexes with a
+        // case-insensitive collation (see Registration.js) make this an
+        // O(log n) lookup regardless of how large the event's roster gets.
+        const conflict = await Registration.findOne({
+            eventTitle: eventTitle.trim(),
+            status: { $ne: 'CANCELLED' },
+            $or: [
+                { leaderUID: { $in: allUids } },
+                { 'members.uid': { $in: allUids } }
+            ]
+        }).collation({ locale: 'en', strength: 2 });
 
-        // Check if any incoming UID is already registered in this event as a leader or team member (excluding CANCELLED)
-        const existingRegistrations = await Registration.find({ eventTitle: eventTitle.trim(), status: { $ne: 'CANCELLED' } });
-        for (const reg of existingRegistrations) {
-            const existingUids = [
-                (reg.leaderUID || '').toLowerCase(),
-                ...(Array.isArray(reg.members) ? reg.members.map(m => (m?.uid || '').toLowerCase()) : [])
-            ].filter(Boolean);
-
-            const duplicateUid = incomingUids.find(uid => existingUids.includes(uid));
-            if (duplicateUid) {
-                return res.status(400).json({ 
-                    message: `Player with Addovedi ID "${duplicateUid.toUpperCase()}" is already registered under team "${reg.teamName}" for "${eventTitle}". Multiple team enlistments for the same event are forbidden.` 
-                });
-            }
+        if (conflict) {
+            const conflictUids = [
+                (conflict.leaderUID || '').toLowerCase(),
+                ...(Array.isArray(conflict.members) ? conflict.members.map(m => (m?.uid || '').toLowerCase()) : [])
+            ];
+            const duplicateUid = allUids.find(u => conflictUids.includes(u.toLowerCase()));
+            return res.status(400).json({
+                message: `Player with Addovedi ID "${(duplicateUid || '').toUpperCase()}" is already registered under team "${conflict.teamName}" for "${eventTitle}". Multiple team enlistments for the same event are forbidden.`
+            });
         }
 
         const registration = new Registration({

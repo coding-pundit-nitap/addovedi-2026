@@ -24,8 +24,7 @@ const registrationSchema = new mongoose.Schema({
     leaderUID: {
         type: String,
         required: true,
-        trim: true,
-        index: true
+        trim: true
     },
     leaderPhone: {
         type: String,
@@ -57,5 +56,21 @@ const registrationSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+// Case-insensitive compound indexes (collation strength:2 = case-insensitive
+// equality) so the duplicate-enlistment check in createRegistration can do a
+// single indexed lookup instead of pulling every registration for an event
+// into memory and scanning it in JS — the latter degrades to a full
+// in-memory scan on every new registration as an event's roster grows,
+// which becomes a real crash risk (CPU + memory, blocking Node's single
+// event loop) at high registration volume, attack or not.
+registrationSchema.index(
+    { eventTitle: 1, leaderUID: 1 },
+    { collation: { locale: 'en', strength: 2 } }
+);
+registrationSchema.index(
+    { eventTitle: 1, 'members.uid': 1 },
+    { collation: { locale: 'en', strength: 2 } }
+);
 
 export default mongoose.model('Registration', registrationSchema);
