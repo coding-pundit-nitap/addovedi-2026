@@ -125,11 +125,13 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                 position: 'relative',
                 width: '100%',
                 flex: 1,
+                minHeight: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '16px',
-                zIndex: 3
+                zIndex: 3,
+                overflow: 'hidden'
             }}>
                 {/* Rotating holographic circles behind */}
                 <div className="portrait-bg-glow" style={{ background: `radial-gradient(circle, ${badgeColor}25 0%, transparent 70%)` }} />
