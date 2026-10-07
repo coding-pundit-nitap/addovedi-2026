@@ -22,7 +22,8 @@ function EventDetailsModal({
     setMembers,
     handleRegisterSubmit,
     handleCancelRegistration,
-    isRegistered
+    isRegistered,
+    existingReg
 }) {
     const location = useLocation();
     const [activeTab, setActiveTab] = useState('register'); // Default to register
@@ -457,6 +458,7 @@ function EventDetailsModal({
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
                             isRegistered={isRegistered}
+                            existingReg={existingReg}
                             isMobileModal={isMobileModal}
                             btnThemeStyles={btnThemeStyles}
                         />
@@ -504,7 +506,8 @@ export default function EventModal({
     setMembers,
     handleRegisterSubmit,
     handleCancelRegistration,
-    isRegistered
+    isRegistered,
+    existingReg
 }) {
     return (
         <AnimatePresence>
@@ -594,6 +597,7 @@ export default function EventModal({
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
                             isRegistered={isRegistered}
+                            existingReg={existingReg}
                         />
                     </motion.div>
                 </motion.div>

@@ -4,8 +4,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
+import { fetchMyRegistrations } from '../../utils/registrations';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
+
+// How often the page re-checks the server for registration status changes
+// (e.g. an admin marking a registration VERIFIED) while a user has it open.
+const MY_REGISTRATIONS_POLL_MS = 8000;
 
 export default function EventsPage() {
     const setIsEntered = useStore(s => s.setIsEntered);
@@ -45,22 +50,33 @@ export default function EventsPage() {
     const currentUser = useStore(s => s.currentUser);
     const isMobile = window.innerWidth < 768;
 
-    // Read registered events from localStorage to compute level/XP
-    const [registeredCount, setRegisteredCount] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('addovedi_registrations') || '[]').length; }
-        catch { return 0; }
-    });
+    // The logged-in user's registrations, fetched from the server — the
+    // single source of truth for "am I registered" and "has admin verified
+    // it", for BOTH the team leader and any team member (a member never
+    // submits the form themselves, so this can't come from localStorage,
+    // which only ever reflected whatever the leader's own browser wrote).
+    const [myRegistrations, setMyRegistrations] = useState([]);
+    const registeredCount = myRegistrations.length;
 
-    // Recount whenever registration data might change (storage event)
+    const refreshMyRegistrations = async () => {
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (!loggedInUser?.addovediId) {
+            setMyRegistrations([]);
+            return;
+        }
+        const regs = await fetchMyRegistrations(loggedInUser.addovediId);
+        setMyRegistrations(regs);
+    };
+
     useEffect(() => {
-        const onStorage = () => {
-            try {
-                const regs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-                setRegisteredCount(regs.length);
-            } catch { /**/ }
+        refreshMyRegistrations();
+        const interval = setInterval(refreshMyRegistrations, MY_REGISTRATIONS_POLL_MS);
+        window.addEventListener('storage', refreshMyRegistrations);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', refreshMyRegistrations);
         };
-        window.addEventListener('storage', onStorage);
-        return () => window.removeEventListener('storage', onStorage);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // XP per event = 200, level up every 3 events, max level 10
@@ -112,6 +128,21 @@ export default function EventsPage() {
         return eventsList.find(e => slugify(e.title) === eventName) || null;
     }, [activeCategory, eventName, subEventsData]);
 
+    // The current user's registration for the event being viewed (if any),
+    // as leader or as a team member — drives the "already registered" view
+    // and its real admin-verification status.
+    const existingReg = useMemo(() => {
+        if (!activeEvent) return null;
+        return myRegistrations.find(r => r.eventTitle === activeEvent.title) || null;
+    }, [activeEvent, myRegistrations]);
+
+    // Keeps "already registered" state in sync with the server, so visiting
+    // an event you (or your team leader) registered for in a past session
+    // shows the registered view immediately, not just right after submitting.
+    useEffect(() => {
+        setIsRegistered(Boolean(existingReg));
+    }, [existingReg]);
+
     useEffect(() => {
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (loggedInUser && loggedInUser.isGlobalRegistered) {
@@ -138,23 +169,12 @@ export default function EventsPage() {
 
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
 
-        // Add to registrations list in localStorage
-        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-        if (!storedRegs.some(r => r.title === activeEvent.title)) {
-            storedRegs.push({
-                title: activeEvent.title,
-                category: activeCategory.title,
-                venue: activeEvent.venue || 'Main Arena',
-                teamName: teamName,
-                unstopRefId: unstopRefId
-            });
-            localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
-            setRegisteredCount(storedRegs.length); // update level/XP bar live
-        }
-
-        // Post to backend database
+        // Post to backend database — this IS the source of truth now; no
+        // more writing to localStorage, since that never reflected a team
+        // member's own registration status, only whatever the leader's own
+        // browser last wrote.
         try {
-            await fetch(`${API_BASE}/registrations`, {
+            const res = await fetch(`${API_BASE}/registrations`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -167,32 +187,41 @@ export default function EventsPage() {
                     teamSize: teamSize,
                     members: members,
                     userEmail: loggedInUser.email || '',
-                    unstopRefId: unstopRefId,
-                    status: 'PENDING_UNSTOP_VERIFICATION'
+                    unstopRefId: unstopRefId
                 })
             });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || 'Registration failed. Please try again.');
+                return;
+            }
         } catch (err) {
             console.error('Server registration error:', err);
+            alert('Network error — registration was not submitted. Please try again.');
+            return;
         }
 
+        await refreshMyRegistrations();
         setIsRegistered(true);
     };
 
     const handleCancelRegistration = async () => {
+        // Only the team leader can cancel — the server only matches on
+        // leaderUID + leaderPhone, so a team member's own credentials would
+        // never match anyway; guard client-side with a clear message instead
+        // of letting it silently fail.
+        if (existingReg && !existingReg.isLeader) {
+            alert(`Only the team leader (${existingReg.leaderName}) can cancel this registration.`);
+            return;
+        }
+
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         const userUid = loggedInUser?.addovediId || loggedInUser?.uniqueId || leaderUID;
         const userPhone = loggedInUser?.phone || leaderPhone;
 
-        // Remove from localStorage
-        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-        const updatedRegs = storedRegs.filter(r => r.title !== activeEvent?.title);
-        localStorage.setItem('addovedi_registrations', JSON.stringify(updatedRegs));
-        setRegisteredCount(updatedRegs.length);
-
-        // Cancel in the backend database (requires leaderPhone to prove ownership)
         if (activeEvent?.title && userUid && userPhone) {
             try {
-                await fetch(`${API_BASE}/registrations/cancel`, {
+                const res = await fetch(`${API_BASE}/registrations/cancel`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -201,11 +230,19 @@ export default function EventsPage() {
                         leaderPhone: userPhone
                     })
                 });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.message || 'Could not cancel registration.');
+                    return;
+                }
             } catch (err) {
                 console.error('Server cancel registration error:', err);
+                alert('Network error — cancellation was not completed. Please try again.');
+                return;
             }
         }
 
+        await refreshMyRegistrations();
         setIsRegistered(false);
         setTeamName('');
         setTeamSize(1);
@@ -909,6 +946,7 @@ export default function EventsPage() {
                     handleRegisterSubmit={handleRegisterSubmit}
                     handleCancelRegistration={handleCancelRegistration}
                     isRegistered={isRegistered}
+                    existingReg={existingReg}
                 />
 
                 {/* Bottom Footer Area */}

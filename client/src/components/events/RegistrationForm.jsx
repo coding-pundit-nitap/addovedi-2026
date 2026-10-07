@@ -18,6 +18,7 @@ export default function RegistrationForm({
     handleRegisterSubmit,
     handleCancelRegistration,
     isRegistered,
+    existingReg,
     isMobileModal,
     btnThemeStyles
 }) {
@@ -186,34 +187,38 @@ export default function RegistrationForm({
         );
     }
 
-    // Check local registration record
-    const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-    const existingReg = storedRegs.find(r => r.title === activeEvent.title);
+    // existingReg comes from the server (the real registration record, as
+    // leader or as a team member) via props — no more reading a local cache.
     const isCurrentEventRegistered = Boolean(existingReg) || isRegistered;
+    const isVerified = existingReg?.status === 'VERIFIED';
 
     const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
 
     // If registration is already saved on website
     if (isCurrentEventRegistered) {
+        const isMember = existingReg && existingReg.isLeader === false;
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '30px 10px' : '50px 30px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
                 <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-1 animate-pulse"
+                    className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-1 ${isVerified ? '' : 'animate-pulse'}`}
                     style={{
-                        background: `${activeEvent.color}15`,
-                        color: activeEvent.color,
-                        border: `2px solid ${activeEvent.color}`,
-                        boxShadow: `0 0 20px ${activeEvent.color}40`,
+                        background: `${isVerified ? '#1FFF76' : activeEvent.color}15`,
+                        color: isVerified ? '#1FFF76' : activeEvent.color,
+                        border: `2px solid ${isVerified ? '#1FFF76' : activeEvent.color}`,
+                        boxShadow: `0 0 20px ${isVerified ? '#1FFF76' : activeEvent.color}40`,
                     }}
                 >
-                    ⏳
+                    {isVerified ? '✓' : '⏳'}
                 </div>
                 <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    UNSTOP_VERIFICATION_PENDING
+                    {isVerified ? 'MISSION_SECURED' : 'UNSTOP_VERIFICATION_PENDING'}
                 </h3>
                 <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
                     Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
-                    {existingReg?.unstopRefId ? `Unstop Ref ID: ${existingReg.unstopRefId}` : 'Final verification pending against Unstop participant roster.'}
+                    {isMember && existingReg?.leaderName ? <>You're registered as a team member (led by <strong>{existingReg.leaderName}</strong>).<br /></> : null}
+                    {isVerified
+                        ? 'Admin has verified this registration against the Unstop participant roster.'
+                        : (existingReg?.unstopRefId ? `Unstop Ref ID: ${existingReg.unstopRefId}` : 'Final verification pending against Unstop participant roster.')}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
@@ -236,30 +241,36 @@ export default function RegistrationForm({
                         RE-VISIT UNSTOP EVENT PAGE ↗
                     </button>
 
-                    <button
-                        type="button"
-                        disabled={isCancelling}
-                        onClick={async () => {
-                            setIsCancelling(true);
-                            if (handleCancelRegistration) {
-                                await handleCancelRegistration();
-                            }
-                            setIsCancelling(false);
-                        }}
-                        style={{
-                            padding: '10px',
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            border: '1px solid rgba(239, 68, 68, 0.5)',
-                            color: '#f87171',
-                            fontWeight: 700,
-                            fontFamily: "'Orbitron', sans-serif",
-                            fontSize: '11px',
-                            letterSpacing: '0.08em',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
-                    </button>
+                    {isMember ? (
+                        <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.5 }}>
+                            Only the team leader ({existingReg.leaderName}) can cancel this registration.
+                        </p>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled={isCancelling}
+                            onClick={async () => {
+                                setIsCancelling(true);
+                                if (handleCancelRegistration) {
+                                    await handleCancelRegistration();
+                                }
+                                setIsCancelling(false);
+                            }}
+                            style={{
+                                padding: '10px',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.5)',
+                                color: '#f87171',
+                                fontWeight: 700,
+                                fontFamily: "'Orbitron', sans-serif",
+                                fontSize: '11px',
+                                letterSpacing: '0.08em',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
+                        </button>
+                    )}
                 </div>
             </div>
         );

@@ -230,6 +230,49 @@ export const cancelRegistration = async (req, res) => {
     }
 };
 
+// Returns every registration a given Addovedi ID is part of, as leader OR
+// as a team member, across all events — so a team member who didn't
+// personally submit the form can still see "yes, I'm registered for this"
+// on their own account, not just the leader. Public (no auth) since
+// participant accounts have no session/JWT layer; deliberately returns only
+// non-sensitive fields (no phone/email, no other members' contact info).
+export const getMyRegistrations = async (req, res) => {
+    try {
+        const { addovediId } = req.params;
+        if (typeof addovediId !== 'string' || !addovediId.trim()) {
+            return res.status(400).json({ message: 'Addovedi ID is required' });
+        }
+        const uid = addovediId.trim();
+
+        const regs = await Registration.find({
+            status: { $ne: 'CANCELLED' },
+            $or: [
+                { leaderUID: uid },
+                { 'members.uid': uid }
+            ]
+        })
+            .collation({ locale: 'en', strength: 2 })
+            .select('eventTitle categoryTitle teamName leaderUID leaderName status unstopRefId teamSize members createdAt')
+            .sort({ createdAt: -1 });
+
+        const result = regs.map(r => ({
+            eventTitle: r.eventTitle,
+            categoryTitle: r.categoryTitle,
+            teamName: r.teamName,
+            status: r.status,
+            unstopRefId: r.unstopRefId,
+            teamSize: r.teamSize,
+            createdAt: r.createdAt,
+            isLeader: r.leaderUID.toLowerCase() === uid.toLowerCase(),
+            leaderName: r.leaderName
+        }));
+
+        return res.json(result);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
 // Update status or Unstop Ref ID (Admin or User confirmation)
 export const updateRegistrationStatus = async (req, res) => {
     try {

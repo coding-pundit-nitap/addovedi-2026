@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
+import { fetchMyRegistrations } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
@@ -81,17 +82,18 @@ export default function AuthModal() {
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
     useEffect(() => {
-        const syncUserAndRegs = () => {
+        const syncUserAndRegs = async () => {
             // Load logged in user from localStorage
             const storedUser = localStorage.getItem('addovedi_user');
+            let parsedUser = null;
             if (storedUser) {
-                const parsedUser = JSON.parse(storedUser);
+                parsedUser = JSON.parse(storedUser);
                 const safeUser = {
                     ...sanitizeUserForStorage(parsedUser),
                     isGlobalRegistered: true
                 };
                 setUser(safeUser);
-                
+
                 // Pre-populate globalForm with existing user data if available
                 setGlobalForm({
                     gender: parsedUser.gender || '',
@@ -107,15 +109,15 @@ export default function AuthModal() {
             } else {
                 setUser(null);
             }
-            
-            // Load registered events from localStorage
-            const storedRegs = localStorage.getItem('addovedi_registrations');
-            if (storedRegs) {
-                try {
-                    setRegisteredEvents(JSON.parse(storedRegs));
-                } catch {
-                    setRegisteredEvents([]);
-                }
+
+            // Registered events come from the server now (not localStorage),
+            // so a team member who never personally submitted a form still
+            // sees every event they're actually part of, with the real
+            // admin-verification status — not just whatever the team
+            // leader's own browser happened to cache locally.
+            if (parsedUser?.addovediId) {
+                const regs = await fetchMyRegistrations(parsedUser.addovediId);
+                setRegisteredEvents(regs);
             } else {
                 setRegisteredEvents([]);
             }
@@ -125,7 +127,11 @@ export default function AuthModal() {
 
         // Listen for storage events (e.g. registration completed in another tab or component)
         window.addEventListener('storage', syncUserAndRegs);
-        return () => window.removeEventListener('storage', syncUserAndRegs);
+        const interval = setInterval(syncUserAndRegs, 8000);
+        return () => {
+            window.removeEventListener('storage', syncUserAndRegs);
+            clearInterval(interval);
+        };
     }, [isAuthModalOpen]);
 
     // Handle Input change for Auth Form
@@ -182,9 +188,11 @@ export default function AuthModal() {
                 emergencyContact: data.emergencyContact || '',
                 avatar: data.avatar || 'specter'
             });
-            // Reload registrations
-            const storedRegs = localStorage.getItem('addovedi_registrations') || '[]';
-            setRegisteredEvents(JSON.parse(storedRegs));
+            // Load this account's real registrations from the server
+            if (data.addovediId) {
+                const regs = await fetchMyRegistrations(data.addovediId);
+                setRegisteredEvents(regs);
+            }
         } catch (err) {
             setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
         } finally {
@@ -1094,38 +1102,45 @@ export default function AuthModal() {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1 auth-modal-scrollbar">
-                                            {registeredEvents.map((reg, index) => (
-                                                <div 
-                                                    key={reg.id || index}
-                                                    className="p-3 border flex flex-col md:flex-row md:items-center justify-between gap-3 relative select-none"
-                                                    style={{
-                                                        background: 'rgba(255,255,255,0.01)',
-                                                        borderColor: 'rgba(0, 217, 255, 0.15)'
-                                                    }}
-                                                >
-                                                    <div className="flex items-start gap-3">
-                                                        <div 
-                                                            className="w-1.5 h-10 shrink-0" 
-                                                            style={{
-                                                                background: '#00D9FF'
-                                                            }}
-                                                        />
-                                                        <div className="flex flex-col">
-                                                            <span className="text-white font-black text-sm tracking-wider uppercase">{reg.title}</span>
-                                                            <span className="text-[10px] text-white/40 tracking-wider font-semibold uppercase">{reg.category} // {reg.venue || 'TBA'}</span>
+                                            {registeredEvents.map((reg, index) => {
+                                                const statusMeta = reg.status === 'VERIFIED'
+                                                    ? { label: 'ADMIN_VERIFIED', color: '#1FFF76' }
+                                                    : { label: 'PENDING_VERIFICATION', color: '#ffea00' };
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="p-3 border flex flex-col md:flex-row md:items-center justify-between gap-3 relative select-none"
+                                                        style={{
+                                                            background: 'rgba(255,255,255,0.01)',
+                                                            borderColor: 'rgba(0, 217, 255, 0.15)'
+                                                        }}
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            <div
+                                                                className="w-1.5 h-10 shrink-0"
+                                                                style={{
+                                                                    background: statusMeta.color
+                                                                }}
+                                                            />
+                                                            <div className="flex flex-col">
+                                                                <span className="text-white font-black text-sm tracking-wider uppercase">{reg.eventTitle}</span>
+                                                                <span className="text-[10px] text-white/40 tracking-wider font-semibold uppercase">
+                                                                    {reg.categoryTitle}{reg.isLeader === false ? ` // MEMBER (LED BY ${reg.leaderName})` : ' // TEAM LEADER'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-col items-end justify-between font-mono gap-1">
+                                                            <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: statusMeta.color }}>
+                                                                {statusMeta.label}
+                                                            </span>
+                                                            <span className="text-[7.5px] text-white/30 uppercase">
+                                                                TEAM: {reg.teamName || 'SOLO'}
+                                                            </span>
                                                         </div>
                                                     </div>
-
-                                                    <div className="flex flex-col items-end justify-between font-mono gap-1">
-                                                        <span className="text-[9px] text-[#00D9FF] font-black tracking-widest uppercase">
-                                                            SLOT_VERIFIED
-                                                        </span>
-                                                        <span className="text-[7.5px] text-white/30 uppercase">
-                                                            TEAM: {reg.teamName || 'SOLO'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>

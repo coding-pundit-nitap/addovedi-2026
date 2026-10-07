@@ -73,4 +73,11 @@ registrationSchema.index(
     { collation: { locale: 'en', strength: 2 } }
 );
 
+// Standalone (non-eventTitle-prefixed) indexes for "all of my registrations
+// across every event" lookups (getMyRegistrations) — the compound indexes
+// above can't be used efficiently for a query that doesn't filter by
+// eventTitle first.
+registrationSchema.index({ leaderUID: 1 }, { collation: { locale: 'en', strength: 2 } });
+registrationSchema.index({ 'members.uid': 1 }, { collation: { locale: 'en', strength: 2 } });
+
 export default mongoose.model('Registration', registrationSchema);
