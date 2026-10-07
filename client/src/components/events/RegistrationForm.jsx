@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
+import { API_BASE } from '../../constants/api';
 
 export default function RegistrationForm({
     activeEvent,
@@ -24,6 +25,26 @@ export default function RegistrationForm({
     const [unstopInitiated, setUnstopInitiated] = useState(false);
     const [unstopRefId, setUnstopRefId] = useState('');
     const [isCancelling, setIsCancelling] = useState(false);
+
+    // Tracks each team member's Addovedi-ID verification: undefined (not yet
+    // checked), 'checking', 'valid', or 'invalid'. Keyed by member index.
+    const [memberUidStatus, setMemberUidStatus] = useState({});
+
+    const checkMemberUid = async (index, uid) => {
+        const trimmed = (uid || '').trim();
+        if (!trimmed) {
+            setMemberUidStatus(prev => ({ ...prev, [index]: undefined }));
+            return;
+        }
+        setMemberUidStatus(prev => ({ ...prev, [index]: 'checking' }));
+        try {
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}`);
+            const data = await res.json();
+            setMemberUidStatus(prev => ({ ...prev, [index]: data.exists ? 'valid' : 'invalid' }));
+        } catch (err) {
+            setMemberUidStatus(prev => ({ ...prev, [index]: 'invalid' }));
+        }
+    };
 
     const inputClass = `w-full bg-[#02050c]/85 border text-white placeholder-white/30 ${isMobileModal ? 'px-3 py-1.5' : 'px-4 py-2.5'} focus:outline-none transition-all duration-300 rounded-none tracking-wider`;
     const inputStyle = {
@@ -248,6 +269,17 @@ export default function RegistrationForm({
     const handleInitiateUnstop = (e) => {
         e.preventDefault();
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
+
+        // Every team member's Addovedi ID must have been verified to exist
+        // before the team can proceed.
+        const allVerified = (members || []).every((m, idx) => {
+            if (!(m?.uid || '').trim()) return true;
+            return memberUidStatus[idx] === 'valid';
+        });
+        if (!allVerified) {
+            alert('Please wait for all team member Addovedi IDs to be verified (or fix any that show as not found) before proceeding.');
+            return;
+        }
 
         // Open Unstop portal in new tab
         window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank');
@@ -474,12 +506,22 @@ export default function RegistrationForm({
                                             const updated = [...members];
                                             updated[i] = { ...updated[i], uid: e.target.value };
                                             setMembers(updated);
+                                            setMemberUidStatus(prev => ({ ...prev, [i]: undefined }));
                                         }}
                                         className={inputClass}
                                         style={inputStyle}
                                         onFocus={onFocus}
-                                        onBlur={onBlur}
+                                        onBlur={(e) => { onBlur(e); checkMemberUid(i, member.uid); }}
                                     />
+                                    {memberUidStatus[i] === 'checking' && (
+                                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>Verifying...</span>
+                                    )}
+                                    {memberUidStatus[i] === 'valid' && (
+                                        <span style={{ fontSize: '9px', color: '#1FFF76', fontFamily: 'monospace' }}>✓ ID verified</span>
+                                    )}
+                                    {memberUidStatus[i] === 'invalid' && (
+                                        <span style={{ fontSize: '9px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Addovedi ID not found — member must sign up first</span>
+                                    )}
                                 </div>
                             </div>
                         </div>

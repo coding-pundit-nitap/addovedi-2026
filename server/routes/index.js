@@ -8,11 +8,13 @@ import messageRoutes from './messageRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
 import registrationRoutes from './registrationRoutes.js';
 import auditRoutes from './auditRoutes.js';
+import globalUserRoutes from './globalUserRoutes.js';
 
 const router = Router();
 
 // Mount all routers
 router.use('/auth', authRoutes);
+router.use('/participants', globalUserRoutes);
 router.use('/events', eventRoutes);
 router.use('/crew', crewRoutes);
 router.use('/alliances', allianceRoutes);

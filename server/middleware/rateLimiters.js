@@ -9,6 +9,17 @@ export const loginLimiter = rateLimit({
     message: { message: 'Too many login attempts. Please try again later.' }
 });
 
+// Separate from loginLimiter (admin) so hammering participant signup/login
+// can never also lock out admin login attempts from the same IP — each
+// rateLimit() instance keeps its own independent counter store.
+export const participantAuthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many attempts. Please try again later.' }
+});
+
 // Prevents spamming fake event registrations / cancellations.
 export const registrationLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,

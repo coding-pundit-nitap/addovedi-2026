@@ -1,4 +1,6 @@
 import Registration from '../models/Registration.js';
+import GlobalUser from '../models/GlobalUser.js';
+import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
 const REQUIRED_STRING_FIELDS = ['eventTitle', 'categoryTitle', 'teamName', 'leaderName', 'leaderUID', 'leaderPhone'];
 
@@ -15,6 +17,29 @@ export const createRegistration = async (req, res) => {
 
         if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {
             return res.status(400).json({ message: 'All required fields (eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone) must be provided.' });
+        }
+
+        if (!isValidPhone(leaderPhone)) {
+            return res.status(400).json({ message: 'Please provide a valid 10-digit mobile number for the team leader.' });
+        }
+        if (userEmail && !isValidEmail(userEmail)) {
+            return res.status(400).json({ message: 'Please provide a valid email address.' });
+        }
+
+        // Every Addovedi ID on the team (leader + members) must belong to a
+        // real, registered participant account — prevents made-up/garbage IDs
+        // from being entered as team members.
+        const memberUidList = Array.isArray(members)
+            ? members.map(m => (m?.uid || '').trim()).filter(Boolean)
+            : [];
+        const allUids = [leaderUID.trim(), ...memberUidList];
+        const foundAccounts = await GlobalUser.find({
+            addovediId: { $in: allUids.map(u => u.toUpperCase()) }
+        }).select('addovediId');
+        const foundSet = new Set(foundAccounts.map(a => a.addovediId));
+        const missingUid = allUids.find(u => !foundSet.has(u.toUpperCase()));
+        if (missingUid) {
+            return res.status(400).json({ message: `Addovedi ID "${missingUid.toUpperCase()}" was not found. Every team member must have completed Addovedi sign-up first.` });
         }
 
         // Collect all incoming UIDs (leader + all team members)

@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import { API_BASE } from '../../constants/api';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
+const isValidEmail = (email) => typeof email === 'string' && EMAIL_REGEX.test(email.trim());
+const isValidPhone = (phone) => typeof phone === 'string' && PHONE_REGEX.test(phone.trim().replace(/[\s-]/g, ''));
 
 // Mock list of cyberpunk gamer avatars
 const GAMER_AVATARS = [
@@ -128,153 +134,151 @@ export default function AuthModal() {
     };
 
     // Handle User Log In
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg('');
-        
+
         if (!authForm.email || !authForm.password) {
             setErrorMsg('ALL FIELDS INITIATION MANDATORY.');
             return;
         }
-        
-        // Check if user exists in mock / local storage
-        const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-        const found = allUsers.find(u => u.email.toLowerCase() === authForm.email.toLowerCase() && u.password === authForm.password);
-        
+        if (!isValidEmail(authForm.email)) {
+            setErrorMsg('PLEASE ENTER A VALID EMAIL ADDRESS.');
+            return;
+        }
+
         setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            if (found) {
-                const safeFound = {
-                    ...sanitizeUserForStorage(found),
-                    isGlobalRegistered: true
-                };
-                setUser(safeFound);
-                localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
-                setCurrentUser(safeFound);
-                // Pre-populate globalForm with logged in user data
-                setGlobalForm({
-                    gender: found.gender || '',
-                    dob: found.dob || '',
-                    college: found.college || '',
-                    department: found.department || '',
-                    year: found.year || '',
-                    state: found.state || '',
-                    city: found.city || '',
-                    emergencyContact: found.emergencyContact || '',
-                    avatar: found.avatar || 'specter'
-                });
-                // Reload registrations
-                const storedRegs = localStorage.getItem('addovedi_registrations') || '[]';
-                setRegisteredEvents(JSON.parse(storedRegs));
-            } else {
-                setErrorMsg('CREDENTIAL VERIFICATION FAILURE. SYS_DENIED.');
+        try {
+            const res = await fetch(`${API_BASE}/participants/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: authForm.email, password: authForm.password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMsg((data.message || 'CREDENTIAL VERIFICATION FAILURE. SYS_DENIED.').toUpperCase());
+                return;
             }
-        }, 1200);
+
+            const safeFound = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
+            setUser(safeFound);
+            localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
+            setCurrentUser(safeFound);
+            // Pre-populate globalForm with logged in user data
+            setGlobalForm({
+                gender: data.gender || '',
+                dob: data.dob || '',
+                college: data.college || '',
+                department: data.department || '',
+                year: data.year || '',
+                state: data.state || '',
+                city: data.city || '',
+                emergencyContact: data.emergencyContact || '',
+                avatar: data.avatar || 'specter'
+            });
+            // Reload registrations
+            const storedRegs = localStorage.getItem('addovedi_registrations') || '[]';
+            setRegisteredEvents(JSON.parse(storedRegs));
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Handle User Registration / Sign Up
-    const handleSignupSubmit = (e) => {
+    const handleSignupSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg('');
-        
+
         if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password) {
             setErrorMsg('ALL FIELDS REQUIRED FOR PROTOCOL ENLISTMENT.');
             return;
         }
-        
-        const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-        if (allUsers.some(u => u.email.toLowerCase() === authForm.email.toLowerCase())) {
-            setErrorMsg('EMAIL PROTOCOL ALREADY ENLISTED IN DATABASE.');
+        if (!isValidEmail(authForm.email)) {
+            setErrorMsg('PLEASE ENTER A VALID EMAIL ADDRESS.');
             return;
         }
-        
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            const seedCounter = parseInt(localStorage.getItem('addovedi_id_counter') || '142');
-            const newCounter = seedCounter + 1;
-            localStorage.setItem('addovedi_id_counter', newCounter.toString());
-            const generatedId = `ADV26-${newCounter.toString().padStart(4, '0')}`;
+        if (!isValidPhone(authForm.phone)) {
+            setErrorMsg('PLEASE ENTER A VALID 10-DIGIT MOBILE NUMBER.');
+            return;
+        }
+        if (authForm.password.length < 8) {
+            setErrorMsg('PASSWORD MUST BE AT LEAST 8 CHARACTERS.');
+            return;
+        }
 
-            const newUser = {
-                name: authForm.name,
-                email: authForm.email,
-                phone: authForm.phone,
-                password: authForm.password,
-                college: 'NATIONAL INSTITUTE OF TECHNOLOGY',
-                department: 'COMPUTER SCIENCE & ENG.',
-                year: '3RD YEAR',
-                city: 'CAMPUS',
-                state: 'STATE HQ',
-                gender: 'RECRUIT',
-                dob: '2004-01-01',
-                emergencyContact: authForm.phone,
-                isGlobalRegistered: true,
-                addovediId: generatedId,
-                avatar: 'specter'
-            };
-            allUsers.push(newUser);
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
-            const safeNewUser = sanitizeUserForStorage(newUser);
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(`${API_BASE}/participants/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: authForm.name,
+                    email: authForm.email,
+                    phone: authForm.phone,
+                    password: authForm.password
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMsg((data.message || 'SIGN-UP FAILED. PLEASE TRY AGAIN.').toUpperCase());
+                return;
+            }
+
+            const safeNewUser = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
             setUser(safeNewUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeNewUser));
             setCurrentUser(safeNewUser);
-        }, 1200);
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Handle Global Profile form submit
-    const handleGlobalSubmit = (e) => {
+    const handleGlobalSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Simple validations
         if (!globalForm.gender || !globalForm.dob || !globalForm.college || !globalForm.department || !globalForm.year || !globalForm.state || !globalForm.city || !globalForm.emergencyContact) {
             setErrorMsg('ALL BLOCKS MANDATORY FOR UNIQUE SIGNATURE SIGN-OFF.');
             return;
         }
-        
+        if (!isValidPhone(globalForm.emergencyContact)) {
+            setErrorMsg('PLEASE ENTER A VALID EMERGENCY CONTACT NUMBER.');
+            return;
+        }
+        if (!user?._id) {
+            setErrorMsg('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+            return;
+        }
+
         setIsSubmitting(true);
-        
-        setTimeout(() => {
-            setIsSubmitting(false);
-            // Keep existing ID if editing, otherwise generate a new one
-            const generatedId = user?.addovediId || (() => {
-                const seedCounter = parseInt(localStorage.getItem('addovedi_id_counter') || '142');
-                const newCounter = seedCounter + 1;
-                localStorage.setItem('addovedi_id_counter', newCounter.toString());
-                const padId = newCounter.toString().padStart(4, '0');
-                return `ADV26-${padId}`;
-            })();
-            
-            const updatedUser = {
-                ...user,
-                ...globalForm,
-                isGlobalRegistered: true,
-                addovediId: generatedId
-            };
-            
-            // Save inside both current user and registered users array
-            const safeUpdatedUser = sanitizeUserForStorage(updatedUser);
+        try {
+            const res = await fetch(`${API_BASE}/participants/profile/${user._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(globalForm)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMsg((data.message || 'PROFILE UPDATE FAILED.').toUpperCase());
+                return;
+            }
+
+            const safeUpdatedUser = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
             setUser(safeUpdatedUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
             setCurrentUser(safeUpdatedUser);
-            
-            const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-            const idx = allUsers.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
-            if (idx !== -1) {
-                allUsers[idx] = {
-                    ...allUsers[idx],
-                    ...globalForm,
-                    isGlobalRegistered: true,
-                    addovediId: generatedId
-                };
-            } else {
-                allUsers.push(updatedUser);
-            }
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
             setErrorMsg('');
             setIsEditing(false);
-        }, 1500);
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Sign out / Log out
