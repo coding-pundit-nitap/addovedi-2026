@@ -40,11 +40,11 @@ const FALLBACK = [
 ];
 
 const SIZES = {
-    xl: { pad: 44, name: 40, minH: 260, max: 860 },
-    lg: { pad: 36, name: 32, minH: 220, max: 760 },
-    md: { pad: 28, name: 24, minH: 180, max: 1000 },
-    sm: { pad: 22, name: 19, minH: 150, max: 1000 },
-    xs: { pad: 18, name: 16, minH: 120, max: 1000 },
+    xl: { pad: 56, name: 46, logoH: 120, minH: 380, w: 860, desc: 14 },
+    lg: { pad: 40, name: 32, logoH: 80, minH: 270, w: 560, desc: 12.5 },
+    md: { pad: 28, name: 22, logoH: 56, minH: 200, w: 400, desc: 11.5 },
+    sm: { pad: 20, name: 17, logoH: 40, minH: 150, w: 300, desc: 11 },
+    xs: { pad: 16, name: 15, logoH: 34, minH: 120, w: 260, desc: 10.5 },
 };
 
 function BgCanvas() {
@@ -108,23 +108,29 @@ function BgCanvas() {
 
 function PartnerCard({ partner, color, size }) {
     const s = SIZES[size];
+    const premium = size === 'xl';
     return (
-        <div style={{
-            position: 'relative', flex: '1 1 280px', maxWidth: s.max, minHeight: s.minH,
-            padding: s.pad, background: `${color}08`, border: `1.2px solid ${color}40`,
-            borderRadius: 12, boxShadow: `0 0 28px ${color}12, inset 0 0 22px ${color}06`,
-            display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center',
-            clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)',
+        <div className={premium ? 'pt-premium' : undefined} style={{
+            position: 'relative', width: '100%', maxWidth: s.w, minHeight: s.minH,
+            padding: s.pad, borderRadius: 14, boxSizing: 'border-box',
+            background: premium
+                ? `radial-gradient(ellipse at 50% 0%, ${color}26, transparent 65%), linear-gradient(160deg, #0b1626, #050a14)`
+                : `${color}08`,
+            border: premium ? `1.5px solid ${color}aa` : `1.2px solid ${color}40`,
+            boxShadow: premium ? `0 0 60px ${color}33, inset 0 0 40px ${color}12` : `0 0 22px ${color}12, inset 0 0 18px ${color}06`,
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center',
         }}>
+            {premium && <div className="pt-shine" />}
+            {premium && <div style={{ fontSize: 22, color, marginBottom: 14, letterSpacing: '0.6em', textShadow: `0 0 14px ${color}` }}>✦ ✦ ✦</div>}
             {partner.pending && (
                 <span style={{ position: 'absolute', top: 10, right: 14, fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.15em', color: '#FBBF24' }}>JOINING SOON</span>
             )}
             {partner.logoImage && (
-                <img src={partner.logoImage} alt={partner.name} style={{ maxHeight: s.name * 2, maxWidth: '70%', objectFit: 'contain', margin: '0 auto 14px' }} />
+                <img src={partner.logoImage} alt={partner.name} style={{ maxHeight: s.logoH, maxWidth: '75%', objectFit: 'contain', marginBottom: 14 }} />
             )}
-            <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: partner.logoImage ? 700 : 900, fontSize: `clamp(${Math.round(s.name * 0.6)}px, 4vw, ${s.name}px)`, color: '#fff', letterSpacing: '0.08em', textShadow: `0 0 14px ${color}66` }}>{partner.name}</div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 10, letterSpacing: '0.2em', color, margin: '8px 0 12px', textTransform: 'uppercase' }}>{partner.sub}</div>
-            <p style={{ fontFamily: 'monospace', fontSize: size === 'xs' ? 11 : 12, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', margin: '0 auto', maxWidth: 640 }}>{partner.desc}</p>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: partner.logoImage ? 700 : 900, fontSize: `clamp(${Math.round(s.name * 0.6)}px, 4vw, ${s.name}px)`, color: '#fff', letterSpacing: '0.08em', textShadow: `0 0 ${premium ? 24 : 14}px ${color}88` }}>{partner.name}</div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: premium ? 12 : 10, letterSpacing: '0.22em', color, margin: '10px 0 14px', textTransform: 'uppercase' }}>{partner.sub}</div>
+            <p style={{ fontFamily: 'monospace', fontSize: s.desc, lineHeight: 1.75, color: 'rgba(255,255,255,0.62)', margin: '0 auto', maxWidth: 640 }}>{partner.desc}</p>
         </div>
     );
 }
@@ -153,7 +159,7 @@ export default function AlliancesPage() {
     return (
         <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position: 'fixed', inset: 0, background: '#010307', zIndex: 100, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
             <ScrollIndicator scrollRef={pageRef} />
-            <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');` }} />
+            <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');\n@keyframes ptShine { 0% { transform: translateX(-120%) skewX(-20deg) } 60%,100% { transform: translateX(260%) skewX(-20deg) } }\n@keyframes ptGlow { 0%,100% { box-shadow: 0 0 50px #E5F6FF2a, inset 0 0 40px #E5F6FF10 } 50% { box-shadow: 0 0 85px #E5F6FF55, inset 0 0 50px #E5F6FF1c } }\n.pt-premium { animation: ptGlow 4s ease-in-out infinite; overflow: hidden }\n.pt-shine { position: absolute; top: 0; left: 0; width: 35%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent); animation: ptShine 5s ease-in-out infinite; pointer-events: none }` }} />
             <BgCanvas />
             {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Partners" />}
 
@@ -166,14 +172,19 @@ export default function AlliancesPage() {
                             <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', marginTop: 12 }}>The brands powering Addovedi 2026, Arunachal Pradesh's biggest technical fest.</p>
                         </div>
 
-                        {TIER_META.map(tier => ({ ...tier, partners: partners.filter(x => x.category === tier.id) })).filter(t => t.partners.length > 0).map(tier => (
-                            <section key={tier.id} style={{ marginBottom: 56 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-                                    <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${tier.color}66)` }} />
-                                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(11px, 2vw, 15px)', fontWeight: 900, letterSpacing: '0.3em', color: tier.color, margin: 0, textShadow: `0 0 10px ${tier.color}66` }}>{tier.label}</h2>
-                                    <div style={{ flex: 1, height: 1, background: `linear-gradient(270deg, transparent, ${tier.color}66)` }} />
+                        {TIER_META.map(tier => ({ ...tier, partners: partners.filter(x => x.category === tier.id) })).filter(t => t.partners.length > 0).map((tier, i) => (
+                            <section key={tier.id} style={{
+                                marginBottom: 28, borderRadius: 16, boxSizing: 'border-box',
+                                padding: tier.size === 'xl' ? '40px 20px 48px' : tier.size === 'lg' ? '32px 20px 36px' : '26px 16px 30px',
+                                background: `linear-gradient(180deg, ${tier.color}${tier.size === 'xl' ? '14' : '0a'}, rgba(2,6,15,0.55))`,
+                                border: `1px solid ${tier.color}${tier.size === 'xl' ? '55' : '26'}`,
+                            }}>
+                                <div style={{ textAlign: 'center', marginBottom: tier.size === 'xl' ? 32 : 22 }}>
+                                    <div style={{ fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.3em', color: `${tier.color}99`, marginBottom: 6 }}>TIER {String(i + 1).padStart(2, '0')}</div>
+                                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: tier.size === 'xl' ? 'clamp(16px, 3vw, 26px)' : 'clamp(12px, 2vw, 17px)', fontWeight: 900, letterSpacing: '0.3em', color: tier.color, margin: 0, textShadow: `0 0 12px ${tier.color}77` }}>{tier.label}</h2>
+                                    <div style={{ width: 80, height: 2, margin: '12px auto 0', background: `linear-gradient(90deg, transparent, ${tier.color}, transparent)` }} />
                                 </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: tier.size === 'xl' ? 24 : 16, justifyContent: 'center' }}>
                                     {tier.partners.map(p => <PartnerCard key={p._id || p.name} partner={p} color={tier.color} size={tier.size} />)}
                                 </div>
                             </section>
