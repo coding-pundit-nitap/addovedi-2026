@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, Suspense } from 'react';
+import { clone as cloneScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, AdaptiveDpr, AdaptiveEvents } from '@react-three/drei';
 import * as THREE from 'three';
@@ -36,7 +37,8 @@ function getHandAngle(hand) {
 }
 
 function HolographicClock() {
-    const { scene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const scene = useMemo(() => cloneScene(rawScene), [rawScene]);
     const time = useRef(0);
     const partsRef = useRef({});
 

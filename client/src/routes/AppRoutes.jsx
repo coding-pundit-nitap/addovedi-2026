@@ -1,15 +1,17 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import HeroOverlay from "../components/hero/HeroOverlay";
-import EventsPage from "../components/events/EventsPage";
-import TimelinePage from "../components/timeline/TimelinePage";
-import CrewPage from "../components/crew/CrewPage";
-import AlliancesPage from "../components/alliances/AlliancesPage";
-import AboutPage from "../components/about/AboutPage";
-import AdminPage from "../components/admin/AdminPage";
-import MerchPage from "../components/merch/MerchPage";
+const EventsPage = lazy(() => import("../components/events/EventsPage"));
+const TimelinePage = lazy(() => import("../components/timeline/TimelinePage"));
+const CrewPage = lazy(() => import("../components/crew/CrewPage"));
+const AlliancesPage = lazy(() => import("../components/alliances/AlliancesPage"));
+const AboutPage = lazy(() => import("../components/about/AboutPage"));
+const AdminPage = lazy(() => import("../components/admin/AdminPage"));
+const MerchPage = lazy(() => import("../components/merch/MerchPage"));
 
 export default function AppRoutes() {
     return (
+        <Suspense fallback={null}>
         <Routes>
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<HeroOverlay />} />
@@ -23,5 +25,6 @@ export default function AppRoutes() {
             <Route path="/event/:categoryName" element={<EventsPage />} />
             <Route path="/event/:categoryName/:eventName" element={<EventsPage />} />
         </Routes>
+        </Suspense>
     );
 }

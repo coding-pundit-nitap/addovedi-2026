@@ -1,5 +1,5 @@
-import arenaWarriorTee from '../assets/images/merch/arena-warrior-tee.png';
-import enterTheArenaTee from '../assets/images/merch/enter-the-arena-tee.png';
+import arenaWarriorTee from '../assets/images/merch/arena-warrior-tee.webp';
+import enterTheArenaTee from '../assets/images/merch/enter-the-arena-tee.webp';
 
 // Single Google Form used to order either tee (size/fit/design picked inside the form).
 export const MERCH_FORM_URL = 'https://forms.gle/n4yspHCCrpaB5cG48';

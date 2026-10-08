@@ -7,6 +7,7 @@
  */
 
 import { useRef, useMemo, useState, useEffect, Suspense, forwardRef, useImperativeHandle } from 'react';
+import { clone as cloneScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -815,6 +816,20 @@ export default function HologramCards() {
 }
 
 // ── Background Holographic Weapon Showcase (Main Lobby) ─────────────────────
+
+// The GLTF cache hands every caller the SAME scene object. These showcases swap
+// materials, re-parent and measure that scene, so using it directly makes later
+// mounts (or other components using the same model) inherit a mutated copy, which
+// showed up as misplaced/mis-styled models until a hard refresh. Always work on a
+// private clone (SkeletonUtils keeps skinned-mesh bone bindings intact).
+function useClonedScene(source) {
+    const clone = useMemo(() => cloneScene(source), [source]);
+    useEffect(() => () => {
+        clone.traverse((o) => { if (o.isMesh && o.material) [].concat(o.material).forEach((m) => m.dispose?.()); });
+    }, [clone]);
+    return clone;
+}
+
 function WeaponShowcase({ activeColor }) {
     const showRef = useRef();
     const ring1Ref = useRef();
@@ -822,7 +837,8 @@ function WeaponShowcase({ activeColor }) {
     const isMobile = window.innerWidth < 768;
     const posY = isMobile ? 6.8 : 8.8;
 
-    const { scene } = useGLTF('/models/gun/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/gun/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const blueprintModel = useMemo(() => {
         const clone = scene.clone();
@@ -879,7 +895,8 @@ function RobotShowcase({ activeColor }) {
     const handLRef = useRef();
     const handRRef = useRef();
 
-    const { scene } = useGLTF('/models/mecha/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/mecha/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the mecha model via Box3 so it always appears
     // regardless of its internal coordinate offsets
@@ -989,7 +1006,8 @@ function ControllerShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/controller/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/controller/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1065,7 +1083,8 @@ function CodingShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/coding/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/coding/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1141,7 +1160,8 @@ function CivilShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/civil/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/civil/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1228,7 +1248,8 @@ function ElectricalShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/electrical/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/electrical/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1304,7 +1325,8 @@ function AiShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/ai/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/ai/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1380,7 +1402,8 @@ function ClockShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const { model, scale: autoScale, offset } = useMemo(() => {
         scene.matrixAutoUpdate = true;
@@ -1445,7 +1468,8 @@ function PortalShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/portal/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/portal/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const { model, scale: autoScale, offset } = useMemo(() => {
         scene.matrixAutoUpdate = true;
