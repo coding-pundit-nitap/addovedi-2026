@@ -863,24 +863,6 @@ function WeaponShowcase({ activeColor }) {
                 <ringGeometry args={[2.5, 2.52, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, posY - 3.6, -14.5]}
-                style={{
-                    color: '#00d9ff',
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                DIAGNOSTICS: XEN_SLR_BLUEPRINT_HUD
-            </Html>
         </group>
     );
 }
@@ -997,24 +979,6 @@ function RobotShowcase({ activeColor }) {
                 <ringGeometry args={[4.2, 4.24, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                MECHA_UNIT: RC_AUTONOMOUS_MOTOR_HUD
-            </Html>
         </group>
     );
 }
@@ -1091,24 +1055,6 @@ function ControllerShowcase({ activeColor }) {
                 <ringGeometry args={[6.0, 6.05, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                GAMING_INPUT: DUALSENSE_HOLOGRAPHIC_HUD
-            </Html>
         </group>
     );
 }
@@ -1272,24 +1218,6 @@ function CivilShowcase({ activeColor }) {
                 <ringGeometry args={[6.2, 6.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                CIVIL_CORE: METROPOLIS_GRID_HUD
-            </Html>
         </group>
     );
 }
@@ -1366,24 +1294,6 @@ function ElectricalShowcase({ activeColor }) {
                 <ringGeometry args={[8.0, 8.05, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                ELECTRICAL_CORE: TRANSFORMER_GRID_HUD
-            </Html>
         </group>
     );
 }
@@ -1460,24 +1370,6 @@ function AiShowcase({ activeColor }) {
                 <ringGeometry args={[7.2, 7.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                AI_CORE: NEURAL_BRAIN_HUD
-            </Html>
         </group>
     );
 }
@@ -1543,10 +1435,6 @@ function ClockShowcase({ activeColor }) {
                 <ringGeometry args={[6.5, 6.55, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
-                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
-                MECHANICAL_CORE: KINETIC_GEARS_HUD
-            </Html>
         </group>
     );
 }
@@ -1608,10 +1496,6 @@ function PortalShowcase({ activeColor }) {
                 <ringGeometry args={[7.2, 7.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
-                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
-                PORTAL_GATEWAY: ACTIVE
-            </Html>
         </group>
     );
 }
