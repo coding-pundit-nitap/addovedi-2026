@@ -77,7 +77,8 @@ export default function AdminPage() {
     const [editingSponsor, setEditingSponsor] = useState(null);
 
     // New Data Add states
-    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+    const emptyTimeline = { day: '', time: '', end: '', venue: '', mode: 'Solo', prize: '' };
+    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
@@ -577,7 +578,8 @@ export default function AdminPage() {
         while (safeHeads.length < 2) {
             safeHeads.push({ name: '', phone: '' });
         }
-        setEditingSubEvent({ ...sub, unstopUrl: sub.unstopUrl || 'https://unstop.com', heads: safeHeads });
+        const safeTimeline = { ...emptyTimeline, ...(sub.timeline || {}), day: sub.timeline?.day ?? '' };
+        setEditingSubEvent({ ...sub, unstopUrl: sub.unstopUrl || 'https://unstop.com', heads: safeHeads, timeline: safeTimeline });
     };
 
     const cleanPayload = (data) => {
@@ -592,6 +594,12 @@ export default function AdminPage() {
         // Filter out empty social links in crew members
         if (Array.isArray(rest.links)) {
             rest.links = rest.links.filter(l => l && (l.platform?.trim() || l.url?.trim()));
+        }
+
+        // Normalize the timeline.day select ('' means "not scheduled yet")
+        // to null rather than sending an empty string into a Number field.
+        if (rest.timeline && typeof rest.timeline === 'object') {
+            rest.timeline = { ...rest.timeline, day: rest.timeline.day === '' ? null : Number(rest.timeline.day) };
         }
 
         return rest;
@@ -629,7 +637,7 @@ export default function AdminPage() {
 
             fetchEvents();
             setEditingSubEvent(null);
-            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', heads: [{ name: '', phone: '' }, { name: '', phone: '' }] });
+            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
             alert('Sub-Event configuration saved successfully!');
         } catch (err) {
             alert(`Error Saving Sub-Event: ${err.message}`);
@@ -1632,6 +1640,40 @@ export default function AdminPage() {
                                     </div>
                                 </div>
 
+                                {/* Timeline Scheduling — controls if/when this sub-event shows
+                                    up on the public Timeline page. Leaving Day unset means
+                                    "not decided yet", and it's simply left off the schedule. */}
+                                <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', padding: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '4px' }}>
+                                    <span style={{ fontSize: '9.5px', fontFamily: "'Orbitron', monospace", color: '#00E5FF', letterSpacing: '0.1em' }}>TIMELINE SCHEDULING</span>
+                                    {(() => {
+                                        const targetObj = editingSubEvent || newSub;
+                                        const targetSetter = editingSubEvent ? setEditingSubEvent : setNewSub;
+                                        const t = targetObj.timeline || emptyTimeline;
+                                        const setT = (patch) => targetSetter({ ...targetObj, timeline: { ...t, ...patch } });
+                                        return (
+                                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr 1fr', gap: '14px', marginTop: '10px' }}>
+                                                <select value={t.day} onChange={e => setT({ day: e.target.value })}>
+                                                    <option value="">NOT SCHEDULED</option>
+                                                    <option value="1">DAY 1 — SEP 12</option>
+                                                    <option value="2">DAY 2 — SEP 13</option>
+                                                    <option value="3">DAY 3 — SEP 14</option>
+                                                </select>
+                                                <input type="time" placeholder="Start Time" value={t.time} onChange={e => setT({ time: e.target.value })} />
+                                                <input type="time" placeholder="End Time" value={t.end} onChange={e => setT({ end: e.target.value })} />
+                                                <input type="text" placeholder="Venue (e.g. Lab Alpha)" value={t.venue} onChange={e => setT({ venue: e.target.value })} />
+                                                <select value={t.mode} onChange={e => setT({ mode: e.target.value })}>
+                                                    <option value="Solo">SOLO</option>
+                                                    <option value="Team (2)">TEAM (2)</option>
+                                                    <option value="Team (3)">TEAM (3)</option>
+                                                    <option value="Team (4)">TEAM (4)</option>
+                                                    <option value="Team">TEAM</option>
+                                                </select>
+                                                <input type="text" placeholder="Prize (e.g. ₹10,000)" value={t.prize} onChange={e => setT({ prize: e.target.value })} />
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+
                                  <input
                                     type="url"
                                     placeholder="Unstop Registration URL (e.g. https://unstop.com/o/bgmi-addovedi)"
@@ -1666,6 +1708,7 @@ export default function AdminPage() {
                                             <th>UNSTOP LINK</th>
                                             <th>XP</th>
                                             <th>HEADS</th>
+                                            <th>SCHEDULE</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                     </thead>
@@ -1682,6 +1725,13 @@ export default function AdminPage() {
                                                 </td>
                                                 <td>{sub.xp}</td>
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
+                                                <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
+                                                    {sub.timeline?.day ? (
+                                                        <span style={{ color: '#1FFF76' }}>DAY {sub.timeline.day} · {sub.timeline.time || '—'}</span>
+                                                    ) : (
+                                                        <span style={{ color: 'rgba(255,255,255,0.3)' }}>NOT SCHEDULED</span>
+                                                    )}
+                                                </td>
                                                 <td>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
                                                         <button onClick={() => startEditingSubEvent(sub)} style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer' }}>EDIT</button>

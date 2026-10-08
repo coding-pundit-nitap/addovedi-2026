@@ -129,20 +129,26 @@ export default function EventPanel({ ev, dayColor, visible, onClose }) {
                             </div>
                         ))}
 
-                        {/* Event Heads Contact */}
-                        {EVENT_COORDINATORS[ev.title.toUpperCase()] && (
+                        {/* Event Heads Contact — prefer heads carried on the
+                            (possibly DB-sourced) event itself over the
+                            static lookup, which only knows hardcoded events */}
+                        {(() => {
+                            const coordinators = (ev.heads && ev.heads.length > 0) ? ev.heads : EVENT_COORDINATORS[ev.title.toUpperCase()];
+                            if (!coordinators || coordinators.length === 0) return null;
+                            return (
                             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '12px' }}>
                                 <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'7px', color:color, letterSpacing:'0.2em', opacity:0.65, marginBottom: '6px' }}>
                                     EVENT HEADS
                                 </div>
-                                {EVENT_COORDINATORS[ev.title.toUpperCase()].map((c, i) => (
+                                {coordinators.map((c, i) => (
                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace', marginBottom: '4px' }}>
                                         <span>{c.name}</span>
                                         <span style={{ color: color }}>{c.phone}</span>
                                     </div>
                                 ))}
                             </div>
-                        )}
+                            );
+                        })()}
                     </div>
 
                     {/* Register button */}

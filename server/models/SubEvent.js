@@ -5,6 +5,19 @@ const HeadCoordinatorSchema = new mongoose.Schema({
     phone: { type: String, required: false, default: '' }
 });
 
+// Scheduling info for the public Timeline page. `day` is left unset (null)
+// until an admin actually decides it — an event with no day assigned is
+// simply skipped when the Timeline page builds its day-by-day schedule, so
+// "not yet scheduled" sub-events never show up with a made-up time.
+const TimelineSchema = new mongoose.Schema({
+    day: { type: Number, min: 1, max: 3, default: null },
+    time: { type: String, default: '' },
+    end: { type: String, default: '' },
+    venue: { type: String, default: '' },
+    mode: { type: String, default: 'Solo' },
+    prize: { type: String, default: '' }
+}, { _id: false });
+
 const SubEventSchema = new mongoose.Schema({
     categoryTitle: {
         type: String,
@@ -51,6 +64,11 @@ const SubEventSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: 'https://unstop.com'
+    },
+    timeline: {
+        type: TimelineSchema,
+        required: false,
+        default: () => ({})
     }
 }, { timestamps: true });
 

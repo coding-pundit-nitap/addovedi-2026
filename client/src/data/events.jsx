@@ -936,11 +936,68 @@ export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
             heads: s.heads || [],
             icon: (color) => getSvgIcon(s.iconType, color),
             modelType: s.modelType || (matchedCat ? matchedCat.modelType : 'coding'),
-            unstopUrl: s.unstopUrl || 'https://unstop.com'
+            unstopUrl: s.unstopUrl || 'https://unstop.com',
+            timeline: s.timeline || null
         });
     });
 
     return mapped;
+}
+
+// Sep 12-14, 2026 — must stay in sync with the `date` labels on DAYS below.
+const TIMELINE_DAY_DATES = ['2026-09-12', '2026-09-13', '2026-09-14'];
+
+function computeEventStatus(day, time, end) {
+    if (!day || !time) return 'UPCOMING';
+    const dateStr = TIMELINE_DAY_DATES[day - 1];
+    const start = new Date(`${dateStr}T${time}:00`);
+    if (Number.isNaN(start.getTime())) return 'UPCOMING';
+    const now = new Date();
+    if (end) {
+        const finish = new Date(`${dateStr}T${end}:00`);
+        if (!Number.isNaN(finish.getTime()) && now > finish) return 'COMPLETED';
+    }
+    return now >= start ? 'LIVE' : 'UPCOMING';
+}
+
+// Builds the Timeline page's day-by-day schedule from live (DB-merged)
+// categories/sub-events, mirroring the static DAYS below but recomputed
+// from whatever an admin has actually scheduled. A sub-event with no
+// timeline.day set is left off the schedule entirely — that's the
+// "timing not decided yet" state, not an error.
+export function buildTimelineDays(categoriesList, subEventsMap) {
+    const days = [
+        { slot: 'SLOT 01', label: 'DAY 1', date: 'Sep 12', color: '#00E5FF', events: [] },
+        { slot: 'SLOT 02', label: 'DAY 2', date: 'Sep 13', color: '#7A5CFF', events: [] },
+        { slot: 'SLOT 03', label: 'DAY 3', date: 'Sep 14', color: '#FF2CFB', events: [] }
+    ];
+
+    (categoriesList || []).forEach(cat => {
+        const events = (subEventsMap && subEventsMap[cat.title]) || [];
+        events.forEach(ev => {
+            const t = ev.timeline;
+            if (!t || !(t.day >= 1 && t.day <= 3) || !t.time) return;
+            days[t.day - 1].events.push({
+                id: slugify(ev.title),
+                title: ev.title,
+                subtitle: ev.subtitle,
+                category: cat.shortName || cat.title,
+                categorySlug: slugify(cat.title),
+                time: t.time,
+                end: t.end || '',
+                venue: t.venue || 'Main Arena',
+                mode: t.mode || 'Solo',
+                registered: 0,
+                prize: t.prize || 'Trophies',
+                status: computeEventStatus(t.day, t.time, t.end),
+                desc: ev.desc,
+                heads: ev.heads || []
+            });
+        });
+    });
+
+    days.forEach(day => day.events.sort((a, b) => a.time.localeCompare(b.time)));
+    return days;
 }
 
 export const SUB_EVENTS = {};
