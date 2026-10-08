@@ -432,6 +432,58 @@ export default function AuthModal() {
                 .auth-modal-scrollbar::-webkit-scrollbar { width: 4px; }
                 .auth-modal-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .auth-modal-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 217, 255, 0.2); border-radius: 2px; }
+
+                /* "ENTER ARENA" CTA button — defined here (not just relied on
+                   from HeroOverlay/CommonSidebar) because this modal can be
+                   opened from any page; HeroOverlay only mounts on Home and
+                   CommonSidebar's styles unmount as soon as its sidebar
+                   closes (which happens right when this modal opens), so
+                   without its own copy the button loses position:relative/
+                   overflow:hidden and its fill div balloons to cover the
+                   whole panel on every page except Home. */
+                @keyframes border-flow {
+                    0%   { background-position: 0% 50%; }
+                    50%  { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                @keyframes cyan-pulse {
+                    0%, 100% { box-shadow: 0 0 14px rgba(0,217,255,0.35), 0 0 28px rgba(0,217,255,0.15); }
+                    50%       { box-shadow: 0 0 26px rgba(0,217,255,0.65), 0 0 50px rgba(0,217,255,0.3); }
+                }
+                .reg-btn-wrap {
+                    position: relative;
+                    display: inline-block;
+                }
+                .reg-btn {
+                    position: relative;
+                    font-family: 'Orbitron', monospace;
+                    font-size: 0.65rem;
+                    font-weight: 800;
+                    letter-spacing: 0.28em;
+                    text-transform: uppercase;
+                    color: #fff;
+                    padding: 11px 28px;
+                    overflow: hidden;
+                    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+                    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+                    animation: cyan-pulse 2.5s ease-in-out infinite;
+                }
+                .reg-btn:hover {
+                    transform: scale(1.05) translateY(-1px);
+                }
+                .reg-fill {
+                    position: absolute;
+                    inset: 1.5px;
+                    clip-path: polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px);
+                    background: linear-gradient(90deg, #0891b2 0%, #06b6d4 35%, #00D9FF 70%, #67e8f9 100%);
+                    transform-origin: left center;
+                    transform: scaleX(0);
+                    transition: transform 0.42s cubic-bezier(0.16,1,0.3,1);
+                    pointer-events: none;
+                }
+                .reg-btn:hover .reg-fill {
+                    transform: scaleX(1);
+                }
             ` }} />
 
             {/* Glowing background grid inside modal */}
