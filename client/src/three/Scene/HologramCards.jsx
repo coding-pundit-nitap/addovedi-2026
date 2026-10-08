@@ -782,10 +782,6 @@ export default function HologramCards() {
                             }}
                         />
 
-                        {/* Futuristic design markers */}
-                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>SYS.RETURN</span>
-                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>LOBBY_V2</span>
-
                         ESC_RETURN_TO_DECK
                     </button>
                 </Html>
@@ -1189,24 +1185,6 @@ function CodingShowcase({ activeColor }) {
                 <ringGeometry args={[4.6, 4.64, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                TERMINAL_UNIT: MILITARY_CONTROL_HUD
-            </Html>
         </group>
     );
 }
