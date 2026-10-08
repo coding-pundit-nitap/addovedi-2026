@@ -373,41 +373,49 @@ export default function AboutPage() {
                 </div>
 
                 <div style={{
-                    background: '#0D1320',
-                    border: '1.2px solid rgba(255,255,255,0.04)',
-                    borderRadius: '12px',
-                    padding: isMobile ? '28px 20px' : '44px',
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                    gap: '20px',
                 }}>
-                    <p style={{ fontFamily: 'monospace', fontSize: '12.5px', color: '#D1D5DB', lineHeight: 1.9, maxWidth: '880px', margin: '0 auto' }}>
-                        ADDOVEDI is the flagship techfest of the National Institute of Technology, Arunachal Pradesh — a three-day
-                        arena where engineering, design, and competition collide. Built around a futuristic "Enter the Arena" theme,
-                        the fest reimagines a campus techfest as a living command center: participants create a player profile, earn
-                        their ADDOVEDI ID, and battle across robotics, esports, web design, coding, and more under one unified mission.
-                        Every event, every stage, and every signal on this site is part of that same arena.
-                    </p>
-
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                        gap: '16px',
-                        marginTop: '32px'
-                    }}>
-                        {[
-                            { label: 'COMPETE', desc: 'Robotics, esports, coding & design events across three days.', color: '#00E5FF' },
-                            { label: 'BUILD', desc: 'Hands-on challenges for engineers, designers & builders.', color: '#7A5CFF' },
-                            { label: 'CONNECT', desc: 'One campus, one ID, a community that keeps coming back.', color: '#FF2CFB' },
-                        ].map((pillar, idx) => (
-                            <div key={idx} style={{
-                                border: `1.2px solid ${pillar.color}30`,
-                                background: `${pillar.color}08`,
-                                borderRadius: '8px',
-                                padding: '18px',
-                            }}>
-                                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', fontWeight: 900, letterSpacing: '0.15em', color: pillar.color }}>{pillar.label}</div>
-                                <p style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', marginTop: '8px', lineHeight: 1.6 }}>{pillar.desc}</p>
+                    {[
+                        {
+                            tag: 'THE FEST', title: 'WHAT IS ADDOVEDI', color: '#00E5FF',
+                            body: "ADDOVEDI is Arunachal Pradesh's biggest technical fest, hosted by the National Institute of Technology, Arunachal Pradesh. Across three days, engineering, design, and competition collide: participants create a player profile, earn their ADDOVEDI ID, and battle across robotics, esports, web design, coding, and more under one unified mission.",
+                            pillars: [
+                                { label: 'COMPETE', desc: 'Robotics, esports, coding & design events across three days.' },
+                                { label: 'BUILD', desc: 'Hands-on challenges for engineers, designers & builders.' },
+                                { label: 'CONNECT', desc: 'One campus, one ID, a community that keeps coming back.' },
+                            ],
+                        },
+                        {
+                            tag: 'THE THEME', title: 'ENTER THE ARENA', color: '#FF2CFB',
+                            body: 'This edition is built around a futuristic "Enter the Arena" theme. The fest reimagines a campus techfest as a living command center, where every event, every stage, and every signal on this site is part of the same arena. You are not just attending, you are stepping in as a player.',
+                            pillars: [
+                                { label: 'PLAYER', desc: 'Every participant gets a profile and a unique ADDOVEDI ID.' },
+                                { label: 'ARENA', desc: 'Events are stages of one connected battleground.' },
+                                { label: 'MISSION', desc: 'One shared goal: build, compete, and rise together.' },
+                            ],
+                        },
+                    ].map((card) => (
+                        <div key={card.tag} style={{
+                            background: '#0D1320',
+                            border: `1.2px solid ${card.color}30`,
+                            borderRadius: '12px',
+                            padding: isMobile ? '24px 18px' : '32px',
+                        }}>
+                            <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '9px', color: card.color, letterSpacing: '0.2em' }}>{card.tag}</span>
+                            <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(16px, 2.4vw, 22px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 16px' }}>{card.title}</h3>
+                            <p style={{ fontFamily: 'monospace', fontSize: '12px', color: '#D1D5DB', lineHeight: 1.9, margin: 0 }}>{card.body}</p>
+                            <div style={{ display: 'grid', gap: '10px', marginTop: '22px' }}>
+                                {card.pillars.map((p) => (
+                                    <div key={p.label} style={{ border: `1.2px solid ${card.color}30`, background: `${card.color}08`, borderRadius: '8px', padding: '12px 14px' }}>
+                                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '10.5px', fontWeight: 900, letterSpacing: '0.15em', color: card.color }}>{p.label}</div>
+                                        <p style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', marginTop: '6px', lineHeight: 1.6, marginBottom: 0 }}>{p.desc}</p>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 

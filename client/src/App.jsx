@@ -6,6 +6,7 @@ import { useStore } from "./store/useStore";
 import { AnimatePresence, motion } from "framer-motion";
 import CommonSidebar from "./components/common/CommonSidebar";
 import AuthModal from "./components/portal/PortalPage";
+import ScrollToTop from "./components/common/ScrollToTop";
 
 
 export default function App() {
@@ -73,6 +74,7 @@ export default function App() {
             {/* Route overlays (HTML templates) */}
             <AppRoutes />
             <CommonSidebar />
+            <ScrollToTop />
 
             {/* Auth / Register Modal Popup */}
             <AnimatePresence>
