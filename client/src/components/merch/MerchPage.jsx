@@ -5,7 +5,15 @@ import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 import BgCanvas from '../crew/BgCanvas';
 import Tee3DBackground from './Tee3DBackground';
-import { MERCH_ITEMS, MERCH_FORM_URL, MERCH_VARIANTS } from '../../data/merch';
+import { MERCH_ITEMS, MERCH_FORM_URL, MERCH_VARIANTS, MERCH_ORDER_DEADLINE } from '../../data/merch';
+
+const ORDER_NOTES = [
+    'Check the size chart carefully before ordering',
+    'Regular and Oversize have different measurements',
+    'The T-shirt fee is non-refundable',
+    'Make the payment before submitting the form',
+    'Ordering multiple tees? Pay the total amount accordingly',
+];
 
 const STYLES = `
 .merch-ov-label{font-family:'Orbitron',monospace;letter-spacing:.2em;text-transform:uppercase;}
@@ -175,12 +183,35 @@ export default function MerchPage() {
                         <p className="merch-ov-label text-[13px] font-semibold text-[rgba(180,210,255,0.55)]" style={{ letterSpacing: '0.1em' }}>
                             2 OFFICIAL TEES · REGULAR ₹349 / OVERSIZE ₹399 · ORDER VIA GOOGLE FORM
                         </p>
+                        <p className="merch-ov-label text-[11px] font-bold" style={{ letterSpacing: '0.12em', color: '#FF4D6D' }}>
+                            LAST DATE TO ORDER: {MERCH_ORDER_DEADLINE.toUpperCase()}
+                        </p>
                     </motion.div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         {MERCH_ITEMS.map((item) => (
                             <TeeCard key={item.id} item={item} />
                         ))}
+                    </div>
+
+                    <div
+                        className="relative mt-10 md:mt-14 rounded-xl px-6 py-5 md:px-8"
+                        style={{
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                        }}
+                    >
+                        <span className="merch-ov-label block mb-3 text-[10px] font-bold" style={{ color: '#9b5cff' }}>
+                            IMPORTANT
+                        </span>
+                        <ul className="flex flex-col gap-1.5">
+                            {ORDER_NOTES.map((note) => (
+                                <li key={note} className="text-[12px] text-white/55 leading-relaxed flex gap-2">
+                                    <span style={{ color: '#9b5cff' }}>—</span>
+                                    {note}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </div>

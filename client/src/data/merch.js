@@ -2,7 +2,9 @@ import arenaWarriorTee from '../assets/images/merch/arena-warrior-tee.png';
 import enterTheArenaTee from '../assets/images/merch/enter-the-arena-tee.png';
 
 // Single Google Form used to order either tee (size/fit/design picked inside the form).
-export const MERCH_FORM_URL = 'https://forms.gle/REPLACE_WITH_REAL_FORM_LINK';
+export const MERCH_FORM_URL = 'https://forms.gle/n4yspHCCrpaB5cG48';
+
+export const MERCH_ORDER_DEADLINE = '10th October';
 
 // Every tee comes in both fits, same two prices across the drop.
 export const MERCH_VARIANTS = [
@@ -12,8 +14,8 @@ export const MERCH_VARIANTS = [
 
 export const MERCH_ITEMS = [
     {
-        id: 'arena-warrior-tee',
-        name: 'ARENA WARRIOR TEE',
+        id: 'gladiator-tee',
+        name: 'GLADIATOR TEE',
         tag: 'WHITE TEE',
         color: '#00D9FF',
         img: arenaWarriorTee,
