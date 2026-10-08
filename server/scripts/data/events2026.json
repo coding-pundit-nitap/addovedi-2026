@@ -1,7 +1,7 @@
 [
  {
-  "title": "ROBOTICS",
-  "subtitle": "COMMON EVENTS",
+  "title": "ROBOTICS PROTOCOL",
+  "subtitle": "AUTONOMOUS MECHA DYNAMICS",
   "desc": "Design, build and drive your own robots in head-to-head robotics challenges open to every branch.",
   "color": "#00d9ff",
   "iconType": "robot",
@@ -55,10 +55,10 @@
   ]
  },
  {
-  "title": "GAMING",
+  "title": "GAMING NEXUS",
   "subtitle": "ESPORTS SHOWDOWN",
   "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends and Tekken.",
-  "color": "#8a5cff",
+  "color": "#9b5cff",
   "iconType": "gamepad",
   "modelType": "controller",
   "shortName": "Gaming",
@@ -105,13 +105,13 @@
   ]
  },
  {
-  "title": "CODING PUNDITS",
-  "subtitle": "COMPUTER SCIENCE & ENGINEERING",
+  "title": "CYBER CODE",
+  "subtitle": "ALGORITHMIC WARFARE",
   "desc": "Hackathons, competitive coding and AI-assisted web design for builders and problem solvers.",
   "color": "#ff1f4f",
   "iconType": "code",
   "modelType": "coding",
-  "shortName": "CSE",
+  "shortName": "Coding",
   "iconChar": "💻",
   "xp": "5,000 XP",
   "difficulty": "MEDIUM",
@@ -146,10 +146,10 @@
   ]
  },
  {
-  "title": "ECE",
-  "subtitle": "ELECTRONICS & COMMUNICATION",
+  "title": "SILICON SPECTRUM",
+  "subtitle": "SIGNAL & MICROELECTRONICS",
   "desc": "Autonomous robots, digital design and circuit challenges from the electronics department.",
-  "color": "#00e5a8",
+  "color": "#a78bfa",
   "iconType": "bolt",
   "modelType": "electrical",
   "shortName": "ECE",
@@ -187,13 +187,13 @@
   ]
  },
  {
-  "title": "EESS",
-  "subtitle": "ELECTRICAL ENGINEERING",
+  "title": "VOLTAGE GRID",
+  "subtitle": "POWER & TRANSFORMER SYSTEMS",
   "desc": "Circuit debugging, energy solutions and electronics knowledge put to the test.",
-  "color": "#ffd400",
+  "color": "#ff9d00",
   "iconType": "bolt",
   "modelType": "electrical",
-  "shortName": "EE",
+  "shortName": "Electrical",
   "iconChar": "⚡",
   "xp": "5,000 XP",
   "difficulty": "MEDIUM",
@@ -228,13 +228,13 @@
   ]
  },
  {
-  "title": "MESS",
-  "subtitle": "MECHANICAL ENGINEERING",
+  "title": "MECHANICAL MATRIX",
+  "subtitle": "KINETIC THERMODYNAMICS",
   "desc": "CAD design, hydraulics and rocketry for hands-on mechanical minds.",
-  "color": "#ff7a00",
+  "color": "#ffea00",
   "iconType": "gear",
   "modelType": "mecha",
-  "shortName": "ME",
+  "shortName": "Mechanical",
   "iconChar": "⚙️",
   "xp": "5,000 XP",
   "difficulty": "MEDIUM",
@@ -269,13 +269,13 @@
   ]
  },
  {
-  "title": "CESS",
-  "subtitle": "CIVIL ENGINEERING",
+  "title": "URBAN BLUEPRINT",
+  "subtitle": "STRUCTURAL ARCHITECTURE",
   "desc": "Problem solving and structural challenges, from bridges to water filtration.",
-  "color": "#4ade80",
+  "color": "#1fff76",
   "iconType": "bridge",
   "modelType": "civil",
-  "shortName": "CE",
+  "shortName": "Civil",
   "iconChar": "🏗️",
   "xp": "5,000 XP",
   "difficulty": "MEDIUM",
