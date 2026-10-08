@@ -18,7 +18,9 @@
     "overview": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.\n\nParticipants will put their engineering skills to the test by developing a robust and efficient robot capable of maneuvering across the arena, controlling the ball, defending the goal, and attacking the opponent. Every match demands a perfect combination of mechanical design, electronics, control systems, teamwork, and strategy.\n\nGet ready to enter the arena, control your machine, defend your territory, and fight for victory!",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "robot"
+    "iconType": "robot",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "DUNE DOMINATOR",
@@ -27,7 +29,9 @@
     "overview": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.\n\nTeams must engineer their rover to overcome every challenge with speed, precision, and reliability. From wheel and suspension design to motor control and overall stability, every engineering decision can make the difference between getting stuck and conquering the course.\n\nPrepare your machine, take control, and dominate the dunes!",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "robot"
+    "iconType": "robot",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -50,7 +54,9 @@
     "overview": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.\n\nEach clue will test your logic, observation, creativity, problem-solving skills, and teamwork. Follow the trail carefully—every answer leads to the next challenge, but one wrong move could take you off the path!\n\nThink fast, decode the mystery, and stay ahead of the competition. Only the smartest and most determined teams will reach the final destination.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "brain"
+    "iconType": "brain",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -73,7 +79,9 @@
     "overview": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.\n\nFrom the moment you drop onto the battlefield, every decision matters. Loot your gear, plan your moves, communicate with your squad, and outplay your opponents as the battleground closes in.\n\nOnly the strongest teams will survive the chaos and rise to claim the title of the ultimate champions.\n\nDrop Together. Fight Hard. Survive the Arena.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gamepad"
+    "iconType": "gamepad",
+    "minTeam": 4,
+    "maxTeam": 4
    },
    {
     "title": "FIFA SHOWDOWN",
@@ -82,7 +90,9 @@
     "overview": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.\n\nChoose your team, master your tactics, and go head-to-head against your opponents in high-energy matches. Every pass, tackle, attack, and goal can change the course of the game.\n\nOutplay your rivals, dominate the pitch, and fight your way to the top. Only the best player will emerge as the ultimate champion.\n\nPLAY HARD. SCORE BIG. RULE THE ARENA.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gamepad"
+    "iconType": "gamepad",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "MOBILE LEGENDS: BANG BANG",
@@ -91,7 +101,9 @@
     "overview": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.\n\nEvery match demands perfect coordination, tactical gameplay, and mastery of your chosen role. Whether you lead the attack, protect your teammates, or turn the battle around with a game-changing move, every decision can make the difference between defeat and glory.\n\nGather your squad and prepare for battle. The arena is waiting.\n\nTEAM UP. FIGHT SMART. CLAIM VICTORY.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gamepad"
+    "iconType": "gamepad",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "TEKKEN SHOWDOWN",
@@ -100,7 +112,9 @@
     "overview": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.\n\nChoose your fighter, master your moves, and outplay your opponent on the road to victory. With no team to depend on, it all comes down to your skills, precision, and ability to perform under pressure.\n\nOnly the strongest fighter will survive the competition and claim the title of the ultimate champion.\n\nCHOOSE YOUR FIGHTER. ENTER THE ARENA. FIGHT FOR GLORY.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gamepad"
+    "iconType": "gamepad",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -123,7 +137,9 @@
     "overview": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.\n\nParticipants will brainstorm innovative ideas, design engaging user experiences, and develop functional websites within a limited time. The challenge is to combine creativity, UI/UX design, frontend development, and problem-solving to build a website that delivers a meaningful solution.\n\nTHINK. DESIGN. DEVELOP.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "web"
+    "iconType": "web",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "CODATHON",
@@ -132,7 +148,9 @@
     "overview": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.\n\nFrom debugging tricky code to solving challenging programming problems, every round will test your coding skills, problem-solving ability, speed, and logical thinking. The competition gets tougher with every challenge, demanding accuracy and efficiency under pressure.\n\nThink fast, code smarter, and rise above the competition. Only the sharpest minds will conquer the leaderboard.\n\nCODE HARD. THINK SMART. RULE THE ARENA.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "code"
+    "iconType": "code",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "PROMPT & PIXEL",
@@ -141,7 +159,9 @@
     "overview": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.\n\nGiven a theme or problem statement on the spot, participants will use their creativity, UI/UX knowledge, frontend development skills, and AI tools to design and build an innovative responsive landing page within a limited time.\n\nPROMPT SMART. DESIGN BOLD. BUILD THE FUTURE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "web"
+    "iconType": "web",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -164,7 +184,9 @@
     "overview": "LINE FOLLOWER is an exciting robotics challenge where teams design and build an autonomous robot capable of accurately detecting and following a predefined track.\n\nThe competition tests the robot's speed, sensor accuracy, control, programming, and mechanical design as it navigates through curves, turns, and challenging sections of the track. The fastest and most precise robot to complete the course will rise to the top.\n\nBUILD SMART. FOLLOW FAST. CONQUER THE TRACK.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "robot"
+    "iconType": "robot",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "VERILOG",
@@ -173,7 +195,9 @@
     "overview": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.\n\nFrom basic combinational circuits to complex digital logic, the competition challenges participants to think like hardware designers and transform ideas into functional designs.\n\nCODE THE LOGIC. DESIGN THE HARDWARE. BUILD THE FUTURE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "code"
+    "iconType": "code",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "CIRCUIT DESIGNING",
@@ -182,7 +206,9 @@
     "overview": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.\n\nParticipants will analyze the problem, design an appropriate circuit, and bring their ideas to life through effective component selection and circuit implementation.\n\nTHINK SMART. DESIGN BETTER. MAKE IT WORK.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "bolt"
+    "iconType": "bolt",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -205,7 +231,9 @@
     "overview": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.\n\nTeams progress from Circuit IQ, where they test their technical knowledge, to a Virtual-to-Physical Circuit Challenge involving LTspice simulation, circuit analysis, and breadboard implementation. The final round puts their troubleshooting skills to the test as they identify, diagnose, and repair faults in a real hardware circuit.\n\nOBSERVE. MEASURE. DIAGNOSE. REPAIR.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "bug"
+    "iconType": "bug",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "ENERGIX",
@@ -214,7 +242,9 @@
     "overview": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.\n\nFrom renewable energy and electric vehicles to energy storage, smart grids, energy efficiency, and sustainability, participants will analyze technical challenges and present practical, innovative, and technically sound solutions.\n\nThe event goes beyond presentations—it encourages participants to apply engineering principles, research, data, and problem-solving skills to develop meaningful solutions for the future.\n\nTHINK ENERGY. ENGINEER THE FUTURE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "bolt"
+    "iconType": "bolt",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "ELECTROMIND",
@@ -223,7 +253,9 @@
     "overview": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.\n\nThe event challenges participants through different stages involving technical concepts, component identification, measurement, problem-solving, and basic circuit design. It is a test of not only what you know, but also how effectively you can apply that knowledge in practical situations.\n\nTHINK. TEST. BUILD. SOLVE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "brain"
+    "iconType": "brain",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -246,7 +278,9 @@
     "overview": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.\n\nParticipants will be challenged to transform ideas into precise and functional 3D models while applying engineering principles, creativity, and effective design practices. The event tests both technical proficiency and the ability to develop practical solutions within a limited time.\n\nVISUALIZE THE IDEA. DESIGN THE SOLUTION.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gear"
+    "iconType": "gear",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "HYDRAULIC WARZONE",
@@ -255,7 +289,9 @@
     "overview": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.\n\nUsing the principles of fluid mechanics, hydraulics, mechanical design, and control, teams must operate their hydraulic arm to navigate challenges, lift objects, and complete the given mission efficiently.\n\nThe event tests creativity, engineering skills, teamwork, and precise control under pressure.\n\nBUILD THE ARM. MASTER THE PRESSURE. COMPLETE THE MISSION.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "gear"
+    "iconType": "gear",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "SKY FORGE",
@@ -264,7 +300,9 @@
     "overview": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.\n\nUsing the materials and standardized syringe-based propulsion mechanism provided by the organizers, participants will design and build their own rockets to achieve maximum flight height. The challenge tests creativity, design optimization, aerodynamics, and engineering skills.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "rocket"
+    "iconType": "rocket",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  },
@@ -287,7 +325,9 @@
     "overview": "BRAIN FORGE is a real-world problem-solving competition that challenges participants to turn critical thinking and creativity into practical solutions.\n\nA broad problem area will be revealed after registrations close. Teams must explore the given area, identify a specific real-life problem, and develop an innovative and practical solution. The final idea will be presented before a panel of judges.\n\nTHINK DEEP. SOLVE SMART. FORGE THE FUTURE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "brain"
+    "iconType": "brain",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "EARTHQUAKE RESISTING BUILDING",
@@ -296,7 +336,9 @@
     "overview": "Water Filter is an on-the-spot engineering challenge where teams design and build an effective water filtration system using materials provided by the organizers.\n\nParticipants must apply their creativity and understanding of filtration principles to develop a filter capable of improving water quality. The performance of each filter will be evaluated using a microscopic turbidity meter, testing how effectively it reduces turbidity.\n\nBUILD SMART. FILTER BETTER. MAKE A DIFFERENCE.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "bridge"
+    "iconType": "bridge",
+    "minTeam": 1,
+    "maxTeam": 5
    },
    {
     "title": "BRIDGE MAKING",
@@ -305,7 +347,9 @@
     "overview": "Bridge Making is a hands-on engineering competition where teams design and construct a bridge using limited materials provided by the organizers.\n\nParticipants will use popsicle sticks, Fevicol, and cutters to build a strong and efficient structure. The completed bridges will then undergo load testing to evaluate their strength and load-bearing capacity.\n\nThe challenge tests creativity, structural design, material efficiency, and practical engineering skills.\n\nBUILD SMART. STAND STRONG. CARRY THE LOAD.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
-    "iconType": "bridge"
+    "iconType": "bridge",
+    "minTeam": 1,
+    "maxTeam": 5
    }
   ]
  }

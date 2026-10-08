@@ -1,4 +1,5 @@
 import Registration from '../models/Registration.js';
+import SubEvent from '../models/SubEvent.js';
 import GlobalUser from '../models/GlobalUser.js';
 import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
@@ -24,6 +25,20 @@ export const createRegistration = async (req, res) => {
         }
         if (userEmail && !isValidEmail(userEmail)) {
             return res.status(400).json({ message: 'Please provide a valid email address.' });
+        }
+
+        // Enforce the admin-configured team size for this event (leader included).
+        // Events that only exist in the client's static fallback have no DB record, so no limit applies.
+        const eventDoc = await SubEvent.findOne({ title: eventTitle.trim() })
+            .collation({ locale: 'en', strength: 2 })
+            .select('minTeam maxTeam');
+        if (eventDoc) {
+            const actualSize = 1 + (Array.isArray(members) ? members.length : 0);
+            const { minTeam, maxTeam } = eventDoc;
+            if (actualSize < minTeam || actualSize > maxTeam || Number(teamSize) !== actualSize) {
+                const range = minTeam === maxTeam ? `exactly ${minTeam}` : `${minTeam} to ${maxTeam}`;
+                return res.status(400).json({ message: `This event needs ${range} team member${maxTeam === 1 ? '' : 's'} (including the leader). You entered ${actualSize}.` });
+            }
         }
 
         // Every Addovedi ID on the team (leader + members) must belong to a

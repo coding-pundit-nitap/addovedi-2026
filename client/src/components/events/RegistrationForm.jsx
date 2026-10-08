@@ -439,12 +439,12 @@ export default function RegistrationForm({
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                         <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
+                            <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE{(activeEvent.minTeam ?? 1) === (activeEvent.maxTeam ?? 5) ? ` (FIXED: ${activeEvent.minTeam ?? 1})` : ` (${activeEvent.minTeam ?? 1}-${activeEvent.maxTeam ?? 5})`}
                         </label>
-                        <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
+                        <select id="teamSize" value={teamSize} disabled={(activeEvent.minTeam ?? 1) === (activeEvent.maxTeam ?? 5)} onChange={(e) => setTeamSize(Number(e.target.value))}
                             className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
                         >
-                            {[1, 2, 3, 4, 5].map(n => (
+                            {Array.from({ length: Math.max(1, (activeEvent.maxTeam ?? 5) - (activeEvent.minTeam ?? 1) + 1) }, (_, i) => (activeEvent.minTeam ?? 1) + i).map(n => (
                                 <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
                             ))}
                         </select>

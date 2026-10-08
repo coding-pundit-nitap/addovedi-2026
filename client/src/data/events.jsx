@@ -42,6 +42,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "robot",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -53,6 +55,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "robot",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -79,6 +83,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "brain",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -105,6 +111,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gamepad",
+                "minTeam": 4,
+                "maxTeam": 4,
                 "heads": [],
                 "rules": []
             },
@@ -116,6 +124,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -127,6 +137,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -138,6 +150,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -164,6 +178,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "web",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -175,6 +191,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "code",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -186,6 +204,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "web",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -212,6 +232,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "robot",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -223,6 +245,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "code",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -234,6 +258,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bolt",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -260,6 +286,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bug",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -271,6 +299,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bolt",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -282,6 +312,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "brain",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -308,6 +340,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gear",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -319,6 +353,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gear",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -330,6 +366,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "rocket",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -356,6 +394,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "brain",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -367,6 +407,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bridge",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             },
@@ -378,6 +420,8 @@ export const CATEGORIES_WITH_EVENTS = [
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bridge",
+                "minTeam": 1,
+                "maxTeam": 5,
                 "heads": [],
                 "rules": []
             }
@@ -568,6 +612,8 @@ export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
             subtitle: s.subtitle,
             desc: s.desc,
             overview: s.overview || '',
+            minTeam: s.minTeam ?? 1,
+            maxTeam: s.maxTeam ?? 5,
             categoryTitle: matchedCat ? matchedCat.title : s.categoryTitle,
             color: s.color,
             xp: s.xp,
@@ -650,6 +696,8 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
             subtitle: ev.subtitle,
             desc: ev.desc,
             overview: ev.overview || '',
+            minTeam: ev.minTeam ?? 1,
+            maxTeam: ev.maxTeam ?? 5,
             categoryTitle: cat.title,
             color: ev.color || cat.color,
             xp: ev.xp,

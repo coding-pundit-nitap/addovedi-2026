@@ -35,6 +35,9 @@ const SubEventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // Allowed team size (leader included). Equal values = fixed size, e.g. BGMI 4/4.
+    minTeam: { type: Number, default: 1, min: 1, max: 10 },
+    maxTeam: { type: Number, default: 5, min: 1, max: 10 },
     overview: {
         type: String,
         required: false,
@@ -77,5 +80,9 @@ const SubEventSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-export default mongoose.model('SubEvent', SubEventSchema);
+SubEventSchema.pre('validate', function (next) {
+    if (this.minTeam > this.maxTeam) return next(new Error('Minimum team size cannot exceed maximum team size.'));
+    next();
+});
 
+export default mongoose.model('SubEvent', SubEventSchema);

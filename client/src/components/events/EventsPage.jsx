@@ -129,6 +129,14 @@ export default function EventsPage() {
         return eventsList.find(e => slugify(e.title) === eventName) || null;
     }, [activeCategory, eventName, subEventsData]);
 
+    // Start the team-size picker at this event's minimum (and keep it inside the allowed range).
+    // Depends on stable primitives so the 4s polling doesn't reset the user's choice.
+    const activeMinTeam = activeEvent?.minTeam ?? 1;
+    const activeMaxTeam = activeEvent?.maxTeam ?? 5;
+    useEffect(() => {
+        setTeamSize(prev => Math.min(Math.max(prev, activeMinTeam), activeMaxTeam));
+    }, [activeEvent?.title, activeMinTeam, activeMaxTeam]);
+
     // The current user's registration for the event being viewed (if any),
     // as leader or as a team member — drives the "already registered" view
     // and its real admin-verification status.
