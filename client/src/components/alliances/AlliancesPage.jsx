@@ -3,62 +3,40 @@
  *
  * Tiered partner showcase: Platinum / Gold / Silver sponsors, then Technical,
  * Event, Travel, Media and Barter partners. Card size scales with the tier.
- * Data is static and sourced from the Addovedi 2026 sponsorship report.
+ * Partners come from the backend (`/alliances`, managed in Admin), with a static fallback.
  */
 
 import { useState, useEffect, useRef } from 'react';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
+import { API_BASE } from '../../constants/api';
 
-// `pending: true` = not fully finalized yet; shown with a "Joining soon" tag.
-const TIERS = [
-    {
-        id: 'platinum', label: 'PLATINUM SPONSOR', color: '#E5F6FF', cols: 1, size: 'xl',
-        partners: [
-            { name: 'TRUSCHOLAR', title: 'Official Credential Partner', desc: 'Every Addovedi 2026 certificate is issued through the TruScholar blockchain-powered digital credential platform, with a lifetime Smart Credential Wallet, AI Career Coach and a job & internship portal for participants.' },
-        ],
-    },
-    {
-        id: 'gold', label: 'GOLD SPONSOR', color: '#FFD700', cols: 1, size: 'lg',
-        partners: [
-            { name: 'SOLIDWORKS', title: 'Gold Sponsor', desc: 'Powering SOLID SIEGE, with student licenses and certification vouchers for winners and an onboarding webinar on SOLIDWORKS design.' },
-        ],
-    },
-    {
-        id: 'silver', label: 'SILVER SPONSORS', color: '#B8C4D6', cols: 2, size: 'md',
-        partners: [
-            { name: 'AIMIL', title: 'Sponsor', desc: 'Supporting Addovedi 2026 as an official sponsor.' },
-            { name: 'NODWIN GAMING × KRAFTON', title: 'Gaming Partner', desc: 'Prize pools and branding for the BGMI and Real Cricket tournaments.', pending: true },
-        ],
-    },
-    {
-        id: 'tech', label: 'TECHNICAL PARTNERS', color: '#00E5FF', cols: 3, size: 'sm',
-        partners: [
-            { name: 'ZEBRONICS', title: 'Official Tech Partner', desc: 'Stage pillars, campus standees and product goodies for the fest.', pending: true },
-            { name: 'UNSTOP', title: 'Platform Partner', desc: 'Event listing and registration platform, with goodies for participants.' },
-        ],
-    },
-    {
-        id: 'event', label: 'EVENT SPONSORS', color: '#7A5CFF', cols: 3, size: 'sm',
-        partners: [
-            { name: 'DENVER', title: 'Fragrance Partner', desc: 'Free sampling for attendees, an experience zone, games and hampers for winners.' },
-            { name: 'JIOSAAVN', title: 'Official Music Streaming Partner', desc: 'Pro codes as prizes and presence across music events and Pronite.' },
-        ],
-    },
-    {
-        id: 'travel', label: 'TRAVEL PARTNER', color: '#1FFF76', cols: 3, size: 'sm',
-        partners: [
-            { name: 'EASEMYTRIP', title: 'Official Travel Partner', desc: '300 travel vouchers for flights and hotels, valid for 5 months.' },
-        ],
-    },
-    {
-        id: 'media', label: 'MEDIA & COMMUNITY', color: '#FF2CFB', cols: 3, size: 'xs',
-        partners: [
-            { name: 'CAMPUS KARMA', title: 'Media Partner', desc: 'Promotional posts and articles before and after the fest.' },
-            { name: 'ABHIBUS', title: 'Barter Partner', desc: 'Bus travel vouchers and student referral offers.', pending: true },
-        ],
-    },
+const TIER_META = [
+    { id: 'PLATINUM', label: 'PLATINUM SPONSOR', color: '#E5F6FF', size: 'xl' },
+    { id: 'GOLD', label: 'GOLD SPONSOR', color: '#FFD700', size: 'lg' },
+    { id: 'SILVER', label: 'SILVER SPONSORS', color: '#B8C4D6', size: 'md' },
+    { id: 'TECHNICAL', label: 'TECHNICAL PARTNERS', color: '#00E5FF', size: 'sm' },
+    { id: 'EVENT', label: 'EVENT SPONSORS', color: '#7A5CFF', size: 'sm' },
+    { id: 'TRAVEL', label: 'TRAVEL PARTNER', color: '#1FFF76', size: 'sm' },
+    { id: 'MEDIA', label: 'MEDIA PARTNERS', color: '#FF2CFB', size: 'xs' },
+    { id: 'BARTER', label: 'BARTER PARTNERS', color: '#FBBF24', size: 'xs' },
+];
+
+// Offline fallback only; the live list comes from the backend (seeded by server/scripts/seedSponsors.js).
+const f = (name, category, sub, desc, pending = false) => ({ name, category, sub, desc, pending });
+const FALLBACK = [
+    f('TRUSCHOLAR', 'PLATINUM', 'Official Credential Partner', 'Every Addovedi 2026 certificate is issued through the TruScholar blockchain-powered digital credential platform, with a lifetime Smart Credential Wallet, AI Career Coach and a job & internship portal for participants.'),
+    f('SOLIDWORKS', 'GOLD', 'Gold Sponsor', 'Powering SOLID SIEGE, with student licenses and certification vouchers for winners and an onboarding webinar on SOLIDWORKS design.'),
+    f('AIMIL', 'SILVER', 'Sponsor', 'Supporting Addovedi 2026 as an official sponsor.'),
+    f('NODWIN GAMING × KRAFTON', 'SILVER', 'Gaming Partner', 'Prize pools and branding for the BGMI and Real Cricket tournaments.', true),
+    f('ZEBRONICS', 'TECHNICAL', 'Official Tech Partner', 'Stage pillars, campus standees and product goodies for the fest.', true),
+    f('UNSTOP', 'TECHNICAL', 'Platform Partner', 'Event listing and registration platform, with goodies for participants.'),
+    f('DENVER', 'EVENT', 'Fragrance Partner', 'Free sampling for attendees, an experience zone, games and hampers for winners.'),
+    f('JIOSAAVN', 'EVENT', 'Official Music Streaming Partner', 'Pro codes as prizes and presence across music events and Pronite.'),
+    f('EASEMYTRIP', 'TRAVEL', 'Official Travel Partner', '300 travel vouchers for flights and hotels, valid for 5 months.'),
+    f('CAMPUS KARMA', 'MEDIA', 'Media Partner', 'Promotional posts and articles before and after the fest.'),
+    f('ABHIBUS', 'BARTER', 'Barter Partner', 'Bus travel vouchers and student referral offers.', true),
 ];
 
 const SIZES = {
@@ -141,8 +119,11 @@ function PartnerCard({ partner, color, size }) {
             {partner.pending && (
                 <span style={{ position: 'absolute', top: 10, right: 14, fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.15em', color: '#FBBF24' }}>JOINING SOON</span>
             )}
-            <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: `clamp(${Math.round(s.name * 0.6)}px, 4vw, ${s.name}px)`, color: '#fff', letterSpacing: '0.08em', textShadow: `0 0 14px ${color}66` }}>{partner.name}</div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 10, letterSpacing: '0.2em', color, margin: '8px 0 12px', textTransform: 'uppercase' }}>{partner.title}</div>
+            {partner.logoImage && (
+                <img src={partner.logoImage} alt={partner.name} style={{ maxHeight: s.name * 2, maxWidth: '70%', objectFit: 'contain', margin: '0 auto 14px' }} />
+            )}
+            <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: partner.logoImage ? 700 : 900, fontSize: `clamp(${Math.round(s.name * 0.6)}px, 4vw, ${s.name}px)`, color: '#fff', letterSpacing: '0.08em', textShadow: `0 0 14px ${color}66` }}>{partner.name}</div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 10, letterSpacing: '0.2em', color, margin: '8px 0 12px', textTransform: 'uppercase' }}>{partner.sub}</div>
             <p style={{ fontFamily: 'monospace', fontSize: size === 'xs' ? 11 : 12, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', margin: '0 auto', maxWidth: 640 }}>{partner.desc}</p>
         </div>
     );
@@ -151,6 +132,23 @@ function PartnerCard({ partner, color, size }) {
 export default function AlliancesPage() {
     const [booted, setBooted] = useState(false);
     const pageRef = useRef(null);
+    const [partners, setPartners] = useState(FALLBACK);
+
+    // Poll so Admin edits (logos, tiers) show up without a reload.
+    useEffect(() => {
+        let cancelled = false;
+        const load = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/alliances`, { cache: 'no-store' });
+                if (!res.ok || cancelled) return;
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) setPartners(data);
+            } catch { /* keep current list */ }
+        };
+        load();
+        const t = setInterval(load, 8000);
+        return () => { cancelled = true; clearInterval(t); };
+    }, []);
 
     return (
         <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position: 'fixed', inset: 0, background: '#010307', zIndex: 100, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
@@ -168,7 +166,7 @@ export default function AlliancesPage() {
                             <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', marginTop: 12 }}>The brands powering Addovedi 2026, Arunachal Pradesh's biggest technical fest.</p>
                         </div>
 
-                        {TIERS.map(tier => (
+                        {TIER_META.map(tier => ({ ...tier, partners: partners.filter(x => x.category === tier.id) })).filter(t => t.partners.length > 0).map(tier => (
                             <section key={tier.id} style={{ marginBottom: 56 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
                                     <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${tier.color}66)` }} />
@@ -176,7 +174,7 @@ export default function AlliancesPage() {
                                     <div style={{ flex: 1, height: 1, background: `linear-gradient(270deg, transparent, ${tier.color}66)` }} />
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
-                                    {tier.partners.map(p => <PartnerCard key={p.name} partner={p} color={tier.color} size={tier.size} />)}
+                                    {tier.partners.map(p => <PartnerCard key={p._id || p.name} partner={p} color={tier.color} size={tier.size} />)}
                                 </div>
                             </section>
                         ))}

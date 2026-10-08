@@ -1872,12 +1872,19 @@ export default function AdminPage() {
                         <form onSubmit={saveSponsor} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                             <input type="text" placeholder="Company Name" value={editingSponsor ? editingSponsor.name : newSponsor.name} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, name: e.target.value }) : setNewSponsor({ ...newSponsor, name: e.target.value })} required />
                             <select value={editingSponsor ? editingSponsor.category : newSponsor.category} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, category: e.target.value }) : setNewSponsor({ ...newSponsor, category: e.target.value })}>
-                                <option value="TITLE">TITLE PARTNER</option>
+                                <option value="PLATINUM">PLATINUM SPONSOR</option>
                                 <option value="GOLD">GOLD SPONSOR</option>
-                                <option value="SILVER">SILVER PARTNER</option>
-                                <option value="MEDIA">MEDIA OUTLET</option>
-                                <option value="BEVERAGE">BEVERAGE DIVISION</option>
+                                <option value="SILVER">SILVER SPONSOR</option>
+                                <option value="TECHNICAL">TECHNICAL PARTNER</option>
+                                <option value="EVENT">EVENT SPONSOR</option>
+                                <option value="TRAVEL">TRAVEL PARTNER</option>
+                                <option value="MEDIA">MEDIA PARTNER</option>
+                                <option value="BARTER">BARTER PARTNER</option>
                             </select>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#9CA3AF' }}>
+                                <input type="checkbox" checked={!!(editingSponsor ? editingSponsor.pending : newSponsor.pending)} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, pending: e.target.checked }) : setNewSponsor({ ...newSponsor, pending: e.target.checked })} />
+                                NOT FINALIZED (SHOW "JOINING SOON")
+                            </label>
                             <input type="text" placeholder="Partnership Sub (e.g. Technology Partner)" value={editingSponsor ? editingSponsor.sub : newSponsor.sub} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, sub: e.target.value }) : setNewSponsor({ ...newSponsor, sub: e.target.value })} required />
                             <input type="text" placeholder="Logo Initials (e.g. NV) — used if no image uploaded" value={editingSponsor ? editingSponsor.logo : newSponsor.logo} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, logo: e.target.value.toUpperCase() }) : setNewSponsor({ ...newSponsor, logo: e.target.value.toUpperCase() })} />
                             <input type="text" placeholder="Website URL" value={editingSponsor ? editingSponsor.url : newSponsor.url} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, url: e.target.value }) : setNewSponsor({ ...newSponsor, url: e.target.value })} required />
