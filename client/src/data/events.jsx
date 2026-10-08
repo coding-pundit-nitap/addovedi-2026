@@ -944,8 +944,15 @@ export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
     return mapped;
 }
 
-// Sep 12-14, 2026 — must stay in sync with the `date` labels on DAYS below.
-const TIMELINE_DAY_DATES = ['2026-09-12', '2026-09-13', '2026-09-14'];
+// Day Zero starts the evening of Oct 28 (from 5PM); Day 1 and Day 2 are the
+// full following days. Single source of truth for both the ISO dates (status
+// computation) and the display labels (DAYS below) so they can't drift apart.
+const DAY_META = [
+    { slot: 'SLOT 00', label: 'DAY ZERO', date: 'Oct 28', isoDate: '2026-10-28', color: '#00E5FF' },
+    { slot: 'SLOT 01', label: 'DAY 1', date: 'Oct 29', isoDate: '2026-10-29', color: '#7A5CFF' },
+    { slot: 'SLOT 02', label: 'DAY 2', date: 'Oct 30', isoDate: '2026-10-30', color: '#FF2CFB' }
+];
+const TIMELINE_DAY_DATES = DAY_META.map(d => d.isoDate);
 
 function computeEventStatus(day, time, end) {
     if (!day || !time) return 'UPCOMING';
@@ -966,11 +973,7 @@ function computeEventStatus(day, time, end) {
 // timeline.day set is left off the schedule entirely — that's the
 // "timing not decided yet" state, not an error.
 export function buildTimelineDays(categoriesList, subEventsMap) {
-    const days = [
-        { slot: 'SLOT 01', label: 'DAY 1', date: 'Sep 12', color: '#00E5FF', events: [] },
-        { slot: 'SLOT 02', label: 'DAY 2', date: 'Sep 13', color: '#7A5CFF', events: [] },
-        { slot: 'SLOT 03', label: 'DAY 3', date: 'Sep 14', color: '#FF2CFB', events: [] }
-    ];
+    const days = DAY_META.map(d => ({ ...d, events: [] }));
 
     (categoriesList || []).forEach(cat => {
         const events = (subEventsMap && subEventsMap[cat.title]) || [];
@@ -1039,11 +1042,7 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
     });
 });
 
-export const DAYS = [
-    { slot: 'SLOT 01', label: 'DAY 1', date: 'Sep 12', color: '#00E5FF', events: [] },
-    { slot: 'SLOT 02', label: 'DAY 2', date: 'Sep 13', color: '#7A5CFF', events: [] },
-    { slot: 'SLOT 03', label: 'DAY 3', date: 'Sep 14', color: '#FF2CFB', events: [] }
-];
+export const DAYS = DAY_META.map(d => ({ ...d, events: [] }));
 
 CATEGORIES_WITH_EVENTS.forEach(cat => {
     cat.events.forEach(ev => {

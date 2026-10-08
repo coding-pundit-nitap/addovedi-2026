@@ -35,7 +35,7 @@ export default function HeroOverlay() {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        const targetDate = new Date('2026-09-12T00:00:00');
+        const targetDate = new Date('2026-10-28T17:00:00'); // Day Zero kicks off at 5PM
         const updateCountdown = () => {
             const difference = targetDate.getTime() - new Date().getTime();
             if (difference <= 0) {
@@ -943,7 +943,7 @@ export default function HeroOverlay() {
                                     {/* Event countdown badge */}
                                     <div className="mt-auto pt-2" style={{ borderTop: '1px solid rgba(0,217,255,0.1)' }}>
                                         <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.62rem', color: 'rgba(0,217,255,0.5)', letterSpacing: '0.3em', marginBottom: '2px' }}>EVENT TIMELINE</div>
-                                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.88rem', fontWeight: 800, color: '#FF2EA6', textShadow: '0 0 12px rgba(255,46,166,0.6)' }}>SEP 12 – 14, 2026</div>
+                                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.88rem', fontWeight: 800, color: '#FF2EA6', textShadow: '0 0 12px rgba(255,46,166,0.6)' }}>OCT 28 – 30, 2026</div>
                                     </div>
                                 </div>
                             </div>

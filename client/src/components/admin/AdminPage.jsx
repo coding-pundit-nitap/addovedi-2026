@@ -78,6 +78,10 @@ export default function AdminPage() {
 
     // New Data Add states
     const emptyTimeline = { day: '', time: '', end: '', venue: '', mode: 'Solo', prize: '' };
+    // Bucket 1 is "Day Zero" (Oct 28, from 5PM), 2 is Day 1 (Oct 29), 3 is Day 2
+    // (Oct 30) — kept as the stored values so existing scheduled sub-events
+    // don't need migrating if the calendar dates ever shift again.
+    const DAY_LABELS = { 1: 'DAY ZERO — OCT 28', 2: 'DAY 1 — OCT 29', 3: 'DAY 2 — OCT 30' };
     const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', category: 'CORE', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
@@ -1654,9 +1658,9 @@ export default function AdminPage() {
                                             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr 1fr', gap: '14px', marginTop: '10px' }}>
                                                 <select value={t.day} onChange={e => setT({ day: e.target.value })}>
                                                     <option value="">NOT SCHEDULED</option>
-                                                    <option value="1">DAY 1 — SEP 12</option>
-                                                    <option value="2">DAY 2 — SEP 13</option>
-                                                    <option value="3">DAY 3 — SEP 14</option>
+                                                    <option value="1">{DAY_LABELS[1]} (FROM 5PM)</option>
+                                                    <option value="2">{DAY_LABELS[2]}</option>
+                                                    <option value="3">{DAY_LABELS[3]}</option>
                                                 </select>
                                                 <input type="text" placeholder="Start Time (24h, e.g. 13:00)" value={t.time} onChange={e => setT({ time: e.target.value })} />
                                                 <input type="text" placeholder="End Time (24h, e.g. 15:00)" value={t.end} onChange={e => setT({ end: e.target.value })} />
@@ -1727,7 +1731,7 @@ export default function AdminPage() {
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
                                                     {sub.timeline?.day ? (
-                                                        <span style={{ color: '#1FFF76' }}>DAY {sub.timeline.day} · {sub.timeline.time || '—'}</span>
+                                                        <span style={{ color: '#1FFF76' }}>{DAY_LABELS[sub.timeline.day] || `DAY ${sub.timeline.day}`} · {sub.timeline.time || '—'}</span>
                                                     ) : (
                                                         <span style={{ color: 'rgba(255,255,255,0.3)' }}>NOT SCHEDULED</span>
                                                     )}
