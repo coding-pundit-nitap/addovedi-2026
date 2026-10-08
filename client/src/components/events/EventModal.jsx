@@ -238,7 +238,7 @@ function EventDetailsModal({
                 }}>
                     <div>
                         <div style={{ fontSize: '8px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '4px' }}>
-                            {'// MISSION_DATA › SECTOR_'}{activeEvent.categoryTitle?.toUpperCase().replace(/\s/g, '_')}
+                            {'MISSION_DATA › SECTOR_'}{activeEvent.categoryTitle?.toUpperCase().replace(/\s/g, '_')}
                         </div>
                         <h2 style={{ fontSize: isMobileModal ? '18px' : '26px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: `0 0 15px ${activeEvent.color}50`, lineHeight: 1.1 }}>
                             {activeEvent.title}
@@ -261,7 +261,7 @@ function EventDetailsModal({
                         {!isMobileModal && (
                             <div style={{ marginTop: '16px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '12px' }}>
                                 <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '6px' }}>
-                                    {'// DIRECT_COMMS'}
+                                    {'DIRECT_COMMS'}
                                 </div>
                                 {coordinators.map((c, i) => (
                                     <div key={i} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontFamily: "'Rajdhani', sans-serif" }}>
@@ -375,7 +375,7 @@ function EventDetailsModal({
                     {activeTab === 'overview' && (
                         <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', scrollBehavior: 'smooth', display: 'flex', flexDirection: 'column', gap: isMobileModal ? '12px' : '20px', fontFamily: "'Rajdhani', sans-serif" }} className="cyber-rules-scrollbar">
                             <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: isMobileModal ? '11px' : '13px' }}>
-                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>// ESTIMATED TIMELINE</div>
+                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>ESTIMATED TIMELINE</div>
                                 {['10:00 AM — PRE-FLIGHT CHECKS', '12:30 PM — MAIN ENGAGEMENT', '04:30 PM — EVALUATION'].map((t, i) => (
                                     <div key={i} style={{ color: 'rgba(255,255,255,0.7)', display: 'flex', gap: '10px', fontSize: isMobileModal ? '11px' : '13px', lineHeight: 1.6 }}>
                                         <span style={{ color: activeEvent.color }}>{'>'}</span>{t}

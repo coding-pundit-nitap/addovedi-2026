@@ -342,7 +342,7 @@ export default function AboutPage() {
                 padding: '0 16px'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>// SECTOR_ABOUT</span>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>SECTOR_ABOUT</span>
                     <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
                         ABOUT ADDOVEDI
                     </h2>
@@ -399,7 +399,7 @@ export default function AboutPage() {
                 padding: '0 16px'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>// SECTOR_ARCHIVE</span>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>SECTOR_ARCHIVE</span>
                     <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
                         PAST EDITIONS
                     </h2>
@@ -455,7 +455,7 @@ export default function AboutPage() {
                 padding: '0 16px'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>// SECTOR_FAQ</span>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>SECTOR_FAQ</span>
                     <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
                         FREQUENTLY ASKED QUESTIONS
                     </h2>
@@ -528,7 +528,7 @@ export default function AboutPage() {
                 padding: '0 16px'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>// SECTOR_QUERY</span>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>SECTOR_QUERY</span>
                     <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(20px, 3.5vw, 30px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
                         STILL HAVE A QUESTION?
                     </h2>
@@ -586,7 +586,7 @@ export default function AboutPage() {
 
                     {/* Right: details */}
                     <div>
-                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>// ESTABLISH_TACTICAL_ROUTE</span>
+                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>ESTABLISH_TACTICAL_ROUTE</span>
                         <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '20px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em', margin: '4px 0 0 0' }}>
                             VISIT ADDOVEDI
                         </h3>

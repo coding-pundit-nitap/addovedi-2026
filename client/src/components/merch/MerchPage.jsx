@@ -4,7 +4,7 @@ import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 import BgCanvas from '../crew/BgCanvas';
-import { MERCH_ITEMS, MERCH_FORM_URL } from '../../data/merch';
+import { MERCH_ITEMS, MERCH_FORM_URL, MERCH_VARIANTS } from '../../data/merch';
 
 const STYLES = `
 .merch-ov-label{font-family:'Orbitron',monospace;letter-spacing:.2em;text-transform:uppercase;}
@@ -89,10 +89,23 @@ function TeeSection({ item, reverse }) {
                 />
             </div>
 
-            <div className="relative mt-4 flex items-center gap-4 md:gap-5">
-                <span className="merch-ov-label text-lg md:text-xl font-bold" style={{ color: item.color }}>
-                    ₹{item.price}
-                </span>
+            <div className="relative mt-4 flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2.5">
+                    {MERCH_VARIANTS.map((variant) => (
+                        <span
+                            key={variant.label}
+                            className="merch-ov-label merch-notch-sm text-[10px] font-bold"
+                            style={{
+                                padding: '6px 12px',
+                                color: item.color,
+                                border: `1px solid ${item.color}50`,
+                                background: `${item.color}12`,
+                            }}
+                        >
+                            {variant.label} ₹{variant.price}
+                        </span>
+                    ))}
+                </div>
                 <a
                     href={MERCH_FORM_URL}
                     target="_blank"
@@ -164,7 +177,7 @@ export default function MerchPage() {
                             THE 2026 DROP
                         </h1>
                         <p className="merch-ov-label text-[13px] font-semibold text-[rgba(180,210,255,0.55)]" style={{ letterSpacing: '0.1em' }}>
-                            2 OFFICIAL TEES · ₹300 EACH · ORDER VIA GOOGLE FORM
+                            2 OFFICIAL TEES · REGULAR ₹349 / OVERSIZE ₹399 · ORDER VIA GOOGLE FORM
                         </p>
                     </motion.div>
 
