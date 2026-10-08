@@ -15,6 +15,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ScrollIndicator from '../common/ScrollIndicator';
+import UnstopReconcile from './UnstopReconcile';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
 
@@ -1129,6 +1130,13 @@ export default function AdminPage() {
                 {/* ── TAB: EVENT REGISTRATIONS ── */}
                 {activeTab === 'registrations' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        <UnstopReconcile
+                            apiBase={API_BASE}
+                            getHeaders={getHeaders}
+                            registrations={registrations}
+                            eventTitles={[...new Set([...subEvents.map(e => e.title), ...registrations.map(r => r.eventTitle)])].sort()}
+                            onDone={fetchRegistrations}
+                        />
                         {/* Header & KPI Summary Cards */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '12px', marginBottom: '20px' }}>
                             <div>

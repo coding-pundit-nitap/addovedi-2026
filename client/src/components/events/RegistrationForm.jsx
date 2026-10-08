@@ -322,7 +322,7 @@ export default function RegistrationForm({
                         UNSTOP PORTAL OPENED IN NEW TAB
                     </h3>
                     <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', marginTop: '8px', maxWidth: '420px', lineHeight: 1.5 }}>
-                        Complete registration on <strong>Unstop</strong> using your Addovedi ID: <strong style={{ color: activeEvent.color }}>{addovediId}</strong>.
+                        Complete registration on <strong>Unstop</strong> and type the team leader's Addovedi ID in the <strong>Addovedi ID</strong> field: <strong style={{ color: activeEvent.color }}>{leaderUID || addovediId}</strong>. Registrations without it can't be matched and won't be accepted.
                     </p>
                 </div>
 
