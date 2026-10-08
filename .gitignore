@@ -8,4 +8,5 @@ dist
 coverage/
 client/node_modules/
 server/node_modules/
+.claude/settings.local.json
 

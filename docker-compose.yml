@@ -1,0 +1,66 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - addovedi
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      MONGODB_URI: mongodb://mongo:27017/addovedi
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+    depends_on:
+      - mongo
+    # Not published to the host — only nginx/ talks to this, over the
+    # internal compose network.
+    expose:
+      - "5001"
+    networks:
+      - addovedi
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: /api
+        VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
+    restart: unless-stopped
+    depends_on:
+      - server
+    # Not published to the host — only nginx/ talks to this.
+    expose:
+      - "80"
+    networks:
+      - addovedi
+
+  nginx:
+    build:
+      context: ./nginx
+    restart: unless-stopped
+    depends_on:
+      - client
+      - server
+    # The only container exposed to the host / college network.
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    networks:
+      - addovedi
+
+networks:
+  addovedi:
+
+volumes:
+  mongo_data:
