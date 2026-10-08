@@ -15,13 +15,13 @@ export default function App() {
     const isEventPage = useStore(s => s.isEventPage);
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch';
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch';
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
@@ -43,7 +43,7 @@ export default function App() {
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch') return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {

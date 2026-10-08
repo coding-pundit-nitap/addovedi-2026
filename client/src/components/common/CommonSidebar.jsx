@@ -103,7 +103,8 @@ export default function CommonSidebar() {
         { label: 'TIMELINE',    path: '/timeline' },
         { label: 'ALLIANCES',   path: '/alliances' },
         { label: 'CREW',        path: '/crew' },
-        { label: 'CONNECT HUB', path: '/connect' },
+        { label: 'ABOUT',       path: '/about' },
+        { label: 'MERCH',       path: '/merch' },
     ];
 
     const handleNavigation = (label, path) => {

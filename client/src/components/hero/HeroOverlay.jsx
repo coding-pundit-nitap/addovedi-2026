@@ -387,15 +387,16 @@ export default function HeroOverlay() {
                                     { label: 'TIMELINE', active: false },
                                     { label: 'ALLIANCES', active: false },
                                     { label: 'CREW', active: false },
-                                    { label: 'CONNECT HUB', active: isFooterOpen },
+                                    { label: 'ABOUT', active: false },
+                                    { label: 'MERCH', active: false },
                                 ].map(({ label, active }) => (
                                     <a
                                         key={label}
                                         href="#"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            if (label === 'CONNECT HUB') {
-                                                navigate('/connect');
+                                            if (label === 'ABOUT') {
+                                                navigate('/about');
                                             } else if (label === 'HOME') {
                                                 setIsFooterOpen(false);
                                             } else if (label === 'ARENA') {
@@ -406,6 +407,8 @@ export default function HeroOverlay() {
                                                 navigate('/alliances');
                                             } else if (label === 'CREW') {
                                                 navigate('/crew');
+                                            } else if (label === 'MERCH') {
+                                                navigate('/merch');
                                             }
                                         }}
                                         className={`nav-link-item${active ? ' nav-link-active' : ''}`}

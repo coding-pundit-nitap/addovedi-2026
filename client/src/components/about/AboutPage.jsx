@@ -1,16 +1,13 @@
 /**
- * ConnectPage.jsx — ADDOVEDI HQ ARRIVAL & COMMUNICATIONS
+ * AboutPage.jsx — ADDOVEDI HQ, ABOUT, ARCHIVE & FAQ
  *
- * An immersive environmental contact portal:
+ * An immersive environmental contact/about portal:
  *  • Hero (100vh): Cinematic camera approach toward a futuristic headquarters facade (Halo/UNSC/Cyberpunk style)
- *  • Enter HQ transition: Sliding massive doors, light leaks, and automatic camera push-through
- *  • HQ Lobby (Split 50/50):
- *     - Left: Contact Directory vertical information desk with row hover sweep beams and copy-to-clipboard actions
- *     - Right: Premium glassmorphic Message Terminal with Apple-like label animations and success states
- *  • Environment detail: Animated elevators, active security drones, radar sweeps, and floor reflections
- *  • Campus Map: Holographic campus SVG visual alongside directions
- *  • Status Panel: System availability dashboard
- *  • Social Feed: Horizontal cards for Instagram, LinkedIn, and YouTube
+ *  • About Addovedi: festival theme & mission copy
+ *  • Past Editions: year-tabbed photo archive (2025 / 2024 / ...)
+ *  • FAQ: registration walkthrough accordion
+ *  • Query Terminal: message form
+ *  • Campus Map, Status Panel, Social Feed (all unchanged from the original Connect Hub, moved to the bottom)
  *  • Footer: Closing doors goodbye sequence with blinking system console cursors
  */
 
@@ -18,25 +15,19 @@ import { useState, useEffect, useRef } from 'react';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
+import MessageTerminal from './MessageTerminal';
 import { API_BASE } from '../../constants/api';
+import { PAST_EDITIONS } from '../../data/pastEditions';
+import { FAQ_ITEMS, QUICK_REGISTRATION_GUIDE } from '../../data/faq';
 
-export default function ConnectPage() {
+export default function AboutPage() {
     const pageRef = useRef(null);
-    const [copiedText, setCopiedText] = useState(false);
     const [booted, setBooted] = useState(false);
-    
-    // Form fields
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [subject, setSubject] = useState('');
-    const [message, setMessage] = useState('');
-    const [sending, setSending] = useState(false);
-    const [sent, setSent] = useState(false);
-
-    // Form inputs focus states
-    const [focusFields, setFocusFields] = useState({ name: false, email: false, subject: false, message: false });
-
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // Past editions tab + FAQ accordion state
+    const [activeYear, setActiveYear] = useState(PAST_EDITIONS[0]?.year);
+    const [openFaq, setOpenFaq] = useState(0);
 
     // Sector Availability states
     const [generalQueries, setGeneralQueries] = useState('ONLINE');
@@ -69,47 +60,18 @@ export default function ConnectPage() {
         fetchStatus();
     }, []);
 
-    // Handle email copy
-    const copyEmail = (e) => {
-        e.preventDefault();
-        navigator.clipboard.writeText('team@addovedi.in');
-        setCopiedText(true);
-        setTimeout(() => setCopiedText(false), 2000);
-    };
-
-    // Handle form submit
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSending(true);
-        try {
-            const res = await fetch(`${API_BASE}/messages`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, subject, message })
-            });
-            if (res.ok) {
-                setSent(true);
-            } else {
-                throw new Error();
-            }
-        } catch (err) {
-            // Offline-first graceful fallback: simulate success if server is offline
-            setSent(true);
-        } finally {
-            setSending(false);
-        }
-    };
+    const activeEdition = PAST_EDITIONS.find(ed => ed.year === activeYear) || PAST_EDITIONS[0];
 
     return (
         <>
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Connect" />}
+            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="About" />}
             <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, overflowY:'auto', overflowX:'hidden', opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
             <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
                 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
                 @keyframes spinRev { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
-                @keyframes searchlight { 
+                @keyframes searchlight {
                     0%, 100% { transform: rotate(-25deg); opacity: 0.15; }
                     50% { transform: rotate(25deg); opacity: 0.35; }
                 }
@@ -132,6 +94,7 @@ export default function ConnectPage() {
                     0% { background-position: 0% 50%; }
                     100% { background-position: 100% 50%; }
                 }
+                @keyframes faqChevron { from{transform:rotate(0deg)} to{transform:rotate(180deg)} }
 
                 /* Custom scrollbar */
                 ::-webkit-scrollbar { width: 6px; }
@@ -147,6 +110,65 @@ export default function ConnectPage() {
                     border-radius: 50%;
                     box-shadow: 0 0 10px #00E5FF;
                     pointer-events: none;
+                }
+
+                .about-year-tab {
+                    font-family: 'Orbitron', monospace;
+                    font-size: 11px;
+                    font-weight: 900;
+                    letter-spacing: 0.15em;
+                    padding: 10px 22px;
+                    border: 1.2px solid rgba(255,255,255,0.08);
+                    background: rgba(255,255,255,0.02);
+                    color: rgba(255,255,255,0.45);
+                    cursor: pointer;
+                    transition: all 0.25s;
+                    border-radius: 6px;
+                }
+                .about-year-tab:hover { color: #fff; border-color: rgba(0,229,255,0.3); }
+                .about-year-tab-active {
+                    color: #00E5FF !important;
+                    border-color: #00E5FF !important;
+                    background: rgba(0,229,255,0.08) !important;
+                    box-shadow: 0 0 15px rgba(0,229,255,0.2);
+                }
+
+                .about-photo-tile {
+                    aspect-ratio: 4/3;
+                    border: 1.2px dashed rgba(255,255,255,0.12);
+                    background: rgba(255,255,255,0.015);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                .about-faq-row {
+                    border: 1.2px solid rgba(255,255,255,0.06);
+                    border-radius: 10px;
+                    overflow: hidden;
+                    background: #0D1320;
+                    transition: border-color 0.25s;
+                }
+                .about-faq-row:hover { border-color: rgba(0,229,255,0.2); }
+                .about-faq-question {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    padding: 16px 20px;
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
+                    text-align: left;
+                    font-family: 'Orbitron', monospace;
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.03em;
+                    color: #fff;
                 }
             `}} />
 
@@ -171,7 +193,7 @@ export default function ConnectPage() {
             }}>
                 {/* Holographic grid and searchlights */}
                 <div style={{ position: 'absolute', inset: 0, opacity: 0.05, backgroundImage: 'linear-gradient(rgba(0,229,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.2) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 1 }} />
-                
+
                 {/* Blue fog atmosphere */}
                 <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, rgba(0, 229, 255, 0.04) 0%, transparent 80%)', zIndex: 1, pointerEvents: 'none' }} />
 
@@ -250,7 +272,7 @@ export default function ConnectPage() {
                                 }} />
                             ))}
                         </div>
-                        
+
                         {/* Main Neon Entrance outline */}
                         <div style={{
                             position: 'absolute', bottom: 0, width: '70px', height: '44px',
@@ -309,311 +331,213 @@ export default function ConnectPage() {
             </div>
 
             {/* ════════════════════════════════════════════
-               SECTION 2: HQ LOBBY & DIRECTORIES (SPLIT)
+               SECTION 2: ABOUT ADDOVEDI
             ════════════════════════════════════════════ */}
-            <div id="lobby-section" style={{
+            <div style={{
                 position: 'relative',
                 zIndex: 10,
                 width: '100%',
                 maxWidth: '1280px',
-                margin: '0 auto',
-                padding: isMobile ? '40px 16px 80px' : '80px 40px 100px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '60px'
+                margin: '0 auto 80px',
+                padding: '0 16px'
             }}>
-                {/* Environmental storytelling backdrop */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontFamily: "'Orbitron', monospace" }}>
-                        <span style={{ fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>// SECTOR_LOBBY</span>
-                        <h2 style={{ fontSize: 'clamp(20px, 3.5vw, 32px)', fontWeight: 900, color: '#fff', letterSpacing: '0.08em', margin: '4px 0 0 0' }}>ADDOVEDI OFFICERS</h2>
-                    </div>
-                    {/* Simulated elevator tracking */}
-                    <div className="hidden lg:flex" style={{ width: '12px', height: '180px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(0,229,255,0.15)', borderRadius: '6px', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{
-                            position: 'absolute', width: '8px', height: '14px', background: 'linear-gradient(180deg, #00E5FF, #7A5CFF)',
-                            left: '1px', borderRadius: '2px', boxShadow: '0 0 8px #00E5FF',
-                            animation: 'elevatorTravel 9s ease-in-out infinite'
-                        }} />
-                    </div>
+                <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>// SECTOR_ABOUT</span>
+                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
+                        ABOUT ADDOVEDI
+                    </h2>
                 </div>
 
-                {/* Clipboard Toast Banner */}
-                {copiedText && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '30px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: '#0D1320',
-                        border: '1.2px solid #00E5FF',
-                        boxShadow: '0 0 20px rgba(0, 229, 255, 0.35)',
-                        borderRadius: '6px',
-                        padding: '12px 28px',
-                        fontFamily: 'monospace',
-                        fontSize: '11px',
-                        color: '#00E5FF',
-                        letterSpacing: '0.12em',
-                        zIndex: 100,
-                        animation: 'statusPulse 0.25s ease-out'
-                    }}>
-                        [✓] COPIED TO CLIPBOARD
-                    </div>
-                )}
-
-                {/* 50/50 Split Lobby Grid */}
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                    gap: isMobile ? '32px' : '48px',
-                    width: '100%'
+                    background: '#0D1320',
+                    border: '1.2px solid rgba(255,255,255,0.04)',
+                    borderRadius: '12px',
+                    padding: isMobile ? '28px 20px' : '44px',
                 }}>
-                    {/* Left Column: Contact Directory */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div style={{
-                            fontFamily: "'Orbitron', monospace",
-                            fontSize: '9.5px',
-                            fontWeight: 900,
-                            letterSpacing: '0.22em',
-                            color: '#00E5FF',
-                            borderBottom: '1px solid rgba(0,229,255,0.15)',
-                            paddingBottom: '10px'
-                        }}>
-                            CONTACT DIRECTORY
-                        </div>
+                    <p style={{ fontFamily: 'monospace', fontSize: '12.5px', color: '#D1D5DB', lineHeight: 1.9, maxWidth: '880px', margin: '0 auto' }}>
+                        ADDOVEDI is the flagship techfest of the National Institute of Technology, Arunachal Pradesh — a three-day
+                        arena where engineering, design, and competition collide. Built around a futuristic "Enter the Arena" theme,
+                        the fest reimagines a campus techfest as a living command center: participants create a player profile, earn
+                        their ADDOVEDI ID, and battle across robotics, esports, web design, coding, and more under one unified mission.
+                        Every event, every stage, and every signal on this site is part of that same arena.
+                    </p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {[
-                                { label: 'EMAIL', icon: '📧', val: 'team@addovedi.in', desc: 'Click to copy address', action: copyEmail },
-                                { label: 'PHONE', icon: '📞', val: '+91 98765 43210', desc: 'Fest Coordination Desk' },
-                                { label: 'LOCATION', icon: '📍', val: 'NIT Arunachal Pradesh', desc: 'Jote Campus Base' },
-                                { label: 'INSTAGRAM', icon: '📷', val: '@addovedi', desc: 'Follow community channels' },
-                                { label: 'LINKEDIN', icon: '💼', val: 'Addovedi', desc: 'Corporate networks' }
-                            ].map((row, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={row.action}
-                                    className="directory-strip"
-                                    style={{
-                                        position: 'relative',
-                                        background: '#0D1320',
-                                        border: '1.2px solid rgba(255,255,255,0.04)',
-                                        borderRadius: '8px',
-                                        padding: '16px 20px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        cursor: row.action ? 'pointer' : 'default',
-                                        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-                                        overflow: 'hidden'
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.borderColor = 'rgba(0, 229, 255, 0.35)';
-                                        e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 229, 255, 0.15)';
-                                        const beam = e.currentTarget.querySelector('.strip-beam');
-                                        if (beam) beam.style.animation = 'rowBeam 0.65s linear forwards';
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)';
-                                        e.currentTarget.style.boxShadow = 'none';
-                                        const beam = e.currentTarget.querySelector('.strip-beam');
-                                        if (beam) beam.style.animation = 'none';
-                                    }}
-                                >
-                                    {/* Neon beam travel strip */}
-                                    <div className="strip-beam" style={{
-                                        position: 'absolute', bottom: 0, left: '-100%', width: '30%', height: '1.5px',
-                                        background: 'linear-gradient(90deg, transparent, #00E5FF, transparent)',
-                                        pointerEvents: 'none'
-                                    }} />
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                        <span style={{ fontSize: '18px' }}>{row.icon}</span>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#9CA3AF', letterSpacing: '0.15em' }}>{row.label}</span>
-                                            <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#FFF', fontWeight: 600, marginTop: '2px' }}>{row.val}</span>
-                                        </div>
-                                    </div>
-
-                                    <span style={{ fontFamily: 'monospace', fontSize: '8.5px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>
-                                        {row.desc.toUpperCase()}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Right Column: Message Terminal Form */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div style={{
-                            fontFamily: "'Orbitron', monospace",
-                            fontSize: '9.5px',
-                            fontWeight: 900,
-                            letterSpacing: '0.22em',
-                            color: '#7A5CFF',
-                            borderBottom: '1px solid rgba(122,92,255,0.15)',
-                            paddingBottom: '10px'
-                        }}>
-                            MESSAGE TERMINAL
-                        </div>
-
-                        <div style={{
-                            background: '#0D1320',
-                            border: '1.2px solid rgba(122, 92, 255, 0.15)',
-                            borderRadius: '12px',
-                            padding: '24px',
-                            boxShadow: '0 8px 30px rgba(0,0,0,0.3)'
-                        }}>
-                            {sent ? (
-                                <div style={{ textAlign: 'center', padding: '24px 10px' }}>
-                                    <div style={{
-                                        display: 'inline-flex', width: '56px', height: '56px', borderRadius: '50%',
-                                        background: 'rgba(31,255,118,0.12)', border: '1.5px solid #1FFF76',
-                                        alignItems: 'center', justifyContent: 'center', marginBottom: '16px',
-                                        boxShadow: '0 0 15px rgba(31,255,118,0.2)'
-                                    }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1FFF76" strokeWidth="3">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <h4 style={{ fontFamily: "'Orbitron', monospace", fontSize: '15px', fontWeight: 900, color: '#1FFF76', letterSpacing: '0.12em', margin: '0 0 6px 0' }}>
-                                        ✓ MESSAGE SENT
-                                    </h4>
-                                    <p style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', margin: 0 }}>
-                                        We'll get back to you soon.
-                                    </p>
-                                </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {['name', 'email', 'subject', 'message'].map(field => {
-                                        const isText = field === 'message';
-                                        const val = field === 'name' ? name : field === 'email' ? email : field === 'subject' ? subject : message;
-                                        const setVal = field === 'name' ? setName : field === 'email' ? setEmail : field === 'subject' ? setSubject : setMessage;
-                                        const isFocused = focusFields[field];
-
-                                        return (
-                                            <div key={field} style={{ display: 'flex', flexDirection: 'column', gap: '4px', position: 'relative' }}>
-                                                {/* Apple-like rising placeholder */}
-                                                <label
-                                                    htmlFor={field}
-                                                    style={{
-                                                        fontFamily: 'monospace',
-                                                        fontSize: '8px',
-                                                        color: isFocused ? '#00E5FF' : 'rgba(255,255,255,0.4)',
-                                                        letterSpacing: '0.15em',
-                                                        textTransform: 'uppercase',
-                                                        transition: 'color 0.25s'
-                                                    }}
-                                                >
-                                                    {field}
-                                                </label>
-                                                <div style={{ position: 'relative' }}>
-                                                    {isText ? (
-                                                        <textarea
-                                                            id={field}
-                                                            required
-                                                            rows={3}
-                                                            placeholder={`Enter ${field}...`}
-                                                            value={val}
-                                                            onChange={e => setVal(e.target.value)}
-                                                            onFocus={() => setFocusFields(prev => ({ ...prev, [field]: true }))}
-                                                            onBlur={() => setFocusFields(prev => ({ ...prev, [field]: false }))}
-                                                            style={{
-                                                                width: '100%',
-                                                                background: 'rgba(0,0,0,0.4)',
-                                                                border: '1.2px solid rgba(255,255,255,0.06)',
-                                                                borderBottom: isFocused ? '1.2px solid #00E5FF' : '1.2px solid rgba(255,255,255,0.06)',
-                                                                color: '#FFF',
-                                                                padding: '10px 14px',
-                                                                fontFamily: 'monospace',
-                                                                fontSize: '11px',
-                                                                outline: 'none',
-                                                                borderRadius: '4px',
-                                                                transition: 'border-color 0.25s, box-shadow 0.25s',
-                                                                resize: 'none'
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <input
-                                                            id={field}
-                                                            type={field === 'email' ? 'email' : 'text'}
-                                                            required
-                                                            placeholder={`Enter ${field}...`}
-                                                            value={val}
-                                                            onChange={e => setVal(e.target.value)}
-                                                            onFocus={() => setFocusFields(prev => ({ ...prev, [field]: true }))}
-                                                            onBlur={() => setFocusFields(prev => ({ ...prev, [field]: false }))}
-                                                            style={{
-                                                                width: '100%',
-                                                                background: 'rgba(0,0,0,0.4)',
-                                                                border: '1.2px solid rgba(255,255,255,0.06)',
-                                                                borderBottom: isFocused ? '1.2px solid #00E5FF' : '1.2px solid rgba(255,255,255,0.06)',
-                                                                color: '#FFF',
-                                                                padding: '8px 14px',
-                                                                fontFamily: 'monospace',
-                                                                fontSize: '11px',
-                                                                outline: 'none',
-                                                                borderRadius: '4px',
-                                                                transition: 'border-color 0.25s, box-shadow 0.25s'
-                                                            }}
-                                                        />
-                                                    )}
-
-                                                    {/* Glowing underline sweep */}
-                                                    {isFocused && (
-                                                        <div style={{
-                                                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '1.5px',
-                                                            background: 'linear-gradient(90deg, #00E5FF, #7A5CFF, #00E5FF)',
-                                                            backgroundSize: '200% auto',
-                                                            animation: 'inputBorderTravel 1.5s linear infinite'
-                                                        }} />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-
-                                    {/* Send button with Energy gradient fill */}
-                                    <button
-                                        type="submit"
-                                        disabled={sending}
-                                        style={{
-                                            position: 'relative',
-                                            width: '100%',
-                                            padding: '12px 0',
-                                            fontFamily: "'Orbitron', monospace",
-                                            fontSize: '9.5px',
-                                            fontWeight: 900,
-                                            letterSpacing: '0.25em',
-                                            color: '#FFF',
-                                            background: 'linear-gradient(90deg, #7A5CFF 0%, #00E5FF 100%)',
-                                            border: 'none',
-                                            borderRadius: '6px',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 4px 15px rgba(0, 229, 255, 0.25)',
-                                            transition: 'all 0.25s',
-                                            overflow: 'hidden'
-                                        }}
-                                        onMouseEnter={e => {
-                                            e.currentTarget.style.boxShadow = '0 4px 25px rgba(0, 229, 255, 0.45)';
-                                            e.currentTarget.style.transform = 'scale(1.01)';
-                                        }}
-                                        onMouseLeave={e => {
-                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 229, 255, 0.25)';
-                                            e.currentTarget.style.transform = 'scale(1)';
-                                        }}
-                                    >
-                                        {sending ? 'SENDING...' : 'SEND MESSAGE'}
-                                    </button>
-                                </form>
-                            )}
-                        </div>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                        gap: '16px',
+                        marginTop: '32px'
+                    }}>
+                        {[
+                            { label: 'COMPETE', desc: 'Robotics, esports, coding & design events across three days.', color: '#00E5FF' },
+                            { label: 'BUILD', desc: 'Hands-on challenges for engineers, designers & builders.', color: '#7A5CFF' },
+                            { label: 'CONNECT', desc: 'One campus, one ID, a community that keeps coming back.', color: '#FF2CFB' },
+                        ].map((pillar, idx) => (
+                            <div key={idx} style={{
+                                border: `1.2px solid ${pillar.color}30`,
+                                background: `${pillar.color}08`,
+                                borderRadius: '8px',
+                                padding: '18px',
+                            }}>
+                                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', fontWeight: 900, letterSpacing: '0.15em', color: pillar.color }}>{pillar.label}</div>
+                                <p style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', marginTop: '8px', lineHeight: 1.6 }}>{pillar.desc}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* ════════════════════════════════════════════
-               SECTION 3: VISIT HQ MAP SEGMENT
+               SECTION 3: PAST EDITIONS ARCHIVE
+            ════════════════════════════════════════════ */}
+            <div style={{
+                position: 'relative',
+                zIndex: 10,
+                width: '100%',
+                maxWidth: '1280px',
+                margin: '0 auto 80px',
+                padding: '0 16px'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>// SECTOR_ARCHIVE</span>
+                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
+                        PAST EDITIONS
+                    </h2>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
+                    {PAST_EDITIONS.map(ed => (
+                        <button
+                            key={ed.year}
+                            onClick={() => setActiveYear(ed.year)}
+                            className={`about-year-tab${activeYear === ed.year ? ' about-year-tab-active' : ''}`}
+                        >
+                            {ed.year}
+                        </button>
+                    ))}
+                </div>
+
+                {activeEdition && (
+                    <>
+                        <div style={{ textAlign: 'center', fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', letterSpacing: '0.1em', marginBottom: '20px' }}>
+                            {activeEdition.tagline}
+                        </div>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+                            gap: '14px'
+                        }}>
+                            {activeEdition.photos.map(photo => (
+                                <div key={photo.id} className="about-photo-tile">
+                                    {photo.img ? (
+                                        <img src={photo.img} alt={photo.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}>
+                                            {photo.caption}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* ════════════════════════════════════════════
+               SECTION 4: FAQ
+            ════════════════════════════════════════════ */}
+            <div style={{
+                position: 'relative',
+                zIndex: 10,
+                width: '100%',
+                maxWidth: '920px',
+                margin: '0 auto 80px',
+                padding: '0 16px'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#00E5FF', letterSpacing: '0.2em' }}>// SECTOR_FAQ</span>
+                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
+                        FREQUENTLY ASKED QUESTIONS
+                    </h2>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {FAQ_ITEMS.map((item, idx) => {
+                        const isOpen = openFaq === idx;
+                        return (
+                            <div key={idx} className="about-faq-row">
+                                <button
+                                    className="about-faq-question"
+                                    onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                                >
+                                    <span>{idx + 1}. {item.q}</span>
+                                    <span style={{
+                                        flexShrink: 0,
+                                        color: '#00E5FF',
+                                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.25s',
+                                    }}>▾</span>
+                                </button>
+                                {isOpen && (
+                                    <div style={{ padding: '0 20px 18px' }}>
+                                        <p style={{ fontFamily: 'monospace', fontSize: '11.5px', color: '#9CA3AF', lineHeight: 1.7, margin: 0 }}>
+                                            {item.a}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Quick registration guide strip */}
+                <div style={{
+                    marginTop: '32px',
+                    border: '1.2px solid rgba(0,229,255,0.15)',
+                    background: 'rgba(0,229,255,0.03)',
+                    borderRadius: '10px',
+                    padding: '18px 20px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                }}>
+                    {QUICK_REGISTRATION_GUIDE.map((step, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '9.5px', fontWeight: 900, letterSpacing: '0.1em', color: '#00E5FF' }}>
+                                {step}
+                            </span>
+                            {idx < QUICK_REGISTRATION_GUIDE.length - 1 && (
+                                <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px' }}>➔</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* ════════════════════════════════════════════
+               SECTION 5: QUERY TERMINAL
+            ════════════════════════════════════════════ */}
+            <div style={{
+                position: 'relative',
+                zIndex: 10,
+                width: '100%',
+                maxWidth: '640px',
+                margin: '0 auto 80px',
+                padding: '0 16px'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#7A5CFF', letterSpacing: '0.2em' }}>// SECTOR_QUERY</span>
+                    <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(20px, 3.5vw, 30px)', fontWeight: 900, color: '#fff', letterSpacing: '0.07em', margin: '6px 0 0 0' }}>
+                        STILL HAVE A QUESTION?
+                    </h2>
+                </div>
+                <MessageTerminal heading="SUBMIT A QUERY" />
+            </div>
+
+            {/* ════════════════════════════════════════════
+               SECTION 6: VISIT HQ MAP SEGMENT
             ════════════════════════════════════════════ */}
             <div style={{
                 position: 'relative',
@@ -697,7 +621,7 @@ export default function ConnectPage() {
             </div>
 
             {/* ════════════════════════════════════════════
-               SECTION 4: TEAM AVAILABILITY DASHBOARD
+               SECTION 7: TEAM AVAILABILITY DASHBOARD
             ════════════════════════════════════════════ */}
             <div style={{
                 position: 'relative',
@@ -753,7 +677,7 @@ export default function ConnectPage() {
             </div>
 
             {/* ════════════════════════════════════════════
-               SECTION 5: SOCIAL GRID STRIP
+               SECTION 8: SOCIAL GRID STRIP
             ════════════════════════════════════════════ */}
             <div style={{
                 position: 'relative',

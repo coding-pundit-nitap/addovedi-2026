@@ -4,8 +4,9 @@ import EventsPage from "../components/events/EventsPage";
 import TimelinePage from "../components/timeline/TimelinePage";
 import CrewPage from "../components/crew/CrewPage";
 import AlliancesPage from "../components/alliances/AlliancesPage";
-import ConnectPage from "../components/connect/ConnectPage";
+import AboutPage from "../components/about/AboutPage";
 import AdminPage from "../components/admin/AdminPage";
+import MerchPage from "../components/merch/MerchPage";
 
 export default function AppRoutes() {
     return (
@@ -15,7 +16,8 @@ export default function AppRoutes() {
             <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/crew" element={<CrewPage />} />
             <Route path="/alliances" element={<AlliancesPage />} />
-            <Route path="/connect" element={<ConnectPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/merch" element={<MerchPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/event" element={<EventsPage />} />
             <Route path="/event/:categoryName" element={<EventsPage />} />
