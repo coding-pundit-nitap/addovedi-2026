@@ -366,7 +366,10 @@ export default function HeroOverlay() {
 
 
                             {/* ── Left: Brand Logo ── */}
-                            <div className="flex flex-col items-start gap-1.5 font-mono relative z-10 shrink-0">
+                            <div
+                                onClick={() => setIsFooterOpen(false)}
+                                className="flex flex-col items-start gap-1.5 font-mono relative z-10 shrink-0 cursor-pointer"
+                            >
                                 <img
                                     src={addovediLogo}
                                     alt="Addovedi 2026"
