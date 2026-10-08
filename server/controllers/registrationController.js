@@ -27,6 +27,11 @@ export const createRegistration = async (req, res) => {
             return res.status(400).json({ message: 'Please provide a valid email address.' });
         }
 
+        // A blank teammate row is not a teammate: every listed member needs an Addovedi ID.
+        if (Array.isArray(members) && members.some(m => !(m?.uid || '').trim())) {
+            return res.status(400).json({ message: 'Every team member needs an Addovedi ID. Fill in the blank teammate ID(s) or reduce the team size.' });
+        }
+
         // Enforce the admin-configured team size for this event (leader included).
         // Events that only exist in the client's static fallback have no DB record, so no limit applies.
         const eventDoc = await SubEvent.findOne({ title: eventTitle.trim() })

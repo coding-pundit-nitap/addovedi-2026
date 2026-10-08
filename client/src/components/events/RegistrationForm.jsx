@@ -283,10 +283,11 @@ export default function RegistrationForm({
 
         // Every team member's Addovedi ID must have been verified to exist
         // before the team can proceed.
-        const allVerified = (members || []).every((m, idx) => {
-            if (!(m?.uid || '').trim()) return true;
-            return memberUidStatus[idx] === 'valid';
-        });
+        if ((members || []).some(m => !(m?.uid || '').trim())) {
+            alert('Every team member needs an Addovedi ID. Fill in the blank teammate ID(s) or reduce the team size.');
+            return;
+        }
+        const allVerified = (members || []).every((m, idx) => memberUidStatus[idx] === 'valid');
         if (!allVerified) {
             alert('Please wait for all team member Addovedi IDs to be verified (or fix any that show as not found) before proceeding.');
             return;
