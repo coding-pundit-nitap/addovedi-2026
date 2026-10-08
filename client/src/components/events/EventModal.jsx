@@ -38,13 +38,19 @@ function EventDetailsModal({
         '--glow-color-15': activeEvent?.color ? `${activeEvent.color}26` : 'rgba(0,217,255,0.15)',
     };
 
+    // Only reset the active tab when the user actually navigates to a
+    // different event — not on every re-render of this one. EventsPage
+    // polls the DB every few seconds and rebuilds activeEvent as a new
+    // object each time even when nothing changed, which used to make this
+    // effect fire constantly and snap the user back to "register" mid-click.
     useEffect(() => {
         if (location.state?.initialTab) {
             setActiveTab(location.state.initialTab);
         } else {
             setActiveTab('register');
         }
-    }, [location.state, activeEvent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.state?.initialTab, activeEvent?.title]);
 
     const TAB_STYLE = (tab) => ({
         color: activeTab === tab ? '#ffffff' : 'rgba(255,255,255,0.35)',
