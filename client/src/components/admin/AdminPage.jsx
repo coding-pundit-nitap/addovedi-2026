@@ -1658,8 +1658,8 @@ export default function AdminPage() {
                                                     <option value="2">DAY 2 — SEP 13</option>
                                                     <option value="3">DAY 3 — SEP 14</option>
                                                 </select>
-                                                <input type="time" placeholder="Start Time" value={t.time} onChange={e => setT({ time: e.target.value })} />
-                                                <input type="time" placeholder="End Time" value={t.end} onChange={e => setT({ end: e.target.value })} />
+                                                <input type="text" placeholder="Start Time (24h, e.g. 13:00)" value={t.time} onChange={e => setT({ time: e.target.value })} />
+                                                <input type="text" placeholder="End Time (24h, e.g. 15:00)" value={t.end} onChange={e => setT({ end: e.target.value })} />
                                                 <input type="text" placeholder="Venue (e.g. Lab Alpha)" value={t.venue} onChange={e => setT({ venue: e.target.value })} />
                                                 <select value={t.mode} onChange={e => setT({ mode: e.target.value })}>
                                                     <option value="Solo">SOLO</option>
