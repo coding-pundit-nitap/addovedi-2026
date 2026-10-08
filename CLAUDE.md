@@ -39,7 +39,11 @@ Project-specific context for Claude Code sessions in this repo. See [README.md](
 - When a browser-pane repro looks broken in a way that contradicts the code, check for a stale Vite HMR bundle before concluding it's a real bug — this session hit a case where `[hmr] Failed to reload ...` had left genuinely stale JS running; a hard reload (`location.reload(true)`) resolved it and the "bug" wasn't real.
 - **Keep context usage light in this repo**: this is a small, low-traffic college techfest site, not a large/high-scale codebase — avoid re-reading large files or whole directories speculatively, prefer targeted `grep`/`Read` with offsets, and don't reach for subagents/broad exploration for things a direct lookup answers. The user explicitly asked for less token/cache-heavy sessions here.
 
-## Known gaps (as of 2026-10-09, end of session)
+## Known gaps (as of 2026-10, end of latest session)
+
+- Events still need: rules, coordinators, schedule (Timeline page is empty until events get a `timeline.day`), real XP/difficulty, real team sizes per event, and the "Earthquake Resisting Building" text (doc body describes a water filter, title says earthquake). Two old test registrations point at removed event titles.
+- TruScholar and EaseMyTrip logos are small originals; replace via Admin. Add the Addovedi ID question on every Unstop event form.
+- Dependabot alerts still untriaged.
 
 - Broader mobile-responsiveness pass across Events, Crew, Alliances, Home pages was started but not finished — Player HQ/profile section (`PortalPage.jsx`) was fixed; the rest (Events, Crew, Alliances page layouts themselves, not just the modal) still needs a pass.
 - GitHub flags 7 Dependabot vulnerabilities (1 high, 6 moderate) on `main` — not yet triaged.
@@ -50,6 +54,12 @@ Project-specific context for Claude Code sessions in this repo. See [README.md](
 ## Session log (reverse chronological, most recent first)
 
 Each entry is a pushed commit; "Render redeploy needed" means it touched `server/` and requires the manual Render trigger (see Deploy flow above) to go live, separate from Vercel's automatic frontend deploy. Entries from `5d05bde` down through `88fc8a3` are from the 2026-10-09 session (merch page, About page rebuild, decorative-text cleanup, security audit, Past Editions photos, JWT auth, Docker setup).
+
+**2026-10 session (partners page, events data, perf, team size, Unstop reconciliation).** **Render redeploy needed for the whole batch** (new `SponsorCategory` model + `/alliances/categories` routes, `Sponsor.pending`, `SubEvent.overview`/`minTeam`/`maxTeam`, registration team-size + blank-teammate checks). Seed scripts in `server/scripts/` (run from `server/` against whichever DB `.env` points at; production needs them run too if it's a different DB): `seedSponsors.js` (destructive, replaces sponsors+categories; `--logos-only` is safe), `seedSponsorCategories.js` (safe, adds missing), `seedEvents.js` (destructive, replaces categories+sub-events from `scripts/data/events2026.json`, which mirrors `CATEGORIES_WITH_EVENTS` in `client/src/data/events.jsx`).
+- `ae9b206` Admin "Unstop reconciliation" panel (`admin/UnstopReconcile.jsx`): CSV vs website registrations, matched by the leader's Addovedi ID (typed into a mandatory "Addovedi ID" question that must be added on each event's Unstop form; Unstop cannot validate it). Frontend only.
+- `9d739a8`/`45175f6` per-event min/max team size (admin-controlled, server-enforced; BGMI 4/4, others 1-5 until set) and blank teammate rows blocked. **Render redeploy needed.**
+- `3af5a95` perf: models ~42MB -> ~7MB, webp merch, lazy routes, and the cached-GLTF clone fix (see Conventions/Key systems notes above).
+- `96c449f` first-visit loading screen. `648f679`/`d4c6bae`/`6e1e7be`/`830cb9b` real 2026 events (8 categories, 22 events with overviews; rules/coordinators/schedule still empty, XP/difficulty are placeholders; category names kept as the originals, Fun Arena is new; Silicon Spectrum uses the portal hologram, Mechanical Matrix the brain). `cc238bb`/`d8664ad`/`63ca21f`/`820bea1`/`2b30134`/`86fa26f` tiered Partners page (`/alliances`) backed by admin-managed sponsor categories with priority 1-5 (size + order) and real logos in `client/public/sponsors/`. `c373ee9`/`32b5c6d` scroll-to-top button, About page split into Addovedi/Theme cards.
 
 - `5d05bde` feat: containerize frontend/backend/mongo for self-hosted college-server deployment (`docker-compose.yml`, `nginx/`, Dockerfiles) — see Deploy flow above. No Render redeploy needed (not used yet).
 - `cff1c9e` feat: JWT participant auth on profile updates — see "Participant JWT auth" under Key systems above. **Render redeploy needed** (new middleware on an existing route).
