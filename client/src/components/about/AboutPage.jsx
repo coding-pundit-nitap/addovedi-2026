@@ -310,6 +310,8 @@ export default function AboutPage() {
                         src={addovediLogo}
                         alt="Addovedi"
                         style={{
+                            display: 'block',
+                            margin: '0 auto',
                             height: 'clamp(44px, 8vw, 84px)',
                             width: 'auto',
                             filter: 'drop-shadow(0 0 30px rgba(0, 229, 255, 0.45))',
