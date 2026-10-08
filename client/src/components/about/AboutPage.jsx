@@ -146,6 +146,30 @@ export default function AboutPage() {
                     position: relative;
                 }
 
+                .about-marquee-viewport {
+                    overflow: hidden;
+                    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+                    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+                }
+                .about-marquee-track {
+                    display: flex;
+                    gap: 14px;
+                    width: max-content;
+                    animation: about-marquee-scroll 32s linear infinite;
+                }
+                .about-marquee-viewport:hover .about-marquee-track {
+                    animation-play-state: paused;
+                }
+                .about-marquee-tile {
+                    flex: 0 0 auto;
+                    width: 260px;
+                    aspect-ratio: 4/3;
+                }
+                @keyframes about-marquee-scroll {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(-50%); }
+                }
+
                 .about-faq-row {
                     border: 1.2px solid rgba(255,255,255,0.06);
                     border-radius: 10px;
@@ -431,33 +455,31 @@ export default function AboutPage() {
                                 </div>
                             )}
                         </div>
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-                            gap: '14px'
-                        }}>
-                            {activeEdition.photos.map(photo => (
-                                <div key={photo.id} className="about-photo-tile">
-                                    {photo.img ? (
-                                        <>
-                                            <img src={photo.img} alt={photo.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            <div style={{
-                                                position: 'absolute', left: 0, right: 0, bottom: 0,
-                                                background: 'linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)',
-                                                padding: '18px 10px 8px',
-                                            }}>
-                                                <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#fff', letterSpacing: '0.08em', fontWeight: 700 }}>
-                                                    {photo.caption}
-                                                </span>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}>
-                                            {photo.caption}
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
+                        <div className="about-marquee-viewport">
+                            <div className="about-marquee-track">
+                                {[...activeEdition.photos, ...activeEdition.photos].map((photo, idx) => (
+                                    <div key={`${photo.id}-${idx}`} className="about-photo-tile about-marquee-tile">
+                                        {photo.img ? (
+                                            <>
+                                                <img src={photo.img} alt={photo.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <div style={{
+                                                    position: 'absolute', left: 0, right: 0, bottom: 0,
+                                                    background: 'linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)',
+                                                    padding: '18px 10px 8px',
+                                                }}>
+                                                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#fff', letterSpacing: '0.08em', fontWeight: 700 }}>
+                                                        {photo.caption}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}>
+                                                {photo.caption}
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </>
                 )}
