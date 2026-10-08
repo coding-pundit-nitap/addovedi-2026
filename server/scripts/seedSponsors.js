@@ -1,5 +1,6 @@
 // Replaces ALL sponsor categories and sponsor/alliance records with the real Addovedi 2026 partners.
-// Run once:  node scripts/seedSponsors.js   (from server/, needs MONGODB_URI in .env)
+// Run once:  node scripts/seedSponsors.js   (add --logos-only to only fill in missing logos)
+// Full run:   (from server/, needs MONGODB_URI in .env)
 // Logos are not seeded; upload them per partner from Admin > Sponsor Alliances.
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -8,8 +9,11 @@ import SponsorCategory from '../models/SponsorCategory.js';
 
 dotenv.config();
 
+// Logos live in client/public/sponsors (served by the frontend); admin uploads replace them with Cloudinary URLs.
+const LOGO_FILES = {"TRUSCHOLAR": "truscholar.png", "SOLIDWORKS": "solidworks.svg", "AIMIL": "aimil.png", "NODWIN GAMING × KRAFTON": "nodwin.svg", "ZEBRONICS": "zebronics.png", "UNSTOP": "unstop.svg", "DENVER": "denver.png", "JIOSAAVN": "jiosaavn.svg", "EASEMYTRIP": "easemytrip.png", "CAMPUS KARMA": "campuskarma.jpg", "ABHIBUS": "abhibus.png"};
+
 const p = (name, category, sub, desc, support, extra = {}) => ({
-    name, category, sub, desc, support, logo: name.slice(0, 4), url: '#', ...extra,
+    name, category, sub, desc, support, logo: name.slice(0, 4), logoImage: `/sponsors/${LOGO_FILES[name]}`, url: '#', ...extra,
 });
 
 const CATEGORIES = [
@@ -38,6 +42,15 @@ const PARTNERS = [
 ];
 
 await mongoose.connect(process.env.MONGODB_URI);
+if (process.argv.includes('--logos-only')) {
+    // Non-destructive: only fills in logoImage for sponsors that don't have one yet.
+    for (const [name, file] of Object.entries(LOGO_FILES)) {
+        const r = await Sponsor.updateOne({ name, $or: [{ logoImage: '' }, { logoImage: { $exists: false } }] }, { $set: { logoImage: `/sponsors/${file}` } });
+        console.log(`${name}: ${r.modifiedCount ? 'logo set' : 'skipped (missing or already has logo)'}`);
+    }
+    await mongoose.disconnect();
+    process.exit(0);
+}
 await SponsorCategory.deleteMany({});
 await SponsorCategory.insertMany(CATEGORIES.map((c, i) => ({ ...c, createdAt: new Date(Date.now() + i) })));
 const removed = await Sponsor.deleteMany({});

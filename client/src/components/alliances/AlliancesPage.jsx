@@ -28,7 +28,8 @@ const FALLBACK_CATEGORIES = [
 ];
 
 // Offline fallback sponsors; the live list comes from the backend.
-const f = (name, category, sub, desc, pending = false) => ({ name, category, sub, desc, pending });
+const LOGO_FILES = {"TRUSCHOLAR": "truscholar.png", "SOLIDWORKS": "solidworks.svg", "AIMIL": "aimil.png", "NODWIN GAMING × KRAFTON": "nodwin.svg", "ZEBRONICS": "zebronics.png", "UNSTOP": "unstop.svg", "DENVER": "denver.png", "JIOSAAVN": "jiosaavn.svg", "EASEMYTRIP": "easemytrip.png", "CAMPUS KARMA": "campuskarma.jpg", "ABHIBUS": "abhibus.png"};
+const f = (name, category, sub, desc, pending = false) => ({ name, category, sub, desc, pending, logoImage: `/sponsors/${LOGO_FILES[name]}` });
 const FALLBACK = [
     f('TRUSCHOLAR', 'PLATINUM', 'Official Credential Partner', 'Every Addovedi 2026 certificate is issued through the TruScholar blockchain-powered digital credential platform, with a lifetime Smart Credential Wallet, AI Career Coach and a job & internship portal for participants.'),
     f('SOLIDWORKS', 'GOLD', 'Gold Sponsor', 'Powering SOLID SIEGE, with student licenses and certification vouchers for winners and an onboarding webinar on SOLIDWORKS design.'),
@@ -130,7 +131,9 @@ function PartnerCard({ partner, color, size }) {
                 <span style={{ position: 'absolute', top: 10, right: 14, fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.15em', color: '#FBBF24' }}>JOINING SOON</span>
             )}
             {partner.logoImage && (
-                <img src={partner.logoImage} alt={partner.name} style={{ maxHeight: s.logoH, maxWidth: '75%', objectFit: 'contain', marginBottom: 14 }} />
+                <div style={{ background: 'rgba(255,255,255,0.94)', borderRadius: 10, padding: '10px 18px', marginBottom: 16, maxWidth: '80%', boxShadow: `0 0 18px ${color}33` }}>
+                    <img src={partner.logoImage} alt={partner.name} style={{ display: 'block', height: s.logoH, maxWidth: '100%', objectFit: 'contain' }} />
+                </div>
             )}
             <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: partner.logoImage ? 700 : 900, fontSize: `clamp(${Math.round(s.name * 0.6)}px, 4vw, ${s.name}px)`, color: '#fff', letterSpacing: '0.08em', textShadow: `0 0 ${premium ? 24 : 14}px ${color}88` }}>{partner.name}</div>
             <div style={{ fontFamily: "'Orbitron', monospace", fontSize: premium ? 12 : 10, letterSpacing: '0.22em', color, margin: '10px 0 14px', textTransform: 'uppercase' }}>{partner.sub}</div>
