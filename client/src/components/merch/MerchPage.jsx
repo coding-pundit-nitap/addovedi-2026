@@ -4,6 +4,7 @@ import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 import BgCanvas from '../crew/BgCanvas';
+import Tee3DBackground from './Tee3DBackground';
 import { MERCH_ITEMS, MERCH_FORM_URL, MERCH_VARIANTS } from '../../data/merch';
 
 const STYLES = `
@@ -62,6 +63,7 @@ function TeeCard({ item }) {
             </p>
 
             <div className="relative mt-2 flex w-full items-center justify-center" style={{ minHeight: 260 }}>
+                <Tee3DBackground img={item.img} color={item.color} />
                 <div
                     className="pointer-events-none absolute"
                     style={{
