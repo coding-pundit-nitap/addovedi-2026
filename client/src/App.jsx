@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import CommonSidebar from "./components/common/CommonSidebar";
 import AuthModal from "./components/portal/PortalPage";
 import ScrollToTop from "./components/common/ScrollToTop";
+import FirstLoadScreen from "./components/common/FirstLoadScreen";
 
 
 export default function App() {
@@ -15,6 +16,14 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+
+    // First-visit loading screen: once per browser session.
+    const [showLoader, setShowLoader] = useState(() => {
+        try { return !sessionStorage.getItem('addovedi_loaded'); } catch { return false; }
+    });
+    useEffect(() => {
+        if (!showLoader) useStore.getState().setAppReady(true);
+    }, [showLoader]);
 
     const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch';
 
@@ -75,6 +84,8 @@ export default function App() {
             <AppRoutes />
             <CommonSidebar />
             <ScrollToTop />
+
+            {showLoader && <FirstLoadScreen onDone={() => setShowLoader(false)} />}
 
             {/* Auth / Register Modal Popup */}
             <AnimatePresence>

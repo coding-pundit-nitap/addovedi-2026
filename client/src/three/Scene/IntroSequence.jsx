@@ -10,8 +10,12 @@ export default function IntroSequence() {
     const setShowNavbar = useStore((state) => state.setShowNavbar);
     const setShowButton = useStore((state) => state.setShowButton);
     const setShowTextParticles = useStore((state) => state.setShowTextParticles);
+    const appReady = useStore((state) => state.appReady);
 
     useEffect(() => {
+        // Hold the cinematic until the first-visit loading screen is gone
+        if (!appReady) return;
+
         // Collect all meshes we uniquely named in TunnelFrame.jsx
         const frameMaterials = [];
         scene.traverse((child) => {
@@ -79,7 +83,7 @@ export default function IntroSequence() {
         return () => {
             tl.kill();
         };
-    }, [scene, setCameraSpeed, setShowLogo, setShowNavbar, setShowButton, setShowTextParticles]);
+    }, [appReady, scene, setCameraSpeed, setShowLogo, setShowNavbar, setShowButton, setShowTextParticles]);
 
     return null;
 }
