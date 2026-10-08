@@ -119,7 +119,7 @@ export default function RegistrationForm({
                         />
                         <span className="event-reg-fill" />
                         <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
-                            <span>SIGN IN // REGISTER PLAYER</span>
+                            <span>SIGN IN · REGISTER PLAYER</span>
                             <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
                         </span>
                     </button>
@@ -410,7 +410,7 @@ export default function RegistrationForm({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: activeEvent.color }}>
-                            ADDOVEDI ID // OFFICIAL ACCESS TOKEN
+                            ADDOVEDI ID · OFFICIAL ACCESS TOKEN
                         </div>
                         <div style={{ fontSize: isMobileModal ? '15px' : '18px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, color: '#ffffff', letterSpacing: '0.15em', marginTop: '2px', textShadow: `0 0 10px ${activeEvent.color}80` }}>
                             {addovediId}
@@ -429,7 +429,7 @@ export default function RegistrationForm({
                 <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
                         <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
+                            <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME · CALLSIGN
                         </label>
                         <div style={{ position: 'relative' }}>
                             <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
@@ -464,14 +464,14 @@ export default function RegistrationForm({
                                 />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>ADDOVEDI ID // G-ID</label>
+                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>ADDOVEDI ID · G-ID</label>
                                 <input id="leaderUID" type="text" required disabled value={addovediId || leaderUID}
                                     className={inputClass} style={{ ...inputStyle, opacity: 0.8, color: activeEvent.color, fontWeight: 800, cursor: 'not-allowed' }}
                                 />
                             </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
+                            <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE · COMMS</label>
                             <input id="leaderPhone" type="tel" required disabled value={leaderPhone}
                                 className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
                             />

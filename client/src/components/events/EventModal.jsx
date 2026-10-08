@@ -173,7 +173,7 @@ function EventDetailsModal({
                         `).join('')}
                     </ul>
                     <div class="footer">
-                        ADDOVEDI 2026 // SYSTEM SECURE RULES TRANSMISSION
+                        ADDOVEDI 2026 · SYSTEM SECURE RULES TRANSMISSION
                     </div>
                 </div>
                 <script>
@@ -354,7 +354,7 @@ function EventDetailsModal({
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5f57', boxShadow: '0 0 6px #ff5f57' }} />
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#febc2e', boxShadow: '0 0 6px #febc2e' }} />
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#28c840', boxShadow: '0 0 6px #28c840' }} />
-                            <span style={{ marginLeft: '8px', opacity: 0.7, fontSize: isMobileModal ? '7px' : '9px' }}>ADDOVEDI_OS // TERMINAL</span>
+                            <span style={{ marginLeft: '8px', opacity: 0.7, fontSize: isMobileModal ? '7px' : '9px' }}>ADDOVEDI_OS · TERMINAL</span>
                         </div>
                         {!isMobileModal && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 900 }}>

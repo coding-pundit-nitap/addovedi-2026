@@ -36,12 +36,12 @@ export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
 
     // Tech diagnostic logs that update based on percentage
     const getLogText = (p) => {
-        if (p < 20) return "BOOTSEQ: KERNEL SECURE // CORRELATING CHANNELS...";
+        if (p < 20) return "BOOTSEQ: KERNEL SECURE · CORRELATING CHANNELS...";
         if (p < 40) return "ESTABLISHING NEURAL OVERLINK TO MECHA NET...";
         if (p < 60) return `DECRYPTING ${pageName.toUpperCase()} PROTOCOLS [HASH: 0x8F9B]...`;
         if (p < 80) return "SYNCHRONIZING ADDOVEDI POWER CELLS [CORES: 4/4]...";
         if (p < 100) return "CALIBRATING QUANTUM FIELD STABILIZERS...";
-        return "ALL SYSTEMS ONLINE // INGRESS APPROVED.";
+        return "ALL SYSTEMS ONLINE · INGRESS APPROVED.";
     };
 
     return (

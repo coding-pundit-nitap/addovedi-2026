@@ -563,7 +563,7 @@ export default function AuthModal() {
                                     letterSpacing: '0.3em',
                                     color: '#00D9FF',
                                     textShadow: '0 0 8px rgba(0, 217, 255, 0.6)'
-                                }} className="font-black">CORE_AUTH // INTERFACE</span>
+                                }} className="font-black">CORE_AUTH · INTERFACE</span>
                                 <h1 style={{
                                     fontFamily: "'Orbitron', monospace",
                                     fontSize: '1.45rem',
@@ -709,7 +709,7 @@ export default function AuthModal() {
                             }}
                         >
                             <div className="absolute top-0 right-0 p-3 text-[9px] tracking-widest text-[#00D9FF]/40 font-mono">
-                                STEP_02 // SYSTEM_PROFILE_SYNC
+                                STEP_02 · SYSTEM_PROFILE_SYNC
                             </div>
 
                             {/* Header Section */}
@@ -720,7 +720,7 @@ export default function AuthModal() {
                                     letterSpacing: '0.3em',
                                     color: '#00D9FF',
                                     textShadow: '0 0 8px rgba(0, 217, 255, 0.6)'
-                                }} className="font-black">PROTOCOL_02 // REGISTRATION</span>
+                                }} className="font-black">PROTOCOL_02 · REGISTRATION</span>
                                 <h1 style={{
                                     fontFamily: "'Orbitron', monospace",
                                     fontSize: '1.3rem',
@@ -746,7 +746,7 @@ export default function AuthModal() {
                                             <option value="">SELECT DISPOSITION</option>
                                             <option value="Male">MALE</option>
                                             <option value="Female">FEMALE</option>
-                                            <option value="Other">OTHER // SECURE</option>
+                                            <option value="Other">OTHER · SECURE</option>
                                         </select>
                                     </div>
 
@@ -794,10 +794,10 @@ export default function AuthModal() {
                                             className="hud-input px-3.5 py-2.5 text-xs rounded-none bg-[#020812]"
                                         >
                                             <option value="">SELECT YEAR</option>
-                                            <option value="1st Year">1ST YEAR // RECRUIT</option>
-                                            <option value="2nd Year">2ND YEAR // AGENT</option>
-                                            <option value="3rd Year">3RD YEAR // ELITE</option>
-                                            <option value="4th Year">4TH YEAR // COMMANDER</option>
+                                            <option value="1st Year">1ST YEAR · RECRUIT</option>
+                                            <option value="2nd Year">2ND YEAR · AGENT</option>
+                                            <option value="3rd Year">3RD YEAR · ELITE</option>
+                                            <option value="4th Year">4TH YEAR · COMMANDER</option>
                                         </select>
                                     </div>
 
@@ -946,7 +946,7 @@ export default function AuthModal() {
                                     <div className="w-full flex items-center justify-between border-b border-[#00d9ff]/20 pb-3 relative z-10">
                                         <div className="flex flex-col">
                                             <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '10px', fontWeight: 900, color: '#00D9FF', letterSpacing: '0.15em', textShadow: '0 0 8px rgba(0,217,255,0.6)' }}>ADDOVEDI 2026</span>
-                                            <span style={{ fontSize: '7px', color: 'rgba(255,255,255,0.4)', tracking: '0.1em' }} className="font-mono">SYS_ID_CARD // DEMO</span>
+                                            <span style={{ fontSize: '7px', color: 'rgba(255,255,255,0.4)', tracking: '0.1em' }} className="font-mono">SYS_ID_CARD · DEMO</span>
                                         </div>
                                         <div 
                                             className="px-2 py-0.5 text-[7.5px] border font-black tracking-widest uppercase"
@@ -992,7 +992,7 @@ export default function AuthModal() {
                                             {user.college}
                                         </span>
                                         <span style={{ fontSize: '9px', color: currentAvatarData.color, fontWeight: 700, letterSpacing: '0.08em', marginTop: '2px' }} className="uppercase">
-                                            {user.department} // {user.year}
+                                            {user.department} · {user.year}
                                         </span>
                                     </div>
 
@@ -1067,14 +1067,14 @@ export default function AuthModal() {
                                         className="flex-1 py-2 bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 text-[9px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
-                                        UPDATE_PROFILE // EDIT
+                                        UPDATE_PROFILE · EDIT
                                     </button>
                                     <button
                                         onClick={handleLogout}
                                         className="flex-1 py-2 bg-red-950/20 hover:bg-red-950/40 text-red-400 border border-red-500/30 text-[9px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
-                                        ABORT_CONNECTION // LOG OUT
+                                        ABORT_CONNECTION · LOG OUT
                                     </button>
                                 </div>
                             </div>
@@ -1177,7 +1177,7 @@ export default function AuthModal() {
                                                             <div className="flex flex-col">
                                                                 <span className="text-white font-black text-sm tracking-wider uppercase">{reg.eventTitle}</span>
                                                                 <span className="text-[10px] text-white/40 tracking-wider font-semibold uppercase">
-                                                                    {reg.categoryTitle}{reg.isLeader === false ? ` // MEMBER (LED BY ${reg.leaderName})` : ' // TEAM LEADER'}
+                                                                    {reg.categoryTitle}{reg.isLeader === false ? ` · MEMBER (LED BY ${reg.leaderName})` : ' · TEAM LEADER'}
                                                                 </span>
                                                             </div>
                                                         </div>

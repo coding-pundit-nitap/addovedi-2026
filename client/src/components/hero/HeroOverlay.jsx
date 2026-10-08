@@ -863,18 +863,26 @@ export default function HeroOverlay() {
                                     <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, margin: 0 }}>
                                         Yupia, Papum Pare, Arunachal Pradesh – 791112
                                     </p>
+                                    <a
+                                        href="https://maps.app.goo.gl/fj7xSiyD9mhyo4Jy5"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.15em', color: '#00D9FF', textDecoration: 'none' }}
+                                    >
+                                        VIEW ON MAP →
+                                    </a>
                                 </div>
 
                                 {/* Col 2: Contact Info */}
                                 <div className="flex flex-col gap-4">
                                     <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.35em', color: 'rgba(0,217,255,0.6)', textTransform: 'uppercase', margin: 0 }}>📡 CONTACT HUB</h3>
                                     {[
-                                        { label: 'GENERAL INQUIRIES', value: '+91 98765 43210', icon: (
+                                        { label: 'GENERAL INQUIRIES', value: '9506177693', icon: (
                                             <svg className="w-4 h-4 text-[#00D9FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
                                         ) },
-                                        { label: 'EVENT COORDINATION', value: '+91 91234 56789', icon: (
+                                        { label: 'EVENT COORDINATION', value: '+91 98590 40208', icon: (
                                             <svg className="w-4 h-4 text-[#00D9FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
@@ -907,33 +915,30 @@ export default function HeroOverlay() {
                                     <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.35em', color: 'rgba(0,217,255,0.6)', textTransform: 'uppercase', margin: 0 }}>⚡ CONNECT TRANSMISSION</h3>
                                     <div className="grid grid-cols-2 gap-3">
                                         {[
-                                            { label: 'INSTAGRAM', handle: '@addovedi_nitap', color: '#FF2EA6', icon: (
+                                            { label: 'INSTAGRAM', handle: '@addovedi', url: 'https://www.instagram.com/addovedi/', color: '#FF2EA6', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                                                     <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zM17.5 6.5h.01" />
                                                 </svg>
                                             ) },
-                                            { label: 'YOUTUBE', handle: 'Addovedi Official', color: '#facc15', icon: (
+                                            { label: 'YOUTUBE', handle: 'Addovedi', url: 'https://www.youtube.com/@addovedi', color: '#facc15', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 00-1.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z" />
                                                     <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" />
                                                 </svg>
                                             ) },
-                                            { label: 'FACEBOOK', handle: 'Addovedi NITAP', color: '#4ade80', icon: (
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                                                </svg>
-                                            ) },
-                                            { label: 'LINKEDIN', handle: 'NITAP Addovedi', color: '#00D9FF', icon: (
+                                            { label: 'LINKEDIN', handle: 'Addovedi NITAP', url: 'https://www.linkedin.com/in/addovedi-nitap/', color: '#00D9FF', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
                                                     <circle cx="4" cy="4" r="2" />
                                                 </svg>
                                             ) },
-                                        ].map(({ label, handle, color, icon }) => (
+                                        ].map(({ label, handle, url, color, icon }) => (
                                             <a
                                                 key={label}
-                                                href="#"
+                                                href={url}
+                                                target="_blank"
+                                                rel="noreferrer"
                                                 className="flex flex-col p-2 rounded border border-transparent hover:border-[#00D9FF]/20 hover:bg-[#00D9FF]/5 transition-all text-left"
                                                 style={{ textDecoration: 'none' }}
                                             >

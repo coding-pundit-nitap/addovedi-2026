@@ -1053,7 +1053,7 @@ export default function AdminPage() {
                         {loadingMessages ? (
                             <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '30px' }}>ACCESSING RECORDS...</div>
                         ) : messages.length === 0 ? (
-                            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '30px' }}>INBOX IS EMPTY // NO TRANMISSIONS IN LOGS</div>
+                            <div style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '30px' }}>INBOX IS EMPTY · NO TRANMISSIONS IN LOGS</div>
                         ) : (
                             <div style={{ overflowX: 'auto' }}>
                                 <table>
@@ -1973,7 +1973,7 @@ export default function AdminPage() {
                                 <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,31,79,0.1)', border: '1px solid rgba(255,31,79,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🔒</div>
                                 <div>
                                     <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '13px', fontWeight: 900, color: '#ff1f4f', letterSpacing: '0.15em' }}>CHANGE ADMIN PASSWORD</div>
-                                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>OPERATOR: {username.toUpperCase()} // SECURITY PROTOCOL</div>
+                                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>OPERATOR: {username.toUpperCase()} · SECURITY PROTOCOL</div>
                                 </div>
                             </div>
 

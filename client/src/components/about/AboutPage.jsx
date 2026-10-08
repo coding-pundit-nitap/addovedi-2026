@@ -593,8 +593,15 @@ export default function AboutPage() {
                         <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#9CA3AF', marginTop: '10px', lineHeight: 1.7 }}>
                             National Institute of Technology, Arunachal Pradesh Campus. Command portals remain open for physical attendees throughout the techfest days.
                         </p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '16px', fontFamily: 'monospace', fontSize: '11px', color: '#D1D5DB' }}>
+                            <div><span style={{ color: '#9CA3AF' }}>General Enquiry:</span> <a href="tel:9506177693" style={{ color: '#D1D5DB', textDecoration: 'none' }}>9506177693</a></div>
+                            <div><span style={{ color: '#9CA3AF' }}>Event Coordination:</span> <a href="tel:+919859040208" style={{ color: '#D1D5DB', textDecoration: 'none' }}>+91 98590 40208</a></div>
+                            <div><span style={{ color: '#9CA3AF' }}>Email:</span> <a href="mailto:addovedi@nitap.ac.in" style={{ color: '#D1D5DB', textDecoration: 'none' }}>addovedi@nitap.ac.in</a></div>
+                        </div>
+
                         <a
-                            href="https://maps.google.com/?q=National+Institute+of+Technology+Arunachal+Pradesh"
+                            href="https://maps.app.goo.gl/fj7xSiyD9mhyo4Jy5"
                             target="_blank"
                             rel="noreferrer"
                             style={{
@@ -693,13 +700,15 @@ export default function AboutPage() {
                     gap: '16px'
                 }}>
                     {[
-                        { title: 'INSTAGRAM', sub: 'Latest Reel', color: '#FF2CFB', url: '#' },
-                        { title: 'LINKEDIN', sub: 'Latest Post', color: '#00E5FF', url: '#' },
-                        { title: 'YOUTUBE', sub: 'Latest Video', color: '#FF1F4F', url: '#' }
+                        { title: 'INSTAGRAM', sub: 'Latest Reel', color: '#FF2CFB', url: 'https://www.instagram.com/addovedi/' },
+                        { title: 'LINKEDIN', sub: 'Latest Post', color: '#00E5FF', url: 'https://www.linkedin.com/in/addovedi-nitap/' },
+                        { title: 'YOUTUBE', sub: 'Latest Video', color: '#FF1F4F', url: 'https://www.youtube.com/@addovedi' }
                     ].map((feed, idx) => (
                         <a
                             key={idx}
                             href={feed.url}
+                            target="_blank"
+                            rel="noreferrer"
                             style={{
                                 background: '#0D1320',
                                 border: '1.2px solid rgba(255,255,255,0.04)',

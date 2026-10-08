@@ -512,7 +512,7 @@ export default function CrewPage() {
                         fontSize: 'clamp(6.5px, 1.1vw, 8px)',
                         color: 'rgba(0, 229, 255, 0.25)'
                     }}>
-                        <div>ALL OPERATIVES DEPLOYED // STATUS NOMINAL</div>
+                        <div>ALL OPERATIVES DEPLOYED · STATUS NOMINAL</div>
                     </div>
                 </div>
             </div>

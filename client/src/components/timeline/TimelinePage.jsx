@@ -102,7 +102,7 @@ function MobileNodeList({ events, selectedId, onSelect, revealed, dayColor, now2
                                 }}
                             >
                                 <div style={{ fontSize:'7px', color: catInfo.color, letterSpacing:'0.25em', marginBottom:'3px', opacity:0.65 }}>
-                                    {ev.time} // {ev.category.toUpperCase()}
+                                    {ev.time} · {ev.category.toUpperCase()}
                                 </div>
                                 <div style={{ fontSize:'11px', fontWeight:900, color:'#FFF', letterSpacing:'0.06em', marginBottom:'2px' }}>
                                     {catInfo.icon} {ev.title}
