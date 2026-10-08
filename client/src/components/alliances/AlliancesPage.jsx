@@ -12,18 +12,22 @@ import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 import { API_BASE } from '../../constants/api';
 
-const TIER_META = [
-    { id: 'PLATINUM', label: 'PLATINUM SPONSOR', color: '#E5F6FF', size: 'xl' },
-    { id: 'GOLD', label: 'GOLD SPONSOR', color: '#FFD700', size: 'lg' },
-    { id: 'SILVER', label: 'SILVER SPONSORS', color: '#B8C4D6', size: 'md' },
-    { id: 'TECHNICAL', label: 'TECHNICAL PARTNERS', color: '#00E5FF', size: 'sm' },
-    { id: 'EVENT', label: 'EVENT SPONSORS', color: '#7A5CFF', size: 'sm' },
-    { id: 'TRAVEL', label: 'TRAVEL PARTNER', color: '#1FFF76', size: 'sm' },
-    { id: 'MEDIA', label: 'MEDIA PARTNERS', color: '#FF2CFB', size: 'xs' },
-    { id: 'BARTER', label: 'BARTER PARTNERS', color: '#FBBF24', size: 'xs' },
+// Admin-managed categories have a priority 1-5 that sets card size and order (1 = largest, shown first).
+const SIZE_BY_PRIORITY = { 1: 'xl', 2: 'lg', 3: 'md', 4: 'sm', 5: 'xs' };
+
+// Offline fallback, mirrors server/scripts/seedSponsors.js
+const FALLBACK_CATEGORIES = [
+    { name: 'PLATINUM', priority: 1, color: '#E5F6FF' },
+    { name: 'GOLD', priority: 2, color: '#FFD700' },
+    { name: 'SILVER', priority: 3, color: '#B8C4D6' },
+    { name: 'TECHNICAL', priority: 4, color: '#00E5FF' },
+    { name: 'EVENT', priority: 4, color: '#7A5CFF' },
+    { name: 'TRAVEL', priority: 4, color: '#1FFF76' },
+    { name: 'MEDIA', priority: 5, color: '#FF2CFB' },
+    { name: 'BARTER', priority: 5, color: '#FBBF24' },
 ];
 
-// Offline fallback only; the live list comes from the backend (seeded by server/scripts/seedSponsors.js).
+// Offline fallback sponsors; the live list comes from the backend.
 const f = (name, category, sub, desc, pending = false) => ({ name, category, sub, desc, pending });
 const FALLBACK = [
     f('TRUSCHOLAR', 'PLATINUM', 'Official Credential Partner', 'Every Addovedi 2026 certificate is issued through the TruScholar blockchain-powered digital credential platform, with a lifetime Smart Credential Wallet, AI Career Coach and a job & internship portal for participants.'),
@@ -139,6 +143,7 @@ export default function AlliancesPage() {
     const [booted, setBooted] = useState(false);
     const pageRef = useRef(null);
     const [partners, setPartners] = useState(FALLBACK);
+    const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
 
     // Poll so Admin edits (logos, tiers) show up without a reload.
     useEffect(() => {
@@ -149,6 +154,11 @@ export default function AlliancesPage() {
                 if (!res.ok || cancelled) return;
                 const data = await res.json();
                 if (Array.isArray(data) && data.length > 0) setPartners(data);
+                const catRes = await fetch(`${API_BASE}/alliances/categories`, { cache: 'no-store' });
+                if (catRes.ok && !cancelled) {
+                    const cats = await catRes.json();
+                    if (Array.isArray(cats) && cats.length > 0) setCategories(cats);
+                }
             } catch { /* keep current list */ }
         };
         load();
@@ -172,7 +182,7 @@ export default function AlliancesPage() {
                             <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', marginTop: 12 }}>The brands powering Addovedi 2026, Arunachal Pradesh's biggest technical fest.</p>
                         </div>
 
-                        {TIER_META.map(tier => ({ ...tier, partners: partners.filter(x => x.category === tier.id) })).filter(t => t.partners.length > 0).map((tier, i) => (
+                        {[...categories].sort((x, y) => x.priority - y.priority).map(c => ({ id: c.name, label: c.name, color: c.color || '#00E5FF', size: SIZE_BY_PRIORITY[c.priority] || 'md', partners: partners.filter(x => x.category === c.name) })).filter(t => t.partners.length > 0).map((tier, i) => (
                             <section key={tier.id} style={{
                                 marginBottom: 28, borderRadius: 16, boxSizing: 'border-box',
                                 padding: tier.size === 'xl' ? '40px 20px 48px' : tier.size === 'lg' ? '32px 20px 36px' : '26px 16px 30px',

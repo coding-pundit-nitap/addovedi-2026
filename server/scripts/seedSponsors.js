@@ -1,15 +1,27 @@
-// Replaces ALL sponsor/alliance records with the real Addovedi 2026 partners.
+// Replaces ALL sponsor categories and sponsor/alliance records with the real Addovedi 2026 partners.
 // Run once:  node scripts/seedSponsors.js   (from server/, needs MONGODB_URI in .env)
 // Logos are not seeded; upload them per partner from Admin > Sponsor Alliances.
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Sponsor from '../models/Sponsor.js';
+import SponsorCategory from '../models/SponsorCategory.js';
 
 dotenv.config();
 
 const p = (name, category, sub, desc, support, extra = {}) => ({
     name, category, sub, desc, support, logo: name.slice(0, 4), url: '#', ...extra,
 });
+
+const CATEGORIES = [
+    { name: 'PLATINUM', priority: 1, color: '#E5F6FF' },
+    { name: 'GOLD', priority: 2, color: '#FFD700' },
+    { name: 'SILVER', priority: 3, color: '#B8C4D6' },
+    { name: 'TECHNICAL', priority: 4, color: '#00E5FF' },
+    { name: 'EVENT', priority: 4, color: '#7A5CFF' },
+    { name: 'TRAVEL', priority: 4, color: '#1FFF76' },
+    { name: 'MEDIA', priority: 5, color: '#FF2CFB' },
+    { name: 'BARTER', priority: 5, color: '#FBBF24' },
+];
 
 const PARTNERS = [
     p('TRUSCHOLAR', 'PLATINUM', 'Official Credential Partner', 'Every Addovedi 2026 certificate is issued through the TruScholar blockchain-powered digital credential platform, with a lifetime Smart Credential Wallet, AI Career Coach and a job & internship portal for participants.', ['Digital certificates', 'Credential wallet']),
@@ -26,6 +38,8 @@ const PARTNERS = [
 ];
 
 await mongoose.connect(process.env.MONGODB_URI);
+await SponsorCategory.deleteMany({});
+await SponsorCategory.insertMany(CATEGORIES.map((c, i) => ({ ...c, createdAt: new Date(Date.now() + i) })));
 const removed = await Sponsor.deleteMany({});
 await Sponsor.insertMany(PARTNERS.map((x, i) => ({ ...x, createdAt: new Date(Date.now() + i) })));
 console.log(`Removed ${removed.deletedCount} old sponsors, inserted ${PARTNERS.length}.`);

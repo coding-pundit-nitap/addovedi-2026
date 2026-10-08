@@ -64,6 +64,8 @@ export default function AdminPage() {
 
     // Sponsors state
     const [alliances, setAlliances] = useState([]);
+    const [sponsorCategories, setSponsorCategories] = useState([]);
+    const [newSponsorCategory, setNewSponsorCategory] = useState({ name: '', priority: 3, color: '#00E5FF' });
     const [loadingSponsors, setLoadingSponsors] = useState(false);
 
     // Change Password state
@@ -753,6 +755,11 @@ export default function AdminPage() {
                 const data = await safeFetchJson(res);
                 if (Array.isArray(data)) setAlliances(data);
             }
+            const catRes = await fetch(`${API_BASE}/alliances/categories`);
+            if (catRes.ok) {
+                const cats = await safeFetchJson(catRes);
+                if (Array.isArray(cats)) setSponsorCategories(cats);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -798,6 +805,36 @@ export default function AdminPage() {
             alert('Sponsor profile saved successfully!');
         } catch (err) {
             alert(`Error Saving Sponsor: ${err.message}`);
+        }
+    };
+
+    const sponsorCategoryRequest = async (path, method, body) => {
+        try {
+            const res = await fetch(`${API_BASE}/alliances/categories${path}`, {
+                method, headers: getHeaders(), body: body ? JSON.stringify(body) : undefined
+            });
+            const data = await safeFetchJson(res);
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.');
+                    handleLogout();
+                    return false;
+                }
+                throw new Error(data.message || `Request failed (HTTP ${res.status})`);
+            }
+            fetchSponsors();
+            return true;
+        } catch (err) {
+            alert(`Category error: ${err.message}`);
+            return false;
+        }
+    };
+
+    const addSponsorCategory = async (e) => {
+        e.preventDefault();
+        if (!newSponsorCategory.name.trim()) return;
+        if (await sponsorCategoryRequest('', 'POST', { ...newSponsorCategory, priority: Number(newSponsorCategory.priority) })) {
+            setNewSponsorCategory({ name: '', priority: 3, color: '#00E5FF' });
         }
     };
 
@@ -1865,6 +1902,32 @@ export default function AdminPage() {
                 {/* ── TAB 5: SPONSOR ALLIANCES ── */}
                 {activeTab === 'sponsors' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '12px' }}>SPONSOR CATEGORIES &amp; PRIORITY</h3>
+                        <p style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', marginBottom: '14px', lineHeight: 1.6 }}>
+                            Priority 1 = biggest cards, shown first on the Partners page. Priority 5 = smallest cards, shown last. Categories with the same priority keep the order they were created in.
+                        </p>
+                        <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
+                            {sponsorCategories.map(c => (
+                                <div key={c._id} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', border: '1px solid rgba(255,255,255,0.06)', padding: '8px 10px', borderRadius: '6px' }}>
+                                    <input type="color" value={c.color || '#00E5FF'} onChange={e => sponsorCategoryRequest(`/${c._id}`, 'PUT', { color: e.target.value })} style={{ width: '28px', height: '28px', padding: 0, border: 'none', background: 'none' }} />
+                                    <span style={{ fontFamily: 'monospace', fontWeight: 900, color: c.color || '#fff', flex: '1 1 120px' }}>{c.name}</span>
+                                    <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#6B7280' }}>{alliances.filter(a => a.category === c.name).length} sponsor(s)</span>
+                                    <select value={c.priority} onChange={e => sponsorCategoryRequest(`/${c._id}`, 'PUT', { priority: Number(e.target.value) })}>
+                                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>PRIORITY {n}{n === 1 ? ' (LARGEST)' : n === 5 ? ' (SMALLEST)' : ''}</option>)}
+                                    </select>
+                                    <button type="button" onClick={() => { if (confirm(`DELETE CATEGORY ${c.name}?`)) sponsorCategoryRequest(`/${c._id}`, 'DELETE'); }} style={{ background: 'none', border: '1px solid #EF4444', color: '#EF4444', fontFamily: 'monospace', fontSize: '10px', padding: '4px 10px', cursor: 'pointer' }}>DELETE</button>
+                                </div>
+                            ))}
+                        </div>
+                        <form onSubmit={addSponsorCategory} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '32px' }}>
+                            <input type="text" placeholder="New category name (e.g. PRESENTING PARTNER)" value={newSponsorCategory.name} onChange={e => setNewSponsorCategory({ ...newSponsorCategory, name: e.target.value })} maxLength={40} required style={{ flex: '1 1 220px' }} />
+                            <select value={newSponsorCategory.priority} onChange={e => setNewSponsorCategory({ ...newSponsorCategory, priority: e.target.value })}>
+                                {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>PRIORITY {n}{n === 1 ? ' (LARGEST)' : n === 5 ? ' (SMALLEST)' : ''}</option>)}
+                            </select>
+                            <input type="color" value={newSponsorCategory.color} onChange={e => setNewSponsorCategory({ ...newSponsorCategory, color: e.target.value })} style={{ width: '36px', height: '32px', padding: 0, border: 'none', background: 'none' }} />
+                            <button type="submit" style={{ padding: '8px 20px', border: 'none', background: '#00E5FF', color: '#000', fontFamily: 'monospace', fontWeight: 900, cursor: 'pointer' }}>ADD CATEGORY</button>
+                        </form>
+
                         <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '24px' }}>
                             {editingSponsor ? 'EDIT ALLIANCE SPONSOR' : 'ADD NEW SPONSOR ALLIANCE'}
                         </h3>
@@ -1872,14 +1935,8 @@ export default function AdminPage() {
                         <form onSubmit={saveSponsor} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                             <input type="text" placeholder="Company Name" value={editingSponsor ? editingSponsor.name : newSponsor.name} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, name: e.target.value }) : setNewSponsor({ ...newSponsor, name: e.target.value })} required />
                             <select value={editingSponsor ? editingSponsor.category : newSponsor.category} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, category: e.target.value }) : setNewSponsor({ ...newSponsor, category: e.target.value })}>
-                                <option value="PLATINUM">PLATINUM SPONSOR</option>
-                                <option value="GOLD">GOLD SPONSOR</option>
-                                <option value="SILVER">SILVER SPONSOR</option>
-                                <option value="TECHNICAL">TECHNICAL PARTNER</option>
-                                <option value="EVENT">EVENT SPONSOR</option>
-                                <option value="TRAVEL">TRAVEL PARTNER</option>
-                                <option value="MEDIA">MEDIA PARTNER</option>
-                                <option value="BARTER">BARTER PARTNER</option>
+                                {sponsorCategories.map(c => <option key={c._id} value={c.name}>{c.name} (PRIORITY {c.priority})</option>)}
+                                {(editingSponsor ? editingSponsor.category : newSponsor.category) && !sponsorCategories.some(c => c.name === (editingSponsor ? editingSponsor.category : newSponsor.category)) && <option value={editingSponsor ? editingSponsor.category : newSponsor.category}>{editingSponsor ? editingSponsor.category : newSponsor.category}</option>}
                             </select>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#9CA3AF' }}>
                                 <input type="checkbox" checked={!!(editingSponsor ? editingSponsor.pending : newSponsor.pending)} onChange={e => editingSponsor ? setEditingSponsor({ ...editingSponsor, pending: e.target.checked }) : setNewSponsor({ ...newSponsor, pending: e.target.checked })} />
