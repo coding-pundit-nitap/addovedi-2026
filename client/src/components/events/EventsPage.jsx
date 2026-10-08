@@ -7,6 +7,7 @@ import { API_BASE } from '../../constants/api';
 import { fetchMyRegistrations } from '../../utils/registrations';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 // How often the page re-checks the server for registration status changes
 // (e.g. an admin marking a registration VERIFIED) while a user has it open.
@@ -503,9 +504,11 @@ export default function EventsPage() {
                         </div>
                         <div className="flex flex-col pl-1 md:pl-2">
                             <div className="flex items-center leading-none">
-                                <span className="event-logo-title">
-                                    GAMING ARENA
-                                </span>
+                                <img
+                                    src={addovediLogo}
+                                    alt="Addovedi"
+                                    style={{ height: '26px', width: 'auto', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
+                                />
                                 <span className="event-demo-badge">
                                     DEMO MODE
                                 </span>
@@ -769,7 +772,11 @@ export default function EventsPage() {
 
                     {/* Center: Title / Logo */}
                     <div className="flex flex-col items-center justify-center text-center">
-                        <span className="event-logo-title" style={{ fontSize: '0.85rem' }}>GAMING ARENA</span>
+                        <img
+                            src={addovediLogo}
+                            alt="Addovedi"
+                            style={{ height: '20px', width: 'auto', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
+                        />
                         <div className="flex items-center gap-1.5 leading-none mt-1">
                             <span className="w-1.5 h-1.5 rounded-full animate-pulse"
                                 style={{

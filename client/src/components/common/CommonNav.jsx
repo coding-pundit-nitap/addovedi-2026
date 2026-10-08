@@ -196,12 +196,12 @@ export default function CommonNav() {
                 {/* Logo */}
                 <div
                     onClick={() => go('/home')}
-                    style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'5px', fontFamily:'monospace', position:'relative', zIndex:10, flexShrink:0, cursor:'pointer' }}
+                    style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'5px', fontFamily:'monospace', position:'relative', zIndex:10, flexShrink:0, cursor:'pointer', marginLeft:'8px' }}
                 >
                     <img
                         src={addovediLogo}
                         alt="Addovedi 2026"
-                        style={{ height:'36px', width:'auto', filter:'drop-shadow(0 0 10px rgba(0,217,255,.6))', animation:'common-nav-glow 2.8s ease-in-out infinite' }}
+                        style={{ height:'44px', width:'auto', filter:'drop-shadow(0 0 10px rgba(0,217,255,.6))', animation:'common-nav-glow 2.8s ease-in-out infinite' }}
                     />
                     <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
                         <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#00D9FF', boxShadow:'0 0 6px #00D9FF', animation:'common-nav-pulse 2s ease-in-out infinite', display:'inline-block' }} />
