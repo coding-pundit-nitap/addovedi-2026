@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 export default function HeroOverlay() {
     const navigate = useNavigate();
@@ -365,49 +366,16 @@ export default function HeroOverlay() {
 
 
                             {/* ── Left: Brand Logo ── */}
-                            <div className="flex items-center gap-3 font-mono relative z-10">
-                                <div className="relative" style={{ animation: 'glow-pulse 2.8s ease-in-out infinite' }}>
-                                    <svg className="w-11 h-11 text-[#00D9FF]" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-                                        <circle cx="50" cy="50" r="42" strokeWidth="1.5" strokeDasharray="5 3" />
-                                        <circle cx="50" cy="50" r="32" strokeWidth="1" />
-                                        <circle cx="50" cy="50" r="24" strokeWidth="1.5" strokeDasharray="10 5" />
-                                        <circle cx="50" cy="50" r="14" strokeWidth="1.2" />
-                                        <path d="M 50 14 L 50 24 M 50 76 L 50 86 M 14 50 L 24 50 M 76 50 L 86 50" strokeWidth="1.5" />
-                                        <circle cx="50" cy="50" r="4.5" fill="#00D9FF" />
-                                    </svg>
-                                    <div className="absolute inset-0 bg-[#00D9FF]/10 rounded-full blur-lg" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-baseline gap-1.5 leading-none">
-                                        <span
-                                            style={{
-                                                fontFamily: "'Orbitron', monospace",
-                                                fontWeight: 900,
-                                                fontSize: '1.15rem',
-                                                letterSpacing: '0.25em',
-                                                background: 'linear-gradient(90deg, #00D9FF 0%, #a8f0ff 50%, #00D9FF 100%)',
-                                                WebkitBackgroundClip: 'text',
-                                                WebkitTextFillColor: 'transparent',
-                                                filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.7))',
-                                            }}
-                                        >ADDOVEDI</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-[3px] leading-none">
-                                        <span
-                                            className="text-xs font-black tracking-widest"
-                                            style={{
-                                                background: 'linear-gradient(90deg, #FF2EA6, #ff85cc)',
-                                                WebkitBackgroundClip: 'text',
-                                                WebkitTextFillColor: 'transparent',
-                                                filter: 'drop-shadow(0 0 6px rgba(255,46,166,0.6))',
-                                            }}
-                                        >2026</span>
-                                    </div>
-                                    <div className="w-24 h-[1px] my-[3px]" style={{ background: 'linear-gradient(90deg, #00D9FF40, transparent)' }} />
-                                    <div className="flex items-center gap-1.5 leading-none">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#00D9FF] animate-pulse" style={{ boxShadow: '0 0 6px #00D9FF' }} />
-                                        <span className="text-[7.5px] text-[#00D9FF] tracking-widest uppercase font-bold" style={{ textShadow: '0 0 8px rgba(0,217,255,0.7)' }}>SYSTEM ONLINE</span>
-                                    </div>
+                            <div className="flex flex-col items-start gap-1.5 font-mono relative z-10 shrink-0">
+                                <img
+                                    src={addovediLogo}
+                                    alt="Addovedi 2026"
+                                    className="h-9 w-auto"
+                                    style={{ filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))', animation: 'glow-pulse 2.8s ease-in-out infinite' }}
+                                />
+                                <div className="flex items-center gap-1.5 leading-none">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#00D9FF] animate-pulse" style={{ boxShadow: '0 0 6px #00D9FF' }} />
+                                    <span className="text-[7.5px] text-[#00D9FF] tracking-widest uppercase font-bold" style={{ textShadow: '0 0 8px rgba(0,217,255,0.7)' }}>SYSTEM ONLINE</span>
                                 </div>
                             </div>
 

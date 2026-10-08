@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 const NAV_LINKS = [
     { label: 'HOME',        path: '/' },
@@ -191,26 +192,15 @@ export default function CommonNav() {
                 <div style={{ position:'absolute', inset:0, pointerEvents:'none', background: 'transparent', backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,217,255,.025) 3px,rgba(0,217,255,.025) 4px)', animation:'common-nav-scan .3s linear infinite', zIndex: 1 }} />
                 
                 {/* Logo */}
-                <div style={{ display:'flex', alignItems:'center', gap:'12px', fontFamily:'monospace', position:'relative', zIndex:10 }}>
-                    <div style={{ position:'relative', animation:'common-nav-glow 2.8s ease-in-out infinite' }}>
-                        <svg width="44" height="44" viewBox="0 0 100 100" fill="none" stroke="#00D9FF">
-                            <circle cx="50" cy="50" r="42" strokeWidth="1.5" strokeDasharray="5 3" />
-                            <circle cx="50" cy="50" r="32" strokeWidth="1" />
-                            <circle cx="50" cy="50" r="24" strokeWidth="1.5" strokeDasharray="10 5" />
-                            <circle cx="50" cy="50" r="14" strokeWidth="1.2" />
-                            <path d="M50 14L50 24M50 76L50 86M14 50L24 50M76 50L86 50" strokeWidth="1.5" />
-                            <circle cx="50" cy="50" r="4.5" fill="#00D9FF" />
-                        </svg>
-                        <div style={{ position:'absolute', inset:0, background:'rgba(0,217,255,.1)', borderRadius:'50%', filter:'blur(10px)' }} />
-                    </div>
-                    <div style={{ display:'flex', flexDirection:'column' }}>
-                        <span style={{ fontFamily:"'Orbitron',monospace", fontWeight:900, fontSize:'1.15rem', letterSpacing:'.25em', background:'linear-gradient(90deg,#00D9FF 0%,#a8f0ff 50%,#00D9FF 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', filter:'drop-shadow(0 0 10px rgba(0,217,255,.7))' }}>ADDOVEDI</span>
-                        <span style={{ fontSize:'.75rem', fontWeight:900, letterSpacing:'.25em', background:'linear-gradient(90deg,#FF2EA6,#ff85cc)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', filter:'drop-shadow(0 0 6px rgba(255,46,166,.6))' }}>2026</span>
-                        <div style={{ width:'96px', height:'1px', margin:'2px 0', background:'linear-gradient(90deg,rgba(0,217,255,.4),transparent)' }} />
-                        <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                            <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#00D9FF', boxShadow:'0 0 6px #00D9FF', animation:'common-nav-pulse 2s ease-in-out infinite', display:'inline-block' }} />
-                            <span style={{ fontSize:'7.5px', color:'#00D9FF', letterSpacing:'.25em', textShadow:'0 0 8px rgba(0,217,255,.7)', fontFamily:'monospace', fontWeight:700 }}>SYSTEM ONLINE</span>
-                        </div>
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'5px', fontFamily:'monospace', position:'relative', zIndex:10, flexShrink:0 }}>
+                    <img
+                        src={addovediLogo}
+                        alt="Addovedi 2026"
+                        style={{ height:'36px', width:'auto', filter:'drop-shadow(0 0 10px rgba(0,217,255,.6))', animation:'common-nav-glow 2.8s ease-in-out infinite' }}
+                    />
+                    <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                        <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#00D9FF', boxShadow:'0 0 6px #00D9FF', animation:'common-nav-pulse 2s ease-in-out infinite', display:'inline-block' }} />
+                        <span style={{ fontSize:'7.5px', color:'#00D9FF', letterSpacing:'.25em', textShadow:'0 0 8px rgba(0,217,255,.7)', fontFamily:'monospace', fontWeight:700 }}>SYSTEM ONLINE</span>
                     </div>
                 </div>
 
