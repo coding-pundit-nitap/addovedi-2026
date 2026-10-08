@@ -26,7 +26,7 @@ export const login = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const user = await globalUserService.updateProfile(req.params.id, req.body);
+        const user = await globalUserService.updateProfile(req.params.id, req.participantId, req.body);
         return res.json(user);
     } catch (err) {
         const status = err.message === 'Not authorized to update this profile.' ? 403 : 400;

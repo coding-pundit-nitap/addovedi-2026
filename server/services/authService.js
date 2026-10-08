@@ -29,7 +29,7 @@ export const authenticateAdmin = async (username, password) => {
         await admin.save();
     }
 
-    const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '12h' });
     return { token, username: admin.username };
 };
 

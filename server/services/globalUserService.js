@@ -1,9 +1,21 @@
+import jwt from 'jsonwebtoken';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
 import { hashPassword, verifyPassword } from '../utils/hash.js';
 import { isValidEmail, isValidPhone, normalizePhone } from '../utils/validators.js';
 
 const PUBLIC_FIELDS = '-passwordHash -__v';
+
+function signParticipantToken(id) {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+        throw new Error('Server configuration error: JWT_SECRET environment variable is missing.');
+    }
+    // Long-lived relative to the admin token (12h): this is a festival-long
+    // participant session, not a privileged console, so favor fewer
+    // re-logins over tight expiry.
+    return jwt.sign({ id, role: 'participant' }, JWT_SECRET, { expiresIn: '30d' });
+}
 
 async function nextAddovediId() {
     // $inc and $setOnInsert can't target the same field in one update (Mongo
@@ -57,7 +69,8 @@ export const signup = async ({ name, email, phone, password }) => {
                 phone: normalizePhone(phone),
                 passwordHash: hashPassword(password)
             });
-            return user.toObject({ versionKey: false, transform: (_doc, ret) => { delete ret.passwordHash; return ret; } });
+            const obj = user.toObject({ versionKey: false, transform: (_doc, ret) => { delete ret.passwordHash; return ret; } });
+            return { ...obj, token: signParticipantToken(user._id) };
         } catch (err) {
             if (err.code === 11000 && attempt < 2) continue;
             throw err;
@@ -76,26 +89,15 @@ export const login = async ({ email, password }) => {
     }
     const obj = user.toObject({ versionKey: false });
     delete obj.passwordHash;
-    return obj;
+    return { ...obj, token: signParticipantToken(user._id) };
 };
 
-// Updates the Stage-2 "Global Profile" fields. Scoped by the user's own
-// Mongo _id (an unguessable 24-char hex id returned only to that user at
-// signup/login) acting as a lightweight capability token — there is no
-// full session/JWT layer for participant accounts, matching the low
-// sensitivity of this data (it's the same info already visible to the
-// account holder, never exposed to other participants).
-// The participant account system has no session/token layer (see signup/
-// login below — login just returns the document), so the Mongo _id alone
-// would otherwise be a de-facto password for this endpoint: it's handed to
-// the browser on every login/signup and anyone who obtains it could edit
-// someone else's profile. Requiring the account's own email as well (never
-// returned by any public endpoint) is a lightweight but real ownership
-// check without needing a full auth overhaul.
-export const updateProfile = async (id, data) => {
-    const existing = await GlobalUser.findById(id).select('email');
-    if (!existing) throw new Error('Account not found.');
-    if (typeof data.email !== 'string' || data.email.trim().toLowerCase() !== existing.email.toLowerCase()) {
+// Updates the Stage-2 "Global Profile" fields. `callerId` is the id decoded
+// from the caller's own participant JWT (see middleware/auth.js
+// requireParticipant) — this is the real ownership check: a valid token
+// proves who's asking, and it must match the profile being edited.
+export const updateProfile = async (id, callerId, data) => {
+    if (callerId !== id) {
         throw new Error('Not authorized to update this profile.');
     }
 

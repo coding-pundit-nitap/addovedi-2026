@@ -270,7 +270,7 @@ export default function AuthModal() {
             setErrorMsg('PLEASE ENTER A VALID EMERGENCY CONTACT NUMBER.');
             return;
         }
-        if (!user?._id) {
+        if (!user?._id || !user?.token) {
             setErrorMsg('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
             return;
         }
@@ -279,8 +279,11 @@ export default function AuthModal() {
         try {
             const res = await fetch(`${API_BASE}/participants/profile/${user._id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...globalForm, email: user.email })
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                },
+                body: JSON.stringify(globalForm)
             });
             const data = await res.json();
             if (!res.ok) {
@@ -288,7 +291,10 @@ export default function AuthModal() {
                 return;
             }
 
-            const safeUpdatedUser = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
+            // The profile-update response is a fresh DB read with no `token`
+            // field (only login/signup mint one) — carry the existing token
+            // forward so it isn't lost from storage on the next request.
+            const safeUpdatedUser = { ...sanitizeUserForStorage(data), token: user.token, isGlobalRegistered: true };
             setUser(safeUpdatedUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
             setCurrentUser(safeUpdatedUser);
