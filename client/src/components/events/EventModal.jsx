@@ -380,14 +380,10 @@ function EventDetailsModal({
                                     <div style={{ color: 'rgba(255,255,255,0.78)', fontSize: isMobileModal ? '12px' : '14px', lineHeight: 1.75, whiteSpace: 'pre-line' }}>{activeEvent.overview}</div>
                                 </div>
                             ) : (
-                            <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: isMobileModal ? '11px' : '13px' }}>
-                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>ESTIMATED TIMELINE</div>
-                                {['10:00 AM — PRE-FLIGHT CHECKS', '12:30 PM — MAIN ENGAGEMENT', '04:30 PM — EVALUATION'].map((t, i) => (
-                                    <div key={i} style={{ color: 'rgba(255,255,255,0.7)', display: 'flex', gap: '10px', fontSize: isMobileModal ? '11px' : '13px', lineHeight: 1.6 }}>
-                                        <span style={{ color: activeEvent.color }}>{'>'}</span>{t}
-                                    </div>
-                                ))}
-                            </div>
+                                <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px' }}>
+                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>◈ ABOUT THIS EVENT</div>
+                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobileModal ? '12px' : '14px', lineHeight: 1.75 }}>Details coming soon.</div>
+                                </div>
                             )}
                             <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '10px', fontSize: '10px' }}>
                                 {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', activeEvent.xp, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
