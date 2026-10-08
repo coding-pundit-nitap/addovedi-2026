@@ -85,7 +85,20 @@ export const login = async ({ email, password }) => {
 // full session/JWT layer for participant accounts, matching the low
 // sensitivity of this data (it's the same info already visible to the
 // account holder, never exposed to other participants).
+// The participant account system has no session/token layer (see signup/
+// login below — login just returns the document), so the Mongo _id alone
+// would otherwise be a de-facto password for this endpoint: it's handed to
+// the browser on every login/signup and anyone who obtains it could edit
+// someone else's profile. Requiring the account's own email as well (never
+// returned by any public endpoint) is a lightweight but real ownership
+// check without needing a full auth overhaul.
 export const updateProfile = async (id, data) => {
+    const existing = await GlobalUser.findById(id).select('email');
+    if (!existing) throw new Error('Account not found.');
+    if (typeof data.email !== 'string' || data.email.trim().toLowerCase() !== existing.email.toLowerCase()) {
+        throw new Error('Not authorized to update this profile.');
+    }
+
     const allowed = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact', 'avatar'];
     const update = {};
     for (const key of allowed) {

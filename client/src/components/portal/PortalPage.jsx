@@ -280,7 +280,7 @@ export default function AuthModal() {
             const res = await fetch(`${API_BASE}/participants/profile/${user._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(globalForm)
+                body: JSON.stringify({ ...globalForm, email: user.email })
             });
             const data = await res.json();
             if (!res.ok) {

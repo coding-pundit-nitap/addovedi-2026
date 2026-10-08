@@ -29,7 +29,8 @@ export const updateProfile = async (req, res) => {
         const user = await globalUserService.updateProfile(req.params.id, req.body);
         return res.json(user);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        const status = err.message === 'Not authorized to update this profile.' ? 403 : 400;
+        return res.status(status).json({ message: err.message });
     }
 };
 
