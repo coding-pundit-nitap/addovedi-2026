@@ -405,22 +405,31 @@ export default function AboutPage() {
                     </h2>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
-                    {PAST_EDITIONS.map(ed => (
-                        <button
-                            key={ed.year}
-                            onClick={() => setActiveYear(ed.year)}
-                            className={`about-year-tab${activeYear === ed.year ? ' about-year-tab-active' : ''}`}
-                        >
-                            {ed.year}
-                        </button>
-                    ))}
-                </div>
+                {PAST_EDITIONS.length > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
+                        {PAST_EDITIONS.map(ed => (
+                            <button
+                                key={ed.year}
+                                onClick={() => setActiveYear(ed.year)}
+                                className={`about-year-tab${activeYear === ed.year ? ' about-year-tab-active' : ''}`}
+                            >
+                                {ed.year}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {activeEdition && (
                     <>
-                        <div style={{ textAlign: 'center', fontFamily: 'monospace', fontSize: '10.5px', color: '#9CA3AF', letterSpacing: '0.1em', marginBottom: '20px' }}>
-                            {activeEdition.tagline}
+                        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '12.5px', color: '#fff', fontWeight: 900, letterSpacing: '0.08em' }}>
+                                {activeEdition.tagline}
+                            </div>
+                            {activeEdition.highlight && (
+                                <div style={{ fontFamily: 'monospace', fontSize: '10.5px', color: '#7A5CFF', letterSpacing: '0.1em', marginTop: '6px' }}>
+                                    {activeEdition.highlight}
+                                </div>
+                            )}
                         </div>
                         <div style={{
                             display: 'grid',
@@ -430,7 +439,18 @@ export default function AboutPage() {
                             {activeEdition.photos.map(photo => (
                                 <div key={photo.id} className="about-photo-tile">
                                     {photo.img ? (
-                                        <img src={photo.img} alt={photo.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <>
+                                            <img src={photo.img} alt={photo.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <div style={{
+                                                position: 'absolute', left: 0, right: 0, bottom: 0,
+                                                background: 'linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)',
+                                                padding: '18px 10px 8px',
+                                            }}>
+                                                <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '7.5px', color: '#fff', letterSpacing: '0.08em', fontWeight: 700 }}>
+                                                    {photo.caption}
+                                                </span>
+                                            </div>
+                                        </>
                                     ) : (
                                         <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}>
                                             {photo.caption}
