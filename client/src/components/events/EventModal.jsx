@@ -374,6 +374,12 @@ function EventDetailsModal({
                     {/* ── Tab: Overview ── */}
                     {activeTab === 'overview' && (
                         <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', scrollBehavior: 'smooth', display: 'flex', flexDirection: 'column', gap: isMobileModal ? '12px' : '20px', fontFamily: "'Rajdhani', sans-serif" }} className="cyber-rules-scrollbar">
+                            {activeEvent.overview ? (
+                                <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px' }}>
+                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '10px' }}>◈ ABOUT THIS EVENT</div>
+                                    <div style={{ color: 'rgba(255,255,255,0.78)', fontSize: isMobileModal ? '12px' : '14px', lineHeight: 1.75, whiteSpace: 'pre-line' }}>{activeEvent.overview}</div>
+                                </div>
+                            ) : (
                             <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: isMobileModal ? '11px' : '13px' }}>
                                 <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>ESTIMATED TIMELINE</div>
                                 {['10:00 AM — PRE-FLIGHT CHECKS', '12:30 PM — MAIN ENGAGEMENT', '04:30 PM — EVALUATION'].map((t, i) => (
@@ -382,6 +388,7 @@ function EventDetailsModal({
                                     </div>
                                 ))}
                             </div>
+                            )}
                             <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '10px', fontSize: '10px' }}>
                                 {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', activeEvent.xp, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
                                     <div key={k} style={{ flex: 1, padding: isMobileModal ? '12px' : '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: isMobileModal ? 'row' : 'column', justifycontent: isMobileModal ? 'space-between' : 'flex-start', alignItems: isMobileModal ? 'center' : 'flex-start', gap: '8px' }}>

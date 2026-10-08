@@ -35,6 +35,11 @@ const SubEventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    overview: {
+        type: String,
+        required: false,
+        default: '' // Longer multi-paragraph description shown on the event's Overview tab
+    },
     color: {
         type: String,
         required: true,

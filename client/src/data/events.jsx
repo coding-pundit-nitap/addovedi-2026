@@ -17,732 +17,369 @@ export const GENERAL_RULES = [
 ];
 
 // NESTED MASTER DATA HIERARCHY
-// Categories -> Events -> rules, coordinators, and timeline details.
+// Categories -> Events -> overview, rules, coordinators, and timeline details.
+// Source: EVENT DETAILS.docx (Addovedi 2026). Rules, coordinators and schedule are added later
+// from Admin. Mirrors server/scripts/data/events2026.json (used by seedEvents.js).
 export const CATEGORIES_WITH_EVENTS = [
     {
-        title: 'ROBOTICS PROTOCOL',
-        subtitle: 'AUTONOMOUS MECHA DYNAMICS',
-        desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.',
-        color: '#00d9ff',
-        xp: '8,000 XP',
-        difficulty: 'ELITE',
-        iconType: 'robot',
-        modelType: 'mecha',
-        shortName: 'Robotics',
-        iconChar: '🤖',
-        id: '01',
-        events: [
+        "title": "ROBOTICS",
+        "subtitle": "COMMON EVENTS",
+        "desc": "Design, build and drive your own robots in head-to-head robotics challenges open to every branch.",
+        "color": "#00d9ff",
+        "iconType": "robot",
+        "modelType": "mecha",
+        "shortName": "Robotics",
+        "iconChar": "🤖",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "01",
+        "events": [
             {
-                title: 'LINE RUNNER',
-                subtitle: 'INFRARED ACCELERATION',
-                desc: 'Design line followers that lock onto grid courses in record time.',
-                xp: '2,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                    { name: 'Shreya Nair', phone: '+91 96789 01234' }
-                ],
-                rules: [
-                    'Bot must trace the line strictly on arena floor.',
-                    'Calibration time is limited to 5 minutes prior to run.',
-                    'Bonus checkpoints award additional scores.',
-                    'Leaving the trace line triggers a restart penalty.',
-                    'Bots must be fully autonomous; wireless transceivers must be disabled.',
-                    'The track width will be exactly 30mm black line on white surface.',
-                    'Maximum bot size is limited to 15x15 cm.',
-                    'No sticky materials or adhesives allowed on the wheels.',
-                    'The track will feature sharp turns, acute angles, and a grid intersection.',
-                    'Each bot gets a maximum of 2 official timed attempts.',
-                    'Fastest complete loop run determines the winner.'
-                ],
-                iconType: 'line',
-                timeline: {
-                    day: 1,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Lab Alpha',
-                    mode: 'Team (2)',
-                    registered: 60,
-                    prize: '₹10,000',
-                    status: 'LIVE'
-                }
+                "title": "ROBO SOCCER",
+                "subtitle": "Where Robotics Meets the Spirit of Football!",
+                "desc": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.",
+                "overview": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.\n\nParticipants will put their engineering skills to the test by developing a robust and efficient robot capable of maneuvering across the arena, controlling the ball, defending the goal, and attacking the opponent. Every match demands a perfect combination of mechanical design, electronics, control systems, teamwork, and strategy.\n\nGet ready to enter the arena, control your machine, defend your territory, and fight for victory!",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'DRONE PILOT',
-                subtitle: 'AERIAL ACCELERATOR',
-                desc: 'Fly precision micro drones through complex vertical ring gates.',
-                xp: '3,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
-                ],
-                rules: [
-                    'Fly drone through 3D obstacle ring course.',
-                    'Manual piloting strictly required, no GPS lock.',
-                    'Time begins on takeoff and ends on landing pad touch.',
-                    'Crashing or ring skips add penalty seconds.',
-                    'Drones must fit within a 250mm diagonal wheel-base class.',
-                    'First-person view (FPV) goggles or line-of-sight flying is allowed.',
-                    'All prop guards must be securely mounted and inspected.',
-                    'Battery size limit is capped at 4S LiPo batteries.',
-                    'Skips on consecutive obstacle gates will lead to disqualification.',
-                    'Pilots must use standard analog or digital video links on authorized bands.',
-                    'In case of tie, pilot with fewer crash restarts wins.'
-                ],
-                iconType: 'drone',
-                timeline: {
-                    day: 2,
-                    time: '08:00',
-                    end: '10:00',
-                    venue: 'Rooftop A',
-                    mode: 'Team (2)',
-                    registered: 44,
-                    prize: '₹20,000',
-                    status: 'COMPLETED'
-                }
-            },
-            {
-                title: 'ROBO WARS',
-                subtitle: 'COMBAT ARENA',
-                desc: 'Destroy opponents in a steel-caged combat arena showdown.',
-                xp: '4,000 XP',
-                difficulty: 'ELITE',
-                heads: [
-                    { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                    { name: 'Mohit Jain', phone: '+91 95678 90123' }
-                ],
-                rules: [
-                    'Robots must fit within standard 30x30x30 cm boundaries.',
-                    'Weight class: strictly under 5.0 kg.',
-                    'Combat duration: 3 minutes per round.',
-                    'No projectile or liquid weapons allowed.',
-                    'Pneumatic and hydraulic systems are capped at 10 Bar pressure.',
-                    'Remote control must operate on standard 2.4GHz interference-free bands.',
-                    'All robots must have an accessible master kill switch.',
-                    'Arena walls must not be intentionally damaged by weapon systems.',
-                    'Decisions are based on aggression, damage, and control if time expires.',
-                    'Battery packs must be securely shielded from direct kinetic impacts.',
-                    'Violation of safety checks during inspection leads to immediate disqualification.'
-                ],
-                iconType: 'robot',
-                timeline: {
-                    day: 3,
-                    time: '09:00',
-                    end: '11:00',
-                    venue: 'Lab Alpha',
-                    mode: 'Team (4)',
-                    registered: 32,
-                    prize: '₹15,000'
-                }
+                "title": "DUNE DOMINATOR",
+                "subtitle": "Conquer the Terrain. Command the Machine",
+                "desc": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.",
+                "overview": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.\n\nTeams must engineer their rover to overcome every challenge with speed, precision, and reliability. From wheel and suspension design to motor control and overall stability, every engineering decision can make the difference between getting stuck and conquering the course.\n\nPrepare your machine, take control, and dominate the dunes!",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'CYBER CODE',
-        subtitle: 'ALGORITHMIC WARFARE',
-        desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.',
-        color: '#ff1f4f',
-        xp: '5,000 XP',
-        difficulty: 'HARD',
-        iconType: 'code',
-        modelType: 'coding',
-        shortName: 'Coding',
-        iconChar: '💻',
-        id: '02',
-        events: [
+        "title": "FOR FUN",
+        "subtitle": "COMMON EVENTS",
+        "desc": "Puzzles, clues and adventure for everyone who just wants to enjoy the fest.",
+        "color": "#ffb800",
+        "iconType": "brain",
+        "modelType": "ai",
+        "shortName": "For Fun",
+        "iconChar": "🧩",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "02",
+        "events": [
             {
-                title: 'BUG HUNT',
-                subtitle: 'DIAGNOSTICS & DEBUGGING',
-                desc: 'Scan code segments and patch hidden compiler bugs under pressure.',
-                xp: '1,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                    { name: 'Karan Patel', phone: '+91 87654 32109' }
-                ],
-                rules: [
-                    'Each team will get 10 bugged code segments to patch.',
-                    'Languages supported: C, C++, Java, and Python.',
-                    'Time limit: 60 minutes.',
-                    'Patched codes must pass all hidden unit test cases.',
-                    'No external compilers or IDEs are permitted; must use the sandbox terminal.',
-                    'Internet access is restricted to official documentation pages.',
-                    'Submission can be done multiple times, but only the last one counts.',
-                    'Sharing solutions or collaboration between different teams will result in instant disqualification.',
-                    'Pre-written code snippets or external libraries cannot be imported.',
-                    'Final scores will be compiled automatically based on execution speed and memory limits.',
-                    'Decisions of the evaluation panel are absolute and final.'
-                ],
-                iconType: 'bug',
-                timeline: {
-                    day: 1,
-                    time: '09:30',
-                    end: '11:00',
-                    venue: 'Lab Beta',
-                    mode: 'Solo',
-                    registered: 96,
-                    prize: '₹10,000'
-                }
-            },
-            {
-                title: 'BYTE CODE',
-                subtitle: 'ALGORITHMS & SPEED',
-                desc: 'Crack algorithmic constraints and design time-optimal data models.',
-                xp: '2,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Priya Nair', phone: '+91 76543 21098' },
-                    { name: 'Siddharth Roy', phone: '+91 65432 10987' }
-                ],
-                rules: [
-                    'Standard algorithmic competitive programming contest.',
-                    'Individual participation only.',
-                    'Penalties apply for incorrect submissions.',
-                    'Rankings determined by score and completion speed.',
-                    'The platform supports Python 3.x, C++17, and Java 17.',
-                    'Plagiarism checks will be conducted post-event on all submissions.',
-                    'In case of identical submission times, the participant with fewer penalties ranks higher.',
-                    'No external communication devices or messaging platforms are allowed during the run.',
-                    'System resources are capped at 512MB RAM per sandbox compiler execution.',
-                    'All challenges will have subtask scoring enabled.',
-                    'Unusual network patterns will trigger automated session lockout.'
-                ],
-                iconType: 'code',
-                timeline: {
-                    day: 1,
-                    time: '12:00',
-                    end: '14:00',
-                    venue: 'Lab Beta',
-                    mode: 'Solo',
-                    registered: 112,
-                    prize: '₹12,000'
-                }
-            },
-            {
-                title: 'WEB CRAFT',
-                subtitle: 'DASHBOARD INTERFACES',
-                desc: 'Design beautiful, responsive game visual overlay terminals.',
-                xp: '3,000 XP',
-                difficulty: 'ELITE',
-                heads: [
-                    { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                    { name: 'Neha Gupta', phone: '+91 54321 09876' }
-                ],
-                rules: [
-                    'Develop a responsive front-end landing page from wireframes.',
-                    'Allowed stacks: Vanilla React, TailwindCSS, or plain HTML/CSS.',
-                    'Design components must be clean and responsive.',
-                    'Submit the repository link before time-limit.',
-                    'External assets must be hosted on public CDNs or included locally.',
-                    'Layouts will be tested across Chrome, Firefox, and Safari viewports.',
-                    'Use of UI component libraries like shadcn or Material UI is prohibited.',
-                    'Codebase must be documented with brief component-level instructions.',
-                    'Vite should be used as the build tool for React submissions.',
-                    'Design fidelity to the provided Figma wireframe counts for 40% of marks.',
-                    'No AI code generation tools are permitted during active building phases.'
-                ],
-                iconType: 'web',
-                timeline: {
-                    day: 2,
-                    time: '09:00',
-                    end: '13:00',
-                    venue: 'Lab Beta',
-                    mode: 'Team (4)',
-                    registered: 80,
-                    prize: '₹25,000'
-                }
+                "title": "TREASURE HUNT",
+                "subtitle": "The Hunt Begins. Can You Find What Others Cannot?",
+                "desc": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.",
+                "overview": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.\n\nEach clue will test your logic, observation, creativity, problem-solving skills, and teamwork. Follow the trail carefully—every answer leads to the next challenge, but one wrong move could take you off the path!\n\nThink fast, decode the mystery, and stay ahead of the competition. Only the smartest and most determined teams will reach the final destination.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'SILICON SPECTRUM',
-        subtitle: 'SIGNAL & MICROELECTRONICS',
-        desc: 'Design VLSI chips, decode signal frequencies, and architect micro-embedded systems.',
-        color: '#a78bfa',
-        xp: '6,000 XP',
-        difficulty: 'HARD',
-        iconType: 'bolt',
-        modelType: 'portal',
-        shortName: 'ECE',
-        iconChar: '📡',
-        id: '03',
-        events: [
+        "title": "GAMING",
+        "subtitle": "ESPORTS SHOWDOWN",
+        "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends and Tekken.",
+        "color": "#8a5cff",
+        "iconType": "gamepad",
+        "modelType": "controller",
+        "shortName": "Gaming",
+        "iconChar": "🎮",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "03",
+        "events": [
             {
-                title: 'SILICON LOGIC',
-                subtitle: 'CHIP ARCHITECTURE',
-                desc: 'Synthesize digital logic circuits and design micro-processor layouts.',
-                xp: '2,200 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' },
-                    { name: 'Pooja Sharma', phone: '+91 66666 55555' }
-                ],
-                rules: [
-                    'Synthesize logic circuits under given constraints.',
-                    'Hardware description language (Verilog/VHDL) code must compile.'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 1,
-                    time: '11:00',
-                    end: '13:00',
-                    venue: 'Silicon Lab',
-                    mode: 'Solo',
-                    registered: 55,
-                    prize: '₹10,000'
-                }
+                "title": "BGMI",
+                "subtitle": "DROP IN. GEAR UP. SURVIVE. CONQUER",
+                "desc": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.",
+                "overview": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.\n\nFrom the moment you drop onto the battlefield, every decision matters. Loot your gear, plan your moves, communicate with your squad, and outplay your opponents as the battleground closes in.\n\nOnly the strongest teams will survive the chaos and rise to claim the title of the ultimate champions.\n\nDrop Together. Fight Hard. Survive the Arena.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'SIGNAL MATRIX',
-                subtitle: 'DSP & COMMUNICATIONS',
-                desc: 'Filter noisy frequency bands and modulate high-speed RF wireless signals.',
-                xp: '2,800 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Karan Patel', phone: '+91 87654 32109' },
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' }
-                ],
-                rules: [
-                    'Filter signal spectrums within exact frequency windows.',
-                    'Matlab or Python signal processing tools allowed.'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 2,
-                    time: '14:00',
-                    end: '16:00',
-                    venue: 'Silicon Lab',
-                    mode: 'Team (2)',
-                    registered: 42,
-                    prize: '₹14,000'
-                }
+                "title": "FIFA SHOWDOWN",
+                "subtitle": "KICK OFF. COMPETE. CONQUER",
+                "desc": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.",
+                "overview": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.\n\nChoose your team, master your tactics, and go head-to-head against your opponents in high-energy matches. Every pass, tackle, attack, and goal can change the course of the game.\n\nOutplay your rivals, dominate the pitch, and fight your way to the top. Only the best player will emerge as the ultimate champion.\n\nPLAY HARD. SCORE BIG. RULE THE ARENA.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "heads": [],
+                "rules": []
+            },
+            {
+                "title": "MOBILE LEGENDS: BANG BANG",
+                "subtitle": "CHOOSE YOUR HERO. MASTER YOUR STRATEGY. CONQUER THE ARENA",
+                "desc": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.",
+                "overview": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.\n\nEvery match demands perfect coordination, tactical gameplay, and mastery of your chosen role. Whether you lead the attack, protect your teammates, or turn the battle around with a game-changing move, every decision can make the difference between defeat and glory.\n\nGather your squad and prepare for battle. The arena is waiting.\n\nTEAM UP. FIGHT SMART. CLAIM VICTORY.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "heads": [],
+                "rules": []
+            },
+            {
+                "title": "TEKKEN SHOWDOWN",
+                "subtitle": "FIGHT. COMBO. CONQUER",
+                "desc": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.",
+                "overview": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.\n\nChoose your fighter, master your moves, and outplay your opponent on the road to victory. With no team to depend on, it all comes down to your skills, precision, and ability to perform under pressure.\n\nOnly the strongest fighter will survive the competition and claim the title of the ultimate champion.\n\nCHOOSE YOUR FIGHTER. ENTER THE ARENA. FIGHT FOR GLORY.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'GAMING NEXUS',
-        subtitle: 'ESPORTS SHOWDOWN',
-        desc: 'Compete in Valorant, BGMI, and FIFA pro college esports tournaments.',
-        color: '#9b5cff',
-        xp: '6,000 XP',
-        difficulty: 'HARD',
-        iconType: 'gamepad',
-        modelType: 'controller',
-        shortName: 'Gaming',
-        iconChar: '🎮',
-        id: '04',
-        events: [
+        "title": "CODING PUNDITS",
+        "subtitle": "COMPUTER SCIENCE & ENGINEERING",
+        "desc": "Hackathons, competitive coding and AI-assisted web design for builders and problem solvers.",
+        "color": "#ff1f4f",
+        "iconType": "code",
+        "modelType": "coding",
+        "shortName": "CSE",
+        "iconChar": "💻",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "04",
+        "events": [
             {
-                title: 'BGMI CRUCIBLE',
-                subtitle: 'SURVIVAL BR',
-                desc: 'Drop in teams, clear hostile drops, and survive the gaming circle.',
-                xp: '2,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Sneha Raj', phone: '+91 77777 66666' },
-                    { name: 'Pooja Sharma', phone: '+91 66666 55555' }
-                ],
-                rules: [
-                    'Standard squad-based battle royale matches.',
-                    'Points calculated by placing position and kill points.',
-                    'Tablet/phone controllers only, no emulators.',
-                    'Device logs may be audited post-match.',
-                    'Matches will be hosted on Erangel, Miramar, and Sanhok maps.',
-                    'Use of triggers, trigger buttons, or custom cooling attachments is prohibited.',
-                    'Any disconnects due to personal internet issues will not trigger a match restart.',
-                    'Stream sniping or screen sharing is strictly forbidden.',
-                    'Teams must consist of exactly 4 players plus 1 optional sub.',
-                    'Tie-breakers will favor the team with higher total placement points.',
-                    'Decisions of the match marshals are final and non-negotiable.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 1,
-                    time: '10:00',
-                    end: '12:00',
-                    venue: 'Arena Omega',
-                    mode: 'Squad (4)',
-                    registered: 64,
-                    prize: '₹20,000'
-                }
+                "title": "HACKATHON",
+                "subtitle": "IDEATE. INNOVATE. BUILD. CONQUER",
+                "desc": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.",
+                "overview": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.\n\nParticipants will brainstorm innovative ideas, design engaging user experiences, and develop functional websites within a limited time. The challenge is to combine creativity, UI/UX design, frontend development, and problem-solving to build a website that delivers a meaningful solution.\n\nTHINK. DESIGN. DEVELOP.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "web",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'FIFA PRO',
-                subtitle: '1V1 ESPORTS',
-                desc: 'Compete in high-frequency bracket matches on console screens.',
-                xp: '2,000 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Amit Joshi', phone: '+91 55555 44444' },
-                    { name: 'Rohit Verma', phone: '+91 44444 33333' }
-                ],
-                rules: [
-                    'Standard 1v1 console matches (PlayStation 5).',
-                    'Match duration: 6 minutes per half.',
-                    'Custom tactical formations are allowed.',
-                    'In case of draw, matches go to extra time and penalties.',
-                    'All matches will be played in Kick-Off mode using standard teams.',
-                    'Wireless controller configurations must be checked before kickoff.',
-                    'Pausing is only allowed when the ball is out of play.',
-                    'Intentional time-wasting in defense will lead to warnings.',
-                    'Peripherals must be connected via USB cable to prevent sync lag.',
-                    'Tactical defending mode must be turned ON.',
-                    'Legacy defending settings are strictly disallowed.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 1,
-                    time: '16:00',
-                    end: '18:00',
-                    venue: 'Arena Omega',
-                    mode: 'Solo',
-                    registered: 88,
-                    prize: '₹15,000'
-                }
+                "title": "CODATHON",
+                "subtitle": "THINK. CODE. SOLVE. CONQUER",
+                "desc": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.",
+                "overview": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.\n\nFrom debugging tricky code to solving challenging programming problems, every round will test your coding skills, problem-solving ability, speed, and logical thinking. The competition gets tougher with every challenge, demanding accuracy and efficiency under pressure.\n\nThink fast, code smarter, and rise above the competition. Only the sharpest minds will conquer the leaderboard.\n\nCODE HARD. THINK SMART. RULE THE ARENA.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "code",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'VALORANT',
-                subtitle: '5V5 SEARCH & DESTROY',
-                desc: 'Coordinate agent tactics on stage screens for gaming domination.',
-                xp: '3,000 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Aman Verma', phone: '+91 99999 88888' },
-                    { name: 'Rahul Das', phone: '+91 88888 77777' }
-                ],
-                rules: [
-                    'Standard 5v5 Tactical Shooter double-elimination tournament.',
-                    'Tournament rules: strictly competitive settings.',
-                    'No external macros, exploits, or cheating allowed.',
-                    'Map pools will be decided prior to matches.',
-                    'All matches will be played on Mumbai servers.',
-                    'Teams must check-in at least 15 minutes before scheduled match.',
-                    'Tactical timeouts are limited to two 60-second pauses per map.',
-                    'Use of in-game chat for toxic behavior will lead to warnings or match loss.',
-                    'Players must bring their own gaming peripherals (mouse/keyboard/headset).',
-                    'Coaches are only allowed to talk during tactical timeouts.',
-                    'Substitute players must be registered before the tournament begins.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 2,
-                    time: '10:00',
-                    end: '13:00',
-                    venue: 'Arena Omega',
-                    mode: 'Squad (5)',
-                    registered: 50,
-                    prize: '₹25,000'
-                }
+                "title": "PROMPT & PIXEL",
+                "subtitle": "PROMPT. DESIGN. BUILD",
+                "desc": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.",
+                "overview": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.\n\nGiven a theme or problem statement on the spot, participants will use their creativity, UI/UX knowledge, frontend development skills, and AI tools to design and build an innovative responsive landing page within a limited time.\n\nPROMPT SMART. DESIGN BOLD. BUILD THE FUTURE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "web",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'URBAN BLUEPRINT',
-        subtitle: 'STRUCTURAL ARCHITECTURE',
-        desc: 'Build load-resistant truss bridges, throw ceramic pottery, and design eco-skyscrapers.',
-        color: '#1fff76',
-        xp: '5,500 XP',
-        difficulty: 'MEDIUM',
-        iconType: 'bridge',
-        modelType: 'civil',
-        shortName: 'Civil',
-        iconChar: '🏗️',
-        id: '05',
-        events: [
+        "title": "ECE",
+        "subtitle": "ELECTRONICS & COMMUNICATION",
+        "desc": "Autonomous robots, digital design and circuit challenges from the electronics department.",
+        "color": "#00e5a8",
+        "iconType": "bolt",
+        "modelType": "electrical",
+        "shortName": "ECE",
+        "iconChar": "📡",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "05",
+        "events": [
             {
-                title: 'TRUSS BUILD',
-                subtitle: 'BALSA WOOD BRIDGES',
-                desc: 'Glue together truss bridges and load test them to the absolute break limit.',
-                xp: '1,800 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                    { name: 'Ritika Sharma', phone: '+91 99012 34567' }
-                ],
-                rules: [
-                    'Design bridge structures using wood sticks and glues.',
-                    'Dimensions must conform to blueprints.',
-                    'Bridge is loaded weights until structural failure occurs.',
-                    'Winner chosen by highest load-to-weight ratio.',
-                    'Materials provided: 100 popsicle sticks and standard wood glue.',
-                    'Span of the bridge must be exactly 400mm.',
-                    'Bridges must allow a load hanger to be attached at the center.',
-                    'Glue can only be used at joints, coating sticks is not allowed.',
-                    'Maximum weight of the completed structure must not exceed 150g.',
-                    'Bridges will dry in a designated curing chamber for 12 hours.',
-                    'All dimensions will be verified using go/no-go gauges prior to loading.'
-                ],
-                iconType: 'bridge',
-                timeline: {
-                    day: 2,
-                    time: '11:00',
-                    end: '13:00',
-                    venue: 'Open Court',
-                    mode: 'Team (3)',
-                    registered: 36,
-                    prize: '₹8,000'
-                }
+                "title": "LINE FOLLOWER",
+                "subtitle": "SENSE. FOLLOW. RACE. CONQUER",
+                "desc": "LINE FOLLOWER is an exciting robotics challenge where teams design and build an autonomous robot capable of accurately detecting and following a predefined track.",
+                "overview": "LINE FOLLOWER is an exciting robotics challenge where teams design and build an autonomous robot capable of accurately detecting and following a predefined track.\n\nThe competition tests the robot's speed, sensor accuracy, control, programming, and mechanical design as it navigates through curves, turns, and challenging sections of the track. The fastest and most precise robot to complete the course will rise to the top.\n\nBUILD SMART. FOLLOW FAST. CONQUER THE TRACK.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'POTTERY ART',
-                subtitle: 'CLAY VISIONS',
-                desc: 'Sculpt customized pots on motorized spinning potter wheels.',
-                xp: '1,000 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
-                    { name: 'Meera Patel', phone: '+91 77890 12345' }
-                ],
-                rules: [
-                    'Create clay pottery models based on theme given.',
-                    'Time allocated: 90 minutes.',
-                    'Clays and wheels provided at workstation.',
-                    'Judged on aesthetics, symmetry, and finish.',
-                    'Maximum height of the model must be under 30 cm.',
-                    'Only tools provided by the coordinators are allowed.',
-                    'Participants can choose between hand-building or wheel-throwing.',
-                    'Cracked structures during drying will lose points on structural integrity.',
-                    'No external paints or coloring agents can be used.',
-                    'Originality and interpretation of the theme carries 40% weight.',
-                    'Coordinators will bake the pieces for final inspection.'
-                ],
-                iconType: 'clay',
-                timeline: {
-                    day: 1,
-                    time: '15:00',
-                    end: '17:00',
-                    venue: 'Studio Gamma',
-                    mode: 'Solo',
-                    registered: 40,
-                    prize: '₹5,000'
-                }
+                "title": "VERILOG",
+                "subtitle": "DESIGN. SIMULATE. INNOVATE",
+                "desc": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.",
+                "overview": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.\n\nFrom basic combinational circuits to complex digital logic, the competition challenges participants to think like hardware designers and transform ideas into functional designs.\n\nCODE THE LOGIC. DESIGN THE HARDWARE. BUILD THE FUTURE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "code",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'ECO SKYSCRAPER',
-                subtitle: 'GREEN BUILDING DESIGN',
-                desc: 'Architect green energy efficient skyscrapers with sustainable materials.',
-                xp: '2,400 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                    { name: 'Kiran Verma', phone: '+91 91111 22208' }
-                ],
-                rules: [
-                    'Design green building prototypes with energy conservation standards.',
-                    'Blueprints must pass load distribution tests.'
-                ],
-                iconType: 'bridge',
-                timeline: {
-                    day: 3,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Open Court',
-                    mode: 'Team (3)',
-                    registered: 32,
-                    prize: '₹12,000'
-                }
+                "title": "CIRCUIT DESIGNING",
+                "subtitle": "DESIGN . CONNECT . INNOVATE",
+                "desc": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.",
+                "overview": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.\n\nParticipants will analyze the problem, design an appropriate circuit, and bring their ideas to life through effective component selection and circuit implementation.\n\nTHINK SMART. DESIGN BETTER. MAKE IT WORK.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bolt",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'MECHANICAL MATRIX',
-        subtitle: 'KINETIC THERMODYNAMICS',
-        desc: 'Operate industrial metalworks, design CAD 3D parts, and optimize thermodynamic rigs.',
-        color: '#ffea00',
-        xp: '7,000 XP',
-        difficulty: 'HARD',
-        iconType: 'gear',
-        modelType: 'ai',
-        shortName: 'Mechanical',
-        iconChar: '⚙️',
-        id: '06',
-        events: [
+        "title": "EESS",
+        "subtitle": "ELECTRICAL ENGINEERING",
+        "desc": "Circuit debugging, energy solutions and electronics knowledge put to the test.",
+        "color": "#ffd400",
+        "iconType": "bolt",
+        "modelType": "electrical",
+        "shortName": "EE",
+        "iconChar": "⚡",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "06",
+        "events": [
             {
-                title: 'KINETIC METALWORKS',
-                subtitle: 'HARDWARE MACHINERY',
-                desc: 'Cut and construct architectural rigs using industrial lathe tools.',
-                xp: '2,600 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Rohan Mehta', phone: '+91 91111 22213' },
-                    { name: 'Aisha Khan', phone: '+91 91111 22212' }
-                ],
-                rules: [
-                    'Industrial metalworks and hardware assembly under time limits.',
-                    'Safety protocols must be worn at all times.'
-                ],
-                iconType: 'gear',
-                timeline: {
-                    day: 2,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Workshop Bay',
-                    mode: 'Team (2)',
-                    registered: 28,
-                    prize: '₹10,000'
-                }
+                "title": "CIRCUIT DEBUGGING",
+                "subtitle": "UNDERSTAND. SIMULATE. BUILD. DEBUG",
+                "desc": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.",
+                "overview": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.\n\nTeams progress from Circuit IQ, where they test their technical knowledge, to a Virtual-to-Physical Circuit Challenge involving LTspice simulation, circuit analysis, and breadboard implementation. The final round puts their troubleshooting skills to the test as they identify, diagnose, and repair faults in a real hardware circuit.\n\nOBSERVE. MEASURE. DIAGNOSE. REPAIR.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bug",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'CAD BLUEPRINTS',
-                subtitle: 'SOLID MODELLING',
-                desc: 'Render complex 3D hardware schematics and mechanical parts.',
-                xp: '2,200 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Divya Menon', phone: '+91 77665 54433' },
-                    { name: 'Tanya Singh', phone: '+91 91111 22210' }
-                ],
-                rules: [
-                    'Render complex 3D hardware schematics and mechanical parts.',
-                    'Use standard constraint constraints.'
-                ],
-                iconType: 'gear',
-                timeline: {
-                    day: 3,
-                    time: '11:00',
-                    end: '13:00',
-                    venue: 'Workshop Bay',
-                    mode: 'Solo',
-                    registered: 40,
-                    prize: '₹8,000'
-                }
+                "title": "ENERGIX",
+                "subtitle": "POWER IDEAS. ENGINEER SOLUTIONS",
+                "desc": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.",
+                "overview": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.\n\nFrom renewable energy and electric vehicles to energy storage, smart grids, energy efficiency, and sustainability, participants will analyze technical challenges and present practical, innovative, and technically sound solutions.\n\nThe event goes beyond presentations—it encourages participants to apply engineering principles, research, data, and problem-solving skills to develop meaningful solutions for the future.\n\nTHINK ENERGY. ENGINEER THE FUTURE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bolt",
+                "heads": [],
+                "rules": []
+            },
+            {
+                "title": "ELECTROMIND",
+                "subtitle": "KNOW IT. IDENTIFY IT. MEASURE IT. BUILD IT. SOLVE IT",
+                "desc": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.",
+                "overview": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.\n\nThe event challenges participants through different stages involving technical concepts, component identification, measurement, problem-solving, and basic circuit design. It is a test of not only what you know, but also how effectively you can apply that knowledge in practical situations.\n\nTHINK. TEST. BUILD. SOLVE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "heads": [],
+                "rules": []
             }
         ]
     },
     {
-        title: 'VOLTAGE GRID',
-        subtitle: 'POWER & TRANSFORMER SYSTEMS',
-        desc: 'Master transformer grid wiring, truth tables, and autonomous PCB electrical mazes.',
-        color: '#ff9d00',
-        xp: '6,500 XP',
-        difficulty: 'MEDIUM',
-        iconType: 'bolt',
-        modelType: 'electrical',
-        shortName: 'Electrical',
-        iconChar: '⚡',
-        id: '07',
-        events: [
+        "title": "MESS",
+        "subtitle": "MECHANICAL ENGINEERING",
+        "desc": "CAD design, hydraulics and rocketry for hands-on mechanical minds.",
+        "color": "#ff7a00",
+        "iconType": "gear",
+        "modelType": "mecha",
+        "shortName": "ME",
+        "iconChar": "⚙️",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "07",
+        "events": [
             {
-                title: 'LOGIC QUEST',
-                subtitle: 'TRUTH TABLES & CIRCUITS',
-                desc: 'Build gate systems and resolve high-frequency signals.',
-                xp: '2,000 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Karan Patel', phone: '+91 87654 32109' },
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                ],
-                rules: [
-                    'Solve 15 core digital logic design problems.',
-                    'Use of simulators is allowed for validation.',
-                    'Submit schematic diagrams alongside truth tables.',
-                    'Ties broken by overall logic minimization efficiency.',
-                    'Allowed simulators: Logisim-evolution, Digital, or Multisim.',
-                    'All truth tables must be completed in standard SOP form.',
-                    'Gates must conform to standard IEEE schematic symbols.',
-                    'Late submissions face a penalty of 10% score reduction per 5 minutes.',
-                    'Group discussions are strictly disallowed during problem solving.',
-                    'Hardware description language (Verilog/VHDL) code must compile without warnings.',
-                    'Only standard library components can be used in schematic designs.'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 1,
-                    time: '10:30',
-                    end: '12:00',
-                    venue: 'Sigma Hall',
-                    mode: 'Solo',
-                    registered: 80,
-                    prize: '₹8,000'
-                }
+                "title": "SOLID SIEGE",
+                "subtitle": "IMAGINE. DESIGN. CREATE",
+                "desc": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.",
+                "overview": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.\n\nParticipants will be challenged to transform ideas into precise and functional 3D models while applying engineering principles, creativity, and effective design practices. The event tests both technical proficiency and the ability to develop practical solutions within a limited time.\n\nVISUALIZE THE IDEA. DESIGN THE SOLUTION.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gear",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'MAZE RUNNER',
-                subtitle: 'AUTONOMOUS PCB BOARDS',
-                desc: 'Program microcontrollers to solve breadboard electrical mazes.',
-                xp: '3,000 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
-                ],
-                rules: [
-                    'Configure microcontrollers to navigate a dynamic physical grid.',
-                    'Sensors must detect wall proximity within 2cm tolerances.',
-                    'Max 3 trial runs allowed per robot build.',
-                    'Fastest escape time secures the win.',
-                    'Microcontroller must be programmed on-board, no wireless control allowed.',
-                    'Chassis size must not exceed 20x20 cm footprint.',
-                    'Power source is limited to a maximum of 12V DC.',
-                    'The maze configuration will be altered slightly before each official run.',
-                    'Manual intervention during an active run results in run cancellation.',
-                    'Infrared or Ultrasonic sensor calibration must be done in the designated pit area.',
-                    'Ties will be broken by the robot weight (lighter robot wins).'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 2,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Sigma Hall',
-                    mode: 'Solo',
-                    registered: 45,
-                    prize: '₹12,000'
-                }
+                "title": "HYDRAULIC WARZONE",
+                "subtitle": "POWER. PRECISION. CONTROL",
+                "desc": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.",
+                "overview": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.\n\nUsing the principles of fluid mechanics, hydraulics, mechanical design, and control, teams must operate their hydraulic arm to navigate challenges, lift objects, and complete the given mission efficiently.\n\nThe event tests creativity, engineering skills, teamwork, and precise control under pressure.\n\nBUILD THE ARM. MASTER THE PRESSURE. COMPLETE THE MISSION.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gear",
+                "heads": [],
+                "rules": []
+            },
+            {
+                "title": "SKY FORGE",
+                "subtitle": "DESIGN FOR THE SKY. BUILD FOR HEIGHT. LAUNCH FOR GLORY.",
+                "desc": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.",
+                "overview": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.\n\nUsing the materials and standardized syringe-based propulsion mechanism provided by the organizers, participants will design and build their own rockets to achieve maximum flight height. The challenge tests creativity, design optimization, aerodynamics, and engineering skills.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "rocket",
+                "heads": [],
+                "rules": []
             }
         ]
     },
-    // Special timeline-only category to represent extra system-wide events
     {
-        title: 'CULTURAL & OTHER',
-        timelineOnly: true,
-        events: [
+        "title": "CESS",
+        "subtitle": "CIVIL ENGINEERING",
+        "desc": "Problem solving and structural challenges, from bridges to water filtration.",
+        "color": "#4ade80",
+        "iconType": "bridge",
+        "modelType": "civil",
+        "shortName": "CE",
+        "iconChar": "🏗️",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "08",
+        "events": [
             {
-                title: 'MUSIC NIGHT',
-                subtitle: 'CULTURAL SHOW',
-                desc: 'Open-stage music performances — any genre, any instrument, any vibe.',
-                category: 'Cultural',
-                color: '#ff2cfb',
-                xp: '0 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Nikhil Bose', phone: '+91 92345 67890' },
-                    { name: 'Rohit Verma', phone: '+91 44444 33333' }
-                ],
-                iconType: 'music',
-                timeline: {
-                    day: 2,
-                    time: '17:00',
-                    end: '20:00',
-                    venue: 'Main Stage',
-                    mode: 'Solo',
-                    registered: 55,
-                    prize: '₹12,000'
-                }
+                "title": "BRAIN FORGE",
+                "subtitle": "IDENTIFY. IDEATE. SOLVE",
+                "desc": "BRAIN FORGE is a real-world problem-solving competition that challenges participants to turn critical thinking and creativity into practical solutions.",
+                "overview": "BRAIN FORGE is a real-world problem-solving competition that challenges participants to turn critical thinking and creativity into practical solutions.\n\nA broad problem area will be revealed after registrations close. Teams must explore the given area, identify a specific real-life problem, and develop an innovative and practical solution. The final idea will be presented before a panel of judges.\n\nTHINK DEEP. SOLVE SMART. FORGE THE FUTURE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "heads": [],
+                "rules": []
             },
             {
-                title: 'CLOSING GALA',
-                subtitle: 'AWARDS NIGHT',
-                desc: 'Prize distribution, performances, and the grand finale of Addovedi 2026.',
-                category: 'Cultural',
-                color: '#ff2cfb',
-                xp: '0 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Aman Verma', phone: '+91 99999 88888' },
-                    { name: 'Sneha Raj', phone: '+91 77777 66666' }
-                ],
-                iconType: 'music',
-                timeline: {
-                    day: 3,
-                    time: '18:00',
-                    end: '21:00',
-                    venue: 'Main Stage',
-                    mode: 'Open',
-                    registered: 500,
-                    prize: 'Trophies'
-                }
+                "title": "EARTHQUAKE RESISTING BUILDING",
+                "subtitle": "FILTER. PURIFY. PERFORM",
+                "desc": "Water Filter is an on-the-spot engineering challenge where teams design and build an effective water filtration system using materials provided by the organizers.",
+                "overview": "Water Filter is an on-the-spot engineering challenge where teams design and build an effective water filtration system using materials provided by the organizers.\n\nParticipants must apply their creativity and understanding of filtration principles to develop a filter capable of improving water quality. The performance of each filter will be evaluated using a microscopic turbidity meter, testing how effectively it reduces turbidity.\n\nBUILD SMART. FILTER BETTER. MAKE A DIFFERENCE.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bridge",
+                "heads": [],
+                "rules": []
+            },
+            {
+                "title": "BRIDGE MAKING",
+                "subtitle": "DESIGN. BUILD. BEAR THE LOAD",
+                "desc": "Bridge Making is a hands-on engineering competition where teams design and construct a bridge using limited materials provided by the organizers.",
+                "overview": "Bridge Making is a hands-on engineering competition where teams design and construct a bridge using limited materials provided by the organizers.\n\nParticipants will use popsicle sticks, Fevicol, and cutters to build a strong and efficient structure. The completed bridges will then undergo load testing to evaluate their strength and load-bearing capacity.\n\nThe challenge tests creativity, structural design, material efficiency, and practical engineering skills.\n\nBUILD SMART. STAND STRONG. CARRY THE LOAD.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bridge",
+                "heads": [],
+                "rules": []
             }
         ]
     }
@@ -930,6 +567,8 @@ export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
             title: s.title,
             subtitle: s.subtitle,
             desc: s.desc,
+            overview: s.overview || '',
+            categoryTitle: matchedCat ? matchedCat.title : s.categoryTitle,
             color: s.color,
             xp: s.xp,
             difficulty: s.difficulty,
@@ -1010,6 +649,8 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
             title: ev.title,
             subtitle: ev.subtitle,
             desc: ev.desc,
+            overview: ev.overview || '',
+            categoryTitle: cat.title,
             color: ev.color || cat.color,
             xp: ev.xp,
             difficulty: ev.difficulty,
