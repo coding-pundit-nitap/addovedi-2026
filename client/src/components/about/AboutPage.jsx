@@ -19,6 +19,7 @@ import MessageTerminal from './MessageTerminal';
 import { API_BASE } from '../../constants/api';
 import { PAST_EDITIONS } from '../../data/pastEditions';
 import { FAQ_ITEMS, QUICK_REGISTRATION_GUIDE } from '../../data/faq';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 export default function AboutPage() {
     const pageRef = useRef(null);
@@ -305,18 +306,15 @@ export default function AboutPage() {
                     marginTop: '40px', textAlign: 'center', zIndex: 10,
                     opacity: 1
                 }}>
-                    <h1 style={{
-                        fontFamily: "'Orbitron', monospace",
-                        fontSize: 'clamp(28px, 6vw, 64px)',
-                        fontWeight: 900,
-                        letterSpacing: '0.15em',
-                        color: '#FFF',
-                        textShadow: '0 0 30px rgba(0, 229, 255, 0.45)',
-                        lineHeight: 1.1,
-                        margin: 0
-                    }}>
-                        ADDOVEDI HQ
-                    </h1>
+                    <img
+                        src={addovediLogo}
+                        alt="Addovedi"
+                        style={{
+                            height: 'clamp(44px, 8vw, 84px)',
+                            width: 'auto',
+                            filter: 'drop-shadow(0 0 30px rgba(0, 229, 255, 0.45))',
+                        }}
+                    />
                     <div style={{
                         fontFamily: "'Orbitron', monospace",
                         fontSize: 'clamp(9px, 1.5vw, 13px)',
