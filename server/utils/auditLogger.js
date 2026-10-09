@@ -2,9 +2,10 @@ import AuditLog from '../models/AuditLog.js';
 
 export const recordAuditLog = async (req, { action, username, details, status = 'SUCCESS' }) => {
     try {
-        const rawIp = req.headers['x-forwarded-for'] || req.ip || req.connection?.remoteAddress || 'unknown';
-        const ipAddress = Array.isArray(rawIp) ? rawIp[0] : rawIp.split(',')[0].trim();
-        const userAgent = req.headers['user-agent'] || '';
+        // req.ip honors `trust proxy` (exactly 1 hop); the raw X-Forwarded-For header's first
+        // entry is attacker-controlled and would let anyone forge the IP in the audit trail.
+        const ipAddress = req.ip || req.connection?.remoteAddress || 'unknown';
+        const userAgent = String(req.headers['user-agent'] || '').slice(0, 300);
 
         await AuditLog.create({
             action,

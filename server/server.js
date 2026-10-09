@@ -3,7 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import apiRouter from './routes/index.js';
-import { apiLimiter } from './middleware/rateLimiters.js';
+import helmet from 'helmet';
+import { apiLimiter, publicReadLimiter } from './middleware/rateLimiters.js';
+import { publicCache, invalidatePublicCache } from './utils/publicCache.js';
+import { sanitizeInput } from './middleware/sanitize.js';
 
 // Models for Seeding
 import Admin from './models/Admin.js';
@@ -11,7 +14,7 @@ import Category from './models/Category.js';
 import SubEvent from './models/SubEvent.js';
 import Crew from './models/Crew.js';
 import Sponsor from './models/Sponsor.js';
-import { hashPassword } from './utils/hash.js';
+import { hashPasswordAsync } from './utils/hash.js';
 
 dotenv.config();
 
@@ -55,8 +58,17 @@ app.use(cors((req, callback) => {
     console.warn(`[CORS] Blocked origin "${origin}" (Host: ${req.headers.host}). Add it to ALLOWED_ORIGINS if it is a legitimate frontend.`);
     return callback(new Error('Not allowed by CORS'));
 }));
-app.use(express.json());
+// Security headers (nosniff, frameguard, HSTS, ...). This is a JSON API, so a strict CSP is fine;
+// cross-origin resource policy stays open because the separate frontend origin fetches it.
+app.disable('x-powered-by');
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+// Small body cap: no endpoint accepts anything near this (images go through multer, not JSON).
+app.use(express.json({ limit: '50kb' }));
+app.use(sanitizeInput);
+app.use('/api', publicReadLimiter);
 app.use('/api', apiLimiter);
+app.use('/api', invalidatePublicCache);
+app.use(['/api/events', '/api/crew', '/api/alliances', '/api/status-settings', '/api/settings'], publicCache);
 
 // Mount API router
 app.use('/api', apiRouter);
@@ -90,7 +102,7 @@ const seedDatabase = async () => {
             if (!initialPass) {
                 console.warn('[SEED WARNING] ADMIN_INITIAL_PASSWORD not set in environment. Skipping initial admin creation.');
             } else {
-                const hashed = hashPassword(initialPass);
+                const hashed = await hashPasswordAsync(initialPass);
                 admin = new Admin({ username: 'admin', password: hashed });
                 await admin.save();
                 console.log(`[SEED] Initial Admin account created from environment configuration.`);
@@ -492,9 +504,14 @@ const startServer = async () => {
     await seedDatabase();
 
     const PORT = process.env.PORT || 5001;
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`[SERVER] Addovedi API Server listening on port ${PORT}`);
     });
+    // Slow-client (slowloris-style) protection: don't let a connection hold a socket open forever.
+    server.headersTimeout = 20 * 1000;
+    server.requestTimeout = 30 * 1000;
+    server.keepAliveTimeout = 5 * 1000;
+    server.maxRequestsPerSocket = 1000;
 };
 
 startServer();

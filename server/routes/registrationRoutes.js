@@ -8,14 +8,14 @@ import {
     updateRegistrationStatus,
     getMyRegistrations
 } from '../controllers/registrationController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, requireParticipant } from '../middleware/auth.js';
 import { registrationLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
 
 const router = Router();
 
 // Public routes: submit / cancel event registration
-router.post('/', registrationLimiter, createRegistration);
-router.post('/cancel', registrationLimiter, cancelRegistration);
+router.post('/', registrationLimiter, requireParticipant, createRegistration);
+router.post('/cancel', registrationLimiter, requireParticipant, cancelRegistration);
 router.get('/my/:addovediId', lookupLimiter, getMyRegistrations);
 
 // Admin routes: view & manage registrations

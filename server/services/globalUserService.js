@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import Registration from '../models/Registration.js';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
-import { hashPassword, verifyPassword } from '../utils/hash.js';
+import { hashPasswordAsync, verifyPasswordAsync } from '../utils/hash.js';
 import { isValidEmail, isValidPhone, normalizePhone } from '../utils/validators.js';
 
 const PUBLIC_FIELDS = '-passwordHash -__v';
@@ -50,8 +50,15 @@ export const signup = async ({ name, email, phone, password }) => {
     if (typeof password !== 'string' || password.length < 8) {
         throw new Error('Password must be at least 8 characters.');
     }
+    if (password.length > 128) {
+        throw new Error('Password must be at most 128 characters.');
+    }
+    if (name.trim().length > 100 || email.length > 254) {
+        throw new Error('Name or email is too long.');
+    }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const passwordHash = await hashPasswordAsync(password);
     const existing = await GlobalUser.findOne({ email: normalizedEmail });
     if (existing) {
         throw new Error('An account with this email already exists. Please log in instead.');
@@ -68,7 +75,7 @@ export const signup = async ({ name, email, phone, password }) => {
                 name: name.trim(),
                 email: normalizedEmail,
                 phone: normalizePhone(phone),
-                passwordHash: hashPassword(password)
+                passwordHash
             });
             const obj = user.toObject({ versionKey: false, transform: (_doc, ret) => { delete ret.passwordHash; return ret; } });
             return { ...obj, token: signParticipantToken(user._id) };
@@ -85,7 +92,8 @@ export const login = async ({ email, password }) => {
         throw new Error('Invalid credentials.');
     }
     const user = await GlobalUser.findOne({ email: email.trim().toLowerCase() });
-    if (!user || !verifyPassword(password, user.passwordHash)) {
+    if (password.length > 128) throw new Error('Invalid email or password.');
+    if (!user || !(await verifyPasswordAsync(password, user.passwordHash))) {
         throw new Error('Invalid email or password.');
     }
     const obj = user.toObject({ versionKey: false });

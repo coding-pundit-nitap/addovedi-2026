@@ -13,11 +13,13 @@ const GlobalUserSchema = new mongoose.Schema({
     },
     name: {
         type: String,
+        maxlength: 100,
         required: true,
         trim: true
     },
     email: {
         type: String,
+        maxlength: 254,
         required: true,
         unique: true,
         trim: true,
@@ -25,6 +27,7 @@ const GlobalUserSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
+        maxlength: 20,
         required: true,
         trim: true
     },
@@ -32,15 +35,15 @@ const GlobalUserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    college: { type: String, trim: true, default: '' },
-    department: { type: String, trim: true, default: '' },
-    year: { type: String, trim: true, default: '' },
-    state: { type: String, trim: true, default: '' },
-    city: { type: String, trim: true, default: '' },
-    gender: { type: String, trim: true, default: '' },
-    dob: { type: String, trim: true, default: '' },
-    emergencyContact: { type: String, trim: true, default: '' },
-    avatar: { type: String, trim: true, default: 'specter' }
+    college: { type: String, maxlength: 150, trim: true, default: '' },
+    department: { type: String, maxlength: 100, trim: true, default: '' },
+    year: { type: String, maxlength: 20, trim: true, default: '' },
+    state: { type: String, maxlength: 100, trim: true, default: '' },
+    city: { type: String, maxlength: 100, trim: true, default: '' },
+    gender: { type: String, maxlength: 30, trim: true, default: '' },
+    dob: { type: String, maxlength: 30, trim: true, default: '' },
+    emergencyContact: { type: String, maxlength: 20, trim: true, default: '' },
+    avatar: { type: String, maxlength: 40, trim: true, default: 'specter' }
 }, { timestamps: true });
 
 export default mongoose.model('GlobalUser', GlobalUserSchema);

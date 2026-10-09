@@ -185,7 +185,7 @@ export default function EventsPage() {
         try {
             const res = await fetch(`${API_BASE}/registrations`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loggedInUser?.token || ''}` },
                 body: JSON.stringify({
                     eventTitle: activeEvent.title,
                     categoryTitle: activeCategory.title,
@@ -199,6 +199,10 @@ export default function EventsPage() {
                     unstopRefId: unstopRefId
                 })
             });
+            if (res.status === 401) {
+                alert('Your login session has expired or is no longer valid. Please log out and log in again, then retry.');
+                return;
+            }
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
                 alert(data.message || 'Registration failed. Please try again.');
@@ -232,13 +236,17 @@ export default function EventsPage() {
             try {
                 const res = await fetch(`${API_BASE}/registrations/cancel`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loggedInUser?.token || ''}` },
                     body: JSON.stringify({
                         eventTitle: activeEvent.title,
                         leaderUID: userUid,
                         leaderPhone: userPhone
                     })
                 });
+                if (res.status === 401) {
+                    alert('Your login session has expired or is no longer valid. Please log out and log in again, then retry.');
+                    return;
+                }
                 if (!res.ok) {
                     const data = await res.json().catch(() => ({}));
                     alert(data.message || 'Could not cancel registration.');

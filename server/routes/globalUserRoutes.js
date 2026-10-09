@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { signup, login, updateProfile, checkUid, listPlayers, deletePlayer } from '../controllers/globalUserController.js';
-import { participantAuthLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
+import { participantLoginLimiter, participantSignupLimiter, participantAccountLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
 import { requireParticipant, protect } from '../middleware/auth.js';
 
 const router = Router();
 
 // Public participant account routes (separate from admin auth entirely).
-router.post('/signup', participantAuthLimiter, signup);
-router.post('/login', participantAuthLimiter, login);
+router.post('/signup', participantSignupLimiter, signup);
+router.post('/login', participantLoginLimiter, participantAccountLimiter, login);
 router.put('/profile/:id', lookupLimiter, requireParticipant, updateProfile);
 router.get('/check-uid/:addovediId', lookupLimiter, checkUid);
 

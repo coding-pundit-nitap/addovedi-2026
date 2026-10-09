@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
-import { verifyPassword, hashPassword, needsRehash } from '../utils/hash.js';
+import { verifyPasswordAsync, hashPasswordAsync, needsRehash } from '../utils/hash.js';
 
 export const authenticateAdmin = async (username, password) => {
     const JWT_SECRET = process.env.JWT_SECRET;
@@ -19,13 +19,13 @@ export const authenticateAdmin = async (username, password) => {
         throw new Error('Invalid credentials');
     }
 
-    const isValid = verifyPassword(password, admin.password);
+    const isValid = await verifyPasswordAsync(password, admin.password);
     if (!isValid) {
         throw new Error('Invalid credentials');
     }
 
     if (needsRehash(admin.password)) {
-        admin.password = hashPassword(password);
+        admin.password = await hashPasswordAsync(password);
         await admin.save();
     }
 
@@ -39,12 +39,12 @@ export const changeAdminPassword = async (adminId, currentPassword, newPassword)
         throw new Error('Admin account not found');
     }
 
-    const isValid = verifyPassword(currentPassword, admin.password);
+    const isValid = await verifyPasswordAsync(currentPassword, admin.password);
     if (!isValid) {
         throw new Error('Current password is incorrect');
     }
 
-    admin.password = hashPassword(newPassword);
+    admin.password = await hashPasswordAsync(newPassword);
     await admin.save();
     return true;
 };

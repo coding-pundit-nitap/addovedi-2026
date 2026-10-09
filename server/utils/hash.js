@@ -38,3 +38,16 @@ export function verifyPassword(password, storedHash) {
 export function needsRehash(storedHash) {
     return isLegacyPbkdf2Hash(storedHash);
 }
+
+// Async variants run bcrypt on libuv's threadpool instead of blocking the event loop.
+// bcrypt at 12 rounds is ~250ms of CPU per call; the sync versions let a handful of
+// concurrent login/signup requests freeze every other request on the server.
+export function hashPasswordAsync(password) {
+    return bcrypt.hash(password, BCRYPT_ROUNDS);
+}
+
+export async function verifyPasswordAsync(password, storedHash) {
+    if (!storedHash) return false;
+    if (isLegacyPbkdf2Hash(storedHash)) return verifyPassword(password, storedHash);
+    return bcrypt.compare(password, storedHash);
+}

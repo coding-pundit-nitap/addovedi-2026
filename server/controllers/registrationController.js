@@ -4,6 +4,7 @@ import { isRegistrationOpen } from '../services/settingsService.js';
 import GlobalUser from '../models/GlobalUser.js';
 import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
+const MAX_MEMBERS = 10;
 const REQUIRED_STRING_FIELDS = ['eventTitle', 'categoryTitle', 'teamName', 'leaderName', 'leaderUID', 'leaderPhone'];
 
 // Escapes regex metacharacters so user-supplied search text is matched
@@ -23,6 +24,19 @@ export const createRegistration = async (req, res) => {
 
         if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {
             return res.status(400).json({ message: 'All required fields (eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone) must be provided.' });
+        }
+
+        // The logged-in participant can only register THEMSELVES as team leader. Previously any
+        // visitor could submit someone else's (sequential, guessable) Addovedi ID as leader.
+        if (leaderUID.trim().toUpperCase() !== req.participantAddovediId.toUpperCase()) {
+            return res.status(403).json({ message: 'You can only register a team under your own Addovedi ID.' });
+        }
+
+        if (Array.isArray(members) && members.length > MAX_MEMBERS) {
+            return res.status(400).json({ message: `A team can have at most ${MAX_MEMBERS + 1} members.` });
+        }
+        if ([eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, userEmail || '', unstopRefId || ''].some(v => typeof v !== 'string' || v.length > 200)) {
+            return res.status(400).json({ message: 'One of the fields is too long or invalid.' });
         }
 
         if (!isValidPhone(leaderPhone)) {
@@ -103,7 +117,8 @@ export const createRegistration = async (req, res) => {
             leaderUID: leaderUID.trim(),
             leaderPhone: leaderPhone.trim(),
             teamSize: Number(teamSize) || 1,
-            members: Array.isArray(members) ? members : [],
+            // Only the two known fields, length-capped — never store arbitrary client objects.
+            members: Array.isArray(members) ? members.map(m => ({ name: String(m?.name || '').slice(0, 100), uid: String(m?.uid || '').slice(0, 50) })) : [],
             userEmail: userEmail ? userEmail.trim() : '',
             unstopRefId: unstopRefId ? unstopRefId.trim() : ''
             // status is intentionally never taken from the client — it always
@@ -115,7 +130,7 @@ export const createRegistration = async (req, res) => {
         return res.status(201).json({ message: 'Registration successful', registration });
     } catch (err) {
         console.error('Registration Error:', err);
-        return res.status(500).json({ message: err.message || 'Server error creating registration' });
+        return res.status(500).json({ message: 'Server error creating registration' });
     }
 };
 
@@ -226,32 +241,29 @@ export const deleteRegistration = async (req, res) => {
 // re-registration (createRegistration excludes CANCELLED records already).
 export const cancelRegistration = async (req, res) => {
     try {
-        const { eventTitle, leaderUID, leaderPhone } = req.body;
-        if (
-            typeof eventTitle !== 'string' || !eventTitle.trim() ||
-            typeof leaderUID !== 'string' || !leaderUID.trim() ||
-            typeof leaderPhone !== 'string' || !leaderPhone.trim()
-        ) {
-            return res.status(400).json({ message: 'eventTitle, leaderUID and leaderPhone are required' });
+        const { eventTitle } = req.body;
+        if (typeof eventTitle !== 'string' || !eventTitle.trim()) {
+            return res.status(400).json({ message: 'eventTitle is required' });
         }
 
+        // Ownership comes from the participant's login token, not from caller-supplied
+        // details: only the team leader's own account can cancel their registration.
         const result = await Registration.updateMany(
             {
                 eventTitle: eventTitle.trim(),
-                leaderUID: leaderUID.trim(),
-                leaderPhone: leaderPhone.trim(),
+                leaderUID: req.participantAddovediId,
                 status: { $ne: 'CANCELLED' }
             },
             { $set: { status: 'CANCELLED' } }
-        );
+        ).collation({ locale: 'en', strength: 2 });
 
         if (result.matchedCount === 0) {
-            return res.status(404).json({ message: 'No matching registration found for the provided details' });
+            return res.status(404).json({ message: 'No matching registration found for your account' });
         }
 
         return res.json({ message: 'Registration cancelled successfully' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: 'Server error cancelling registration' });
     }
 };
 
@@ -309,8 +321,11 @@ export const updateRegistrationStatus = async (req, res) => {
             return res.status(404).json({ message: 'Registration record not found' });
         }
 
+        if (status && !['PENDING_UNSTOP_VERIFICATION', 'VERIFIED', 'CANCELLED'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
         if (status) reg.status = status;
-        if (unstopRefId !== undefined) reg.unstopRefId = unstopRefId;
+        if (unstopRefId !== undefined) reg.unstopRefId = String(unstopRefId).slice(0, 200);
 
         await reg.save();
         return res.json({ message: 'Registration updated successfully', registration: reg });

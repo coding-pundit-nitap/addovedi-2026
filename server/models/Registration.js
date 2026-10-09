@@ -3,31 +3,37 @@ import mongoose from 'mongoose';
 const registrationSchema = new mongoose.Schema({
     eventTitle: {
         type: String,
+        maxlength: 200,
         required: true,
         trim: true
     },
     categoryTitle: {
         type: String,
+        maxlength: 200,
         required: true,
         trim: true
     },
     teamName: {
         type: String,
+        maxlength: 100,
         required: true,
         trim: true
     },
     leaderName: {
         type: String,
+        maxlength: 100,
         required: true,
         trim: true
     },
     leaderUID: {
         type: String,
+        maxlength: 50,
         required: true,
         trim: true
     },
     leaderPhone: {
         type: String,
+        maxlength: 20,
         required: true,
         trim: true
     },
@@ -41,10 +47,12 @@ const registrationSchema = new mongoose.Schema({
     }],
     userEmail: {
         type: String,
+        maxlength: 254,
         trim: true
     },
     unstopRefId: {
         type: String,
+        maxlength: 200,
         trim: true,
         default: ''
     },

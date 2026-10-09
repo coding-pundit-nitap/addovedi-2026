@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import Admin from '../models/Admin.js';
+import GlobalUser from '../models/GlobalUser.js';
 
 function readBearerToken(req) {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -12,7 +14,7 @@ function readBearerToken(req) {
 // carry a `role` claim, and each middleware below rejects a token that isn't
 // its own role — otherwise a participant token would also pass admin-only
 // routes and vice versa, since both are valid signatures under one secret.
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
     try {
         const JWT_SECRET = process.env.JWT_SECRET;
         if (!JWT_SECRET) {
@@ -24,11 +26,18 @@ export const protect = (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized. No access token provided.' });
         }
 
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         if (decoded.role !== 'admin') {
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
         }
+        // A valid signature isn't enough: the account must still exist, so removing
+        // an admin cuts off their session immediately instead of after the 12h token expiry.
+        const admin = await Admin.findById(decoded.id).select('username').lean();
+        if (!admin) {
+            return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
+        }
         req.adminId = decoded.id;
+        req.adminUsername = admin.username;
         next();
     } catch (err) {
         return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
@@ -38,7 +47,7 @@ export const protect = (req, res, next) => {
 // Participant-session equivalent of `protect` — used on routes that must be
 // scoped to "the logged-in participant themselves" (e.g. editing their own
 // profile), issued at signup/login (see globalUserService.js).
-export const requireParticipant = (req, res, next) => {
+export const requireParticipant = async (req, res, next) => {
     try {
         const JWT_SECRET = process.env.JWT_SECRET;
         if (!JWT_SECRET) {
@@ -50,11 +59,17 @@ export const requireParticipant = (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized. No access token provided.' });
         }
 
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         if (decoded.role !== 'participant') {
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
         }
+        // Same as admins: a removed player's still-unexpired 30-day token stops working.
+        const user = await GlobalUser.findById(decoded.id).select('addovediId').lean();
+        if (!user) {
+            return res.status(401).json({ message: 'Unauthorized. This account no longer exists.' });
+        }
         req.participantId = decoded.id;
+        req.participantAddovediId = user.addovediId;
         next();
     } catch (err) {
         return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
