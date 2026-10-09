@@ -22,6 +22,10 @@ services:
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+      BACKUP_DIR: /app/backups
+    # Backups written by `docker compose exec server node scripts/backup.js` land in ./backups on the host.
+    volumes:
+      - ./backups:/app/backups
     depends_on:
       - mongo
     # Not published to the host — only nginx/ talks to this, over the

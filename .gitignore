@@ -10,3 +10,7 @@ client/node_modules/
 server/node_modules/
 .claude/settings.local.json
 
+
+# Database backups contain personal data and password hashes: never commit them.
+backups/
+server/backups/
