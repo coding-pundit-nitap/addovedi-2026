@@ -1741,7 +1741,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 }
             });
         }
-    }, [data.pos, data.rot, index]);
+        // Primitives, not the pos/rot arrays: the 4s events poll rebuilds those arrays every tick,
+        // which replayed this blast-from-center animation on an idle page.
+    }, [data.pos[0], data.pos[1], data.pos[2], data.rot[0], data.rot[1], data.rot[2], index]);
 
     const currentAngle = useRef(null);
 
