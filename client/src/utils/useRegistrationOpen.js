@@ -35,3 +35,35 @@ export default function useRegistrationOpen() {
     const { on, loaded } = useSiteFlag('registration', 'registrationOpen');
     return { open: on, loaded };
 }
+
+// Events section switch. Unlike the flags above this one fails OPEN: if the server can't be reached (or is an
+// older build without this setting) the Events section keeps working instead of vanishing. One shared poll serves
+// every component that uses it.
+const eventsFlag = { visible: true, loaded: false, listeners: new Set(), timer: null };
+const loadEventsFlag = async () => {
+    try {
+        const res = await fetch(`${API_BASE}/settings/events`, { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            eventsFlag.visible = data.eventsVisible !== false;
+        }
+    } catch { /* keep the last known value */ }
+    eventsFlag.loaded = true;
+    eventsFlag.listeners.forEach(fn => fn());
+};
+
+export function useEventsVisible() {
+    const [, force] = useState(0);
+    useEffect(() => {
+        const fn = () => force(n => n + 1);
+        eventsFlag.listeners.add(fn);
+        if (!eventsFlag.timer) {
+            loadEventsFlag();
+            eventsFlag.timer = setInterval(loadEventsFlag, 15000);
+        } else if (eventsFlag.loaded) {
+            fn();
+        }
+        return () => { eventsFlag.listeners.delete(fn); };
+    }, []);
+    return { visible: eventsFlag.visible, loaded: eventsFlag.loaded };
+}

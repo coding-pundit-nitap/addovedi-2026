@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
+import { useEventsVisible } from '../../utils/useRegistrationOpen';
 
 const STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');
@@ -84,6 +85,7 @@ const STYLES = `
 
 export default function CommonSidebar() {
     const navigate = useNavigate();
+    const { visible: eventsVisible } = useEventsVisible();
     const location = useLocation();
     
     const isSidebarOpen = useStore(s => s.isSidebarOpen);
@@ -116,6 +118,8 @@ export default function CommonSidebar() {
             setShowLogo(true);
             setShowNavbar(true);
             navigate('/home');
+        } else if (label === 'ARENA' && !eventsVisible) {
+            navigate('/event'); // events switched off: plain "coming soon" page, no fly-in
         } else if (label === 'ARENA') {
             setIsEntered(true);
             setIsEventPage(true);

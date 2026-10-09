@@ -96,7 +96,7 @@ export const lookupLimiter = rateLimit({
     message: { message: 'Too many requests. Please try again later.' }
 });
 
-const POLLED_PATHS = /^\/(events|crew|alliances|alliances\/categories|status-settings|settings\/registration|settings\/crew)\/?$/;
+const POLLED_PATHS = /^\/(events|crew|alliances|alliances\/categories|status-settings|settings\/registration|settings\/crew|settings\/events)\/?$/;
 const isPublicPoll = (req) => req.method === 'GET' && POLLED_PATHS.test(req.path);
 
 // Backstop for the cached public polling endpoints: ~50 req/s per IP. Cheap to serve (cached),

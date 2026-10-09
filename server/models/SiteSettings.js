@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 const SiteSettingsSchema = new mongoose.Schema({
     // Event registration is closed until an admin turns it on ("starting soon" is shown instead).
     registrationOpen: { type: Boolean, default: false },
+    // The whole Events/Arena section shows "coming soon" when an admin turns this off. Defaults to ON so
+    // existing sites keep working until an admin chooses to hide it.
+    eventsVisible: { type: Boolean, default: true },
     // The Crew page shows "launching soon" until an admin turns this on.
     crewVisible: { type: Boolean, default: false }
 }, { timestamps: true });

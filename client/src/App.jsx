@@ -10,6 +10,7 @@ import AuthModal from "./components/portal/PortalPage";
 import ScrollToTop from "./components/common/ScrollToTop";
 import FirstLoadScreen from "./components/common/FirstLoadScreen";
 import InviteBar from "./components/common/InviteBar";
+import { useEventsVisible } from "./utils/useRegistrationOpen";
 
 
 export default function App() {
@@ -18,6 +19,9 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+    const { visible: eventsVisible } = useEventsVisible();
+    // Events switched off in Admin: /event* is a plain "coming soon" page, like /crew, with no 3D lobby or fly-in.
+    const eventsGated = location.pathname.startsWith('/event') && !eventsVisible;
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
     // Sessions saved before login tokens existed have no token, so every protected action (profile update,
@@ -47,13 +51,13 @@ export default function App() {
         if (!showLoader) useStore.getState().setAppReady(true);
     }, [showLoader]);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch';
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated;
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated;
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
@@ -70,12 +74,12 @@ export default function App() {
         } else if (isHome) {
             useStore.getState().setIsEntered(false);
         }
-    }, [location.pathname, navigate]);
+    }, [location.pathname, navigate, eventsGated]);
 
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated) return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getSettings, setRegistrationOpen, setCrewVisible } from '../services/settingsService.js';
+import { getSettings, setRegistrationOpen, setCrewVisible, setEventsVisible } from '../services/settingsService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { protect } from '../middleware/auth.js';
 
@@ -48,6 +48,31 @@ router.put('/crew', protect, async (req, res) => {
         const s = await setCrewVisible(req.body.crewVisible);
         await recordAuditLog(req, { action: s.crewVisible ? 'SHOW_CREW_PAGE' : 'HIDE_CREW_PAGE', details: {} });
         return res.json({ crewVisible: s.crewVisible });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
+// Public: whether the Events/Arena section is live (otherwise visitors see "coming soon").
+// Anything but an explicit false counts as live, so an older settings document keeps the site working.
+router.get('/events', async (req, res) => {
+    try {
+        const s = await getSettings();
+        return res.json({ eventsVisible: s.eventsVisible !== false });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
+// Admin only: show the Events section, or replace it with a "coming soon" page.
+router.put('/events', protect, async (req, res) => {
+    try {
+        if (typeof req.body?.eventsVisible !== 'boolean') {
+            return res.status(400).json({ message: 'eventsVisible must be true or false.' });
+        }
+        const s = await setEventsVisible(req.body.eventsVisible);
+        await recordAuditLog(req, { action: s.eventsVisible ? 'SHOW_EVENTS_SECTION' : 'HIDE_EVENTS_SECTION', details: {} });
+        return res.json({ eventsVisible: s.eventsVisible !== false });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }

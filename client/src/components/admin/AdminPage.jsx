@@ -1195,6 +1195,13 @@ export default function AdminPage() {
                 {activeTab === 'registrations' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
                         <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
+                            path="events" flag="eventsVisible" title="EVENTS SECTION" onLabel="LIVE" offLabel="HIDDEN (COMING SOON)"
+                            onButton="HIDE EVENTS" offButton="SHOW EVENTS"
+                            onHint="Visitors can open the Events / Arena pages and see every event."
+                            offHint='The whole Events / Arena section is replaced by an "Events coming soon" page. Registrations and data are untouched.'
+                            confirmOn="SHOW THE EVENTS SECTION TO EVERYONE?"
+                            confirmOff='HIDE THE EVENTS SECTION? Visitors will see "Events coming soon" instead of the arena and event pages.' />
+                        <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
                             onHint='Visitors can register for events. Turn off to show "Registration starting soon" instead.'
                             offHint='Visitors see "Registration starting soon" and the server refuses new registrations. Existing registrations are unaffected.'
                             confirmOn="OPEN EVENT REGISTRATION FOR EVERYONE?"

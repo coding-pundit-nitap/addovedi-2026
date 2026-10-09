@@ -19,3 +19,9 @@ export const setCrewVisible = async (visible) => {
     settings.crewVisible = visible === true;
     return await settings.save();
 };
+
+export const setEventsVisible = async (visible) => {
+    const settings = await getSettings();
+    settings.eventsVisible = visible === true;
+    return await settings.save();
+};

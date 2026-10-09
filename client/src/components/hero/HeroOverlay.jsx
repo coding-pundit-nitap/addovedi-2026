@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useEventsVisible } from '../../utils/useRegistrationOpen';
 import { useStore } from '../../store/useStore';
 import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
@@ -58,7 +59,11 @@ export default function HeroOverlay() {
     const setShowNavbar = useStore(s => s.setShowNavbar);
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
+    const { visible: eventsVisible } = useEventsVisible();
+
     const handleEnterArena = () => {
+        // Events switched off in Admin: skip the fly-in and go straight to the "coming soon" page.
+        if (!eventsVisible) { navigate('/event'); return; }
         // Hide UI overlays so the cinematic fly-in is unobstructed
         setShowButton(false);
         setShowLogo(false);

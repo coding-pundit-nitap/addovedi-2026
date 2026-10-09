@@ -70,6 +70,7 @@ export default function AuthModal() {
     
     // Registered Events list
     const [showForgot, setShowForgot] = useState(false);
+    const [savedMsg, setSavedMsg] = useState('');
     const [registeredEvents, setRegisteredEvents] = useState([]);
     // Stay in sync when an invite is answered from the notification bar.
     useEffect(() => {
@@ -270,13 +271,33 @@ export default function AuthModal() {
         }
     };
 
+    // Open the edit form pre-filled with what is currently saved on the account (not whatever the form state held before).
+    const openProfileEdit = () => {
+        setGlobalForm({
+            gender: user?.gender || '',
+            dob: user?.dob || '',
+            college: user?.college || '',
+            department: user?.department || '',
+            year: user?.year || '',
+            state: user?.state || '',
+            city: user?.city || '',
+            emergencyContact: user?.emergencyContact || '',
+            avatar: user?.avatar || 'specter'
+        });
+        setErrorMsg('');
+        setSavedMsg('');
+        setIsEditing(true);
+    };
+
     // Handle Global Profile form submit
     const handleGlobalSubmit = async (e) => {
         e.preventDefault();
 
         // Simple validations
-        if (!globalForm.gender || !globalForm.dob || !globalForm.college || !globalForm.department || !globalForm.year || !globalForm.state || !globalForm.city || !globalForm.emergencyContact) {
-            setErrorMsg('ALL BLOCKS MANDATORY FOR UNIQUE SIGNATURE SIGN-OFF.');
+        const required = [['gender', 'GENDER'], ['dob', 'DATE OF BIRTH'], ['college', 'COLLEGE'], ['department', 'DEPARTMENT'], ['year', 'YEAR'], ['state', 'STATE'], ['city', 'CITY'], ['emergencyContact', 'EMERGENCY CONTACT']];
+        const missing = required.filter(([k]) => !String(globalForm[k] || '').trim()).map(([, label]) => label);
+        if (missing.length) {
+            setErrorMsg(`PLEASE FILL IN: ${missing.join(', ')}.`);
             return;
         }
         if (!isValidPhone(globalForm.emergencyContact)) {
@@ -318,6 +339,7 @@ export default function AuthModal() {
             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
             setCurrentUser(safeUpdatedUser);
             setErrorMsg('');
+            setSavedMsg('PROFILE UPDATED.');
             setIsEditing(false);
         } catch (err) {
             setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
@@ -1108,6 +1130,11 @@ export default function AuthModal() {
                                     </div>
                                 </div>
 
+                                {savedMsg && (
+                                    <div className="w-full max-w-[330px] mt-3 px-3 py-2 border text-[10px] font-bold tracking-widest" style={{ color: '#1FFF76', borderColor: 'rgba(31,255,118,0.5)', background: 'rgba(31,255,118,0.08)' }}>
+                                        ✓ {savedMsg}
+                                    </div>
+                                )}
                                 <ChangePasswordPanel
                                     user={user}
                                     onChanged={(token) => {
@@ -1118,7 +1145,7 @@ export default function AuthModal() {
                                 />
                                 <div className="flex gap-3 w-full max-w-[330px] mt-4">
                                     <button
-                                        onClick={() => setIsEditing(true)}
+                                        onClick={openProfileEdit}
                                         className="flex-1 py-2 bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 text-[9px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
