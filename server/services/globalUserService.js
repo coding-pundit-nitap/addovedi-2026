@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import Registration from '../models/Registration.js';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
@@ -152,4 +153,47 @@ export const deletePlayer = async (id) => {
     }
     await player.deleteOne();
     return player;
+};
+
+// ── Password change / admin reset ──
+
+// A signed-in player chooses a new password (must know the current one).
+export const changePassword = async (id, currentPassword, newPassword) => {
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+        throw new Error('Current and new passwords are required.');
+    }
+    if (newPassword.length < 8 || newPassword.length > 128) {
+        throw new Error('New password must be 8 to 128 characters.');
+    }
+    if (newPassword === currentPassword) {
+        throw new Error('New password must be different from the current one.');
+    }
+    const user = await GlobalUser.findById(id);
+    if (!user || currentPassword.length > 128 || !(await verifyPasswordAsync(currentPassword, user.passwordHash))) {
+        throw new Error('Current password is incorrect.');
+    }
+    user.passwordHash = await hashPasswordAsync(newPassword);
+    user.mustChangePassword = false;
+    // Round up so the fresh token below (iat is whole seconds) is never older than this stamp.
+    user.passwordChangedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    await user.save();
+    // Other sessions (iat < passwordChangedAt) are now invalid; hand back a fresh one for this device.
+    return { token: signParticipantToken(user._id) };
+};
+
+// Unambiguous characters only (no 0/O, 1/l/I) so it can be read out over a call or WhatsApp.
+const TEMP_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+const generateTempPassword = () =>
+    Array.from(crypto.randomBytes(10), b => TEMP_ALPHABET[b % TEMP_ALPHABET.length]).join('');
+
+// Admin sets a one-time temporary password; the player must replace it at next login.
+export const adminResetPassword = async (id) => {
+    const user = await GlobalUser.findById(id);
+    if (!user) throw Object.assign(new Error('Player not found'), { status: 404 });
+    const temp = generateTempPassword();
+    user.passwordHash = await hashPasswordAsync(temp);
+    user.mustChangePassword = true;
+    user.passwordChangedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    await user.save();
+    return { player: user, tempPassword: temp };
 };

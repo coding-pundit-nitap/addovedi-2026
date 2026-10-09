@@ -64,9 +64,13 @@ export const requireParticipant = async (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
         }
         // Same as admins: a removed player's still-unexpired 30-day token stops working.
-        const user = await GlobalUser.findById(decoded.id).select('addovediId').lean();
+        const user = await GlobalUser.findById(decoded.id).select('addovediId passwordChangedAt').lean();
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized. This account no longer exists.' });
+        }
+        // A password change/reset kills every session issued before it (a reset must lock out a stolen session too).
+        if (user.passwordChangedAt && (decoded.iat || 0) < Math.floor(user.passwordChangedAt.getTime() / 1000)) {
+            return res.status(401).json({ message: 'Unauthorized. Your password was changed, please log in again.' });
         }
         req.participantId = decoded.id;
         req.participantAddovediId = user.addovediId;

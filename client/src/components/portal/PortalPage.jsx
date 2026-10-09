@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
+import ChangePasswordPanel from './ChangePasswordPanel';
 import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, INVITES_CHANGED_EVENT } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -706,6 +707,12 @@ export default function AuthModal() {
                                         ) : activeTab === 'login' ? 'INITIALIZE LINK ▶' : 'COMMENCE ENLISTMENT ▶'}
                                     </span>
                                 </button>
+                                {activeTab === 'login' && (
+                                    <div className="text-[10px] text-white/45 leading-relaxed" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
+                                        <b className="text-white/70">Forgot your Addovedi ID?</b> Just log in with your email and password. Your ID is shown on your profile.<br />
+                                        <b className="text-white/70">Forgot your password?</b> Contact an organiser (see the About page) and they will reset it for you. Do not create a second account, or you will lose your registrations.
+                                    </div>
+                                )}
                             </form>
                         </motion.div>
                     ) : !user.isGlobalRegistered || isEditing ? (
@@ -1078,6 +1085,14 @@ export default function AuthModal() {
                                     </div>
                                 </div>
 
+                                <ChangePasswordPanel
+                                    user={user}
+                                    onChanged={(token) => {
+                                        const updated = { ...user, mustChangePassword: false, ...(token ? { token } : {}) };
+                                        setUser(updated);
+                                        localStorage.setItem('addovedi_user', JSON.stringify(updated));
+                                    }}
+                                />
                                 <div className="flex gap-3 w-full max-w-[330px] mt-4">
                                     <button
                                         onClick={() => setIsEditing(true)}

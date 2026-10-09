@@ -366,6 +366,20 @@ export default function AdminPage() {
         setViewPlayerUid(uid);
     };
 
+    const resetPlayerPassword = async (player) => {
+        if (!confirm(`RESET PASSWORD for ${player.name} (${player.addovediId})? Their current password stops working and they are logged out everywhere.`)) return;
+        try {
+            const res = await fetch(`${API_BASE}/participants/${player._id}/reset-password`, { method: 'POST', headers: getHeaders() });
+            if (res.status === 401) { alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.'); handleLogout(); return; }
+            const data = await safeFetchJson(res);
+            if (!res.ok) { alert(data.message || 'Failed to reset password'); return; }
+            // Shown once; it is not stored anywhere readable. Give it to the player privately.
+            window.prompt(`Temporary password for ${data.name} (${data.addovediId}). Copy it now and give it to the player privately. It will not be shown again.`, data.tempPassword);
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
     const removePlayer = async (player) => {
         if (!confirm(`REMOVE PLAYER ${player.name} (${player.addovediId}) PERMANENTLY? Their account is deleted and they will have to sign up again.`)) return;
         try {
@@ -2213,6 +2227,7 @@ export default function AdminPage() {
                     registrations={registrations}
                     onClose={() => setViewPlayerUid(null)}
                     onDelete={removePlayer}
+                    onResetPassword={resetPlayerPassword}
                 />
 
                 {activeTab === 'audit' && (

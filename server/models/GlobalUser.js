@@ -43,6 +43,10 @@ const GlobalUserSchema = new mongoose.Schema({
     gender: { type: String, maxlength: 30, trim: true, default: '' },
     dob: { type: String, maxlength: 30, trim: true, default: '' },
     emergencyContact: { type: String, maxlength: 20, trim: true, default: '' },
+    // Set when an admin resets the password; the player is asked to choose their own at next login.
+    mustChangePassword: { type: Boolean, default: false },
+    // Sessions issued before this moment are rejected (see middleware/auth.js requireParticipant).
+    passwordChangedAt: { type: Date },
     avatar: { type: String, maxlength: 40, trim: true, default: 'specter' }
 }, { timestamps: true });
 

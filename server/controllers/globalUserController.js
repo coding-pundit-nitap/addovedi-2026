@@ -62,3 +62,24 @@ export const deletePlayer = async (req, res) => {
         return res.status(err.status || 400).json({ message: err.message });
     }
 };
+
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const result = await globalUserService.changePassword(req.participantId, currentPassword, newPassword);
+        return res.json({ message: 'Password updated.', ...result });
+    } catch (err) {
+        return res.status(400).json({ message: err.message });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { player, tempPassword } = await globalUserService.adminResetPassword(req.params.id);
+        // The temporary password itself is never written to the audit log.
+        await recordAuditLog(req, { action: 'RESET_PLAYER_PASSWORD', details: { addovediId: player.addovediId, name: player.name } });
+        return res.json({ tempPassword, addovediId: player.addovediId, name: player.name });
+    } catch (err) {
+        return res.status(err.status || 400).json({ message: err.message });
+    }
+};

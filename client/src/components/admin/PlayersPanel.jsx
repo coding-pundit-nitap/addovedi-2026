@@ -13,7 +13,7 @@ export function playerRegistrations(registrations, addovediId) {
 
 const STATUS_COLOR = { VERIFIED: '#1FFF76', PENDING_UNSTOP_VERIFICATION: '#FBBF24', CANCELLED: '#FF4D6D' };
 
-export function PlayerProfileModal({ player, registrations, onClose, onDelete }) {
+export function PlayerProfileModal({ player, registrations, onClose, onDelete, onResetPassword }) {
     const regs = useMemo(() => (player ? playerRegistrations(registrations, player.addovediId) : []), [player, registrations]);
     if (!player) return null;
     const rows = [
@@ -60,6 +60,13 @@ export function PlayerProfileModal({ player, registrations, onClose, onDelete })
                         </div>
                     </div>
                 ))}
+
+                {onResetPassword && (
+                    <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <button type="button" onClick={() => onResetPassword(player)} style={{ background: 'none', border: '1px solid #F59E0B', color: '#F59E0B', ...mono, padding: '8px 16px', cursor: 'pointer', fontWeight: 900 }}>RESET PASSWORD</button>
+                        <span style={{ ...mono, fontSize: 10, color: '#6B7280', marginLeft: 10 }}>Sets a temporary password you give to the player. They must change it after logging in.</span>
+                    </div>
+                )}
 
                 {onDelete && (
                     <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
