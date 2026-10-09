@@ -62,7 +62,7 @@ services:
       - server
     # The only container exposed to the host / college network.
     ports:
-      - "${NGINX_PORT:-8080}:80"
+      - "80:80"
     networks:
       - addovedi
 
