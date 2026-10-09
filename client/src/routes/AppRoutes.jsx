@@ -39,8 +39,10 @@ export default function AppRoutes() {
         return () => { if (window.cancelIdleCallback && typeof id === 'number') window.cancelIdleCallback(id); };
     }, []);
 
+    // While a page's code loads, show the same solid colour as the boot animation (CommonLoader),
+    // so there is never a different-coloured blank flash before it starts.
     return (
-        <Suspense fallback={null}>
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#06080F' }} />}>
         <Routes>
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<HeroOverlay />} />
