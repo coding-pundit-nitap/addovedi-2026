@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
 import { useStore } from "./store/useStore";
+import { ADMIN_PATH } from "./constants/routes";
 import { AnimatePresence, motion } from "framer-motion";
 import CommonSidebar from "./components/common/CommonSidebar";
 import AuthModal from "./components/portal/PortalPage";
@@ -25,20 +26,20 @@ export default function App() {
         if (!showLoader) useStore.getState().setAppReady(true);
     }, [showLoader]);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch';
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch';
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch';
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
             return;
         }
 
-        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances, /connect or /admin
+        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances, /connect or the admin portal
         if (isStandalone) return;
 
         // Set store parameters
@@ -53,7 +54,7 @@ export default function App() {
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === '/admin' || location.pathname === '/merch') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch') return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {

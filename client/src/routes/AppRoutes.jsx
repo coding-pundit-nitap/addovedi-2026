@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { ADMIN_PATH } from "../constants/routes";
 import HeroOverlay from "../components/hero/HeroOverlay";
 const EventsPage = lazy(() => import("../components/events/EventsPage"));
 const TimelinePage = lazy(() => import("../components/timeline/TimelinePage"));
@@ -20,10 +21,12 @@ export default function AppRoutes() {
             <Route path="/alliances" element={<AlliancesPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/merch" element={<MerchPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path={ADMIN_PATH} element={<AdminPage />} />
             <Route path="/event" element={<EventsPage />} />
             <Route path="/event/:categoryName" element={<EventsPage />} />
             <Route path="/event/:categoryName/:eventName" element={<EventsPage />} />
+            {/* Unknown addresses (including the old /admin) go home */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
         </Suspense>
     );
