@@ -2,9 +2,11 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import HeroScene from "../Scene/HeroScene";
 
-export default function MainCanvas() {
+export default function MainCanvas({ paused = false }) {
     return (
         <Canvas
+            // Stops rendering (no GPU/CPU use) while the canvas is hidden behind a standalone page like /crew.
+            frameloop={paused ? 'never' : 'always'}
             dpr={[1, 1.5]}
             performance={{ min: 0.6 }}
             camera={{

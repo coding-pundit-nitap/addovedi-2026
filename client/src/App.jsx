@@ -53,6 +53,12 @@ export default function App() {
 
     const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated;
 
+    // The 3D scene is created the first time a non-standalone page (Home / Arena) is shown, then kept alive
+    // and just paused + hidden behind pages like /crew. Unmounting it made every trip back to Home rebuild
+    // the whole scene and replay the 6s intro, which froze the page and made the HOME link feel broken.
+    const [heroMounted, setHeroMounted] = useState(!isStandalonePage);
+    useEffect(() => { if (!isStandalonePage) setHeroMounted(true); }, [isStandalonePage]);
+
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
@@ -90,7 +96,7 @@ export default function App() {
     return (
         <section className="relative h-[100dvh] w-full overflow-hidden bg-[#020617]">
             {/* Common background 3D Canvas — hidden on standalone pages like /timeline or /crew */}
-            {!isStandalonePage && <HeroCanvas />}
+            {heroMounted && <HeroCanvas paused={isStandalonePage} />}
 
             {/* Black Portal Flash (barrel entry blackout) */}
             <AnimatePresence>
