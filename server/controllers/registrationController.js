@@ -361,6 +361,11 @@ export const respondToTeamInvite = async (req, res) => {
             return res.status(409).json({ message: 'This registration is already verified by the organisers. Contact the admin to change your team.' });
         }
         const member = reg.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
+        // Declining is final. Letting a DECLINED member flip back to ACCEPTED would skip the
+        // duplicate-registration check (they may have joined another team for this event since).
+        if (member.status === 'REJECTED') {
+            return res.status(409).json({ message: 'You already declined this team. Ask the team leader to add you again.' });
+        }
         member.status = accept ? 'ACCEPTED' : 'REJECTED';
         member.respondedAt = new Date();
         await reg.save();

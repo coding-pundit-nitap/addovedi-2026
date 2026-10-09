@@ -401,6 +401,15 @@ export default function AdminPage() {
     // Flips a registration's verification status after the admin has checked
     // it against the team's actual Unstop entry.
     const setRegistrationStatus = async (id, status) => {
+        if (status === 'VERIFIED') {
+            // Warn before verifying a team whose teammates haven't all accepted: once verified, teammates can no longer change their answer.
+            const reg = registrations.find(r => r._id === id);
+            const notAccepted = (reg?.members || []).filter(m => (m.status || 'ACCEPTED') !== 'ACCEPTED');
+            if (notAccepted.length > 0) {
+                const list = notAccepted.map(m => `${m.name} (${m.uid}): ${m.status === 'REJECTED' ? 'DECLINED' : m.status}`).join('\n');
+                if (!window.confirm(`Not every teammate has accepted:\n\n${list}\n\nVerify this team anyway?`)) return;
+            }
+        }
         try {
             const res = await fetch(`${API_BASE}/registrations/${id}`, {
                 method: 'PATCH',
