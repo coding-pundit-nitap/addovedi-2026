@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { API_BASE } from '../../constants/api';
+import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
+import TurnstileWidget from '../common/TurnstileWidget';
 
 export default function MessageTerminal({ heading = 'MESSAGE TERMINAL' }) {
     const [name, setName] = useState('');
@@ -8,26 +9,36 @@ export default function MessageTerminal({ heading = 'MESSAGE TERMINAL' }) {
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
+    const [captchaToken, setCaptchaToken] = useState('');
+    const [captchaKey, setCaptchaKey] = useState(0); // bumping it re-mounts the widget (Turnstile tokens are single use)
+    const [error, setError] = useState('');
     const [focusFields, setFocusFields] = useState({ name: false, email: false, subject: false, message: false });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        if (TURNSTILE_SITE_KEY && !captchaToken) {
+            setError('Please complete the security check first.');
+            return;
+        }
         setSending(true);
         try {
             const res = await fetch(`${API_BASE}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, subject, message }),
+                body: JSON.stringify({ name, email, subject, message, turnstileToken: captchaToken }),
             });
             if (res.ok) {
                 setSent(true);
             } else {
-                throw new Error();
+                const data = await res.json().catch(() => ({}));
+                setError(res.status === 429 ? 'You have sent several messages recently. Please try again later.' : (data.message || 'Could not send your message. Please try again.'));
             }
         } catch (err) {
-            // Offline-first graceful fallback: simulate success if server is offline
-            setSent(true);
+            setError('Network error. Please check your connection and try again.');
         } finally {
+            setCaptchaToken('');
+            setCaptchaKey(k => k + 1);
             setSending(false);
         }
     };
@@ -159,6 +170,19 @@ export default function MessageTerminal({ heading = 'MESSAGE TERMINAL' }) {
                                 </div>
                             );
                         })}
+
+                        {TURNSTILE_SITE_KEY && (
+                            <TurnstileWidget
+                                key={captchaKey}
+                                onVerify={setCaptchaToken}
+                                onExpire={() => setCaptchaToken('')}
+                                onError={() => setCaptchaToken('')}
+                            />
+                        )}
+
+                        {error && (
+                            <div style={{ color: '#f87171', fontFamily: 'monospace', fontSize: '11px', lineHeight: 1.5 }}>{error}</div>
+                        )}
 
                         <button
                             type="submit"

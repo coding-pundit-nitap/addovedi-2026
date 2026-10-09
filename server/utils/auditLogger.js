@@ -9,7 +9,8 @@ export const recordAuditLog = async (req, { action, username, details, status = 
 
         await AuditLog.create({
             action,
-            username: username || req.adminUsername || 'Admin',
+            // Always a short string: the failed-login path passes attacker-controlled text here (could be an object or 50KB).
+            username: (typeof username === 'string' && username ? username : (req.adminUsername || (username === undefined ? 'Admin' : 'Unknown'))).slice(0, 100),
             ipAddress,
             userAgent,
             details: details || {},

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import { trustProxySetting } from './config/trustProxy.js';
 import apiRouter from './routes/index.js';
 import helmet from 'helmet';
 import { apiLimiter, publicReadLimiter } from './middleware/rateLimiters.js';
@@ -20,14 +21,9 @@ dotenv.config();
 
 const app = express();
 
-// This app always runs behind exactly one reverse proxy in production
-// (Render's own edge, itself fronted by Cloudflare) — without this, Express
-// reads req.ip as that proxy's address for every request, which silently
-// broke per-visitor accuracy for every express-rate-limit instance (they'd
-// all share one bucket keyed off the same proxy IP) and would do the same
-// to Turnstile's remoteip check. Trusting exactly 1 hop makes Express parse
-// X-Forwarded-For for the real client IP instead.
-app.set('trust proxy', 1);
+// See config/trustProxy.js: works out the visitor's real IP behind Render/Cloudflare or the college nginx, which every
+// rate limiter and the audit log depend on.
+app.set('trust proxy', trustProxySetting());
 
 // Only the known frontend origins may call this API. Falls back to local
 // dev origins when ALLOWED_ORIGINS isn't set (e.g. local development).
