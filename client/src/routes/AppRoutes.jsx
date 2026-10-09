@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ADMIN_PATH } from "../constants/routes";
 import HeroOverlay from "../components/hero/HeroOverlay";
@@ -19,7 +19,26 @@ function EventsGate() {
     return visible ? <EventsPage /> : <EventsComingSoon />;
 }
 
+// Page code is split into lazy chunks. Fetch them all in the background once the site is idle, so clicking a page
+// never waits on a download (which showed up as a blank dark screen for a second or two).
+const preloadPages = () => {
+    [
+        () => import("../components/events/EventsPage"),
+        () => import("../components/timeline/TimelinePage"),
+        () => import("../components/crew/CrewPage"),
+        () => import("../components/alliances/AlliancesPage"),
+        () => import("../components/about/AboutPage"),
+        () => import("../components/merch/MerchPage"),
+    ].forEach(load => { load().catch(() => {}); });
+};
+
 export default function AppRoutes() {
+    useEffect(() => {
+        const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
+        const id = idle(preloadPages);
+        return () => { if (window.cancelIdleCallback && typeof id === 'number') window.cancelIdleCallback(id); };
+    }, []);
+
     return (
         <Suspense fallback={null}>
         <Routes>
