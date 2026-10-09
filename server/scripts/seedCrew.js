@@ -1,4 +1,4 @@
-// Adds the 2026 head coordinators from client/src/data/crew2026.json to the Crew collection.
+// Adds the 2026 student heads (client/src/data/crew2026.json) and faculty coordinators (faculty2026.json) to the Crew collection.
 // Safe by default: upserts by name+category, never deletes (keeps admin-uploaded avatars/bios).
 // Pass --replace to first wipe the whole Crew collection (removes the old placeholder crew).
 // Run: node scripts/seedCrew.js [--replace]   (from server/, against whichever DB MONGODB_URI points at)
@@ -9,7 +9,9 @@ import Crew from '../models/Crew.js';
 
 dotenv.config();
 
-const sections = JSON.parse(fs.readFileSync(new URL('../../client/src/data/crew2026.json', import.meta.url), 'utf8'));
+const readData = (f) => JSON.parse(fs.readFileSync(new URL(`../../client/src/data/${f}`, import.meta.url), 'utf8'));
+const sections = readData('crew2026.json');
+const faculty = readData('faculty2026.json');
 
 await mongoose.connect(process.env.MONGODB_URI);
 if (process.argv.includes('--replace')) {
@@ -28,6 +30,15 @@ for (const sec of sections) {
         );
         if (res.upsertedCount) added++;
     }
+}
+// Faculty: featured (main coordinator) sorts first on the page.
+for (const f of faculty) {
+    const res = await Crew.updateOne(
+        { name: f.name, type: 'FACULTY' },
+        { $setOnInsert: { name: f.name, role: f.role, type: 'FACULTY', category: 'FACULTY', featured: !!f.main, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
+        { upsert: true }
+    );
+    if (res.upsertedCount) added++;
 }
 console.log(`Added ${added} crew members.`);
 await mongoose.disconnect();

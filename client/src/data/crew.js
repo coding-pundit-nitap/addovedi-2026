@@ -1,60 +1,20 @@
 // client/src/data/crew.js — Centralized Personnel Database
 import crew2026 from './crew2026.json';
+import faculty2026 from './faculty2026.json';
 
-export const FACULTY_CREW = [
-    {
-        id: 'FC01',
-        name: 'Dr. Amit Rawat',
-        role: 'CONVENER',
-        avatarSeed: 'Amit',
-        color: '#00E5FF',
-        glow: 'rgba(0,229,255,0.4)',
-        phone: '+91 98765 43201',
-        email: 'amit.rawat@addovedi.org',
-        linkedin: 'https://linkedin.com/',
-        insta: 'https://instagram.com/',
-        missions: ['Techfest Strategic Blueprinting', 'Department Integration Oversight']
-    },
-    {
-        id: 'FC02',
-        name: 'Dr. Shalini Vyas',
-        role: 'CO-CONVENER',
-        avatarSeed: 'Shalini',
-        color: '#00E5FF',
-        glow: 'rgba(0,229,255,0.4)',
-        phone: '+91 98765 43202',
-        email: 'shalini.vyas@addovedi.org',
-        linkedin: 'https://linkedin.com/',
-        insta: 'https://instagram.com/',
-        missions: ['Academic & Technical Advisory', 'Curriculum Matching Oversight']
-    },
-    {
-        id: 'FC03',
-        name: 'Prof. Rajesh K. Patel',
-        role: 'FACULTY ADVISOR',
-        avatarSeed: 'Rajesh',
-        color: '#9b5cff',
-        glow: 'rgba(155,92,255,0.4)',
-        phone: '+91 98765 43203',
-        email: 'rajesh.patel@addovedi.org',
-        linkedin: 'https://linkedin.com/',
-        insta: 'https://instagram.com/',
-        missions: ['Student Squad Guidance', 'Event Protocol Supervision']
-    },
-    {
-        id: 'FC04',
-        name: 'Dr. Neha Chaturvedi',
-        role: 'FACULTY COORDINATOR',
-        avatarSeed: 'NehaC',
-        color: '#ff2cfb',
-        glow: 'rgba(255,44,251,0.4)',
-        phone: '+91 98765 43204',
-        email: 'neha.chaturvedi@addovedi.org',
-        linkedin: 'https://linkedin.com/',
-        insta: 'https://instagram.com/',
-        missions: ['Logistics & Venue Operations Coordination', 'Cross-Divisional Synchronization']
-    }
-];
+// Faculty coordinators. Source of truth: faculty2026.json (also used by server/scripts/seedCrew.js).
+// Fallback shown when the database has no faculty crew documents. The main coordinator is listed first.
+export const FACULTY_CREW = faculty2026.map((f, i) => {
+    const color = f.main ? '#00E5FF' : '#9b5cff';
+    return {
+        id: `FC${String(i + 1).padStart(2, '0')}`,
+        name: f.name,
+        role: f.role,
+        avatarSeed: f.name,
+        color,
+        glow: color === '#00E5FF' ? 'rgba(0,229,255,0.4)' : 'rgba(155,92,255,0.4)'
+    };
+});
 
 // Real 2026 head coordinators. Source of truth: crew2026.json (also used by server/scripts/seedCrew.js).
 // This is the fallback shown when the database has no crew documents.
@@ -86,8 +46,9 @@ const CREW_COLOR_PALETTE = ['#00E5FF', '#9b5cff', '#1FFF76', '#ff1f4f', '#ffea00
 // Crew documents returned by GET /api/crew, so admin-portal edits (name,
 // role, bio, avatar, links, category) actually render on the public site
 // instead of the page being stuck on this static fallback data forever.
-export function mergeCrewFromDb(dbCrew) {
-    if (!Array.isArray(dbCrew) || dbCrew.length === 0) return STUDENT_SECTIONS;
+export function mergeCrewFromDb(allCrew) {
+    const dbCrew = Array.isArray(allCrew) ? allCrew.filter(c => c.type !== 'FACULTY') : [];
+    if (dbCrew.length === 0) return STUDENT_SECTIONS;
 
     const order = [];
     const buckets = {};
@@ -121,4 +82,28 @@ export function mergeCrewFromDb(dbCrew) {
                 }))
         };
     });
+}
+
+// Faculty list from the Crew documents flagged type === 'FACULTY' (admin-managed),
+// in admin-set order (featured first, then oldest first); static fallback if none.
+export function mergeFacultyFromDb(allCrew) {
+    const faculty = Array.isArray(allCrew) ? allCrew.filter(c => c.type === 'FACULTY') : [];
+    if (faculty.length === 0) return FACULTY_CREW;
+    return faculty
+        .slice()
+        .sort((a, b) => Number(b.featured) - Number(a.featured))
+        .map((c, i) => {
+            const color = i === 0 ? '#00E5FF' : '#9b5cff';
+            return {
+                id: c._id,
+                name: c.name,
+                role: c.role,
+                avatar: c.avatar || '',
+                avatarSeed: c.name,
+                color,
+                glow: i === 0 ? 'rgba(0,229,255,0.4)' : 'rgba(155,92,255,0.4)',
+                bio: c.bio || '',
+                links: Array.isArray(c.links) ? c.links : []
+            };
+        });
 }

@@ -18,6 +18,11 @@ const CrewSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    type: {
+        type: String,
+        enum: ['STUDENT', 'FACULTY'],
+        default: 'STUDENT'
+    },
     category: {
         type: String,
         required: true,

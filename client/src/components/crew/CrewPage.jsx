@@ -16,7 +16,7 @@ import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 
-import { FACULTY_CREW, STUDENT_SECTIONS, mergeCrewFromDb } from '../../data/crew';
+import { FACULTY_CREW, STUDENT_SECTIONS, mergeCrewFromDb, mergeFacultyFromDb } from '../../data/crew';
 import { API_BASE } from '../../constants/api';
 import { useCrewVisible } from '../../utils/useRegistrationOpen';
 import BgCanvas from './BgCanvas';
@@ -97,6 +97,7 @@ function CrewPageContent() {
     const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [studentSections, setStudentSections] = useState(STUDENT_SECTIONS);
+    const [facultyList, setFacultyList] = useState(FACULTY_CREW);
 
     // Track window resize
     useEffect(() => {
@@ -116,6 +117,7 @@ function CrewPageContent() {
                 if (res.ok && !cancelled) {
                     const data = await res.json();
                     setStudentSections(mergeCrewFromDb(data));
+                    setFacultyList(mergeFacultyFromDb(data));
                 }
             } catch (err) {
                 console.log('Failed dynamic crew fetch, utilizing fallbacks');
@@ -130,11 +132,11 @@ function CrewPageContent() {
     const cols = isMobile ? 2 : 4;
     const facultyRows = useMemo(() => {
         const rows = [];
-        for (let i = 0; i < FACULTY_CREW.length; i += cols) {
-            rows.push(FACULTY_CREW.slice(i, i + cols));
+        for (let i = 0; i < facultyList.length; i += cols) {
+            rows.push(facultyList.slice(i, i + cols));
         }
         return rows;
-    }, [cols]);
+    }, [cols, facultyList]);
 
     // Student total operatives count
     const totalStudentCount = useMemo(() => {
@@ -351,7 +353,7 @@ function CrewPageContent() {
 
                     {/* Animated Statistics Counter Strip */}
                     <StatStrip 
-                        finalMembers={activeTab === 'FACULTY' ? FACULTY_CREW.length : totalStudentCount} 
+                        finalMembers={activeTab === 'FACULTY' ? facultyList.length : totalStudentCount} 
                         finalMission={1} 
                     />
 
@@ -417,7 +419,7 @@ function CrewPageContent() {
                             gap: isMobile ? '32px 16px' : '28px',
                             width: '100%'
                         }}>
-                            {FACULTY_CREW.map((member) => (
+                            {facultyList.map((member) => (
                                 <div 
                                     key={member.id}
                                     style={{
