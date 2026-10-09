@@ -1,8 +1,8 @@
 [
-  { "name": "Dr. Brajagopal Datta", "role": "FACULTY COORDINATOR · EE SOCIETY", "main": true },
-  { "name": "Subhasish Banerjee", "role": "CSE SOCIETY COORDINATOR" },
-  { "name": "Sahadev Roy", "role": "ECE SOCIETY COORDINATOR" },
-  { "name": "Sandip Kumar Mandal", "role": "ME SOCIETY COORDINATOR" },
-  { "name": "Jaikesh", "role": "CE SOCIETY COORDINATOR" },
+  { "name": "Dr. Brajgopal Datta", "role": "FACULTY COORDINATOR · EE SOCIETY", "main": true },
+  { "name": "Dr. Subhasish Banerjee", "role": "CSE SOCIETY COORDINATOR" },
+  { "name": "Dr. Sahadev Roy", "role": "ECE SOCIETY COORDINATOR" },
+  { "name": "Dr. Sandip Kumar Mandal", "role": "ME SOCIETY COORDINATOR" },
+  { "name": "Dr. Jaikesh", "role": "CE SOCIETY COORDINATOR" },
   { "name": "Dr. Manjula Das Ghatak", "role": "ROBOTICS CLUB COORDINATOR" }
 ]
