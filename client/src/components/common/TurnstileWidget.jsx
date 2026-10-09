@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TURNSTILE_SITE_KEY } from '../../constants/api';
 
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
@@ -27,6 +27,7 @@ function loadTurnstileScript() {
 export default function TurnstileWidget({ onVerify, onExpire, onError }) {
     const containerRef = useRef(null);
     const widgetIdRef = useRef(null);
+    const [failure, setFailure] = useState('');
 
     useEffect(() => {
         if (!TURNSTILE_SITE_KEY || !containerRef.current) return;
@@ -39,10 +40,10 @@ export default function TurnstileWidget({ onVerify, onExpire, onError }) {
                     sitekey: TURNSTILE_SITE_KEY,
                     callback: (token) => onVerify && onVerify(token),
                     'expired-callback': () => onExpire && onExpire(),
-                    'error-callback': () => onError && onError()
+                    'error-callback': (code) => { setFailure(String(code || 'unknown')); onError && onError(); return true; }
                 });
             })
-            .catch(() => onError && onError());
+            .catch(() => { setFailure('script-blocked'); onError && onError(); });
 
         return () => {
             cancelled = true;
@@ -54,5 +55,16 @@ export default function TurnstileWidget({ onVerify, onExpire, onError }) {
     }, []);
 
     if (!TURNSTILE_SITE_KEY) return null;
-    return <div ref={containerRef} />;
+    return (
+        <div>
+            <div ref={containerRef} />
+            {failure && (
+                <div style={{ marginTop: 6, fontSize: 10, color: '#fca5a5', lineHeight: 1.5, letterSpacing: '0.05em' }}>
+                    {failure === 'script-blocked'
+                        ? 'The security check could not load. Your network may be blocking challenges.cloudflare.com.'
+                        : `The security check failed (code ${failure}). Refresh and try again, or try another network.`}
+                </div>
+            )}
+        </div>
+    );
 }

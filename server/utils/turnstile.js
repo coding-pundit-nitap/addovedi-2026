@@ -25,6 +25,11 @@ export async function verifyTurnstileToken(token, remoteIp) {
             body
         });
         const data = await res.json();
+        if (data.success !== true) {
+            // e.g. invalid-input-secret (wrong secret key), timeout-or-duplicate (token reused/expired),
+            // invalid-input-response. Hostname shows which domain the widget was solved on.
+            console.error('[TURNSTILE] Verification rejected:', JSON.stringify({ errors: data['error-codes'], hostname: data.hostname }));
+        }
         return data.success === true;
     } catch (err) {
         console.error('[TURNSTILE] Verification request failed:', err.message);
