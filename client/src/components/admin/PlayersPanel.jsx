@@ -55,7 +55,7 @@ export function PlayerProfileModal({ player, registrations, onClose, onDelete })
                         </div>
                         <div style={{ ...mono, color: '#9CA3AF', marginTop: 4, lineHeight: 1.6 }}>
                             {r.categoryTitle} · Team: {r.teamName} · Role: <span style={{ color: r.role === 'LEADER' ? '#00E5FF' : '#E5E7EB' }}>{r.role}</span>
-                            <br />Leader: {r.leaderName} ({r.leaderUID}){(r.members || []).length > 0 && <> · Members: {r.members.map(m => `${m.name} (${m.uid})`).join(', ')}</>}
+                            <br />Leader: {r.leaderName} ({r.leaderUID}){(r.members || []).length > 0 && <> · Members: {r.members.map(m => `${m.name} (${m.uid}) · ${m.status === 'REJECTED' ? 'DECLINED' : (m.status || 'ACCEPTED')}`).join(', ')}</>}
                             {r.unstopRefId && <><br />Unstop ref: {r.unstopRefId}</>}
                         </div>
                     </div>

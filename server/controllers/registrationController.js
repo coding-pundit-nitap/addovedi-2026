@@ -90,6 +90,9 @@ const createRegistrationLocked = async (req, res) => {
             ? members.map(m => (m?.uid || '').trim()).filter(Boolean)
             : [];
         const allUids = [leaderUID.trim(), ...memberUidList];
+        if (new Set(allUids.map(u => u.toUpperCase())).size !== allUids.length) {
+            return res.status(400).json({ message: 'The same Addovedi ID is listed more than once in this team.' });
+        }
         const foundAccounts = await GlobalUser.find({
             addovediId: { $in: allUids.map(u => u.toUpperCase()) }
         }).select('addovediId');
@@ -112,14 +115,14 @@ const createRegistrationLocked = async (req, res) => {
             status: { $ne: 'CANCELLED' },
             $or: [
                 { leaderUID: { $in: allUids } },
-                { 'members.uid': { $in: allUids } }
+                { members: { $elemMatch: { uid: { $in: allUids }, status: { $ne: 'REJECTED' } } } }
             ]
         }).collation({ locale: 'en', strength: 2 });
 
         if (conflict) {
             const conflictUids = [
                 (conflict.leaderUID || '').toLowerCase(),
-                ...(Array.isArray(conflict.members) ? conflict.members.map(m => (m?.uid || '').toLowerCase()) : [])
+                ...(Array.isArray(conflict.members) ? conflict.members.filter(m => m?.status !== 'REJECTED').map(m => (m?.uid || '').toLowerCase()) : [])
             ];
             const duplicateUid = allUids.find(u => conflictUids.includes(u.toLowerCase()));
             return res.status(400).json({
@@ -136,7 +139,7 @@ const createRegistrationLocked = async (req, res) => {
             leaderPhone: leaderPhone.trim(),
             teamSize: Number(teamSize) || 1,
             // Only the two known fields, length-capped — never store arbitrary client objects.
-            members: Array.isArray(members) ? members.map(m => ({ name: String(m?.name || '').slice(0, 100), uid: String(m?.uid || '').slice(0, 50) })) : [],
+            members: Array.isArray(members) ? members.map(m => ({ name: String(m?.name || '').slice(0, 100), uid: String(m?.uid || '').slice(0, 50), status: 'PENDING' })) : [],
             userEmail: userEmail ? userEmail.trim() : '',
             unstopRefId: unstopRefId ? unstopRefId.trim() : ''
             // status is intentionally never taken from the client — it always
@@ -285,46 +288,85 @@ export const cancelRegistration = async (req, res) => {
     }
 };
 
-// Returns every registration a given Addovedi ID is part of, as leader OR
-// as a team member, across all events — so a team member who didn't
-// personally submit the form can still see "yes, I'm registered for this"
-// on their own account, not just the leader. Public (no auth) since
-// participant accounts have no session/JWT layer; deliberately returns only
-// non-sensitive fields (no phone/email, no other members' contact info).
+// Returns every registration the logged-in participant is part of, as leader OR as a team
+// member who hasn't declined, so a teammate sees (and can accept/decline) their own invite.
+// Requires the participant's own login: it now includes teammates' names and consent status
+// (visible to the leader only), which must not be readable by anyone who guesses an Addovedi ID.
 export const getMyRegistrations = async (req, res) => {
     try {
-        const { addovediId } = req.params;
-        if (typeof addovediId !== 'string' || !addovediId.trim()) {
-            return res.status(400).json({ message: 'Addovedi ID is required' });
+        const uid = req.participantAddovediId;
+        if (String(req.params.addovediId || '').trim().toUpperCase() !== uid.toUpperCase()) {
+            return res.status(403).json({ message: 'You can only view your own registrations.' });
         }
-        const uid = addovediId.trim();
 
         const regs = await Registration.find({
             status: { $ne: 'CANCELLED' },
             $or: [
                 { leaderUID: uid },
-                { 'members.uid': uid }
+                { members: { $elemMatch: { uid, status: { $ne: 'REJECTED' } } } }
             ]
         })
             .collation({ locale: 'en', strength: 2 })
             .select('eventTitle categoryTitle teamName leaderUID leaderName status unstopRefId teamSize members createdAt')
             .sort({ createdAt: -1 });
 
-        const result = regs.map(r => ({
-            eventTitle: r.eventTitle,
-            categoryTitle: r.categoryTitle,
-            teamName: r.teamName,
-            status: r.status,
-            unstopRefId: r.unstopRefId,
-            teamSize: r.teamSize,
-            createdAt: r.createdAt,
-            isLeader: r.leaderUID.toLowerCase() === uid.toLowerCase(),
-            leaderName: r.leaderName
-        }));
+        const result = regs.map(r => {
+            const isLeader = r.leaderUID.toLowerCase() === uid.toLowerCase();
+            const mine = isLeader ? null : r.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
+            return {
+                registrationId: r._id,
+                eventTitle: r.eventTitle,
+                categoryTitle: r.categoryTitle,
+                teamName: r.teamName,
+                status: r.status,
+                unstopRefId: r.unstopRefId,
+                teamSize: r.teamSize,
+                createdAt: r.createdAt,
+                isLeader,
+                leaderName: r.leaderName,
+                myStatus: isLeader ? 'LEADER' : (mine?.status || 'ACCEPTED'),
+                // Only the leader sees who accepted / is pending / declined.
+                members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED' })) : undefined
+            };
+        });
 
         return res.json(result);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// A teammate accepts or declines (or later leaves) a team they were added to.
+// Frozen once admin has VERIFIED the registration against Unstop — after that the roster is
+// what the organisers confirmed, so changes go through the admin.
+export const respondToTeamInvite = async (req, res) => {
+    try {
+        const { registrationId, accept } = req.body;
+        if (typeof registrationId !== 'string' || typeof accept !== 'boolean') {
+            return res.status(400).json({ message: 'registrationId and accept (true/false) are required.' });
+        }
+        if (!/^[a-f0-9]{24}$/i.test(registrationId)) {
+            return res.status(400).json({ message: 'Invalid registration.' });
+        }
+        const uid = req.participantAddovediId;
+        const reg = await Registration.findOne({
+            _id: registrationId,
+            status: { $ne: 'CANCELLED' },
+            members: { $elemMatch: { uid } }
+        }).collation({ locale: 'en', strength: 2 });
+        if (!reg) {
+            return res.status(404).json({ message: 'No active team invite found for your account.' });
+        }
+        if (reg.status === 'VERIFIED') {
+            return res.status(409).json({ message: 'This registration is already verified by the organisers. Contact the admin to change your team.' });
+        }
+        const member = reg.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
+        member.status = accept ? 'ACCEPTED' : 'REJECTED';
+        member.respondedAt = new Date();
+        await reg.save();
+        return res.json({ message: accept ? 'You joined the team.' : 'You declined the team.', myStatus: member.status });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
     }
 };
 

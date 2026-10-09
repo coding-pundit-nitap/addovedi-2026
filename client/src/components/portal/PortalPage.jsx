@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
-import { fetchMyRegistrations } from '../../utils/registrations';
+import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
@@ -1161,9 +1161,12 @@ export default function AuthModal() {
                                     ) : (
                                         <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1 auth-modal-scrollbar">
                                             {registeredEvents.map((reg, index) => {
-                                                const statusMeta = reg.status === 'VERIFIED'
-                                                    ? { label: 'ADMIN_VERIFIED', color: '#1FFF76' }
-                                                    : { label: 'PENDING_VERIFICATION', color: '#ffea00' };
+                                                const invitePending = reg.myStatus === 'PENDING';
+                                                const statusMeta = invitePending
+                                                    ? { label: 'TEAM_INVITE', color: '#F59E0B' }
+                                                    : reg.status === 'VERIFIED'
+                                                        ? { label: 'ADMIN_VERIFIED', color: '#1FFF76' }
+                                                        : { label: 'PENDING_VERIFICATION', color: '#ffea00' };
                                                 return (
                                                     <div
                                                         key={index}
@@ -1195,6 +1198,34 @@ export default function AuthModal() {
                                                             <span className="text-[7.5px] text-white/30 uppercase">
                                                                 TEAM: {reg.teamName || 'SOLO'}
                                                             </span>
+                                                            {invitePending && (
+                                                                <span className="flex gap-2 mt-1">
+                                                                    {[true, false].map(accept => (
+                                                                        <button
+                                                                            key={String(accept)}
+                                                                            type="button"
+                                                                            onClick={async () => {
+                                                                                const r = await respondToTeamInvite(reg.registrationId, accept);
+                                                                                if (!r.ok) alert(r.message);
+                                                                                setRegisteredEvents(await fetchMyRegistrations(user?.addovediId));
+                                                                            }}
+                                                                            className="px-2 py-1 text-[9px] font-black tracking-widest border cursor-pointer"
+                                                                            style={{ color: accept ? '#1FFF76' : '#f87171', borderColor: accept ? '#1FFF76' : 'rgba(239,68,68,0.5)', background: 'transparent' }}
+                                                                        >
+                                                                            {accept ? 'ACCEPT' : 'DECLINE'}
+                                                                        </button>
+                                                                    ))}
+                                                                </span>
+                                                            )}
+                                                            {reg.isLeader && Array.isArray(reg.members) && reg.members.length > 0 && (
+                                                                <span className="text-[8px] uppercase flex flex-wrap justify-end gap-x-2">
+                                                                    {reg.members.map(m => (
+                                                                        <span key={m.uid} style={{ color: (MEMBER_STATUS_META[m.status] || MEMBER_STATUS_META.ACCEPTED).color }}>
+                                                                            {m.name || m.uid}: {(MEMBER_STATUS_META[m.status] || MEMBER_STATUS_META.ACCEPTED).label}
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 );

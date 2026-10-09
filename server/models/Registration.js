@@ -43,7 +43,12 @@ const registrationSchema = new mongoose.Schema({
     },
     members: [{
         name: { type: String, trim: true },
-        uid: { type: String, trim: true }
+        uid: { type: String, trim: true },
+        // Teammate consent. createRegistration sets PENDING explicitly; the schema default is
+        // ACCEPTED only so registrations made before this feature (whose members never had to
+        // consent) keep showing as accepted instead of suddenly turning pending.
+        status: { type: String, enum: ['PENDING', 'ACCEPTED', 'REJECTED'], default: 'ACCEPTED' },
+        respondedAt: { type: Date }
     }],
     userEmail: {
         type: String,

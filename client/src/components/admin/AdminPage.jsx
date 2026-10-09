@@ -502,7 +502,7 @@ export default function AdminPage() {
         const csvRows = [headers.join(',')];
 
         data.forEach(r => {
-            const membersStr = (r.members || []).map(m => `${m.name || ''} (${m.uid || ''})`).join('; ');
+            const membersStr = (r.members || []).map(m => `${m.name || ''} (${m.uid || ''}) [${m.status || 'ACCEPTED'}]`).join('; ');
             const row = [
                 `"${r.eventTitle || ''}"`,
                 `"${r.categoryTitle || ''}"`,
@@ -555,7 +555,7 @@ export default function AdminPage() {
                 <td>${escapeHtml(r.teamName)}</td>
                 <td>${escapeHtml(r.leaderName)}<br/><span class="sub">${escapeHtml(r.leaderUID)}</span></td>
                 <td>${escapeHtml(r.leaderPhone)}${r.userEmail ? `<br/><span class="sub">${escapeHtml(r.userEmail)}</span>` : ''}</td>
-                <td>${(r.members || []).map(m => escapeHtml(`${m.name || ''} (${m.uid || ''})`)).join('<br/>') || '<span class="sub">Solo</span>'}</td>
+                <td>${(r.members || []).map(m => escapeHtml(`${m.name || ''} (${m.uid || ''}) [${m.status || 'ACCEPTED'}]`)).join('<br/>') || '<span class="sub">Solo</span>'}</td>
                 <td>${escapeHtml((REG_STATUS_META[r.status] || REG_STATUS_META.PENDING_UNSTOP_VERIFICATION).label)}</td>
                 <td>${escapeHtml(r.unstopRefId) || '<span class="sub">&mdash;</span>'}</td>
                 <td class="sub">${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}</td>
@@ -1346,7 +1346,7 @@ export default function AdminPage() {
                                                             <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>Size: {reg.teamSize} member(s)</div>
                                                             {reg.members && reg.members.length > 0 && (
                                                                 <div style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.3)', marginTop: '2px' }}>
-                                                                    Members: {reg.members.map(m => `${m.name} (${m.uid})`).join(', ')}
+                                                                    Members: {reg.members.map(m => `${m.name} (${m.uid}) · ${m.status === 'REJECTED' ? 'DECLINED' : (m.status || 'ACCEPTED')}`).join(', ')}
                                                                 </div>
                                                             )}
                                                         </td>
@@ -1578,7 +1578,7 @@ export default function AdminPage() {
                                                             <td>
                                                                 {r.members && r.members.length > 0 ? (
                                                                     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.7)' }}>
-                                                                        {r.members.map(m => `${m.name} (${m.uid})`).join(', ')}
+                                                                        {r.members.map(m => `${m.name} (${m.uid}) · ${m.status === 'REJECTED' ? 'DECLINED' : (m.status || 'ACCEPTED')}`).join(', ')}
                                                                     </div>
                                                                 ) : (
                                                                     <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}>Solo Participant</span>

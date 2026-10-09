@@ -7,7 +7,12 @@ import { API_BASE } from '../constants/api';
 export async function fetchMyRegistrations(addovediId) {
     if (!addovediId) return [];
     try {
-        const res = await fetch(`${API_BASE}/registrations/my/${encodeURIComponent(addovediId)}`, { cache: 'no-store' });
+        let token = '';
+        try { token = JSON.parse(localStorage.getItem('addovedi_user') || 'null')?.token || ''; } catch { /* no session */ }
+        const res = await fetch(`${API_BASE}/registrations/my/${encodeURIComponent(addovediId)}`, {
+            cache: 'no-store',
+            headers: { Authorization: `Bearer ${token}` }
+        });
         if (!res.ok) return [];
         const data = await res.json();
         return Array.isArray(data) ? data : [];
@@ -16,3 +21,27 @@ export async function fetchMyRegistrations(addovediId) {
         return [];
     }
 }
+
+// Teammate answers a team invite: accept = true joins, false declines/leaves.
+// Returns { ok, message }.
+export async function respondToTeamInvite(registrationId, accept) {
+    try {
+        let token = '';
+        try { token = JSON.parse(localStorage.getItem('addovedi_user') || 'null')?.token || ''; } catch { /* no session */ }
+        const res = await fetch(`${API_BASE}/registrations/respond`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ registrationId, accept })
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, message: data.message || (res.ok ? 'Done' : 'Could not update your response.') };
+    } catch {
+        return { ok: false, message: 'Network error. Please try again.' };
+    }
+}
+
+export const MEMBER_STATUS_META = {
+    PENDING: { label: 'PENDING', color: '#F59E0B' },
+    ACCEPTED: { label: 'ACCEPTED', color: '#1FFF76' },
+    REJECTED: { label: 'DECLINED', color: '#ff1f4f' }
+};

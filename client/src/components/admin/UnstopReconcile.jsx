@@ -61,7 +61,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
         const siteIds = new Set(), siteEmails = new Set();
         regs.forEach(r => {
             siteIds.add(norm(r.leaderUID));
-            (r.members || []).forEach(m => siteIds.add(norm(m.uid)));
+            (r.members || []).forEach(m => { if (m.status !== 'REJECTED') siteIds.add(norm(m.uid)); });
             if (r.userEmail) siteEmails.add(norm(r.userEmail));
         });
         const matched = [], websiteOnly = [];

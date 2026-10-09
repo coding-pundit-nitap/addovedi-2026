@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
-import { fetchMyRegistrations } from '../../utils/registrations';
+import { fetchMyRegistrations, respondToTeamInvite } from '../../utils/registrations';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import addovediLogo from '../../assets/images/addovedi-logo-white.png';
@@ -227,6 +227,14 @@ export default function EventsPage() {
 
         await refreshMyRegistrations();
         setIsRegistered(true);
+    };
+
+    // Teammate accepts / declines (or leaves) the team they were added to.
+    const handleRespondInvite = async (accept) => {
+        if (!existingReg?.registrationId) return;
+        const { ok, message } = await respondToTeamInvite(existingReg.registrationId, accept);
+        if (!ok) alert(message);
+        await refreshMyRegistrations();
     };
 
     const handleCancelRegistration = async () => {
@@ -979,6 +987,7 @@ export default function EventsPage() {
                     setMembers={setMembers}
                     handleRegisterSubmit={handleRegisterSubmit}
                     handleCancelRegistration={handleCancelRegistration}
+                    handleRespondInvite={handleRespondInvite}
                     isRegistered={isRegistered}
                     existingReg={existingReg}
                 />

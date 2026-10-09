@@ -6,7 +6,8 @@ import {
     deleteRegistration,
     cancelRegistration,
     updateRegistrationStatus,
-    getMyRegistrations
+    getMyRegistrations,
+    respondToTeamInvite
 } from '../controllers/registrationController.js';
 import { protect, requireParticipant } from '../middleware/auth.js';
 import { registrationLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
@@ -16,7 +17,8 @@ const router = Router();
 // Public routes: submit / cancel event registration
 router.post('/', registrationLimiter, requireParticipant, createRegistration);
 router.post('/cancel', registrationLimiter, requireParticipant, cancelRegistration);
-router.get('/my/:addovediId', lookupLimiter, getMyRegistrations);
+router.post('/respond', registrationLimiter, requireParticipant, respondToTeamInvite);
+router.get('/my/:addovediId', lookupLimiter, requireParticipant, getMyRegistrations);
 
 // Admin routes: view & manage registrations
 router.get('/', protect, getAllRegistrations);

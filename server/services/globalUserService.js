@@ -144,7 +144,7 @@ export const deletePlayer = async (id) => {
     // Don't leave a team pointing at an account that no longer exists: the admin
     // must delete (or move) that player's registrations first.
     const regs = await Registration.find({
-        $or: [{ leaderUID: player.addovediId }, { 'members.uid': player.addovediId }]
+        $or: [{ leaderUID: player.addovediId }, { members: { $elemMatch: { uid: player.addovediId, status: { $ne: 'REJECTED' } } } }]
     }).collation({ locale: 'en', strength: 2 }).select('eventTitle status').lean();
     if (regs.length > 0) {
         const events = [...new Set(regs.map(r => r.eventTitle))].join(', ');

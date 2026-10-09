@@ -22,6 +22,7 @@ function EventDetailsModal({
     setMembers,
     handleRegisterSubmit,
     handleCancelRegistration,
+    handleRespondInvite,
     isRegistered,
     existingReg
 }) {
@@ -466,6 +467,7 @@ function EventDetailsModal({
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
+                            handleRespondInvite={handleRespondInvite}
                             isRegistered={isRegistered}
                             existingReg={existingReg}
                             isMobileModal={isMobileModal}
@@ -515,6 +517,7 @@ export default function EventModal({
     setMembers,
     handleRegisterSubmit,
     handleCancelRegistration,
+    handleRespondInvite,
     isRegistered,
     existingReg
 }) {
@@ -605,6 +608,7 @@ export default function EventModal({
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
+                            handleRespondInvite={handleRespondInvite}
                             isRegistered={isRegistered}
                             existingReg={existingReg}
                         />
