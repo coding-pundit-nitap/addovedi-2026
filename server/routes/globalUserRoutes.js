@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { signup, login, updateProfile, checkUid, listPlayers, deletePlayer, changePassword, resetPassword } from '../controllers/globalUserController.js';
 import { participantLoginLimiter, participantSignupLimiter, participantAccountLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
-import { requireParticipant, protect } from '../middleware/auth.js';
+import { requireParticipant, requireParticipantAllowTemp, protect } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -9,7 +9,7 @@ const router = Router();
 router.post('/signup', participantSignupLimiter, signup);
 router.post('/login', participantLoginLimiter, participantAccountLimiter, login);
 router.put('/profile/:id', lookupLimiter, requireParticipant, updateProfile);
-router.post('/change-password', participantLoginLimiter, requireParticipant, changePassword);
+router.post('/change-password', participantLoginLimiter, requireParticipantAllowTemp, changePassword);
 router.post('/:id/reset-password', protect, resetPassword);
 router.get('/check-uid/:addovediId', lookupLimiter, checkUid);
 

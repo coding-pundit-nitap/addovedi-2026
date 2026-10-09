@@ -18,6 +18,17 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+    const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
+
+    // A player on an admin-issued temporary password can't do anything until they set their own,
+    // so bring up their profile (which shows the change-password form) instead of leaving them guessing.
+    useEffect(() => {
+        if (location.pathname === ADMIN_PATH) return;
+        try {
+            const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+            if (u?.mustChangePassword) setAuthModalOpen(true);
+        } catch { /* not logged in */ }
+    }, [location.pathname, setAuthModalOpen]);
 
     // First-visit loading screen: once per browser session.
     const [showLoader, setShowLoader] = useState(() => {
