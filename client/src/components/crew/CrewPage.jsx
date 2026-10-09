@@ -18,6 +18,7 @@ import ScrollIndicator from '../common/ScrollIndicator';
 
 import { FACULTY_CREW, STUDENT_SECTIONS, mergeCrewFromDb } from '../../data/crew';
 import { API_BASE } from '../../constants/api';
+import { useCrewVisible } from '../../utils/useRegistrationOpen';
 import BgCanvas from './BgCanvas';
 import CrewCard from './CrewCard';
 
@@ -89,7 +90,7 @@ function StatStrip({ finalMembers, finalMission }) {
 /* ════════════════════════════════════════════
    MAIN CREW PAGE
    ════════════════════════════════════════════ */
-export default function CrewPage() {
+function CrewPageContent() {
     const [booted, setBooted] = useState(false);
     const [activeTab, setActiveTab] = useState('STUDENT'); // 'FACULTY' | 'STUDENT'
     const [visibleSections, setVisibleSections] = useState(1);
@@ -515,6 +516,24 @@ export default function CrewPage() {
                         <div>ALL OPERATIVES DEPLOYED · STATUS NOMINAL</div>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// The crew list stays hidden behind "launching soon" until an admin switches it on.
+export default function CrewPage() {
+    const { visible } = useCrewVisible();
+    if (visible) return <CrewPageContent />;
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: '#010307', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
+            <CommonNav />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 14, padding: 24 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: '2px solid #00E5FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E5FF', fontSize: 26, boxShadow: '0 0 22px rgba(0,229,255,0.4)' }}>⏳</div>
+                <h1 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(20px, 4vw, 34px)', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: '0 0 18px rgba(0,229,255,0.5)' }}>CREW LAUNCHING SOON</h1>
+                <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.55)', maxWidth: 380, lineHeight: 1.7, margin: 0 }}>
+                    The team behind Addovedi 2026 will be revealed here very soon. Check back shortly.
+                </p>
             </div>
         </div>
     );

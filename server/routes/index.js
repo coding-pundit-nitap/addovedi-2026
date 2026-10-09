@@ -9,6 +9,7 @@ import uploadRoutes from './uploadRoutes.js';
 import registrationRoutes from './registrationRoutes.js';
 import auditRoutes from './auditRoutes.js';
 import globalUserRoutes from './globalUserRoutes.js';
+import settingsRoutes from './settingsRoutes.js';
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/messages', messageRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/registrations', registrationRoutes);
 router.use('/audit-logs', auditRoutes);
+router.use('/settings', settingsRoutes);
 
 export default router;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
+import useRegistrationOpen from '../../utils/useRegistrationOpen';
 
 export default function RegistrationForm({
     activeEvent,
@@ -23,6 +24,7 @@ export default function RegistrationForm({
     btnThemeStyles
 }) {
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+    const { open: registrationOpen } = useRegistrationOpen();
     const [unstopInitiated, setUnstopInitiated] = useState(false);
     const [unstopRefId, setUnstopRefId] = useState('');
     const [isCancelling, setIsCancelling] = useState(false);
@@ -195,6 +197,22 @@ export default function RegistrationForm({
     const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
 
     // If registration is already saved on website
+    // Registration is switched on from Admin; until then show "starting soon".
+    // People who already have a registration still see its status below.
+    if (!registrationOpen && !isCurrentEventRegistered) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '36px 12px' : '56px 30px' }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>⏳</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>
+                    REGISTRATION STARTING SOON
+                </h3>
+                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.65)', maxWidth: 380, lineHeight: 1.6, margin: 0 }}>
+                    Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> haven't opened yet. Create your Addovedi ID in the meantime and check back soon.
+                </p>
+            </div>
+        );
+    }
+
     if (isCurrentEventRegistered) {
         const isMember = existingReg && existingReg.isLeader === false;
         return (

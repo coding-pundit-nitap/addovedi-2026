@@ -1,5 +1,6 @@
 import Registration from '../models/Registration.js';
 import SubEvent from '../models/SubEvent.js';
+import { isRegistrationOpen } from '../services/settingsService.js';
 import GlobalUser from '../models/GlobalUser.js';
 import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
@@ -14,6 +15,10 @@ function escapeRegExp(str) {
 // Create a new event registration
 export const createRegistration = async (req, res) => {
     try {
+        if (!(await isRegistrationOpen())) {
+            return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is starting soon. It has not opened yet.' });
+        }
+
         const { eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, teamSize, members, userEmail, unstopRefId } = req.body;
 
         if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {

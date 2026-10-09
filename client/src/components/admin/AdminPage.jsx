@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ScrollIndicator from '../common/ScrollIndicator';
 import UnstopReconcile from './UnstopReconcile';
+import SiteToggle from './RegistrationToggle';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
 
@@ -1130,6 +1131,11 @@ export default function AdminPage() {
                 {/* ── TAB: EVENT REGISTRATIONS ── */}
                 {activeTab === 'registrations' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
+                            onHint='Visitors can register for events. Turn off to show "Registration starting soon" instead.'
+                            offHint='Visitors see "Registration starting soon" and the server refuses new registrations. Existing registrations are unaffected.'
+                            confirmOn="OPEN EVENT REGISTRATION FOR EVERYONE?"
+                            confirmOff='CLOSE EVENT REGISTRATION? The site will show "starting soon" and new registrations will be refused.' />
                         <UnstopReconcile
                             apiBase={API_BASE}
                             getHeaders={getHeaders}
@@ -1808,6 +1814,13 @@ export default function AdminPage() {
                 {/* ── TAB 4: CREW PERSONNEL ── */}
                 {activeTab === 'crew' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
+                            path="crew" flag="crewVisible" title="CREW PAGE" onLabel="LIVE" offLabel="HIDDEN (LAUNCHING SOON)"
+                            onButton="HIDE CREW PAGE" offButton="SHOW CREW PAGE"
+                            onHint='The Crew page is public. Hide it to show "Crew launching soon" instead.'
+                            offHint='Visitors see "Crew launching soon". Turn on when the crew list is ready.'
+                            confirmOn="SHOW THE CREW PAGE TO EVERYONE?"
+                            confirmOff='HIDE THE CREW PAGE? Visitors will see "Crew launching soon".' />
                         <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '24px' }}>
                             {editingCrew ? 'EDIT CREW MEMBER PROFILE' : 'ADD NEW CREW PERSONNEL'}
                         </h3>
