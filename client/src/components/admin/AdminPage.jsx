@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import ScrollIndicator from '../common/ScrollIndicator';
 import UnstopReconcile from './UnstopReconcile';
 import SiteToggle from './RegistrationToggle';
+import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
 
@@ -94,6 +95,9 @@ export default function AdminPage() {
 
     // Event Registrations state
     const [registrations, setRegistrations] = useState([]);
+    const [players, setPlayers] = useState([]);
+    const [loadingPlayers, setLoadingPlayers] = useState(false);
+    const [viewPlayerUid, setViewPlayerUid] = useState(null);
     const [registrationStats, setRegistrationStats] = useState(null);
     const [loadingRegistrations, setLoadingRegistrations] = useState(false);
     const [regSearchTerm, setRegSearchTerm] = useState('');
@@ -338,6 +342,41 @@ export default function AdminPage() {
             console.error('Fetch Registrations Error:', err);
         } finally {
             setLoadingRegistrations(false);
+        }
+    };
+
+    const fetchPlayers = async () => {
+        setLoadingPlayers(true);
+        try {
+            const res = await fetch(`${API_BASE}/participants`, { headers: getHeaders() });
+            if (res.status === 401) { alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.'); handleLogout(); return; }
+            const data = await safeFetchJson(res);
+            if (res.ok && Array.isArray(data)) setPlayers(data);
+            else alert(data.message || 'Failed to load players (the backend may need a redeploy).');
+        } catch (err) {
+            alert(`Could not load players: ${err.message}`);
+        } finally {
+            setLoadingPlayers(false);
+        }
+    };
+
+    // Opens a player's profile (and makes sure the player list is loaded for it).
+    const openPlayer = (uid) => {
+        if (!players.length) fetchPlayers();
+        setViewPlayerUid(uid);
+    };
+
+    const removePlayer = async (player) => {
+        if (!confirm(`REMOVE PLAYER ${player.name} (${player.addovediId}) PERMANENTLY? Their account is deleted and they will have to sign up again.`)) return;
+        try {
+            const res = await fetch(`${API_BASE}/participants/${player._id}`, { method: 'DELETE', headers: getHeaders() });
+            if (res.status === 401) { alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.'); handleLogout(); return; }
+            const data = await safeFetchJson(res);
+            if (!res.ok) { alert(data.message || 'Failed to remove player'); return; }
+            setViewPlayerUid(null);
+            fetchPlayers();
+        } catch (err) {
+            alert(err.message);
         }
     };
 
@@ -1038,6 +1077,7 @@ export default function AdminPage() {
                 <button onClick={() => setActiveTab('status')} className={`admin-tab-btn${activeTab === 'status' ? ' admin-tab-active' : ''}`}>SECTOR STATUS</button>
                 <button onClick={() => setActiveTab('messages')} className={`admin-tab-btn${activeTab === 'messages' ? ' admin-tab-active' : ''}`}>INBOX MESSAGES</button>
                 <button onClick={() => { setActiveTab('registrations'); fetchRegistrations(); }} className={`admin-tab-btn${activeTab === 'registrations' ? ' admin-tab-active' : ''}`}>EVENT REGISTRATIONS</button>
+                <button onClick={() => { setActiveTab('players'); fetchPlayers(); fetchRegistrations(); }} className={`admin-tab-btn${activeTab === 'players' ? ' admin-tab-active' : ''}`}>PLAYERS</button>
                 <button onClick={() => { setActiveTab('audit'); fetchAuditLogs(); }} className={`admin-tab-btn${activeTab === 'audit' ? ' admin-tab-active' : ''}`} style={{ borderColor: activeTab === 'audit' ? '#1FFF76' : undefined, color: activeTab === 'audit' ? '#1FFF76' : undefined }}>🛡 AUDIT LOGS</button>
                 <button onClick={() => setActiveTab('events')} className={`admin-tab-btn${activeTab === 'events' ? ' admin-tab-active' : ''}`}>EVENTS DATABASE</button>
                 <button onClick={() => setActiveTab('crew')} className={`admin-tab-btn${activeTab === 'crew' ? ' admin-tab-active' : ''}`}>CREW PERSONNEL</button>
@@ -1285,8 +1325,8 @@ export default function AdminPage() {
                                                 return (
                                                     <tr key={reg._id}>
                                                         <td>
-                                                            <div style={{ fontWeight: 700, color: '#FFF' }}>{reg.leaderName}</div>
-                                                            <div style={{ fontFamily: 'monospace', fontSize: '9.5px', color: '#00E5FF' }}>UID: {reg.leaderUID}</div>
+                                                            <div onClick={() => openPlayer(reg.leaderUID)} title="View player profile" style={{ fontWeight: 700, color: '#FFF', cursor: 'pointer', textDecoration: 'underline dotted' }}>{reg.leaderName}</div>
+                                                            <div onClick={() => openPlayer(reg.leaderUID)} title="View player profile" style={{ fontFamily: 'monospace', fontSize: '9.5px', color: '#00E5FF', cursor: 'pointer' }}>UID: {reg.leaderUID}</div>
                                                         </td>
                                                         <td>
                                                             {reg.userEmail ? (
@@ -2152,6 +2192,17 @@ export default function AdminPage() {
                 )}
 
                 {/* ── TAB: SECURITY AUDIT & IP LOGS ── */}
+                {activeTab === 'players' && (
+                    <PlayersPanel players={players} loading={loadingPlayers} registrations={registrations} onOpen={openPlayer} onDelete={removePlayer} onRefresh={() => { fetchPlayers(); fetchRegistrations(); }} />
+                )}
+
+                <PlayerProfileModal
+                    player={viewPlayerUid ? players.find(p => (p.addovediId || '').toLowerCase() === viewPlayerUid.toLowerCase()) : null}
+                    registrations={registrations}
+                    onClose={() => setViewPlayerUid(null)}
+                    onDelete={removePlayer}
+                />
+
                 {activeTab === 'audit' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(31,255,118,0.2)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(31,255,118,0.15)', paddingBottom: '12px', marginBottom: '24px' }}>

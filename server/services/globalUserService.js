@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import Registration from '../models/Registration.js';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
 import { hashPassword, verifyPassword } from '../utils/hash.js';
@@ -120,4 +121,27 @@ export const updateProfile = async (id, callerId, data) => {
 export const findByAddovediId = async (addovediId) => {
     if (typeof addovediId !== 'string' || !addovediId.trim()) return null;
     return GlobalUser.findOne({ addovediId: addovediId.trim().toUpperCase() }).select('addovediId name');
+};
+
+// ── Admin: list / remove participant accounts ──
+export const listPlayers = async () => {
+    // passwordHash is never sent, even to admins.
+    return await GlobalUser.find().select('-passwordHash').sort({ createdAt: -1 }).lean();
+};
+
+export const deletePlayer = async (id) => {
+    const player = await GlobalUser.findById(id);
+    if (!player) throw Object.assign(new Error('Player not found'), { status: 404 });
+
+    // Don't leave a team pointing at an account that no longer exists: the admin
+    // must delete (or move) that player's registrations first.
+    const regs = await Registration.find({
+        $or: [{ leaderUID: player.addovediId }, { 'members.uid': player.addovediId }]
+    }).collation({ locale: 'en', strength: 2 }).select('eventTitle status').lean();
+    if (regs.length > 0) {
+        const events = [...new Set(regs.map(r => r.eventTitle))].join(', ');
+        throw Object.assign(new Error(`${player.name} (${player.addovediId}) is on ${regs.length} registration(s): ${events}. Delete those registrations first, then remove the player.`), { status: 409 });
+    }
+    await player.deleteOne();
+    return player;
 };

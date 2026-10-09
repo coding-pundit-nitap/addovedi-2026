@@ -1,5 +1,6 @@
 import * as globalUserService from '../services/globalUserService.js';
 import { verifyTurnstileToken } from '../utils/turnstile.js';
+import { recordAuditLog } from '../utils/auditLogger.js';
 
 export const signup = async (req, res) => {
     try {
@@ -41,5 +42,23 @@ export const checkUid = async (req, res) => {
         return res.json({ exists: true, name: user.name });
     } catch (err) {
         return res.status(500).json({ message: err.message });
+    }
+};
+
+export const listPlayers = async (req, res) => {
+    try {
+        return res.json(await globalUserService.listPlayers());
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+export const deletePlayer = async (req, res) => {
+    try {
+        const player = await globalUserService.deletePlayer(req.params.id);
+        await recordAuditLog(req, { action: 'DELETE_PLAYER', details: { addovediId: player.addovediId, name: player.name } });
+        return res.json({ message: 'Player removed' });
+    } catch (err) {
+        return res.status(err.status || 400).json({ message: err.message });
     }
 };
