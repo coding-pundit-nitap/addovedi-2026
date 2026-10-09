@@ -20,6 +20,15 @@ export default function App() {
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
+    // Sessions saved before login tokens existed have no token, so every protected action (profile update,
+    // registration, invites) would fail with a confusing error. Treat them as logged out so the player signs in once.
+    useEffect(() => {
+        try {
+            const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+            if (u && !u.token) localStorage.removeItem('addovedi_user');
+        } catch { localStorage.removeItem('addovedi_user'); }
+    }, []);
+
     // A player on an admin-issued temporary password can't do anything until they set their own,
     // so bring up their profile (which shows the change-password form) instead of leaving them guessing.
     useEffect(() => {

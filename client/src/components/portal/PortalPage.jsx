@@ -298,7 +298,13 @@ export default function AuthModal() {
                 },
                 body: JSON.stringify(globalForm)
             });
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 401) {
+                // Token missing/expired/revoked (e.g. password was reset, or the account was removed): sign out cleanly.
+                handleLogout();
+                setErrorMsg('YOUR SESSION HAS EXPIRED. PLEASE LOG IN AGAIN, THEN UPDATE YOUR PROFILE.');
+                return;
+            }
             if (!res.ok) {
                 setErrorMsg((data.message || 'PROFILE UPDATE FAILED.').toUpperCase());
                 return;
