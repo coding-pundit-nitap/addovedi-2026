@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
@@ -47,6 +47,9 @@ export default function AuthModal() {
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('login'); // 'login' | 'signup'
     const [isEditing, setIsEditing] = useState(false);
+    // Mirrors isEditing for the 8s background sync below, which must not overwrite what the player is typing.
+    const isEditingRef = useRef(false);
+    useEffect(() => { isEditingRef.current = isEditing; }, [isEditing]);
     
     // Form Inputs
     const [authForm, setAuthForm] = useState({
@@ -108,8 +111,9 @@ export default function AuthModal() {
                 };
                 setUser(safeUser);
 
-                // Pre-populate globalForm with existing user data if available
-                setGlobalForm({
+                // Pre-populate globalForm with the saved profile, but NEVER while the edit form is open: this sync runs
+                // every 8 seconds and used to wipe whatever the player had typed but not yet saved.
+                if (!isEditingRef.current) setGlobalForm({
                     gender: parsedUser.gender || '',
                     dob: parsedUser.dob || '',
                     college: parsedUser.college || '',
