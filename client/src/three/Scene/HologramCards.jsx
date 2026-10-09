@@ -32,6 +32,9 @@ export default function HologramCards() {
     const isAuthModalOpen = useStore(state => state.isAuthModalOpen);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
+    // Number of lobby cards (was hard-coded to 7, which stacked the 8th card on the active one)
+    const cardCountRef = useRef(CARD_DATA.length || 1);
+    cardCountRef.current = categoriesList.length || 1;
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
 
     // Fetch dynamic categories & sub-events from the Admin Portal API, and
@@ -123,9 +126,9 @@ export default function HologramCards() {
             if (Math.abs(e.deltaX) > 10) {
                 isScrollLocked.current = true;
                 if (e.deltaX > 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
                 // Cooldown of 450ms for responsive swipe sweeps
                 setTimeout(() => {
@@ -138,9 +141,9 @@ export default function HologramCards() {
             if (Math.abs(e.deltaY) > 20) {
                 isScrollLocked.current = true;
                 if (e.deltaY > 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
                 setTimeout(() => {
                     isScrollLocked.current = false;
@@ -151,9 +154,9 @@ export default function HologramCards() {
         const handleKeyDown = (e) => {
             if (isTransitioning || selectedDivision) return;
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                setActiveRotationIndex(prev => (prev + 1) % 7);
+                setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
             }
         };
 
@@ -178,9 +181,9 @@ export default function HologramCards() {
             const deltaX = e.clientX - startX.current;
             if (Math.abs(deltaX) > 60) {
                 if (deltaX < 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
             }
         };
@@ -311,8 +314,9 @@ export default function HologramCards() {
             const angleStep = CAROUSEL_ANGLE_STEP;
 
             return categoriesList.map((card, i) => {
-                const diff = (i - activeRotationIndex) % 7;
-                const wrappedDiff = diff > 3 ? diff - 7 : (diff < -3 ? diff + 7 : diff);
+                const n = categoriesList.length || 1;
+                const diff = (((i - activeRotationIndex) % n) + n) % n;
+                const wrappedDiff = diff > n / 2 ? diff - n : diff;
                 const cardAngle = wrappedDiff * angleStep;
 
                 const x = Math.sin(cardAngle) * radius;
@@ -356,7 +360,7 @@ export default function HologramCards() {
                 rot: [0, rotY, 0]
             };
         });
-    }, [selectedDivision, activeRotationIndex]);
+    }, [selectedDivision, activeRotationIndex, categoriesList]);
 
     const activeColor = useMemo(() => {
         if (selectedDivision) {
