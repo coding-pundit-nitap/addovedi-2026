@@ -109,6 +109,7 @@ export default function FirstLoadScreen({ onDone }) {
                 </div>
             </div>
             <div className="fls-tag">Arunachal Pradesh's biggest technical fest</div>
+            <div className="fls-tag" style={{ color: 'rgba(251,191,36,.7)', fontSize: 10 }}>Note: the website does not work after 10 PM.</div>
         </div>
     );
 }

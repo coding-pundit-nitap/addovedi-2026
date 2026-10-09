@@ -801,6 +801,9 @@ export default function AboutPage() {
                 position: 'relative',
                 zIndex: 10
             }}>
+                <div style={{ margin: '0 auto 28px', maxWidth: '520px', padding: '10px 16px', border: '1px solid rgba(251, 191, 36, 0.35)', background: 'rgba(251, 191, 36, 0.06)', borderRadius: '6px', color: '#FBBF24', fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.08em', lineHeight: 1.6 }}>
+                    Note: the website does not work after 10 PM. Please visit us again the next day.
+                </div>
                 <div>THANK YOU FOR VISITING ADDOVEDI HEADQUARTERS</div>
                 <div style={{ marginTop: '8px', color: '#00E5FF', textShadow: '0 0 10px rgba(0, 229, 255, 0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                     SEE YOU AT THE FEST
