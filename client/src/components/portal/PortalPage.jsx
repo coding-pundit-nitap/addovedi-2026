@@ -69,6 +69,7 @@ export default function AuthModal() {
     });
     
     // Registered Events list
+    const [showForgot, setShowForgot] = useState(false);
     const [registeredEvents, setRegisteredEvents] = useState([]);
     // Stay in sync when an invite is answered from the notification bar.
     useEffect(() => {
@@ -708,9 +709,25 @@ export default function AuthModal() {
                                     </span>
                                 </button>
                                 {activeTab === 'login' && (
-                                    <div className="text-[10px] text-white/45 leading-relaxed" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
-                                        <b className="text-white/70">Forgot your Addovedi ID?</b> Just log in with your email and password. Your ID is shown on your profile.<br />
-                                        <b className="text-white/70">Forgot your password?</b> Contact an organiser (see the About page) and they will reset it for you. Do not create a second account, or you will lose your registrations.
+                                    <div className="flex flex-col gap-2" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowForgot(v => !v)}
+                                            className="self-start text-[11px] font-bold tracking-wider text-[#00D9FF] hover:text-white underline underline-offset-2 bg-transparent border-0 cursor-pointer p-0"
+                                        >
+                                            Forgot password?
+                                        </button>
+                                        {showForgot && (
+                                            <div className="text-[11px] leading-relaxed text-white/70 border border-[#F59E0B]/50 bg-[#F59E0B]/5 p-3">
+                                                <b className="text-[#F59E0B]">Contact us and we will reset it for you.</b><br />
+                                                Tell us your name and the email or phone you signed up with (and your Addovedi ID if you remember it).<br />
+                                                <span className="text-white/50">General Enquiry:</span> <a href="tel:9506177693" className="text-white hover:underline">9506177693</a><br />
+                                                <span className="text-white/50">Event Coordination:</span> <a href="tel:+919859040208" className="text-white hover:underline">+91 98590 40208</a><br />
+                                                <span className="text-white/50">Email:</span> <a href="mailto:addovedi@nitap.ac.in" className="text-white hover:underline">addovedi@nitap.ac.in</a><br />
+                                                <span className="text-white/50">Forgot your Addovedi ID? Log in with your email and password and it is on your profile. If you forgot both, we can look it up too.</span><br />
+                                                <span className="text-[#F59E0B]/80">Do not create a second account: you would lose your registrations.</span>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </form>
