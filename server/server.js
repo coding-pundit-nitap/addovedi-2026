@@ -33,14 +33,27 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,ht
     .map(o => o.trim())
     .filter(Boolean);
 
-app.use(cors({
-    origin(origin, callback) {
-        // Allow non-browser tools / same-origin requests with no Origin header.
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-        return callback(new Error('Not allowed by CORS'));
+// Same-site requests are always fine: when the page and the API are served from the
+// same host (e.g. behind the bundled nginx), the browser's Origin matches the Host
+// the request was addressed to. A cross-site page can't forge that match.
+const hostnameOf = (value) => String(value || '').split(',')[0].trim().replace(/:\d+$/, '').toLowerCase();
+const isSameSite = (req, origin) => {
+    try {
+        const originHost = new URL(origin).hostname.toLowerCase();
+        return [req.headers['x-forwarded-host'], req.headers.host].some(h => h && hostnameOf(h) === originHost);
+    } catch {
+        return false;
     }
+};
+
+app.use(cors((req, callback) => {
+    const origin = req.headers.origin;
+    // Allow non-browser tools / same-origin requests with no Origin header.
+    if (!origin || allowedOrigins.includes(origin) || isSameSite(req, origin)) {
+        return callback(null, { origin: true });
+    }
+    console.warn(`[CORS] Blocked origin "${origin}" (Host: ${req.headers.host}). Add it to ALLOWED_ORIGINS if it is a legitimate frontend.`);
+    return callback(new Error('Not allowed by CORS'));
 }));
 app.use(express.json());
 app.use('/api', apiLimiter);
