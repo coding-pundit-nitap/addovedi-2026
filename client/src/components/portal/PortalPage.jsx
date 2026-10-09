@@ -145,7 +145,7 @@ export default function AuthModal() {
 
         // Listen for storage events (e.g. registration completed in another tab or component)
         window.addEventListener('storage', syncUserAndRegs);
-        const interval = setInterval(syncUserAndRegs, 8000);
+        const interval = setInterval(() => { if (!document.hidden) syncUserAndRegs(); }, 30000);
         return () => {
             window.removeEventListener('storage', syncUserAndRegs);
             clearInterval(interval);

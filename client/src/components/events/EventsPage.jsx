@@ -11,7 +11,7 @@ import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 // How often the page re-checks the server for registration status changes
 // (e.g. an admin marking a registration VERIFIED) while a user has it open.
-const MY_REGISTRATIONS_POLL_MS = 8000;
+const MY_REGISTRATIONS_POLL_MS = 30000;
 
 export default function EventsPage() {
     const setIsEntered = useStore(s => s.setIsEntered);

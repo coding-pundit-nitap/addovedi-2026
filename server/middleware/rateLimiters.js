@@ -17,7 +17,7 @@ export const loginLimiter = rateLimit({
 // hundreds of students, so counting successes would lock real users out on launch day).
 export const participantLoginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 40,
+    limit: 200,
     skipSuccessfulRequests: true,
     standardHeaders: true,
     legacyHeaders: false,
@@ -28,7 +28,7 @@ export const participantLoginLimiter = rateLimit({
 // (many students sign up from the same college network).
 export const participantSignupLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 400,
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many attempts. Please try again later.' }
@@ -78,7 +78,7 @@ export const registrationLimiter = rateLimit({
 // more generous shared apiLimiter.
 export const messageLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    limit: 5,
+    limit: 30, // has a CAPTCHA now; this is per address, and a whole campus can share one
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many messages sent. Please try again later.' }
@@ -96,7 +96,7 @@ export const lookupLimiter = rateLimit({
     message: { message: 'Too many requests. Please try again later.' }
 });
 
-const POLLED_PATHS = /^\/(events|crew|alliances|alliances\/categories|status-settings|settings\/registration|settings\/crew|settings\/events)\/?$/;
+const POLLED_PATHS = /^\/(events|crew|alliances|alliances\/categories|status-settings|settings\/registration|settings\/crew|settings\/events|registrations\/my\/[^/]+)\/?$/;
 const isPublicPoll = (req) => req.method === 'GET' && POLLED_PATHS.test(req.path);
 
 // Backstop for the cached public polling endpoints: ~50 req/s per IP. Cheap to serve (cached),
@@ -108,6 +108,20 @@ export const publicReadLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many requests. Please try again later.' }
+});
+
+// Limits a LOGGED-IN player's own requests (profile saves, ID checks, the registrations poll), counted per
+// account instead of per IP address. Per-IP counters are wrong for these: a college network puts hundreds of
+// students behind one address, and a single browser tab polling every few seconds used to exhaust a shared
+// per-IP budget, which then blocked profile saves with "Too many requests". Must run AFTER requireParticipant.
+export const participantActionLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 90,
+    keyGenerator: (req) => `u:${req.participantAddovediId || 'anon'}`,
+    validate: { keyGeneratorIpFallback: false },
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'You are doing that too quickly. Please wait a moment and try again.' }
 });
 
 // Baseline limiter for all other API traffic. Sized generously because the

@@ -10,7 +10,7 @@ import {
     respondToTeamInvite
 } from '../controllers/registrationController.js';
 import { protect, requireParticipant } from '../middleware/auth.js';
-import { registrationLimiter, lookupLimiter } from '../middleware/rateLimiters.js';
+import { registrationLimiter, participantActionLimiter } from '../middleware/rateLimiters.js';
 
 const router = Router();
 
@@ -18,7 +18,7 @@ const router = Router();
 router.post('/', registrationLimiter, requireParticipant, createRegistration);
 router.post('/cancel', registrationLimiter, requireParticipant, cancelRegistration);
 router.post('/respond', registrationLimiter, requireParticipant, respondToTeamInvite);
-router.get('/my/:addovediId', lookupLimiter, requireParticipant, getMyRegistrations);
+router.get('/my/:addovediId', requireParticipant, participantActionLimiter, getMyRegistrations);
 
 // Admin routes: view & manage registrations
 router.get('/', protect, getAllRegistrations);

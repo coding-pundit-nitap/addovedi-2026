@@ -43,7 +43,9 @@ export default function RegistrationForm({
         }
         setMemberUidStatus(prev => ({ ...prev, [index]: 'checking' }));
         try {
-            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}`);
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}`, {
+                headers: { Authorization: `Bearer ${loggedInUser?.token || ''}` }
+            });
             const data = await res.json();
             setMemberUidStatus(prev => ({ ...prev, [index]: data.exists ? 'valid' : 'invalid' }));
         } catch (err) {
