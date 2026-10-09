@@ -24,6 +24,9 @@ export async function fetchMyRegistrations(addovediId) {
 
 // Teammate answers a team invite: accept = true joins, false declines/leaves.
 // Returns { ok, message }.
+// Fired after any invite answer so the notification bar / profile refresh immediately.
+export const INVITES_CHANGED_EVENT = 'addovedi:invites-changed';
+
 export async function respondToTeamInvite(registrationId, accept) {
     try {
         let token = '';
@@ -34,6 +37,7 @@ export async function respondToTeamInvite(registrationId, accept) {
             body: JSON.stringify({ registrationId, accept })
         });
         const data = await res.json().catch(() => ({}));
+        window.dispatchEvent(new Event(INVITES_CHANGED_EVENT));
         return { ok: res.ok, message: data.message || (res.ok ? 'Done' : 'Could not update your response.') };
     } catch {
         return { ok: false, message: 'Network error. Please try again.' };

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
-import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META } from '../../utils/registrations';
+import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, INVITES_CHANGED_EVENT } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
@@ -69,6 +69,17 @@ export default function AuthModal() {
     
     // Registered Events list
     const [registeredEvents, setRegisteredEvents] = useState([]);
+    // Stay in sync when an invite is answered from the notification bar.
+    useEffect(() => {
+        const sync = async () => {
+            try {
+                const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+                if (u?.addovediId) setRegisteredEvents(await fetchMyRegistrations(u.addovediId));
+            } catch { /* not logged in */ }
+        };
+        window.addEventListener(INVITES_CHANGED_EVENT, sync);
+        return () => window.removeEventListener(INVITES_CHANGED_EVENT, sync);
+    }, []);
     
     // Loading/scanning simulators
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1139,6 +1150,11 @@ export default function AuthModal() {
                                         </span>
                                     </div>
 
+                                    {registeredEvents.some(r => r.myStatus === 'PENDING') && (
+                                        <div className="mb-3 px-3 py-2 border text-[11px] font-bold tracking-wider" style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.08)' }}>
+                                            🔔 YOU HAVE {registeredEvents.filter(r => r.myStatus === 'PENDING').length} TEAM INVITE(S) WAITING. ACCEPT OR DECLINE BELOW.
+                                        </div>
+                                    )}
                                     {registeredEvents.length === 0 ? (
                                         <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 select-none py-6">
                                             <div className="w-12 h-12 rounded-full border border-dashed border-[#00D9FF]/40 flex items-center justify-center text-[#00D9FF] font-bold text-lg shadow-[0_0_15px_rgba(0,217,255,0.2)]">

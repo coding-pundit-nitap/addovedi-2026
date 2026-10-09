@@ -9,6 +9,7 @@ import CommonSidebar from "./components/common/CommonSidebar";
 import AuthModal from "./components/portal/PortalPage";
 import ScrollToTop from "./components/common/ScrollToTop";
 import FirstLoadScreen from "./components/common/FirstLoadScreen";
+import InviteBar from "./components/common/InviteBar";
 
 
 export default function App() {
@@ -85,6 +86,7 @@ export default function App() {
             <AppRoutes />
             <CommonSidebar />
             <ScrollToTop />
+            <InviteBar />
 
             {showLoader && <FirstLoadScreen onDone={() => setShowLoader(false)} />}
 
