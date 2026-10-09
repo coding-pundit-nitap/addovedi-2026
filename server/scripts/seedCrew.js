@@ -20,10 +20,10 @@ if (process.argv.includes('--replace')) {
 let t = Date.now();
 let added = 0;
 for (const sec of sections) {
-    for (const name of sec.members) {
+    for (const { name, role } of sec.members) {
         const res = await Crew.updateOne(
             { name, category: sec.title },
-            { $setOnInsert: { name, role: sec.title, category: sec.title, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
+            { $setOnInsert: { name, role, category: sec.title, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
             { upsert: true }
         );
         if (res.upsertedCount) added++;
