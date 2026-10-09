@@ -13,8 +13,26 @@ function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// Serialises submissions per (event, leader): the duplicate check below is check-then-insert, so
+// a double-click / two tabs / a scripted burst could otherwise slip several identical registrations
+// past it. The API runs as a single instance, so an in-process lock is sufficient.
+const inFlight = new Set();
+
 // Create a new event registration
 export const createRegistration = async (req, res) => {
+    const lockKey = `${String(req.body?.eventTitle || '').trim().toLowerCase()}|${req.participantAddovediId}`;
+    if (inFlight.has(lockKey)) {
+        return res.status(429).json({ message: 'Your registration is already being processed. Please wait a moment.' });
+    }
+    inFlight.add(lockKey);
+    try {
+        return await createRegistrationLocked(req, res);
+    } finally {
+        inFlight.delete(lockKey);
+    }
+};
+
+const createRegistrationLocked = async (req, res) => {
     try {
         if (!(await isRegistrationOpen())) {
             return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is starting soon. It has not opened yet.' });

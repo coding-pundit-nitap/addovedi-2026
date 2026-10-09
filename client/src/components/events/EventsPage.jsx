@@ -171,8 +171,19 @@ export default function EventsPage() {
         navigate('/home');
     };
 
+    const submittingRegRef = useRef(false);
     const handleRegisterSubmit = async (e, unstopRefId = '') => {
         if (e && e.preventDefault) e.preventDefault();
+        if (submittingRegRef.current) return; // ignore double-clicks while a submit is in flight
+        submittingRegRef.current = true;
+        try {
+            await submitRegistration(unstopRefId);
+        } finally {
+            submittingRegRef.current = false;
+        }
+    };
+
+    const submitRegistration = async (unstopRefId = '') => {
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
 
