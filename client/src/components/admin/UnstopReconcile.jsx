@@ -37,6 +37,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
     const [csv, setCsv] = useState(null); // { header: [], rows: [[]] }
     const [idCol, setIdCol] = useState(-1);
     const [emailCol, setEmailCol] = useState(-1);
+    const [teamCol, setTeamCol] = useState(-1);
     const [busy, setBusy] = useState(false);
 
     const onFile = async (e) => {
@@ -48,6 +49,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
         setCsv({ header, rows: data });
         setIdCol(header.findIndex(h => /addovedi/i.test(h)));
         setEmailCol(header.findIndex(h => /e-?mail/i.test(h)));
+        setTeamCol(header.findIndex(h => /team\s*id/i.test(h)));
     };
 
     const result = useMemo(() => {
@@ -66,7 +68,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
         });
         const matched = [], websiteOnly = [];
         regs.forEach(r => {
-            const hit = csvIds.has(norm(r.leaderUID)) || (r.userEmail && csvEmails.has(norm(r.userEmail)));
+            const hit = (teamCol >= 0 && r.teamId && csv.rows.some(x => norm(x[teamCol]) === norm(r.teamId))) || csvIds.has(norm(r.leaderUID)) || (r.userEmail && csvEmails.has(norm(r.userEmail)));
             (hit ? matched : websiteOnly).push(r);
         });
         const unstopOnly = csv.rows.filter(r => {
@@ -75,7 +77,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
             return !idHit && !mailHit;
         });
         return { matched, websiteOnly, unstopOnly, pendingMatched: matched.filter(r => r.status !== 'VERIFIED') };
-    }, [csv, eventTitle, idCol, emailCol, registrations]);
+    }, [csv, eventTitle, idCol, emailCol, teamCol, registrations]);
 
     const verifyMatched = async () => {
         const list = result.pendingMatched;
@@ -122,6 +124,7 @@ export default function UnstopReconcile({ apiBase, getHeaders, registrations, ev
                     <input type="file" accept=".csv,text/csv" onChange={onFile} />
                 </label>
                 {csv && colSelect('ADDOVEDI ID COLUMN', idCol, setIdCol)}
+                {csv && colSelect('TEAM ID COLUMN (OPTIONAL)', teamCol, setTeamCol)}
                 {csv && colSelect('EMAIL COLUMN (OPTIONAL)', emailCol, setEmailCol)}
             </div>
 

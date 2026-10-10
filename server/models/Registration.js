@@ -41,6 +41,10 @@ const registrationSchema = new mongoose.Schema({
         type: Number,
         default: 1
     },
+    // Generated once the team is final (every invited teammate accepted, or the leader chose to continue
+    // with the accepted ones). Unstop registration and admin verification only happen after this exists.
+    teamId: { type: String, trim: true, unique: true, sparse: true },
+    teamFinalAt: { type: Date },
     members: [{
         name: { type: String, trim: true },
         uid: { type: String, trim: true },
@@ -50,6 +54,8 @@ const registrationSchema = new mongoose.Schema({
         status: { type: String, enum: ['PENDING', 'ACCEPTED', 'REJECTED'], default: 'ACCEPTED' },
         respondedAt: { type: Date },
         invitedAt: { type: Date, default: Date.now },
+        // how many times this person has been invited to THIS team (max MAX_INVITES_PER_PERSON)
+        inviteCount: { type: Number, default: 1 },
         // true when a PENDING invite lapsed after INVITE_TTL_HOURS and the member was removed
         expired: { type: Boolean, default: false }
     }],

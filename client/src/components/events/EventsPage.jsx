@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
-import { fetchMyRegistrations, respondToTeamInvite } from '../../utils/registrations';
+import { fetchMyRegistrations, respondToTeamInvite, teamAction } from '../../utils/registrations';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import addovediLogo from '../../assets/images/addovedi-logo-white.png';
@@ -235,6 +235,14 @@ export default function EventsPage() {
         const { ok, message } = await respondToTeamInvite(existingReg.registrationId, accept);
         if (!ok) alert(message);
         await refreshMyRegistrations();
+    };
+
+    const handleTeamAction = async (path, body) => {
+        if (!existingReg?.registrationId) return;
+        const { ok, message } = await teamAction(path, { registrationId: existingReg.registrationId, ...body });
+        if (!ok) alert(message);
+        await refreshMyRegistrations();
+        return ok;
     };
 
     const handleCancelRegistration = async () => {
@@ -988,6 +996,7 @@ export default function EventsPage() {
                     handleRegisterSubmit={handleRegisterSubmit}
                     handleCancelRegistration={handleCancelRegistration}
                     handleRespondInvite={handleRespondInvite}
+                    handleTeamAction={handleTeamAction}
                     isRegistered={isRegistered}
                     existingReg={existingReg}
                 />

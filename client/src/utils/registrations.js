@@ -44,6 +44,23 @@ export async function respondToTeamInvite(registrationId, accept) {
     }
 }
 
+// Leader tools: path is 'invite' | 'uninvite' | 'finalize'.
+export async function teamAction(path, body) {
+    try {
+        let token = '';
+        try { token = JSON.parse(localStorage.getItem('addovedi_user') || 'null')?.token || ''; } catch { /* no session */ }
+        const res = await fetch(`${API_BASE}/registrations/${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, message: data.message || (res.ok ? 'Done' : 'Something went wrong.') };
+    } catch {
+        return { ok: false, message: 'Network error. Please try again.' };
+    }
+}
+
 export const memberMeta = (m) => (m?.status === 'REJECTED' && m?.expired ? { label: 'EXPIRED', color: '#9CA3AF' } : (MEMBER_STATUS_META[m?.status] || MEMBER_STATUS_META.ACCEPTED));
 export const MEMBER_STATUS_META = {
     PENDING: { label: 'PENDING', color: '#F59E0B' },

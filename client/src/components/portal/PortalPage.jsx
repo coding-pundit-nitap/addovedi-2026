@@ -1281,7 +1281,7 @@ export default function AuthModal() {
                                                                 {statusMeta.label}
                                                             </span>
                                                             <span className="text-[7.5px] text-white/30 uppercase">
-                                                                TEAM: {reg.teamName || 'SOLO'}
+                                                                TEAM: {reg.teamName || 'SOLO'}{reg.teamId ? ` · ${reg.teamId}` : ' · FORMING'}
                                                             </span>
                                                             {invitePending && (
                                                                 <span className="flex gap-2 mt-1">

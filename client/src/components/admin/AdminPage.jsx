@@ -1354,6 +1354,7 @@ export default function AdminPage() {
                                                         <td>
                                                             <div onClick={() => openPlayer(reg.leaderUID)} title="View player profile" style={{ fontWeight: 700, color: '#FFF', cursor: 'pointer', textDecoration: 'underline dotted' }}>{reg.leaderName}</div>
                                                             <div onClick={() => openPlayer(reg.leaderUID)} title="View player profile" style={{ fontFamily: 'monospace', fontSize: '9.5px', color: '#00E5FF', cursor: 'pointer' }}>UID: {reg.leaderUID}</div>
+                                                            <div style={{ fontFamily: 'monospace', fontSize: '9.5px', color: reg.teamId ? '#1FFF76' : '#FBBF24' }}>{reg.teamId || 'TEAM NOT FINAL'}</div>
                                                         </td>
                                                         <td>
                                                             {reg.userEmail ? (

@@ -2,9 +2,15 @@ import Registration from '../models/Registration.js';
 import SubEvent from '../models/SubEvent.js';
 import { isRegistrationOpen, getSettings, registrationModeOf } from '../services/settingsService.js';
 import GlobalUser from '../models/GlobalUser.js';
+import { finalizeIfReady, readyToFinalize } from '../services/teamService.js';
 import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
 const MAX_MEMBERS = 10;
+const REINVITE_COOLDOWN_MS = 60 * 60 * 1000; // after a DECLINE (not after an expiry)
+const MAX_INVITES_PER_PERSON = 3;
+
+const reinviteAt = (m) => (m.status === 'REJECTED' && !m.expired && m.respondedAt)
+    ? new Date(new Date(m.respondedAt).getTime() + REINVITE_COOLDOWN_MS) : null;
 const REQUIRED_STRING_FIELDS = ['eventTitle', 'categoryTitle', 'teamName', 'leaderName', 'leaderUID', 'leaderPhone'];
 
 // Escapes regex metacharacters so user-supplied search text is matched
@@ -178,6 +184,7 @@ const createRegistrationLocked = async (req, res) => {
         });
 
         await registration.save();
+        await finalizeIfReady(registration); // solo entries are final straight away
         return res.status(201).json({ message: 'Registration successful', registration });
     } catch (err) {
         if (err?.code === 11000) {
@@ -350,7 +357,7 @@ export const getMyRegistrations = async (req, res) => {
             ]
         })
             .collation({ locale: 'en', strength: 2 })
-            .select('eventTitle categoryTitle teamName leaderUID leaderName status unstopRefId teamSize members createdAt')
+            .select('eventTitle categoryTitle teamName leaderUID leaderName status unstopRefId teamSize teamId members createdAt')
             .sort({ createdAt: -1 });
 
         const result = regs.map(r => {
@@ -364,12 +371,14 @@ export const getMyRegistrations = async (req, res) => {
                 status: r.status,
                 unstopRefId: r.unstopRefId,
                 teamSize: r.teamSize,
+                teamId: r.teamId || null,
                 createdAt: r.createdAt,
                 isLeader,
                 leaderName: r.leaderName,
+                leaderUID: r.leaderUID,
                 myStatus: isLeader ? 'LEADER' : (mine?.status || 'ACCEPTED'),
                 // Only the leader sees who accepted / is pending / declined.
-                members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED', expired: m.expired === true })) : undefined,
+                members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED', expired: m.expired === true, inviteCount: m.inviteCount || 1, canReinviteAt: reinviteAt(m) })) : undefined,
                 inviteExpiresAt: !isLeader && mine?.status === 'PENDING' ? new Date(new Date(mine.invitedAt || r.createdAt).getTime() + INVITE_TTL_MS) : undefined
             };
         });
@@ -417,6 +426,7 @@ export const respondToTeamInvite = async (req, res) => {
         member.status = accept ? 'ACCEPTED' : 'REJECTED';
         member.respondedAt = new Date();
         await reg.save();
+        if (accept) await finalizeIfReady(reg);
         return res.json({ message: accept ? 'You joined the team.' : 'You declined the team.', myStatus: member.status });
     } catch (err) {
         return res.status(500).json({ message: 'Server error' });
@@ -437,6 +447,9 @@ export const updateRegistrationStatus = async (req, res) => {
         if (status && !['PENDING_UNSTOP_VERIFICATION', 'VERIFIED', 'CANCELLED'].includes(status)) {
             return res.status(400).json({ message: 'Invalid status' });
         }
+        if (status === 'VERIFIED' && !reg.teamId) {
+            return res.status(409).json({ message: 'This team is not final yet (no Team ID), so it cannot be verified.' });
+        }
         if (status) reg.status = status;
         if (unstopRefId !== undefined) reg.unstopRefId = String(unstopRefId).slice(0, 200);
 
@@ -444,5 +457,121 @@ export const updateRegistrationStatus = async (req, res) => {
         return res.json({ message: 'Registration updated successfully', registration: reg });
     } catch (err) {
         return res.status(500).json({ message: err.message });
+    }
+};
+
+
+// ── Leader tools while the team is not final ──
+const loadLeaderTeam = async (req, res) => {
+    const { registrationId } = req.body || {};
+    if (typeof registrationId !== 'string' || !/^[a-f0-9]{24}$/i.test(registrationId)) {
+        res.status(400).json({ message: 'Invalid registration.' });
+        return null;
+    }
+    await expireStaleInvites(true);
+    const reg = await Registration.findOne({ _id: registrationId, leaderUID: req.participantAddovediId, status: { $ne: 'CANCELLED' } })
+        .collation({ locale: 'en', strength: 2 });
+    if (!reg) { res.status(404).json({ message: 'Registration not found, or you are not its team leader.' }); return null; }
+    if (reg.status === 'VERIFIED' || reg.teamId) {
+        res.status(409).json({ message: 'This team is final and can no longer be changed.' });
+        return null;
+    }
+    return reg;
+};
+
+// Invite someone (or re-invite a teammate who declined / let the invite expire).
+export const inviteMember = async (req, res) => {
+    try {
+        if (!(await isRegistrationOpen())) {
+            return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is not open, so new invites cannot be sent.' });
+        }
+        const reg = await loadLeaderTeam(req, res);
+        if (!reg) return;
+        const uid = String(req.body?.uid || '').trim().toUpperCase();
+        if (!uid || uid.length > 50) return res.status(400).json({ message: 'Enter a valid Addovedi ID.' });
+        if (uid === reg.leaderUID.toUpperCase()) return res.status(400).json({ message: 'You are already the team leader.' });
+
+        const existing = reg.members.find(m => (m.uid || '').toUpperCase() === uid);
+        if (existing && existing.status !== 'REJECTED') {
+            return res.status(400).json({ message: 'This player is already on your team.' });
+        }
+        if (existing) {
+            if ((existing.inviteCount || 1) >= MAX_INVITES_PER_PERSON) {
+                return res.status(400).json({ message: `You have already invited this player ${MAX_INVITES_PER_PERSON} times.` });
+            }
+            const until = reinviteAt(existing);
+            if (until && until > new Date()) {
+                return res.status(400).json({ message: `This player declined. You can invite them again after ${until.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })} IST.` });
+            }
+        }
+        const live = reg.members.filter(m => m.status !== 'REJECTED').length;
+        if (live + 1 >= (reg.teamSize || 1)) {
+            return res.status(400).json({ message: 'Your team is already full.' });
+        }
+        const player = await GlobalUser.findOne({ addovediId: uid }).select('addovediId name').lean();
+        if (!player) return res.status(400).json({ message: `No player found with Addovedi ID "${uid}".` });
+
+        const clash = await Registration.findOne({
+            _id: { $ne: reg._id },
+            eventTitle: reg.eventTitle,
+            status: { $ne: 'CANCELLED' },
+            $or: [{ leaderUID: uid }, { members: { $elemMatch: { uid, status: { $ne: 'REJECTED' } } } }]
+        }).collation({ locale: 'en', strength: 2 });
+        if (clash) return res.status(400).json({ message: `${uid} is already registered under team "${clash.teamName}" for this event.` });
+
+        if (existing) {
+            existing.status = 'PENDING';
+            existing.expired = false;
+            existing.invitedAt = new Date();
+            existing.respondedAt = undefined;
+            existing.inviteCount = (existing.inviteCount || 1) + 1;
+        } else {
+            reg.members.push({ name: player.name, uid: player.addovediId, status: 'PENDING', invitedAt: new Date(), inviteCount: 1 });
+        }
+        await reg.save();
+        return res.json({ message: 'Invite sent.' });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Withdraw a still-pending invite (frees the slot to invite someone else).
+export const uninviteMember = async (req, res) => {
+    try {
+        const reg = await loadLeaderTeam(req, res);
+        if (!reg) return;
+        const uid = String(req.body?.uid || '').trim().toUpperCase();
+        const m = reg.members.find(x => (x.uid || '').toUpperCase() === uid);
+        if (!m || m.status !== 'PENDING') return res.status(400).json({ message: 'Only a pending invite can be withdrawn.' });
+        m.status = 'REJECTED';
+        m.expired = true; // shown as withdrawn/expired, no cooldown
+        m.respondedAt = new Date();
+        await reg.save();
+        return res.json({ message: 'Invite withdrawn.' });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Declined/expired teammates and no one pending: continue with the players who accepted (if the event allows that size).
+export const continueSmallerTeam = async (req, res) => {
+    try {
+        const reg = await loadLeaderTeam(req, res);
+        if (!reg) return;
+        if (reg.members.some(m => m.status === 'PENDING')) {
+            return res.status(400).json({ message: 'Wait for pending invites to be answered (or withdraw them) first.' });
+        }
+        const accepted = reg.members.filter(m => (m.status || 'ACCEPTED') === 'ACCEPTED').length;
+        const size = accepted + 1;
+        const eventDoc = await SubEvent.findOne({ title: reg.eventTitle }).collation({ locale: 'en', strength: 2 }).select('minTeam');
+        if (eventDoc && size < eventDoc.minTeam) {
+            return res.status(400).json({ message: `This event needs at least ${eventDoc.minTeam} players. You have ${size}.` });
+        }
+        reg.teamSize = size;
+        if (!readyToFinalize(reg)) return res.status(400).json({ message: 'Team cannot be finalised yet.' });
+        await finalizeIfReady(reg);
+        return res.json({ message: 'Team finalised.', teamId: reg.teamId });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
     }
 };

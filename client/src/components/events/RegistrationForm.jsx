@@ -20,6 +20,7 @@ export default function RegistrationForm({
     handleRegisterSubmit,
     handleCancelRegistration,
     handleRespondInvite,
+    handleTeamAction,
     isRegistered,
     existingReg,
     isMobileModal,
@@ -27,8 +28,9 @@ export default function RegistrationForm({
 }) {
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
     const { open: registrationOpen, mode: registrationMode } = useRegistrationOpen();
-    const [unstopInitiated, setUnstopInitiated] = useState(false);
-    const [unstopRefId, setUnstopRefId] = useState('');
+    const [inviteUid, setInviteUid] = useState('');
+    const [teamBusy, setTeamBusy] = useState(false);
+    const runTeamAction = async (path, body) => { setTeamBusy(true); try { return handleTeamAction ? await handleTeamAction(path, body) : false; } finally { setTeamBusy(false); } };
     const [isCancelling, setIsCancelling] = useState(false);
 
     // Tracks each team member's Addovedi-ID verification: undefined (not yet
@@ -258,36 +260,77 @@ export default function RegistrationForm({
                     {isVerified ? '✓' : '⏳'}
                 </div>
                 <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    {isVerified ? 'MISSION_SECURED' : 'UNSTOP_VERIFICATION_PENDING'}
+                    {isVerified ? 'MISSION_SECURED' : (existingReg?.teamId ? 'TEAM_READY · PAY ON UNSTOP' : 'ASSEMBLING_TEAM')}
                 </h3>
                 <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
                     Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
                     {isMember && existingReg?.leaderName ? <>You're registered as a team member (led by <strong>{existingReg.leaderName}</strong>).<br /></> : null}
                     {isVerified
                         ? 'Admin has verified this registration against the Unstop participant roster.'
-                        : (existingReg?.unstopRefId ? `Unstop Ref ID: ${existingReg.unstopRefId}` : 'Final verification pending against Unstop participant roster.')}
+                        : (existingReg?.teamId
+                            ? 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.'
+                            : 'Your team is not final yet. Every invited teammate must accept before you can register on Unstop.')}
                 </p>
+
+                {existingReg?.teamId && (
+                    <div style={{ width: '100%', maxWidth: '340px', border: `1px solid ${activeEvent.color}80`, background: `${activeEvent.color}10`, padding: '10px 12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '10px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.5)', fontFamily: "'Orbitron', sans-serif" }}>TEAM ID</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '0.08em', color: activeEvent.color, fontFamily: "'Orbitron', sans-serif" }}>{existingReg.teamId}</div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>Leader Addovedi ID: <strong style={{ color: '#fff' }}>{existingReg.leaderUID || addovediId}</strong></div>
+                    </div>
+                )}
 
                 {existingReg?.isLeader && Array.isArray(existingReg.members) && existingReg.members.length > 0 && (
                     <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
                         <div style={{ fontSize: '10px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.45)', fontFamily: "'Orbitron', sans-serif" }}>TEAMMATES</div>
                         {existingReg.members.map(m => {
                             const meta = memberMeta(m);
+                            const canEdit = !existingReg.teamId && !isVerified;
+                            const until = m.canReinviteAt ? new Date(m.canReinviteAt) : null;
+                            const waiting = until && until > new Date();
+                            const left = 3 - (m.inviteCount || 1);
                             return (
-                                <div key={m.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '6px 10px', border: `1px solid ${meta.color}40`, background: `${meta.color}0d` }}>
-                                    <span style={{ fontSize: '12px', color: '#fff', fontWeight: 600 }}>{m.name || m.uid} <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px' }}>{m.uid}</span></span>
-                                    <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: meta.color }}>{meta.label}</span>
+                                <div key={m.uid} style={{ padding: '6px 10px', border: `1px solid ${meta.color}40`, background: `${meta.color}0d` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ fontSize: '12px', color: '#fff', fontWeight: 600 }}>{m.name || m.uid} <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px' }}>{m.uid}</span></span>
+                                        <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: meta.color }}>{meta.label}</span>
+                                    </div>
+                                    {canEdit && m.status === 'PENDING' && (
+                                        <button type="button" disabled={teamBusy} onClick={() => runTeamAction('uninvite', { uid: m.uid })} style={{ marginTop: 4, background: 'transparent', border: 'none', color: '#f87171', fontSize: '10px', cursor: 'pointer', padding: 0 }}>Withdraw invite</button>
+                                    )}
+                                    {canEdit && m.status === 'REJECTED' && (
+                                        <div style={{ marginTop: 4, fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
+                                            {m.expired ? 'Did not respond in 24 hours. ' : 'Declined this invite. '}
+                                            {left <= 0 ? 'Invite limit reached for this player.' : waiting
+                                                ? `You can invite them again after ${until.toLocaleTimeString()}.`
+                                                : <button type="button" disabled={teamBusy} onClick={() => runTeamAction('invite', { uid: m.uid })} style={{ background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontSize: '10px', cursor: 'pointer', padding: '2px 8px' }}>INVITE AGAIN ({left} left)</button>}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
                         {existingReg.members.some(m => m.status === 'REJECTED') && !isVerified && (
-                            <p style={{ fontSize: '10px', color: '#f87171', margin: 0, lineHeight: 1.4 }}>A teammate declined or didn't accept within 24 hours. Cancel this registration and register again with a different teammate.</p>
+                            <p style={{ fontSize: '10px', color: '#f87171', margin: 0, lineHeight: 1.4 }}>A teammate declined or didn't accept in time. Invite them again, invite someone else, or continue with fewer players.</p>
+                        )}
+                    </div>
+                )}
+
+                {existingReg?.isLeader && !existingReg.teamId && !isVerified && (
+                    <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+                        {(existingReg.members || []).filter(m => m.status !== 'REJECTED').length + 1 < (existingReg.teamSize || 1) && (
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                <input value={inviteUid} onChange={e => setInviteUid(e.target.value)} placeholder="ADDOVEDI ID TO INVITE" className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                                <button type="button" disabled={teamBusy || !inviteUid.trim()} onClick={async () => { if (await runTeamAction('invite', { uid: inviteUid })) setInviteUid(''); }} style={{ padding: '0 14px', background: activeEvent.color, color: '#02050c', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '11px' }}>INVITE</button>
+                            </div>
+                        )}
+                        {(existingReg.members || []).some(m => m.status === 'REJECTED') && !(existingReg.members || []).some(m => m.status === 'PENDING') && (
+                            <button type="button" disabled={teamBusy} onClick={() => { if (window.confirm('Continue with only the players who accepted? The team will be locked and you will get a Team ID.')) runTeamAction('finalize', {}); }} style={{ padding: '8px', background: 'transparent', border: `1px solid ${activeEvent.color}80`, color: '#fff', fontSize: '11px', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif" }}>CONTINUE WITH ACCEPTED PLAYERS</button>
                         )}
                     </div>
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
-                    <button
+                    {existingReg?.teamId && (<button
                         type="button"
                         onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
                         style={{
@@ -303,8 +346,8 @@ export default function RegistrationForm({
                             boxShadow: `0 0 20px ${activeEvent.color}80`
                         }}
                     >
-                        RE-VISIT UNSTOP EVENT PAGE ↗
-                    </button>
+                        OPEN UNSTOP · ENTER TEAM ID + ADDOVEDI ID ↗
+                    </button>)}
 
                     {isMember ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
@@ -356,7 +399,7 @@ export default function RegistrationForm({
                                 cursor: 'pointer'
                             }}
                         >
-                            {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
+                            {isCancelling ? 'CANCELING...' : 'CANCEL REGISTRATION ✕'}
                         </button>
                     )}
                 </div>
@@ -381,110 +424,9 @@ export default function RegistrationForm({
             return;
         }
 
-        // Open Unstop portal in new tab
-        window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank');
-        setUnstopInitiated(true);
+        // Create the team now; Unstop only opens up once every teammate has accepted (Team ID issued).
+        handleRegisterSubmit(e, '');
     };
-
-    // Step 2: Unstop opened in new tab. Waiting for confirmation
-    if (unstopInitiated) {
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '30px 10px' : '40px 30px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
-                <div style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '50%',
-                    border: '2px solid #F59E0B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#F59E0B',
-                    fontSize: '24px',
-                    boxShadow: '0 0 20px rgba(245, 158, 11, 0.4)',
-                }}>
-                    ⏳
-                </div>
-
-                <div>
-                    <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '15px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.08em', margin: 0 }}>
-                        UNSTOP PORTAL OPENED IN NEW TAB
-                    </h3>
-                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', marginTop: '8px', maxWidth: '420px', lineHeight: 1.5 }}>
-                        Complete registration on <strong>Unstop</strong> and type the team leader's Addovedi ID in the <strong>Addovedi ID</strong> field: <strong style={{ color: activeEvent.color }}>{leaderUID || addovediId}</strong>. Registrations without it can't be matched and won't be accepted.
-                    </p>
-                </div>
-
-                <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
-                    <label style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.12em', color: 'rgba(255,255,255,0.6)' }}>
-                        UNSTOP REGISTRATION ID / APP NO. (OPTIONAL)
-                    </label>
-                    <input
-                        type="text"
-                        placeholder="E.G. UNSTOP-102948"
-                        value={unstopRefId}
-                        onChange={(e) => setUnstopRefId(e.target.value)}
-                        className={inputClass}
-                        style={{ ...inputStyle, textTransform: 'uppercase' }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '6px' }}>
-                    <button
-                        type="button"
-                        onClick={(e) => handleRegisterSubmit(e, unstopRefId)}
-                        style={{
-                            padding: '12px',
-                            background: activeEvent.color,
-                            color: '#02050c',
-                            fontFamily: "'Orbitron', sans-serif",
-                            fontSize: '12px',
-                            fontWeight: 900,
-                            letterSpacing: '0.1em',
-                            border: 'none',
-                            cursor: 'pointer',
-                            boxShadow: `0 0 20px ${activeEvent.color}80`
-                        }}
-                    >
-                        I HAVE COMPLETED REGISTRATION ON UNSTOP ✓
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
-                        style={{
-                            padding: '10px',
-                            background: 'rgba(255,255,255,0.06)',
-                            border: `1px solid ${activeEvent.color}50`,
-                            color: '#fff',
-                            fontFamily: "'Orbitron', sans-serif",
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            letterSpacing: '0.08em',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        RE-OPEN UNSTOP TAB ↗
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setUnstopInitiated(false)}
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: '#f87171',
-                            fontSize: '11px',
-                            fontFamily: "'Orbitron', sans-serif",
-                            cursor: 'pointer',
-                            marginTop: '4px'
-                        }}
-                    >
-                        ✕ Cancel / I did not complete Unstop registration
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <form onSubmit={handleInitiateUnstop} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
@@ -510,7 +452,7 @@ export default function RegistrationForm({
                     </span>
                 </div>
                 <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', lineHeight: 1.3 }}>
-                    Provide this Addovedi ID during registration on <strong>Unstop</strong>. Submitting redirects you to the official Unstop portal.
+                    Provide this Addovedi ID during registration on <strong>Unstop</strong>. Submitting registers your team and sends invites to your teammates. Once all of them accept, you get a Team ID and can complete registration on the official Unstop portal.
                 </div>
             </div>
 
@@ -649,7 +591,7 @@ export default function RegistrationForm({
                     />
                     <span className="event-reg-fill" />
                     <span className="relative z-10 flex items-center justify-center gap-1.5 font-bold" style={{ textShadow: `0 0 10px ${activeEvent.color}` }}>
-                        PROCEED TO UNSTOP REGISTRATION ↗
+                        REGISTER TEAM & SEND INVITES ▶
                     </span>
                 </button>
             </div>
