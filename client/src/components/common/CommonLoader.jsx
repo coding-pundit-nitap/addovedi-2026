@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
     const [pct, setPct] = useState(0);
     const [flicker, setFlicker] = useState(false);
 
     const [isExiting, setIsExiting] = useState(false);
+    const [gone, setGone] = useState(false);
+    // Latest onDone without making it an effect dependency: parents pass a new inline function on every render, and
+    // that used to restart the whole loading animation from 0% each time the page re-rendered.
+    const onDoneRef = useRef(onDone);
+    onDoneRef.current = onDone;
 
     useEffect(() => {
         let start = null;
@@ -24,7 +29,10 @@ export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
                     setFlicker(true);
                     setTimeout(() => {
                         setIsExiting(true);
-                        setTimeout(onDone, 500); // unmount after fade-out transition
+                        // Tell the page NOW so it fades in while this screen fades out (a cross-fade). Waiting until
+                        // the fade-out finished left a blank screen for about a second between the two.
+                        if (onDoneRef.current) onDoneRef.current();
+                        setTimeout(() => setGone(true), 550); // unmount once the fade-out has finished
                     }, 300);
                 }, 150);
             }
@@ -32,7 +40,7 @@ export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
 
         raf = requestAnimationFrame(go);
         return () => cancelAnimationFrame(raf);
-    }, [onDone]);
+    }, []);
 
     // Tech diagnostic logs that update based on percentage
     const getLogText = (p) => {
@@ -43,6 +51,8 @@ export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
         if (p < 100) return "CALIBRATING QUANTUM FIELD STABILIZERS...";
         return "ALL SYSTEMS ONLINE · INGRESS APPROVED.";
     };
+
+    if (gone) return null;
 
     return (
         <div style={{
@@ -58,6 +68,7 @@ export default function CommonLoader({ onDone, pageName = "SYSTEM" }) {
             animation: flicker && !isExiting ? 'bootFlick 0.35s steps(3,end) forwards' : 'none',
             transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s',
             opacity: isExiting ? 0 : 1,
+            pointerEvents: isExiting ? 'none' : 'auto',
             visibility: isExiting ? 'hidden' : 'visible',
             pointerEvents: isExiting ? 'none' : 'auto',
         }}>

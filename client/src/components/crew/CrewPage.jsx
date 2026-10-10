@@ -92,6 +92,11 @@ function StatStrip({ finalMembers, finalMission }) {
    ════════════════════════════════════════════ */
 function CrewPageContent() {
     const [booted, setBooted] = useState(false);
+    // The list shows only after the first fetch has answered (or 2.5s have passed), so people never see the built-in
+    // fallback names get swapped for the real ones a moment later.
+    const [crewLoaded, setCrewLoaded] = useState(false);
+    const ready = booted && crewLoaded;
+    useEffect(() => { const t = setTimeout(() => setCrewLoaded(true), 2500); return () => clearTimeout(t); }, []);
     const [activeTab, setActiveTab] = useState('STUDENT'); // 'FACULTY' | 'STUDENT'
     const [visibleSections, setVisibleSections] = useState(1);
     const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
@@ -122,6 +127,7 @@ function CrewPageContent() {
             } catch (err) {
                 console.log('Failed dynamic crew fetch, utilizing fallbacks');
             }
+            if (!cancelled) setCrewLoaded(true);
         };
         fetchCrew();
         const interval = setInterval(fetchCrew, CREW_POLL_INTERVAL_MS);
@@ -145,7 +151,7 @@ function CrewPageContent() {
 
     // Card entry animation for Faculty rows
     useEffect(() => {
-        if (!booted || activeTab !== 'FACULTY') return;
+        if (!ready || activeTab !== 'FACULTY') return;
         setVisibleFacultyRows(1);
         const interval = setInterval(() => {
             setVisibleFacultyRows(prev => {
@@ -157,11 +163,11 @@ function CrewPageContent() {
             });
         }, 220);
         return () => clearInterval(interval);
-    }, [facultyRows.length, booted, activeTab]);
+    }, [facultyRows.length, ready, activeTab]);
 
     // Card entry animation for Student sections
     useEffect(() => {
-        if (!booted || activeTab !== 'STUDENT') return;
+        if (!ready || activeTab !== 'STUDENT') return;
         setVisibleSections(1);
         const interval = setInterval(() => {
             setVisibleSections(prev => {
@@ -173,7 +179,7 @@ function CrewPageContent() {
             });
         }, 150); // reveals next section every 150ms
         return () => clearInterval(interval);
-    }, [booted, activeTab, studentSections.length]);
+    }, [ready, activeTab, studentSections.length]);
 
     const pageRef = useRef(null);
 
@@ -307,9 +313,9 @@ function CrewPageContent() {
                 animation: 'orbit-reverse 30s ease-in-out infinite'
             }} />
 
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />}
+            <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />
 
-            <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
+            <div style={{ opacity: ready ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: ready ? 'auto' : 'none' }}>
                 {/* Navbar */}
                 <div style={{ position:'relative', zIndex:20 }}>
                     <CommonNav />
@@ -525,7 +531,10 @@ function CrewPageContent() {
 
 // The crew list stays hidden behind "launching soon" until an admin switches it on.
 export default function CrewPage() {
-    const { visible } = useCrewVisible();
+    const { visible, loaded } = useCrewVisible();
+    // Until the switch has been read, show only the loader's own dark colour: no "launching soon" flash that then
+    // turns into the real page.
+    if (!loaded) return <div style={{ position: 'fixed', inset: 0, background: '#06080F', zIndex: 100 }} />;
     if (visible) return <CrewPageContent />;
     return (
         <div style={{ position: 'fixed', inset: 0, background: '#010307', zIndex: 100, display: 'flex', flexDirection: 'column' }}>

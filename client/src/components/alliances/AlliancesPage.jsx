@@ -174,10 +174,11 @@ export default function AlliancesPage() {
             <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');\n@keyframes ptShine { 0% { transform: translateX(-120%) skewX(-20deg) } 60%,100% { transform: translateX(260%) skewX(-20deg) } }\n@keyframes ptGlow { 0%,100% { box-shadow: 0 0 50px #E5F6FF2a, inset 0 0 40px #E5F6FF10 } 50% { box-shadow: 0 0 85px #E5F6FF55, inset 0 0 50px #E5F6FF1c } }\n.pt-premium { animation: ptGlow 4s ease-in-out infinite; overflow: hidden }\n.pt-shine { position: absolute; top: 0; left: 0; width: 35%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent); animation: ptShine 5s ease-in-out infinite; pointer-events: none }` }} />
             <BgCanvas />
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Partners" />}
+            <CommonLoader onDone={() => setBooted(true)} pageName="Partners" />
 
             {booted && (
-                <>
+                <div style={{ animation: 'allianceFadeIn 0.5s ease both' }}>
+                    <style>{'@keyframes allianceFadeIn { from { opacity: 0 } to { opacity: 1 } }'}</style>
                     <CommonNav />
                     <div style={{ position: 'relative', zIndex: 10, maxWidth: 1100, margin: '0 auto', padding: '120px 16px 80px' }}>
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
@@ -208,7 +209,7 @@ export default function AlliancesPage() {
                             <div style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Interested in collaborating? Reach out through the About page.</div>
                         </div>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );

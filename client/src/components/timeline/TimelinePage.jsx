@@ -324,7 +324,7 @@ export default function TimelinePage() {
             </div>
 
             <BgCanvas />
-            {!booted && <CommonLoader onDone={handleBoot} pageName="Timeline" />}
+            <CommonLoader onDone={handleBoot} pageName="Timeline" />
 
             <div style={{ position:'relative', zIndex:20 }}>
                 <CommonNav />

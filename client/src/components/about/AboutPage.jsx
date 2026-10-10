@@ -65,7 +65,7 @@ export default function AboutPage() {
 
     return (
         <>
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="About" />}
+            <CommonLoader onDone={() => setBooted(true)} pageName="About" />
             <div ref={pageRef} className="scrollbar-none smooth-scroll" style={{ position:'fixed', inset:0, background:'#05070D', color:'#F5F7FA', zIndex:100, overflowY:'auto', overflowX:'hidden', opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
             <ScrollIndicator scrollRef={pageRef} />
             <style dangerouslySetInnerHTML={{ __html: `

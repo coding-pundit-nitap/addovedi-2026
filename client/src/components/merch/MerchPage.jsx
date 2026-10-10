@@ -163,7 +163,7 @@ export default function MerchPage() {
                 }}
             />
 
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Supply Depot" />}
+            <CommonLoader onDone={() => setBooted(true)} pageName="Supply Depot" />
 
             <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
                 <div style={{ position: 'relative', zIndex: 20 }}>
