@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
+import MotionCard from '../common/MotionCard';
 import ScrollIndicator from '../common/ScrollIndicator';
 import BgCanvas from '../crew/BgCanvas';
 import Tee3DBackground from './Tee3DBackground';
@@ -186,8 +187,10 @@ export default function MerchPage() {
                     </motion.div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                        {MERCH_ITEMS.map((item) => (
-                            <TeeCard key={item.id} item={item} />
+                        {MERCH_ITEMS.map((item, i) => (
+                            <MotionCard key={item.id} delay={i * 140} radius={12} maxTilt={5}>
+                                <TeeCard item={item} />
+                            </MotionCard>
                         ))}
                     </div>
 

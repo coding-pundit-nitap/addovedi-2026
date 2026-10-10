@@ -14,6 +14,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
+import MotionCard from '../common/MotionCard';
 import ScrollIndicator from '../common/ScrollIndicator';
 import MessageTerminal from './MessageTerminal';
 import { API_BASE } from '../../constants/api';
@@ -396,8 +397,9 @@ export default function AboutPage() {
                                 { label: 'MISSION', desc: 'One shared goal: build, compete, and rise together.' },
                             ],
                         },
-                    ].map((card) => (
-                        <div key={card.tag} style={{
+                    ].map((card, ci) => (
+                        <MotionCard key={card.tag} delay={ci * 140} radius={12} maxTilt={4}>
+                        <div style={{
                             background: '#0D1320',
                             border: `1.2px solid ${card.color}30`,
                             borderRadius: '12px',
@@ -415,6 +417,7 @@ export default function AboutPage() {
                                 ))}
                             </div>
                         </div>
+                        </MotionCard>
                     ))}
                 </div>
             </div>

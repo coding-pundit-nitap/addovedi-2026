@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from 'react';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
+import MotionCard from '../common/MotionCard';
 import { API_BASE } from '../../constants/api';
 
 // Admin-managed categories have a priority 1-5 that sets card size and order (1 = largest, shown first).
@@ -111,10 +112,11 @@ function BgCanvas() {
     return <canvas ref={ref} style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none' }} />;
 }
 
-function PartnerCard({ partner, color, size }) {
+function PartnerCard({ partner, color, size, index = 0 }) {
     const s = SIZES[size];
     const premium = size === 'xl';
     return (
+        <MotionCard delay={(index % 6) * 90} radius={14} style={{ width: '100%', maxWidth: s.w }} maxTilt={premium ? 4 : 7}>
         <div className={premium ? 'pt-premium' : undefined} style={{
             position: 'relative', width: '100%', maxWidth: s.w, minHeight: s.minH,
             padding: s.pad, borderRadius: 14, boxSizing: 'border-box',
@@ -139,6 +141,7 @@ function PartnerCard({ partner, color, size }) {
             <div style={{ fontFamily: "'Orbitron', monospace", fontSize: premium ? 12 : 10, letterSpacing: '0.22em', color, margin: '10px 0 14px', textTransform: 'uppercase' }}>{partner.sub}</div>
             <p style={{ fontFamily: 'monospace', fontSize: s.desc, lineHeight: 1.75, color: 'rgba(255,255,255,0.62)', margin: '0 auto', maxWidth: 640 }}>{partner.desc}</p>
         </div>
+        </MotionCard>
     );
 }
 
@@ -199,7 +202,7 @@ export default function AlliancesPage() {
                                     <div style={{ width: 80, height: 2, margin: '12px auto 0', background: `linear-gradient(90deg, transparent, ${tier.color}, transparent)` }} />
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: tier.size === 'xl' ? 24 : 16, justifyContent: 'center' }}>
-                                    {tier.partners.map(p => <PartnerCard key={p._id || p.name} partner={p} color={tier.color} size={tier.size} />)}
+                                    {tier.partners.map((p, pi) => <PartnerCard key={p._id || p.name} partner={p} color={tier.color} size={tier.size} index={pi} />)}
                                 </div>
                             </section>
                         ))}
