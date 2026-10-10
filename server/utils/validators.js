@@ -16,3 +16,11 @@ export function isValidPhone(phone) {
 export function normalizePhone(phone) {
     return typeof phone === 'string' ? phone.trim().replace(/[\s-]/g, '') : phone;
 }
+
+// Canonical form of a mobile number for uniqueness checks: the last 10 digits, so "+91 98765 43210",
+// "098765-43210" and "9876543210" are all recognised as the same number.
+export function phoneKey(phone) {
+    if (typeof phone !== 'string') return '';
+    const digits = phone.replace(/\D/g, '');
+    return digits.slice(-10);
+}

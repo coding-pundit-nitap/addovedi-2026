@@ -4,7 +4,7 @@ import Registration from '../models/Registration.js';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
 import { hashPasswordAsync, verifyPasswordAsync } from '../utils/hash.js';
-import { isValidEmail, isValidPhone, normalizePhone } from '../utils/validators.js';
+import { isValidEmail, isValidPhone, normalizePhone, phoneKey } from '../utils/validators.js';
 
 const PUBLIC_FIELDS = '-passwordHash -__v';
 
@@ -60,9 +60,19 @@ export const signup = async ({ name, email, phone, password }) => {
 
     const normalizedEmail = email.trim().toLowerCase();
     const passwordHash = await hashPasswordAsync(password);
-    const existing = await GlobalUser.findOne({ email: normalizedEmail });
-    if (existing) {
-        throw new Error('An account with this email already exists. Please log in instead.');
+    const key = phoneKey(phone);
+    const [emailTaken, phoneTaken] = await Promise.all([
+        GlobalUser.exists({ email: normalizedEmail }),
+        GlobalUser.exists({ phoneKey: key })
+    ]);
+    if (emailTaken && phoneTaken) {
+        throw new Error('This email and this mobile number are both already registered. Please log in instead.');
+    }
+    if (emailTaken) {
+        throw new Error('This email is already registered with another account. Please log in, or use a different email.');
+    }
+    if (phoneTaken) {
+        throw new Error('This mobile number is already registered with another account. Please log in, or use a different number.');
     }
 
     // Retry on the astronomically unlikely chance of a concurrent unique-index
@@ -76,12 +86,19 @@ export const signup = async ({ name, email, phone, password }) => {
                 name: name.trim(),
                 email: normalizedEmail,
                 phone: normalizePhone(phone),
+                phoneKey: key,
                 passwordHash
             });
             const obj = user.toObject({ versionKey: false, transform: (_doc, ret) => { delete ret.passwordHash; return ret; } });
             return { ...obj, token: signParticipantToken(user._id) };
         } catch (err) {
-            if (err.code === 11000 && attempt < 2) continue;
+            // Two people racing to claim the same email / number: the unique indexes decide, we explain.
+            if (err.code === 11000) {
+                const field = Object.keys(err.keyPattern || {})[0];
+                if (field === 'email') throw new Error('This email is already registered with another account. Please log in, or use a different email.');
+                if (field === 'phoneKey') throw new Error('This mobile number is already registered with another account. Please log in, or use a different number.');
+                if (attempt < 2) continue; // Addovedi ID counter collision: take the next ID
+            }
             throw err;
         }
     }

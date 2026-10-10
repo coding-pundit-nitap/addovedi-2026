@@ -31,6 +31,9 @@ const GlobalUserSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    // Last 10 digits of `phone`: one account per mobile number. Sparse so older documents without it don't collide
+    // (scripts/backfillPhoneKeys.js fills them in).
+    phoneKey: { type: String, unique: true, sparse: true },
     passwordHash: {
         type: String,
         required: true
