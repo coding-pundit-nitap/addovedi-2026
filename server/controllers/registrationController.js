@@ -367,8 +367,10 @@ export const respondToTeamInvite = async (req, res) => {
         if (!reg) {
             return res.status(404).json({ message: 'No active team invite found for your account.' });
         }
-        if (reg.status === 'VERIFIED') {
-            return res.status(409).json({ message: 'This registration is already verified by the organisers. Contact the admin to change your team.' });
+        // After admin verification the roster is locked for joining, but a member may still LEAVE.
+        // Leaving a verified team sends it back to pending so the organisers re-check the roster.
+        if (reg.status === 'VERIFIED' && accept) {
+            return res.status(409).json({ message: 'This registration is already verified by the organisers, so it can no longer be changed.' });
         }
         const member = reg.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
         // Declining is final. Letting a DECLINED member flip back to ACCEPTED would skip the
@@ -377,6 +379,7 @@ export const respondToTeamInvite = async (req, res) => {
             return res.status(409).json({ message: 'You already declined this team. Ask the team leader to add you again.' });
         }
         member.status = accept ? 'ACCEPTED' : 'REJECTED';
+        if (!accept && reg.status === 'VERIFIED') reg.status = 'PENDING_UNSTOP_VERIFICATION';
         member.respondedAt = new Date();
         await reg.save();
         return res.json({ message: accept ? 'You joined the team.' : 'You declined the team.', myStatus: member.status });

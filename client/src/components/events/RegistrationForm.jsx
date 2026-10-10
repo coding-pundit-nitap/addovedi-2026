@@ -321,8 +321,8 @@ export default function RegistrationForm({
                             ) : (
                                 <>
                                     <p style={{ fontSize: '11px', color: '#1FFF76', margin: 0, fontWeight: 700 }}>You accepted this team invite.</p>
-                                    {!isVerified && (
-                                        <button type="button" onClick={() => { if (window.confirm('Leave this team? You will be removed from it.')) handleRespondInvite && handleRespondInvite(false); }} style={{ padding: '8px 14px', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)', color: '#f87171', fontWeight: 700, fontFamily: "'Orbitron', sans-serif", fontSize: '10px', letterSpacing: '0.08em', cursor: 'pointer' }}>LEAVE TEAM</button>
+                                    {(
+                                        <button type="button" onClick={() => { if (window.confirm(isVerified ? 'Leave this verified team? You will be removed and the registration will need to be re-verified by the organisers.' : 'Leave this team? You will be removed from it.')) handleRespondInvite && handleRespondInvite(false); }} style={{ padding: '8px 14px', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)', color: '#f87171', fontWeight: 700, fontFamily: "'Orbitron', sans-serif", fontSize: '10px', letterSpacing: '0.08em', cursor: 'pointer' }}>LEAVE TEAM</button>
                                     )}
                                 </>
                             )}
@@ -335,6 +335,7 @@ export default function RegistrationForm({
                             type="button"
                             disabled={isCancelling}
                             onClick={async () => {
+                                if (!window.confirm(isVerified ? 'Cancel this VERIFIED registration for the whole team? This cannot be undone.' : 'Cancel this registration?')) return;
                                 setIsCancelling(true);
                                 if (handleCancelRegistration) {
                                     await handleCancelRegistration();
@@ -353,7 +354,7 @@ export default function RegistrationForm({
                                 cursor: 'pointer'
                             }}
                         >
-                            {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
+                            {isCancelling ? 'CANCELING...' : (isVerified ? 'CANCEL REGISTRATION ✕' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕')}
                         </button>
                     )}
                 </div>
