@@ -165,24 +165,25 @@ export default function AdminPage() {
             const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Upload failed');
 
+            let saved = true;
             if (type === 'crew') {
                 if (editingCrew) {
                     setEditingCrew({ ...editingCrew, avatar: data.url });
                     // Persist immediately: a photo upload shouldn't be lost if the
                     // admin navigates away without separately clicking "Save Edit".
-                    if (editingCrew._id) await persistField('crew', editingCrew._id, { avatar: data.url });
+                    if (editingCrew._id) saved = await persistField('crew', editingCrew._id, { avatar: data.url });
                 } else {
                     setNewCrew({ ...newCrew, avatar: data.url });
                 }
             } else if (type === 'sponsor') {
                 if (editingSponsor) {
                     setEditingSponsor({ ...editingSponsor, logoImage: data.url });
-                    if (editingSponsor._id) await persistField('alliances', editingSponsor._id, { logoImage: data.url });
+                    if (editingSponsor._id) saved = await persistField('alliances', editingSponsor._id, { logoImage: data.url });
                 } else {
                     setNewSponsor({ ...newSponsor, logoImage: data.url });
                 }
             }
-            alert('Image uploaded and saved successfully.');
+            if (saved) alert('Image uploaded and saved successfully.');
         } catch (err) {
             alert(`Upload Error: ${err.message}`);
         } finally {
@@ -206,8 +207,10 @@ export default function AdminPage() {
             }
             if (resource === 'crew') fetchCrew();
             if (resource === 'alliances') fetchSponsors();
+            return true;
         } catch (err) {
             alert(`Error saving uploaded image: ${err.message}`);
+            return false;
         }
     };
 
@@ -742,7 +745,7 @@ export default function AdminPage() {
     const fetchCrew = async () => {
         setLoadingCrew(true);
         try {
-            const res = await fetch(`${API_BASE}/crew`);
+            const res = await fetch(`${API_BASE}/crew`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await safeFetchJson(res);
                 if (Array.isArray(data)) setCrew(data);
