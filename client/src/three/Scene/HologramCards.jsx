@@ -58,7 +58,7 @@ export default function HologramCards() {
             }
         };
         fetchBackendEvents();
-        const interval = setInterval(fetchBackendEvents, 4000);
+        const interval = setInterval(fetchBackendEvents, 15000);
         return () => { cancelled = true; clearInterval(interval); };
     }, []);
 

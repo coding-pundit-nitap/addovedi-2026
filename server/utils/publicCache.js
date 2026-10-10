@@ -2,7 +2,7 @@
 // seconds (events, crew, alliances, settings). Without it each poll is a MongoDB query, so request
 // volume maps 1:1 to DB load; with it the DB sees at most one query per path per TTL.
 // Any non-GET request to the API clears the whole cache, so admin edits show up immediately.
-const TTL_MS = 3000;
+const TTL_MS = 10000;
 const MAX_ENTRIES = 200;
 const store = new Map();
 

@@ -113,7 +113,7 @@ export default function EventsPage() {
             }
         };
         fetchEvents();
-        const interval = setInterval(fetchEvents, 4000);
+        const interval = setInterval(fetchEvents, 15000);
         return () => { cancelled = true; clearInterval(interval); };
     }, []);
 

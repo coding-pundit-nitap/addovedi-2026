@@ -66,7 +66,9 @@ export const adminAccountLimiter = rateLimit({
 // account-bound; this per-IP ceiling is kept roomy for shared college networks.
 export const registrationLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 60,
+    keyGenerator: (req) => `u:${req.participantAddovediId || 'anon'}`, // per player, not per IP (shared campus Wi-Fi); mount AFTER requireParticipant
+    validate: { keyGeneratorIpFallback: false },
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many requests. Please try again later.' }
@@ -103,7 +105,7 @@ const isPublicPoll = (req) => req.method === 'GET' && POLLED_PATHS.test(req.path
 // so this only stops raw floods, not a lecture hall of real visitors on one NAT.
 export const publicReadLimiter = rateLimit({
     windowMs: 60 * 1000,
-    limit: 3000,
+    limit: 30000, // a whole campus can share one IP; polling cost is bounded by publicCache, not this
     skip: (req) => !isPublicPoll(req),
     standardHeaders: true,
     legacyHeaders: false,
@@ -131,7 +133,7 @@ export const participantActionLimiter = rateLimit({
 // legitimately generate a few hundred GETs in a 15 minute window.
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 1500,
+    limit: 30000, // per IP; shared campus Wi-Fi. Real abuse limits are per-account (login/registration/action limiters)
     // The polled public read endpoints are cached server-side (see utils/publicCache.js) and
     // covered by publicReadLimiter below instead, so a shared campus IP polling them can't
     // exhaust this budget and lock everyone on that network out of login/registration.

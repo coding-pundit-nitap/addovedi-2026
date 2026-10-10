@@ -168,7 +168,7 @@ export default function AlliancesPage() {
             } catch { /* keep current list */ }
         };
         load();
-        const t = setInterval(load, 8000);
+        const t = setInterval(load, 30000);
         return () => { cancelled = true; clearInterval(t); };
     }, []);
 

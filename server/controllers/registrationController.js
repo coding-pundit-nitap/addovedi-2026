@@ -156,6 +156,9 @@ const createRegistrationLocked = async (req, res) => {
         await registration.save();
         return res.status(201).json({ message: 'Registration successful', registration });
     } catch (err) {
+        if (err?.code === 11000) {
+            return res.status(400).json({ message: 'You already have a registration for this event.' });
+        }
         console.error('Registration Error:', err);
         return res.status(500).json({ message: 'Server error creating registration' });
     }

@@ -78,10 +78,6 @@ const registrationSchema = new mongoose.Schema({
 // which becomes a real crash risk (CPU + memory, blocking Node's single
 // event loop) at high registration volume, attack or not.
 registrationSchema.index(
-    { eventTitle: 1, leaderUID: 1 },
-    { collation: { locale: 'en', strength: 2 } }
-);
-registrationSchema.index(
     { eventTitle: 1, 'members.uid': 1 },
     { collation: { locale: 'en', strength: 2 } }
 );
@@ -90,6 +86,13 @@ registrationSchema.index(
 // across every event" lookups (getMyRegistrations) — the compound indexes
 // above can't be used efficiently for a query that doesn't filter by
 // eventTitle first.
+// Hard guarantee against a leader holding two live registrations for one event (the in-process lock
+// and findOne check above can race across instances). Cancelled ones are excluded so re-registering works.
+registrationSchema.index(
+    { eventTitle: 1, leaderUID: 1 },
+    { unique: true, name: 'uniq_live_leader_per_event', collation: { locale: 'en', strength: 2 },
+      partialFilterExpression: { status: { $in: ['PENDING_UNSTOP_VERIFICATION', 'VERIFIED'] } } }
+);
 registrationSchema.index({ leaderUID: 1 }, { collation: { locale: 'en', strength: 2 } });
 registrationSchema.index({ 'members.uid': 1 }, { collation: { locale: 'en', strength: 2 } });
 

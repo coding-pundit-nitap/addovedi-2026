@@ -25,7 +25,7 @@ import CrewCard from './CrewCard';
 // How often the public page re-polls the database for admin-portal crew
 // edits while open. Not true real-time (that would need a WebSocket), but
 // close enough that changes show up within a few seconds without a reload.
-const CREW_POLL_INTERVAL_MS = 4000;
+const CREW_POLL_INTERVAL_MS = 15000;
 
 
 /* ════════════════════════════════════════════

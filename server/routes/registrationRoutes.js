@@ -15,9 +15,9 @@ import { registrationLimiter, participantActionLimiter } from '../middleware/rat
 const router = Router();
 
 // Public routes: submit / cancel event registration
-router.post('/', registrationLimiter, requireParticipant, createRegistration);
-router.post('/cancel', registrationLimiter, requireParticipant, cancelRegistration);
-router.post('/respond', registrationLimiter, requireParticipant, respondToTeamInvite);
+router.post('/', requireParticipant, registrationLimiter, createRegistration);
+router.post('/cancel', requireParticipant, registrationLimiter, cancelRegistration);
+router.post('/respond', requireParticipant, registrationLimiter, respondToTeamInvite);
 router.get('/my/:addovediId', requireParticipant, participantActionLimiter, getMyRegistrations);
 
 // Admin routes: view & manage registrations
