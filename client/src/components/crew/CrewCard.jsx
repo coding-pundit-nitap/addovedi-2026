@@ -160,6 +160,10 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                     <img
                         src={avatarUrl}
                         alt={member.name}
+                        loading="lazy"
+                        decoding="async"
+                        width="420"
+                        height="420"
                         style={{
                             width: member.avatar ? '100%' : '80%',
                             height: member.avatar ? '100%' : '80%',

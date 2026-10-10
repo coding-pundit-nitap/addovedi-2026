@@ -29,10 +29,11 @@ export const STUDENT_SECTIONS = crew2026.map((sec, i) => {
     return {
         title: sec.title,
         color,
-        members: sec.members.map(({ name, role }, j) => ({
+        members: sec.members.map(({ name, role, avatar }, j) => ({
             id: `SC${String(i + 1).padStart(2, '0')}${j + 1}`,
             name,
             role,
+            avatar: avatar || '',
             avatarSeed: name,
             color,
             glow: hexGlow(color)

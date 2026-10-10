@@ -21,8 +21,15 @@ if (process.argv.includes('--replace')) {
 // Ascending createdAt keeps section/member order (the crew list sorts by createdAt).
 let t = Date.now();
 let added = 0;
+let photos = 0;
 for (const sec of sections) {
-    for (const { name, role } of sec.members) {
+    for (const { name, role, avatar } of sec.members) {
+        // Photo path (files in client/public/crew). Only filled in when the member has no photo yet, so a photo
+        // uploaded through Admin is never overwritten.
+        if (avatar) {
+            const r = await Crew.updateOne({ name, category: sec.title, $or: [{ avatar: { $exists: false } }, { avatar: '' }, { avatar: null }] }, { $set: { avatar } });
+            photos += r.modifiedCount;
+        }
         const res = await Crew.updateOne(
             { name, category: sec.title },
             { $setOnInsert: { name, role, category: sec.title, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
@@ -40,5 +47,5 @@ for (const f of faculty) {
     );
     if (res.upsertedCount) added++;
 }
-console.log(`Added ${added} crew members.`);
+console.log(`Added ${added} crew members, set ${photos} photo(s).`);
 await mongoose.disconnect();
