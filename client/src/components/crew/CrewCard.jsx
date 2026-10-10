@@ -154,7 +154,8 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                     justifyContent: 'center'
                 }} className={isHovered ? 'glitch-image-trigger' : ''}>
                     {/* Scanline overlay */}
-                    <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 3px)', pointerEvents:'none', zIndex: 2 }} />
+                    {/* (only on the generated pixel avatars: over a real photo it darkened and muddied the colours) */}
+                    {!member.avatar && <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 3px)', pointerEvents:'none', zIndex: 2 }} />}
 
                     {/* Portrait: real uploaded photo, or a generated pixel-art fallback */}
                     <img
@@ -162,12 +163,14 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                         alt={member.name}
                         loading="lazy"
                         decoding="async"
-                        width="420"
-                        height="420"
+                        width="560"
+                        height="560"
                         style={{
                             width: member.avatar ? '100%' : '80%',
                             height: member.avatar ? '100%' : '80%',
                             objectFit: member.avatar ? 'cover' : 'contain',
+                            objectPosition: member.avatar ? 'center 20%' : 'center',
+                            filter: 'none',
                             imageRendering: member.avatar ? 'auto' : 'pixelated',
                             zIndex: 1,
                             opacity: member.avatar ? 1 : 0.9

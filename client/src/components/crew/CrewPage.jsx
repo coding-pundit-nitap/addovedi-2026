@@ -261,9 +261,10 @@ function CrewPageContent() {
                     animation: imgGlitch 0.2s steps(2) infinite;
                 }
                 @keyframes imgGlitch {
-                    0% { transform: skewX(-5deg) scale(1.05); filter: hue-rotate(40deg); }
-                    50% { transform: skewX(5deg) scale(1.03); filter: hue-rotate(-40deg); }
-                    100% { transform: skewX(0deg) scale(1.05); filter: none; }
+                    /* Colour shift removed: hue-rotate tinted every photo yellow/green while hovering */
+                    0% { transform: skewX(-5deg) scale(1.05); }
+                    50% { transform: skewX(5deg) scale(1.03); }
+                    100% { transform: skewX(0deg) scale(1.05); }
                 }
 
                 /* Staggered Row reveal anim */
