@@ -568,7 +568,9 @@ export const continueSmallerTeam = async (req, res) => {
             return res.status(400).json({ message: `This event needs at least ${eventDoc.minTeam} players. You have ${size}.` });
         }
         reg.teamSize = size;
-        if (!readyToFinalize(reg)) return res.status(400).json({ message: 'Team cannot be finalised yet.' });
+        const wasReady = readyToFinalize(reg);
+        if (wasReady) await reg.save();
+        if (!wasReady) return res.status(400).json({ message: 'Team cannot be finalised yet.' });
         await finalizeIfReady(reg);
         return res.json({ message: 'Team finalised.', teamId: reg.teamId });
     } catch (err) {
