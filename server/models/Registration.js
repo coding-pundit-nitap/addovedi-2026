@@ -48,7 +48,10 @@ const registrationSchema = new mongoose.Schema({
         // ACCEPTED only so registrations made before this feature (whose members never had to
         // consent) keep showing as accepted instead of suddenly turning pending.
         status: { type: String, enum: ['PENDING', 'ACCEPTED', 'REJECTED'], default: 'ACCEPTED' },
-        respondedAt: { type: Date }
+        respondedAt: { type: Date },
+        invitedAt: { type: Date, default: Date.now },
+        // true when a PENDING invite lapsed after INVITE_TTL_HOURS and the member was removed
+        expired: { type: Boolean, default: false }
     }],
     userEmail: {
         type: String,

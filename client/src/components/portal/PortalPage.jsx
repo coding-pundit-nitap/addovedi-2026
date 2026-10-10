@@ -5,7 +5,7 @@ import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
 import ChangePasswordPanel from './ChangePasswordPanel';
-import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, INVITES_CHANGED_EVENT } from '../../utils/registrations';
+import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, memberMeta, INVITES_CHANGED_EVENT } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
@@ -1305,8 +1305,8 @@ export default function AuthModal() {
                                                             {reg.isLeader && Array.isArray(reg.members) && reg.members.length > 0 && (
                                                                 <span className="text-[8px] uppercase flex flex-wrap justify-end gap-x-2">
                                                                     {reg.members.map(m => (
-                                                                        <span key={m.uid} style={{ color: (MEMBER_STATUS_META[m.status] || MEMBER_STATUS_META.ACCEPTED).color }}>
-                                                                            {m.name || m.uid}: {(MEMBER_STATUS_META[m.status] || MEMBER_STATUS_META.ACCEPTED).label}
+                                                                        <span key={m.uid} style={{ color: memberMeta(m).color }}>
+                                                                            {m.name || m.uid}: {memberMeta(m).label}
                                                                         </span>
                                                                     ))}
                                                                 </span>

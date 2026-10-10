@@ -1,4 +1,5 @@
 import express from 'express';
+import { expireStaleInvites } from './controllers/registrationController.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
@@ -498,6 +499,8 @@ const seedDatabase = async () => {
 const startServer = async () => {
     await connectDB();
     await seedDatabase();
+    expireStaleInvites(true).catch(() => {});
+    setInterval(() => expireStaleInvites(true).catch(() => {}), 10 * 60 * 1000);
 
     const PORT = process.env.PORT || 5001;
     const server = app.listen(PORT, () => {

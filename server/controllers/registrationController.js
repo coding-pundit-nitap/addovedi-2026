@@ -18,6 +18,28 @@ function escapeRegExp(str) {
 // past it. The API runs as a single instance, so an in-process lock is sufficient.
 const inFlight = new Set();
 
+// A teammate must accept within 24h of being added, otherwise they are removed from the team (slot freed).
+export const INVITE_TTL_MS = 24 * 60 * 60 * 1000;
+let lastSweep = 0;
+export const expireStaleInvites = async (force = false) => {
+    if (!force && Date.now() - lastSweep < 30 * 1000) return;
+    lastSweep = Date.now();
+    const cutoff = new Date(Date.now() - INVITE_TTL_MS);
+    const set = { 'm.status': 'REJECTED', 'm.expired': true, 'm.respondedAt': new Date() };
+    // invites that carry their own timestamp
+    await Registration.updateMany(
+        { status: { $ne: 'CANCELLED' }, members: { $elemMatch: { status: 'PENDING', invitedAt: { $lt: cutoff } } } },
+        { $set: set },
+        { arrayFilters: [{ 'm.status': 'PENDING', 'm.invitedAt': { $lt: cutoff } }] }
+    );
+    // older pending invites without one: fall back to when the registration was created
+    await Registration.updateMany(
+        { status: { $ne: 'CANCELLED' }, createdAt: { $lt: cutoff }, members: { $elemMatch: { status: 'PENDING', invitedAt: { $exists: false } } } },
+        { $set: set },
+        { arrayFilters: [{ 'm.status': 'PENDING', 'm.invitedAt': { $exists: false } }] }
+    );
+};
+
 // Create a new event registration
 export const createRegistration = async (req, res) => {
     const lockKey = `${String(req.body?.eventTitle || '').trim().toLowerCase()}|${req.participantAddovediId}`;
@@ -117,6 +139,7 @@ const createRegistrationLocked = async (req, res) => {
         // (eventTitle, leaderUID) / (eventTitle, members.uid) indexes with a
         // case-insensitive collation (see Registration.js) make this an
         // O(log n) lookup regardless of how large the event's roster gets.
+        await expireStaleInvites();
         const conflict = await Registration.findOne({
             eventTitle: eventTitle.trim(),
             status: { $ne: 'CANCELLED' },
@@ -279,6 +302,15 @@ export const cancelRegistration = async (req, res) => {
 
         // Ownership comes from the participant's login token, not from caller-supplied
         // details: only the team leader's own account can cancel their registration.
+        const verified = await Registration.exists({
+            eventTitle: eventTitle.trim(),
+            leaderUID: req.participantAddovediId,
+            status: 'VERIFIED'
+        }).collation({ locale: 'en', strength: 2 });
+        if (verified) {
+            return res.status(409).json({ message: 'This registration is verified by the organisers and can no longer be cancelled. Contact the organisers if something is wrong.' });
+        }
+
         const result = await Registration.updateMany(
             {
                 eventTitle: eventTitle.trim(),
@@ -309,6 +341,7 @@ export const getMyRegistrations = async (req, res) => {
             return res.status(403).json({ message: 'You can only view your own registrations.' });
         }
 
+        await expireStaleInvites();
         const regs = await Registration.find({
             status: { $ne: 'CANCELLED' },
             $or: [
@@ -336,7 +369,8 @@ export const getMyRegistrations = async (req, res) => {
                 leaderName: r.leaderName,
                 myStatus: isLeader ? 'LEADER' : (mine?.status || 'ACCEPTED'),
                 // Only the leader sees who accepted / is pending / declined.
-                members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED' })) : undefined
+                members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED', expired: m.expired === true })) : undefined,
+                inviteExpiresAt: !isLeader && mine?.status === 'PENDING' ? new Date(new Date(mine.invitedAt || r.createdAt).getTime() + INVITE_TTL_MS) : undefined
             };
         });
 
@@ -358,6 +392,7 @@ export const respondToTeamInvite = async (req, res) => {
         if (!/^[a-f0-9]{24}$/i.test(registrationId)) {
             return res.status(400).json({ message: 'Invalid registration.' });
         }
+        await expireStaleInvites(true);
         const uid = req.participantAddovediId;
         const reg = await Registration.findOne({
             _id: registrationId,
@@ -367,19 +402,19 @@ export const respondToTeamInvite = async (req, res) => {
         if (!reg) {
             return res.status(404).json({ message: 'No active team invite found for your account.' });
         }
-        // After admin verification the roster is locked for joining, but a member may still LEAVE.
-        // Leaving a verified team sends it back to pending so the organisers re-check the roster.
-        if (reg.status === 'VERIFIED' && accept) {
-            return res.status(409).json({ message: 'This registration is already verified by the organisers, so it can no longer be changed.' });
+        // Once admin has verified the team (after the Unstop payment) nothing can change for anyone.
+        if (reg.status === 'VERIFIED') {
+            return res.status(409).json({ message: 'This registration is verified by the organisers and can no longer be changed.' });
         }
         const member = reg.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
-        // Declining is final. Letting a DECLINED member flip back to ACCEPTED would skip the
-        // duplicate-registration check (they may have joined another team for this event since).
+        // Accepting is final: an accepted teammate cannot leave. Declining is final too.
+        if (member.status === 'ACCEPTED') {
+            return res.status(409).json({ message: 'You have already joined this team. Accepting is final and cannot be undone.' });
+        }
         if (member.status === 'REJECTED') {
-            return res.status(409).json({ message: 'You already declined this team. Ask the team leader to add you again.' });
+            return res.status(409).json({ message: member.expired ? 'This invite expired after 24 hours. Ask the team leader to add you again.' : 'You already declined this team. Ask the team leader to add you again.' });
         }
         member.status = accept ? 'ACCEPTED' : 'REJECTED';
-        if (!accept && reg.status === 'VERIFIED') reg.status = 'PENDING_UNSTOP_VERIFICATION';
         member.respondedAt = new Date();
         await reg.save();
         return res.json({ message: accept ? 'You joined the team.' : 'You declined the team.', myStatus: member.status });

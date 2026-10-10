@@ -1,4 +1,4 @@
-import { MEMBER_STATUS_META } from '../../utils/registrations';
+import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
@@ -272,7 +272,7 @@ export default function RegistrationForm({
                     <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
                         <div style={{ fontSize: '10px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.45)', fontFamily: "'Orbitron', sans-serif" }}>TEAMMATES</div>
                         {existingReg.members.map(m => {
-                            const meta = MEMBER_STATUS_META[m.status] || MEMBER_STATUS_META.ACCEPTED;
+                            const meta = memberMeta(m);
                             return (
                                 <div key={m.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '6px 10px', border: `1px solid ${meta.color}40`, background: `${meta.color}0d` }}>
                                     <span style={{ fontSize: '12px', color: '#fff', fontWeight: 600 }}>{m.name || m.uid} <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px' }}>{m.uid}</span></span>
@@ -280,8 +280,8 @@ export default function RegistrationForm({
                                 </div>
                             );
                         })}
-                        {existingReg.members.some(m => m.status === 'REJECTED') && (
-                            <p style={{ fontSize: '10px', color: '#f87171', margin: 0, lineHeight: 1.4 }}>A teammate declined. Cancel this registration and register again with a different teammate.</p>
+                        {existingReg.members.some(m => m.status === 'REJECTED') && !isVerified && (
+                            <p style={{ fontSize: '10px', color: '#f87171', margin: 0, lineHeight: 1.4 }}>A teammate declined or didn't accept within 24 hours. Cancel this registration and register again with a different teammate.</p>
                         )}
                     </div>
                 )}
@@ -311,7 +311,7 @@ export default function RegistrationForm({
                             {existingReg.myStatus === 'PENDING' ? (
                                 <>
                                     <p style={{ fontSize: '12px', color: '#F59E0B', margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
-                                        {existingReg.leaderName} added you to this team. Do you want to join?
+                                        {existingReg.leaderName} added you to this team. Do you want to join?{existingReg.inviteExpiresAt ? ` Respond before ${new Date(existingReg.inviteExpiresAt).toLocaleString()} or the invite expires.` : ''}
                                     </p>
                                     <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
                                         <button type="button" onClick={() => handleRespondInvite && handleRespondInvite(true)} style={{ flex: 1, padding: '10px', background: 'rgba(31,255,118,0.15)', border: '1px solid #1FFF76', color: '#1FFF76', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.08em', cursor: 'pointer' }}>ACCEPT ✓</button>
@@ -320,22 +320,24 @@ export default function RegistrationForm({
                                 </>
                             ) : (
                                 <>
-                                    <p style={{ fontSize: '11px', color: '#1FFF76', margin: 0, fontWeight: 700 }}>You accepted this team invite.</p>
-                                    {(
-                                        <button type="button" onClick={() => { if (window.confirm(isVerified ? 'Leave this verified team? You will be removed and the registration will need to be re-verified by the organisers.' : 'Leave this team? You will be removed from it.')) handleRespondInvite && handleRespondInvite(false); }} style={{ padding: '8px 14px', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)', color: '#f87171', fontWeight: 700, fontFamily: "'Orbitron', sans-serif", fontSize: '10px', letterSpacing: '0.08em', cursor: 'pointer' }}>LEAVE TEAM</button>
-                                    )}
+                                    <p style={{ fontSize: '11px', color: '#1FFF76', margin: 0, fontWeight: 700 }}>You joined this team. Acceptance is final.</p>
+
                                 </>
                             )}
                             <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.5 }}>
                                 Only the team leader ({existingReg.leaderName}) can cancel the whole registration.
                             </p>
                         </div>
+                    ) : isVerified ? (
+                        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', margin: 0, lineHeight: 1.5, textAlign: 'center' }}>
+                            This registration is verified and locked. It can no longer be cancelled. Contact the organisers if something is wrong.
+                        </p>
                     ) : (
                         <button
                             type="button"
                             disabled={isCancelling}
                             onClick={async () => {
-                                if (!window.confirm(isVerified ? 'Cancel this VERIFIED registration for the whole team? This cannot be undone.' : 'Cancel this registration?')) return;
+                                if (!window.confirm('Cancel this registration for the whole team?')) return;
                                 setIsCancelling(true);
                                 if (handleCancelRegistration) {
                                     await handleCancelRegistration();
@@ -354,7 +356,7 @@ export default function RegistrationForm({
                                 cursor: 'pointer'
                             }}
                         >
-                            {isCancelling ? 'CANCELING...' : (isVerified ? 'CANCEL REGISTRATION ✕' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕')}
+                            {isCancelling ? 'CANCELING...' : 'DID NOT REGISTER ON UNSTOP? CANCEL / RESET REGISTRATION ✕'}
                         </button>
                     )}
                 </div>

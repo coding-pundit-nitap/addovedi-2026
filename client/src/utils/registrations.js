@@ -44,6 +44,7 @@ export async function respondToTeamInvite(registrationId, accept) {
     }
 }
 
+export const memberMeta = (m) => (m?.status === 'REJECTED' && m?.expired ? { label: 'EXPIRED', color: '#9CA3AF' } : (MEMBER_STATUS_META[m?.status] || MEMBER_STATUS_META.ACCEPTED));
 export const MEMBER_STATUS_META = {
     PENDING: { label: 'PENDING', color: '#F59E0B' },
     ACCEPTED: { label: 'ACCEPTED', color: '#1FFF76' },
