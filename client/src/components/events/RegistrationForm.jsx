@@ -198,6 +198,29 @@ export default function RegistrationForm({
     const isCurrentEventRegistered = Boolean(existingReg) || isRegistered;
     const isVerified = existingReg?.status === 'VERIFIED';
 
+    // Profile must be complete before enlisting (existing registrations stay viewable/cancellable).
+    const PROFILE_FIELDS = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
+    const profileIncomplete = PROFILE_FIELDS.some(f => !String(loggedInUser[f] || '').trim());
+    if (profileIncomplete && !isCurrentEventRegistered) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                <div>
+                    <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>COMPLETE YOUR PROFILE</h3>
+                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                        Finish your Player HQ profile (gender, date of birth, college, department, year, state, city and emergency contact) to register for events.
+                    </p>
+                </div>
+                <button
+                    onClick={() => { onClose(); useStore.getState().setAuthModalOpen(true); }}
+                    className="py-3 px-8 text-xs font-bold border-0 cursor-pointer"
+                    style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff', background: 'linear-gradient(135deg, #0891b2, #00D9FF)' }}
+                >
+                    OPEN PLAYER HQ ▶
+                </button>
+            </div>
+        );
+    }
+
     const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
 
     // If registration is already saved on website

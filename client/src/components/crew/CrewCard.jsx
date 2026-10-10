@@ -64,7 +64,7 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
             style={{
                 position: 'relative',
                 width: '100%',
-                aspectRatio: '0.72',
+                aspectRatio: isMobile ? '0.6' : '0.72',
                 borderRadius: '12px',
                 border: '1.2px solid rgba(0, 229, 255, 0.15)',
                 background: isHovered || isFeatured 
@@ -80,7 +80,7 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                 transition: isHovered ? 'transform 0.05s ease-out, box-shadow 0.25s, background-color 0.25s' : 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), translateY 0.3s, box-shadow 0.3s, background-color 0.3s',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '16px',
+                padding: isMobile ? '10px' : '16px',
                 overflow: 'hidden',
                 cursor: 'pointer',
                 zIndex: isHovered ? 15 : 1
@@ -141,8 +141,11 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                 {/* Portrait Core Container */}
                 <div style={{
                     position: 'relative',
-                    width: '80%',
-                    height: '80%',
+                    width: isMobile ? 'auto' : '80%',
+                    height: isMobile ? '94%' : '80%',
+                    aspectRatio: '1',
+                    maxWidth: '100%',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     overflow: 'hidden',
                     border: `1.5px solid ${isHovered ? badgeColor : 'rgba(0, 229, 255, 0.2)'}`,

@@ -38,6 +38,12 @@ const createRegistrationLocked = async (req, res) => {
             return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is starting soon. It has not opened yet.' });
         }
 
+        const leaderAccount = await GlobalUser.findOne({ addovediId: String(req.participantAddovediId).toUpperCase() }).lean();
+        const profileFields = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
+        if (!leaderAccount || profileFields.some(f => !String(leaderAccount[f] || '').trim())) {
+            return res.status(403).json({ code: 'PROFILE_INCOMPLETE', message: 'Please complete your profile in Player HQ before registering for events.' });
+        }
+
         const { eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, teamSize, members, userEmail, unstopRefId } = req.body;
 
         if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {
