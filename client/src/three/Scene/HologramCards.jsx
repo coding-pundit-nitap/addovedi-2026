@@ -1821,6 +1821,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
     // Opacity filters
     const finalOpacity = isActive ? (hovered ? 0.6 : 0.4) : (Math.abs(wrappedDiff) === 1 ? 0.12 : 0.03);
     const frameOpacity = isActive ? (hovered ? 1.0 : 0.6) : (Math.abs(wrappedDiff) === 1 ? 0.3 : 0.08);
+    // Only the centre card and its two direct neighbours carry readable text. The cards further round the ring line up
+    // behind them in perspective, so their text used to pile up into one unreadable stack on each side.
+    const showText = isActive || Math.abs(wrappedDiff) === 1;
 
     return (
         <group>
@@ -1887,6 +1890,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 </mesh>
 
                 {/* 4. Text Content Overlay */}
+                {showText && (
                 <Html
                     transform
                     distanceFactor={isMobile ? 7.2 : 4.6}
@@ -2004,6 +2008,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         )}
                     </div>
                 </Html>
+                )}
             </group>
         </group>
     );
