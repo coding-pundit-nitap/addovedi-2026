@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import ScrollIndicator from '../common/ScrollIndicator';
 import UnstopReconcile from './UnstopReconcile';
 import SiteToggle from './RegistrationToggle';
+import RegistrationModeToggle from './RegistrationModeToggle';
 import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
@@ -1201,11 +1202,7 @@ export default function AdminPage() {
                             offHint='The whole Events / Arena section is replaced by an "Events coming soon" page. Registrations and data are untouched.'
                             confirmOn="SHOW THE EVENTS SECTION TO EVERYONE?"
                             confirmOff='HIDE THE EVENTS SECTION? Visitors will see "Events coming soon" instead of the arena and event pages.' />
-                        <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
-                            onHint='Visitors can register for events. Turn off to show "Registration starting soon" instead.'
-                            offHint='Visitors see "Registration starting soon" and the server refuses new registrations. Existing registrations are unaffected.'
-                            confirmOn="OPEN EVENT REGISTRATION FOR EVERYONE?"
-                            confirmOff='CLOSE EVENT REGISTRATION? The site will show "starting soon" and new registrations will be refused.' />
+                        <RegistrationModeToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout} />
                         <UnstopReconcile
                             apiBase={API_BASE}
                             getHeaders={getHeaders}

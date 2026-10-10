@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getSettings, setRegistrationOpen, setCrewVisible, setEventsVisible } from '../services/settingsService.js';
+import { getSettings, setRegistrationMode, registrationModeOf, setRegistrationOpen, setCrewVisible, setEventsVisible } from '../services/settingsService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { protect } from '../middleware/auth.js';
 
@@ -8,22 +8,23 @@ const router = Router();
 // Public: the site needs to know whether to show the registration form or "starting soon".
 router.get('/registration', async (req, res) => {
     try {
-        const s = await getSettings();
-        return res.json({ registrationOpen: s.registrationOpen === true });
+        const mode = registrationModeOf(await getSettings());
+        return res.json({ registrationMode: mode, registrationOpen: mode === 'open' });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
 });
 
-// Admin only: open or close event registration.
+// Admin only: set registration to 'soon' (starting soon), 'open' or 'closed'.
 router.put('/registration', protect, async (req, res) => {
     try {
-        if (typeof req.body?.registrationOpen !== 'boolean') {
-            return res.status(400).json({ message: 'registrationOpen must be true or false.' });
+        const mode = req.body?.registrationMode;
+        if (!['soon', 'open', 'closed'].includes(mode)) {
+            return res.status(400).json({ message: "registrationMode must be 'soon', 'open' or 'closed'." });
         }
-        const s = await setRegistrationOpen(req.body.registrationOpen);
-        await recordAuditLog(req, { action: s.registrationOpen ? 'OPEN_REGISTRATION' : 'CLOSE_REGISTRATION', details: {} });
-        return res.json({ registrationOpen: s.registrationOpen });
+        await setRegistrationMode(mode);
+        await recordAuditLog(req, { action: `REGISTRATION_${mode.toUpperCase()}`, details: {} });
+        return res.json({ registrationMode: mode, registrationOpen: mode === 'open' });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }

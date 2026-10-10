@@ -6,7 +6,16 @@ export const getSettings = async () => {
     return settings;
 };
 
-export const isRegistrationOpen = async () => (await getSettings()).registrationOpen === true;
+export const registrationModeOf = (s) => s.registrationMode || (s.registrationOpen === true ? 'open' : 'soon');
+
+export const isRegistrationOpen = async () => registrationModeOf(await getSettings()) === 'open';
+
+export const setRegistrationMode = async (mode) => {
+    const settings = await getSettings();
+    settings.registrationMode = mode;
+    settings.registrationOpen = mode === 'open';
+    return await settings.save();
+};
 
 export const setRegistrationOpen = async (open) => {
     const settings = await getSettings();

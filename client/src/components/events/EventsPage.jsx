@@ -251,7 +251,7 @@ export default function EventsPage() {
         const userUid = loggedInUser?.addovediId || loggedInUser?.uniqueId || leaderUID;
         const userPhone = loggedInUser?.phone || leaderPhone;
 
-        if (activeEvent?.title && userUid && userPhone) {
+        if (activeEvent?.title) {
             try {
                 const res = await fetch(`${API_BASE}/registrations/cancel`, {
                     method: 'POST',

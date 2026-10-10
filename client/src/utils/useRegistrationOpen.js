@@ -31,9 +31,27 @@ export function useCrewVisible() {
     return { visible: on, loaded };
 }
 
+// 'soon' | 'open' | 'closed'. Fails to 'soon' until the server answers (or if it is an older build).
 export default function useRegistrationOpen() {
-    const { on, loaded } = useSiteFlag('registration', 'registrationOpen');
-    return { open: on, loaded };
+    const [mode, setMode] = useState('soon');
+    const [loaded, setLoaded] = useState(false);
+    useEffect(() => {
+        let cancelled = false;
+        const load = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/settings/registration`, { cache: 'no-store' });
+                if (!res.ok) throw new Error(String(res.status));
+                const data = await res.json();
+                const m = data.registrationMode || (data.registrationOpen === true ? 'open' : 'soon');
+                if (!cancelled) setMode(m);
+            } catch { /* keep last known */ }
+            if (!cancelled) setLoaded(true);
+        };
+        load();
+        const t = setInterval(load, 15000);
+        return () => { cancelled = true; clearInterval(t); };
+    }, []);
+    return { open: mode === 'open', mode, loaded };
 }
 
 // Events section switch. Unlike the flags above this one fails OPEN: if the server can't be reached (or is an

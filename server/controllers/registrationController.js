@@ -1,6 +1,6 @@
 import Registration from '../models/Registration.js';
 import SubEvent from '../models/SubEvent.js';
-import { isRegistrationOpen } from '../services/settingsService.js';
+import { isRegistrationOpen, getSettings, registrationModeOf } from '../services/settingsService.js';
 import GlobalUser from '../models/GlobalUser.js';
 import { isValidEmail, isValidPhone } from '../utils/validators.js';
 
@@ -35,7 +35,8 @@ export const createRegistration = async (req, res) => {
 const createRegistrationLocked = async (req, res) => {
     try {
         if (!(await isRegistrationOpen())) {
-            return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is starting soon. It has not opened yet.' });
+            const mode = registrationModeOf(await getSettings());
+            return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: mode === 'closed' ? 'Registration is closed.' : 'Registration is starting soon. It has not opened yet.' });
         }
 
         const leaderAccount = await GlobalUser.findOne({ addovediId: String(req.participantAddovediId).toUpperCase() }).lean();
