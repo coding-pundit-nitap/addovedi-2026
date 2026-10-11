@@ -379,6 +379,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "iconType": "gear",
                 "minTeam": 1,
                 "maxTeam": 1,
+                "fee": "₹50 per participant",
                 "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
                 "timeline": { "prize": "₹10,00,000+" },
                 "rules": [
@@ -396,7 +397,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "Official start and submission times recorded by the coordinators are used for all timing decisions.",
                 "Participants must maintain proper conduct and must not interfere with other participants, their systems or their files.",
                 "The decision of the judges and organising committee on qualification, scoring and disqualification is final and binding. The organisers may modify or clarify the rules, and any change will be announced before implementation.",
-                "Prize pool: ₹10,00,000+. The position-wise distribution will be announced by the organisers."
+                "Registration fee: ₹50 per participant. Prize pool: ₹10,00,000+. The position-wise distribution will be announced by the organisers."
 ]
             },
             {

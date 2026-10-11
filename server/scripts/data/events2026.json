@@ -290,6 +290,7 @@
     "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
     "minTeam": 1,
     "maxTeam": 1,
+    "fee": "₹50 per participant",
     "timeline": { "prize": "₹10,00,000+" }
    },
    {
