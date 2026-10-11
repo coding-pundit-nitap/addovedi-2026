@@ -3,7 +3,7 @@ import crew2026 from './crew2026.json';
 import faculty2026 from './faculty2026.json';
 
 // Bump when crew photos in public/crew/ change: filenames stay the same, so this busts browser caches.
-const PHOTO_V = '2';
+const PHOTO_V = '3';
 const bust = (u) => (u && u.startsWith('/crew/') ? `${u}?v=${PHOTO_V}` : u || '');
 
 // Faculty coordinators. Source of truth: faculty2026.json (also used by server/scripts/seedCrew.js).
