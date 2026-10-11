@@ -2,6 +2,10 @@
 import crew2026 from './crew2026.json';
 import faculty2026 from './faculty2026.json';
 
+// Bump when crew photos in public/crew/ change: filenames stay the same, so this busts browser caches.
+const PHOTO_V = '2';
+const bust = (u) => (u && u.startsWith('/crew/') ? `${u}?v=${PHOTO_V}` : u || '');
+
 // Faculty coordinators. Source of truth: faculty2026.json (also used by server/scripts/seedCrew.js).
 // Fallback shown when the database has no faculty crew documents. The main coordinator is listed first.
 export const FACULTY_CREW = faculty2026.map((f, i) => {
@@ -10,7 +14,7 @@ export const FACULTY_CREW = faculty2026.map((f, i) => {
         id: `FC${String(i + 1).padStart(2, '0')}`,
         name: f.name,
         role: f.role,
-        avatar: f.avatar || '',
+        avatar: bust(f.avatar),
         phone: f.phone || '',
         links: f.linkedin ? [{ platform: 'LinkedIn', url: f.linkedin }] : [],
         avatarSeed: f.name,
@@ -36,7 +40,7 @@ export const STUDENT_SECTIONS = crew2026.map((sec, i) => {
             id: `SC${String(i + 1).padStart(2, '0')}${j + 1}`,
             name,
             role,
-            avatar: avatar || '',
+            avatar: bust(avatar),
             phone: phone || '',
             email: email || '',
             reportsTo: reportsTo || '',
