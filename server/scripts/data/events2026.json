@@ -298,12 +298,15 @@
     "title": "HYDRAULIC WARZONE",
     "subtitle": "POWER. PRECISION. CONTROL",
     "desc": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.",
-    "overview": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.\n\nUsing the principles of fluid mechanics, hydraulics, mechanical design, and control, teams must operate their hydraulic arm to navigate challenges, lift objects, and complete the given mission efficiently.\n\nThe event tests creativity, engineering skills, teamwork, and precise control under pressure.\n\nBUILD THE ARM. MASTER THE PRESSURE. COMPLETE THE MISSION.",
+    "overview": "Hydraulic Warzone is the hydraulic arm challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. It is a hands-on mechanical engineering competition in which teams of three design, build and operate a manually controlled hydraulic robotic arm.\n\nTeams build the arm from the permitted materials (plywood, thermocol, syringes, tubing and adhesives) and operate it to complete practical challenges in the arena. Every movement comes from pairs of fluid-filled syringes connected by tubing, so the event tests hydraulic systems, mechanical linkages, structural design, precision, stability, problem-solving and teamwork.\n\nEvery arm first goes through a testing round. Qualified teams then take on the main challenge: tasks such as pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The exact arena layout and tasks are announced by the organisers before the competition.\n\nScoring is out of 100: successful task completion (40), accuracy and precision (25), hydraulic arm control (15), time efficiency (10) and stability and structural performance (10).",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gear",
-    "minTeam": 1,
-    "maxTeam": 5
+    "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "₹100 per team",
+    "timeline": { "prize": "₹13,000+ (including goodies)" }
    },
    {
     "title": "SKY FORGE",

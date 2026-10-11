@@ -405,14 +405,34 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "HYDRAULIC WARZONE",
                 "subtitle": "POWER. PRECISION. CONTROL",
                 "desc": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.",
-                "overview": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.\n\nUsing the principles of fluid mechanics, hydraulics, mechanical design, and control, teams must operate their hydraulic arm to navigate challenges, lift objects, and complete the given mission efficiently.\n\nThe event tests creativity, engineering skills, teamwork, and precise control under pressure.\n\nBUILD THE ARM. MASTER THE PRESSURE. COMPLETE THE MISSION.",
+                "overview": "Hydraulic Warzone is the hydraulic arm challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. It is a hands-on mechanical engineering competition in which teams of three design, build and operate a manually controlled hydraulic robotic arm.\n\nTeams build the arm from the permitted materials (plywood, thermocol, syringes, tubing and adhesives) and operate it to complete practical challenges in the arena. Every movement comes from pairs of fluid-filled syringes connected by tubing, so the event tests hydraulic systems, mechanical linkages, structural design, precision, stability, problem-solving and teamwork.\n\nEvery arm first goes through a testing round. Qualified teams then take on the main challenge: tasks such as pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The exact arena layout and tasks are announced by the organisers before the competition.\n\nScoring is out of 100: successful task completion (40), accuracy and precision (25), hydraulic arm control (15), time efficiency (10) and stability and structural performance (10).",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gear",
-                "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "minTeam": 3,
+                "maxTeam": 3,
+                "fee": "₹100 per team",
+                "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
+                "timeline": { "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Team composition cannot be changed after registration without the organisers' permission.",
+                "Registration fee is ₹100 per team. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with valid and accurate details.",
+                "Component kits are given to the first 8 teams that complete both registration and payment, on a first come, first served basis. Later teams may still take part but without an organiser-provided kit. The organisers will announce when all 8 kits are allotted.",
+                "The kit contains plywood, large thermocol, 10 mL and 20 mL syringes, hydraulic tubing, Fevicol, super glue and a paper cutter. It is meant only for building the hydraulic arm.",
+                "Build the arm primarily from the materials provided. All arm movement must come from the syringe-based hydraulic mechanism, and the arm must be operated manually.",
+                "Syringes must be securely mounted, tubes properly connected and the system must not have significant leakage. You may design the base, structure, linkages and gripper freely within the permitted materials.",
+                "Prohibited unless the organisers explicitly permit: electric or servo motors, batteries, electronic controllers, automated control systems, external powered actuators, pneumatic systems, high-pressure hydraulic systems, any motorised mechanism, or anything that gives an unfair advantage.",
+                "Every arm goes through a testing round that checks hydraulic movement, lifting, gripping, joint movement, structural stability and leakage. Unsafe or non-functional arms may be rejected or stopped until fixed. Only teams that pass proceed to the main challenge.",
+                "Main challenge tasks may include pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The arena layout, objects, task order and task-specific scoring are announced before the competition.",
+                "The time limit is announced before the competition. The timer starts on the judges' signal. Stop immediately when time expires. Tasks completed after the limit are not counted. Judges may stop an attempt at any time for safety.",
+                "Scoring is out of 100: successful task completion 40, accuracy and precision 25, hydraulic arm control 15, time efficiency 10, and stability and structural performance 10.",
+                "Penalties (severity decided by the judges): touching objects directly or moving the arm manually instead of hydraulically leads to task cancellation or score deduction. Moving or modifying the arena, using unauthorised help, continuing after time or misconduct lead to deductions, stoppage or disqualification.",
+                "Safety: follow the safety officials, keep hands away from moving joints, check tubes and syringes before operating, report leaks or damage at once, apply no excessive force, no sharp modifications, and handle the paper cutter with care. Unsafe attempts will be stopped.",
+                "Tie-break: more tasks completed, then higher accuracy and precision score, then better time efficiency, then an additional tie-breaking task if the organisers decide.",
+                "Disqualification applies for prohibited components, motorised or electronic assistance, damaging the arena or equipment, interfering with or tampering with another team, cheating, repeated safety violations, misconduct, or anything that compromises fairness or safety.",
+                "Report on schedule and attend any mandatory briefing. Keep the area clean, stay out of restricted areas and do not interfere with other teams' builds or testing. Organisers may inspect any arm at any stage.",
+                "The organisers may modify the arena or task set-up and will announce changes before the relevant round. Decisions of the judges and safety officials on task validity, penalties, safety and rankings are final and binding."
+]
             },
             {
                 "title": "SKY FORGE",
@@ -785,6 +805,7 @@ export const RULEBOOK_PDFS = {
     'robo-soccer': '/rulebooks/Addovedi-2026-robo-soccer-rulebook.pdf',
     'dune-dominator': '/rulebooks/Addovedi-2026-dune-dominator-rulebook.pdf',
     'solid-siege': '/rulebooks/Addovedi-2026-solid-siege-rulebook.pdf',
+    'hydraulic-warzone': '/rulebooks/Addovedi-2026-hydraulic-warzone-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};
