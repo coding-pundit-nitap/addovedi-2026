@@ -19,8 +19,11 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "robot",
-    "minTeam": 1,
-    "maxTeam": 5
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹200 per team",
+    "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": { "prize": "₹22,000" }
    },
    {
     "title": "DUNE DOMINATOR",
@@ -30,8 +33,11 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "robot",
-    "minTeam": 1,
-    "maxTeam": 5
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹200 per team",
+    "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": { "prize": "₹20,000" }
    }
   ]
  },
