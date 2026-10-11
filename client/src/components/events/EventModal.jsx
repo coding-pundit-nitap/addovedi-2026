@@ -79,15 +79,7 @@ function EventDetailsModal({
 
     const handleDownloadPDF = () => {
         const rulebook = RULEBOOK_PDFS[slugify(activeEvent.title)];
-        if (rulebook) { // official designed rule book: save it straight to the device
-            const a = document.createElement('a');
-            a.href = rulebook;
-            a.download = rulebook.split('/').pop();
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            return;
-        }
+        if (rulebook) { window.open(rulebook, '_blank', 'noopener'); return; } // official designed rule book
         const rules = EVENT_RULES[slugify(activeEvent.title)] || GENERAL_RULES;
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
