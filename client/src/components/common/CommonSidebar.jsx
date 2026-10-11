@@ -120,6 +120,8 @@ export default function CommonSidebar() {
             navigate('/home');
         } else if (label === 'ARENA' && !eventsVisible) {
             navigate('/event'); // events switched off: plain "coming soon" page, no fly-in
+        } else if (label === 'ARENA' && !location.pathname.startsWith('/event') && location.pathname !== '/home') {
+            window.location.assign('/event'); // clean load from other pages: see CommonNav
         } else if (label === 'ARENA') {
             setIsEntered(true);
             setIsEventPage(true);
