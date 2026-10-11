@@ -380,6 +380,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "₹50 per participant",
+                "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
                 "timeline": { "prize": "₹10,00,000+" },
                 "rules": [
