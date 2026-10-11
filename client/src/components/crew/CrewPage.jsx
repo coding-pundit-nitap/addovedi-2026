@@ -16,8 +16,7 @@ import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 
-import { FACULTY_CREW, STUDENT_SECTIONS, mergeCrewFromDb, mergeFacultyFromDb } from '../../data/crew';
-import { API_BASE } from '../../constants/api';
+import { FACULTY_CREW, STUDENT_SECTIONS } from '../../data/crew';
 import { useCrewVisible } from '../../utils/useRegistrationOpen';
 import BgCanvas from './BgCanvas';
 import CrewCard from './CrewCard';
@@ -25,7 +24,6 @@ import CrewCard from './CrewCard';
 // How often the public page re-polls the database for admin-portal crew
 // edits while open. Not true real-time (that would need a WebSocket), but
 // close enough that changes show up within a few seconds without a reload.
-const CREW_POLL_INTERVAL_MS = 15000;
 
 
 /* ════════════════════════════════════════════
@@ -120,15 +118,15 @@ function CrewPageContent() {
     const [booted, setBooted] = useState(false);
     // The list shows only after the first fetch has answered (or 2.5s have passed), so people never see the built-in
     // fallback names get swapped for the real ones a moment later.
-    const [crewLoaded, setCrewLoaded] = useState(false);
+    const [crewLoaded, setCrewLoaded] = useState(true);
     const ready = booted && crewLoaded;
     useEffect(() => { const t = setTimeout(() => setCrewLoaded(true), 2500); return () => clearTimeout(t); }, []);
     const [activeTab, setActiveTab] = useState('STUDENT'); // 'FACULTY' | 'STUDENT'
     const [visibleSections, setVisibleSections] = useState(1);
     const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [studentSections, setStudentSections] = useState(STUDENT_SECTIONS);
-    const [facultyList, setFacultyList] = useState(FACULTY_CREW);
+    const studentSections = STUDENT_SECTIONS;
+    const facultyList = FACULTY_CREW;
 
     // Track window resize
     useEffect(() => {
@@ -137,28 +135,7 @@ function CrewPageContent() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch crew from the database, and keep polling so admin-portal edits
-    // (name/role/bio/avatar/category changes) show up on this page without
-    // requiring a manual reload.
-    useEffect(() => {
-        let cancelled = false;
-        const fetchCrew = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/crew`, { cache: 'no-store' });
-                if (res.ok && !cancelled) {
-                    const data = await res.json();
-                    setStudentSections(mergeCrewFromDb(data));
-                    setFacultyList(mergeFacultyFromDb(data));
-                }
-            } catch (err) {
-                console.log('Failed dynamic crew fetch, utilizing fallbacks');
-            }
-            if (!cancelled) setCrewLoaded(true);
-        };
-        fetchCrew();
-        const interval = setInterval(fetchCrew, CREW_POLL_INTERVAL_MS);
-        return () => { cancelled = true; clearInterval(interval); };
-    }, []);
+    // Crew is static (data/crew2026.json + data/faculty2026.json): no database fetch, no polling.
 
     // Split Faculty list into rows of 4 (desktop) or 2 (mobile)
     const cols = isMobile ? 2 : 4;

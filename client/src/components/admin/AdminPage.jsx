@@ -1892,6 +1892,10 @@ export default function AdminPage() {
                             offHint='Visitors see "Crew launching soon". Turn on when the crew list is ready.'
                             confirmOn="SHOW THE CREW PAGE TO EVERYONE?"
                             confirmOff='HIDE THE CREW PAGE? Visitors will see "Crew launching soon".' />
+                        <p style={{ fontFamily: 'monospace', fontSize: 11, color: '#9CA3AF', lineHeight: 1.6, margin: '0 0 8px' }}>
+                            The crew list is now <strong style={{ color: '#FBBF24' }}>static</strong>: names, roles, photos, phone numbers and the reports-to tree live in <code>client/src/data/crew2026.json</code> (photos in <code>client/public/crew/</code>). Edits are made there and deployed, not from this panel. The switch above still controls whether the page is public.
+                        </p>
+                        {false && (<>
                         <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '11px', color: '#00E5FF', letterSpacing: '0.15em', borderBottom: '1px solid rgba(0,229,255,0.1)', paddingBottom: '8px', marginBottom: '24px' }}>
                             {editingCrew ? 'EDIT CREW MEMBER PROFILE' : 'ADD NEW CREW PERSONNEL'}
                         </h3>
@@ -2002,6 +2006,7 @@ export default function AdminPage() {
                                 </table>
                             )}
                         </div>
+                        </>)}
                     </div>
                 )}
 
