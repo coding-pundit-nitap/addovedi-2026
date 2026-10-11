@@ -550,7 +550,10 @@ export default function EventsPage() {
                                 <img
                                     src={addovediLogo}
                                     alt="Addovedi"
-                                    style={{ height: '26px', width: 'auto', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
+                                    role="link"
+                                    title="Back to Home"
+                                    onClick={handleExit}
+                                    style={{ height: '26px', width: 'auto', cursor: 'pointer', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
                                 />
                                 <span className="event-demo-badge">
                                     DEMO MODE
@@ -588,7 +591,12 @@ export default function EventsPage() {
                         <div
                             className="flex flex-col items-end border-r border-white/15 pr-6"
                         >
-                            <div className="flex flex-col items-end border-r border-white/15 pr-6">
+                            <div
+                                className="flex flex-col items-end border-r border-white/15 pr-6 cursor-pointer"
+                                role="button"
+                                title="Open your profile"
+                                onClick={() => useStore.getState().setAuthModalOpen(true)}
+                            >
                                 <div className="flex items-center gap-2 text-white text-xs font-black tracking-widest">
                                     <span className="text-white/40">PLAYER:</span>
                                     <span
