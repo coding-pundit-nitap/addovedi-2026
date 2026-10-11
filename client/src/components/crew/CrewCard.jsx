@@ -1,3 +1,4 @@
+import MotionCard from '../common/MotionCard';
 export default function CrewCard({ member, isFeatured, isMobile }) {
     const badgeColor = member.color || '#00E5FF';
 
@@ -17,6 +18,7 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
     const hasContact = Boolean(member.phone || member.email || socialLinks.length);
 
     return (
+        <MotionCard reveal={false} float={false} maxTilt={6} radius={12} style={{ width: '100%', height: '100%' }}>
         <div
             style={{
                 position: 'relative',
@@ -157,5 +159,6 @@ export default function CrewCard({ member, isFeatured, isMobile }) {
                 </div>
             )}
         </div>
+        </MotionCard>
     );
 }
