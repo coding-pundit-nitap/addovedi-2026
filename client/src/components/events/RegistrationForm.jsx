@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
 import useRegistrationOpen from '../../utils/useRegistrationOpen';
+import { DAYS } from '../../data/events';
 
 export default function RegistrationForm({
     activeEvent,
@@ -260,13 +261,13 @@ export default function RegistrationForm({
                     {isVerified ? '✓' : '⏳'}
                 </div>
                 <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    {isVerified ? 'MISSION_SECURED' : (existingReg?.teamId ? 'TEAM_READY · PAY ON UNSTOP' : 'ASSEMBLING_TEAM')}
+                    {isVerified ? "YOU'RE_ALL_SET" : (existingReg?.teamId ? 'TEAM_READY · PAY ON UNSTOP' : 'ASSEMBLING_TEAM')}
                 </h3>
                 <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
                     Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
                     {isMember && existingReg?.leaderName ? <>You're registered as a team member (led by <strong>{existingReg.leaderName}</strong>).<br /></> : null}
                     {isVerified
-                        ? 'Admin has verified this registration against the Unstop participant roster.'
+                        ? 'Your registration is verified. There is nothing more to do on Unstop. Here is everything you need for the event.'
                         : (existingReg?.teamId
                             ? 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.'
                             : 'Your team is not final yet. Every invited teammate must accept before you can register on Unstop.')}
@@ -330,7 +331,7 @@ export default function RegistrationForm({
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
-                    {existingReg?.teamId && (<button
+                    {existingReg?.teamId && !isVerified && (<button
                         type="button"
                         onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
                         style={{
@@ -348,6 +349,39 @@ export default function RegistrationForm({
                     >
                         OPEN UNSTOP · ENTER TEAM ID + ADDOVEDI ID ↗
                     </button>)}
+
+                    {isVerified && (() => {
+                        const tl = activeEvent.timeline || {};
+                        const when = [DAYS[(tl.day || 0) - 1] ? `${DAYS[tl.day - 1].label} · ${DAYS[tl.day - 1].date}` : '', tl.time ? `${tl.time}${tl.end ? ' – ' + tl.end : ''}` : ''].filter(Boolean).join(' · ');
+                        const venue = tl.venue || activeEvent.venue || '';
+                        const coords = (activeEvent.heads || []).filter(h => h?.name);
+                        const rows = [
+                            ['EVENT', activeEvent.title],
+                            ['TEAM', existingReg.teamName || teamName || ''],
+                            ['TEAM ID', existingReg.teamId || ''],
+                            ['WHEN', when],
+                            ['WHERE', venue],
+                        ].filter(([, v]) => v);
+                        return (
+                            <div style={{ border: '1px solid #1FFF7660', background: '#1FFF7610', padding: '12px 14px', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '10px', letterSpacing: '0.18em', color: '#1FFF76', fontWeight: 900 }}>✓ REGISTRATION CONFIRMED</div>
+                                {rows.map(([k, v]) => (
+                                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: '12px' }}>
+                                        <span style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Orbitron', sans-serif", fontSize: '9px', letterSpacing: '0.1em' }}>{k}</span>
+                                        <span style={{ color: '#fff', textAlign: 'right', fontWeight: 700 }}>{v}</span>
+                                    </div>
+                                ))}
+                                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, marginTop: '4px' }}>
+                                    Carry your college ID card and report on time. Schedule updates and announcements will appear on the Timeline page and in your event group.
+                                </div>
+                                {coords.length > 0 && (
+                                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+                                        Questions? {coords.map((h, i) => (<span key={i}>{i > 0 ? ' · ' : ''}<strong style={{ color: '#fff' }}>{h.name}</strong>{h.phone ? ` ${h.phone}` : ''}</span>))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
 
                     {isMember ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
