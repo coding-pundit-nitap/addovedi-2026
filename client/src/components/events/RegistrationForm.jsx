@@ -30,6 +30,19 @@ export default function RegistrationForm({
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
     const { open: registrationOpen, mode: registrationMode } = useRegistrationOpen();
     const [inviteUid, setInviteUid] = useState('');
+    const [inviteStatus, setInviteStatus] = useState(undefined); // undefined | 'checking' | 'valid' | 'invalid' | 'busy'
+    const checkInviteUid = async (uid) => {
+        const trimmed = (uid || '').trim();
+        if (!trimmed) { setInviteStatus(undefined); return; }
+        setInviteStatus('checking');
+        try {
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}?event=${encodeURIComponent(activeEvent?.title || '')}&exclude=${encodeURIComponent(existingReg?.registrationId || '')}`, {
+                headers: { Authorization: `Bearer ${loggedInUser?.token || ''}` }
+            });
+            const data = await res.json();
+            setInviteStatus(!data.exists ? 'invalid' : (data.busy ? 'busy' : 'valid'));
+        } catch { setInviteStatus(undefined); }
+    };
     const [teamBusy, setTeamBusy] = useState(false);
     const runTeamAction = async (path, body) => { setTeamBusy(true); try { return handleTeamAction ? await handleTeamAction(path, body) : false; } finally { setTeamBusy(false); } };
     const [isCancelling, setIsCancelling] = useState(false);
@@ -46,11 +59,11 @@ export default function RegistrationForm({
         }
         setMemberUidStatus(prev => ({ ...prev, [index]: 'checking' }));
         try {
-            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}`, {
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}?event=${encodeURIComponent(activeEvent?.title || '')}`, {
                 headers: { Authorization: `Bearer ${loggedInUser?.token || ''}` }
             });
             const data = await res.json();
-            setMemberUidStatus(prev => ({ ...prev, [index]: data.exists ? 'valid' : 'invalid' }));
+            setMemberUidStatus(prev => ({ ...prev, [index]: !data.exists ? 'invalid' : (data.busy ? 'busy' : 'valid') }));
         } catch (err) {
             setMemberUidStatus(prev => ({ ...prev, [index]: 'invalid' }));
         }
@@ -320,10 +333,12 @@ export default function RegistrationForm({
                     <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
                         {(existingReg.members || []).filter(m => m.status !== 'REJECTED').length + 1 < (existingReg.teamSize || 1) && (
                             <div style={{ display: 'flex', gap: 6 }}>
-                                <input value={inviteUid} onChange={e => setInviteUid(e.target.value)} placeholder="ADDOVEDI ID TO INVITE" className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} />
-                                <button type="button" disabled={teamBusy || !inviteUid.trim()} onClick={async () => { if (await runTeamAction('invite', { uid: inviteUid })) setInviteUid(''); }} style={{ padding: '0 14px', background: activeEvent.color, color: '#02050c', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '11px' }}>INVITE</button>
+                                <input value={inviteUid} onChange={e => { setInviteUid(e.target.value); setInviteStatus(undefined); }} onBlur={() => checkInviteUid(inviteUid)} placeholder="ADDOVEDI ID TO INVITE" className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                                <button type="button" disabled={teamBusy || !inviteUid.trim() || inviteStatus === 'busy' || inviteStatus === 'invalid'} onClick={async () => { if (await runTeamAction('invite', { uid: inviteUid })) { setInviteUid(''); setInviteStatus(undefined); } }} style={{ padding: '0 14px', background: activeEvent.color, color: '#02050c', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '11px' }}>INVITE</button>
                             </div>
                         )}
+                        {inviteStatus === 'busy' && <span style={{ fontSize: '10px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Already in a team for this event: choose someone else</span>}
+                        {inviteStatus === 'invalid' && <span style={{ fontSize: '10px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Addovedi ID not found</span>}
                         {(existingReg.members || []).some(m => m.status === 'REJECTED') && !(existingReg.members || []).some(m => m.status === 'PENDING') && (
                             <button type="button" disabled={teamBusy} onClick={() => { if (window.confirm('Continue with only the players who accepted? The team will be locked and you will get a Team ID.')) runTeamAction('finalize', {}); }} style={{ padding: '8px', background: 'transparent', border: `1px solid ${activeEvent.color}80`, color: '#fff', fontSize: '11px', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif" }}>CONTINUE WITH ACCEPTED PLAYERS</button>
                         )}
@@ -450,6 +465,10 @@ export default function RegistrationForm({
         // before the team can proceed.
         if ((members || []).some(m => !(m?.uid || '').trim())) {
             alert('Every team member needs an Addovedi ID. Fill in the blank teammate ID(s) or reduce the team size.');
+            return;
+        }
+        if ((members || []).some((m, idx) => memberUidStatus[idx] === 'busy')) {
+            alert('One or more teammates are already in a team for this event. Replace them with other players before continuing.');
             return;
         }
         const allVerified = (members || []).every((m, idx) => memberUidStatus[idx] === 'valid');
@@ -594,6 +613,9 @@ export default function RegistrationForm({
                                     )}
                                     {memberUidStatus[i] === 'valid' && (
                                         <span style={{ fontSize: '9px', color: '#1FFF76', fontFamily: 'monospace' }}>✓ ID verified</span>
+                                    )}
+                                    {memberUidStatus[i] === 'busy' && (
+                                        <span style={{ fontSize: '9px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Already in a team for this event: choose someone else</span>
                                     )}
                                     {memberUidStatus[i] === 'invalid' && (
                                         <span style={{ fontSize: '9px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Addovedi ID not found — member must sign up first</span>

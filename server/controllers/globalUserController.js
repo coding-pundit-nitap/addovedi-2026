@@ -1,6 +1,9 @@
 import * as globalUserService from '../services/globalUserService.js';
 import { verifyTurnstileToken } from '../utils/turnstile.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
+import mongoose from 'mongoose';
+import Registration from '../models/Registration.js';
+import { expireStaleInvites } from './registrationController.js';
 
 export const signup = async (req, res) => {
     try {
@@ -39,7 +42,23 @@ export const checkUid = async (req, res) => {
     try {
         const user = await globalUserService.findByAddovediId(req.params.addovediId);
         if (!user) return res.json({ exists: false });
-        return res.json({ exists: true, name: user.name });
+        // Optional: is this player already in an active team for the given event? Same rule createRegistration and
+        // invite enforce, so the form can warn before submit. `exclude` = the caller's own registration (re-inviting
+        // someone already on your team is answered by /invite itself). Only a yes/no is returned, never the other team.
+        let busy = false;
+        const eventTitle = String(req.query.event || '').trim();
+        if (eventTitle) {
+            await expireStaleInvites();
+            const uid = user.addovediId;
+            const query = {
+                eventTitle,
+                status: { $ne: 'CANCELLED' },
+                $or: [{ leaderUID: uid }, { members: { $elemMatch: { uid, status: { $ne: 'REJECTED' } } } }]
+            };
+            if (mongoose.isValidObjectId(req.query.exclude)) query._id = { $ne: req.query.exclude };
+            busy = Boolean(await Registration.exists(query).collation({ locale: 'en', strength: 2 }));
+        }
+        return res.json({ exists: true, name: user.name, busy });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
