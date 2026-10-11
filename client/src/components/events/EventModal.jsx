@@ -29,6 +29,8 @@ function EventDetailsModal({
     const location = useLocation();
     const [activeTab, setActiveTab] = useState('register'); // Default to register
     const isMobileModal = window.innerWidth < 768;
+    // Prize set per event in Admin > Timeline Scheduling (timeline.prize); the static fallback's 'Trophies' is only a placeholder.
+    const prizePool = activeEvent?.timeline?.prize || (activeEvent?.prize && activeEvent.prize !== 'Trophies' ? activeEvent.prize : '') || 'TBA';
 
     const btnThemeStyles = {
         '--btn-color-light': activeEvent?.color ? '#ffffff' : '#67e8f9',
@@ -287,6 +289,10 @@ function EventDetailsModal({
                         <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ FEE ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900 }}>FREE</span>
+                        </div>
+                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>[ PRIZE POOL ]</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{prizePool}</span>
                         </div>
                         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ BOUNTY ]</span>
