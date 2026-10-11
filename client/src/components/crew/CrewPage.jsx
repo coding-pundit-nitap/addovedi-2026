@@ -31,6 +31,32 @@ const CREW_POLL_INTERVAL_MS = 15000;
 /* ════════════════════════════════════════════
    STATISTICS COUNT UP STRIP
    ════════════════════════════════════════════ */
+// Splits a section into the hierarchy shown on the page:
+//   chief: the CHIEF stands alone on the first row
+//   grid:  everyone else, in rank order (ASST. CHIEF, EVENT HEAD, ...), wrapped in the normal card grid
+//   teams: a head with people reporting to them (`reportsTo` = the head's name) is drawn as a small tree
+const ROLE_RANK = { 'CHIEF': 0, 'ASST. CHIEF': 1, 'EVENT HEAD': 2 };
+const roleRank = (m) => ROLE_RANK[String(m.role || '').trim().toUpperCase()] ?? 3;
+const nameKey = (n) => String(n || '').trim().toLowerCase();
+
+function layoutSection(members) {
+    const byName = new Map(members.map(m => [nameKey(m.name), m]));
+    const children = members.filter(m => m.reportsTo && byName.has(nameKey(m.reportsTo)) && nameKey(m.reportsTo) !== nameKey(m.name));
+    const childSet = new Set(children);
+    const teams = [];
+    members.forEach(m => {
+        const kids = children.filter(c => nameKey(c.reportsTo) === nameKey(m.name));
+        if (kids.length) teams.push({ parent: m, children: kids });
+    });
+    const parentSet = new Set(teams.map(t => t.parent));
+    const rest = members.filter(m => !childSet.has(m) && !parentSet.has(m));
+    const chief = rest.filter(m => roleRank(m) === 0);
+    const grid = rest.filter(m => roleRank(m) !== 0);
+    // Rank order only matters in the leadership section (the one with a CHIEF); other sections keep their order.
+    if (chief.length) grid.sort((a, b) => roleRank(a) - roleRank(b));
+    return { chief, grid, teams };
+}
+
 function StatStrip({ finalMembers, finalMission }) {
     const [members, setMembers] = useState(0);
     const [mission, setMission] = useState(0);
@@ -480,32 +506,55 @@ function CrewPageContent() {
                                         <span style={{ color: `${section.color}40`, fontSize: '10px' }}>&gt;</span>
                                     </div>
 
-                                    {/* Cards Grid Centered */}
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        gap: isMobile ? '32px 16px' : '28px',
-                                        width: '100%',
-                                        marginBottom: '24px'
-                                    }}>
-                                        {section.members.map((member) => (
-                                            <div 
-                                                key={member.id}
-                                                style={{
-                                                    width: isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)',
-                                                    minWidth: isMobile ? '140px' : '240px',
-                                                    maxWidth: '280px'
-                                                }}
-                                            >
-                                                <CrewCard
-                                                    member={member}
-                                                    isFeatured={false}
-                                                    isMobile={isMobile}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {(() => {
+                                        const { chief, grid, teams } = layoutSection(section.members);
+                                        const cardW = isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)';
+                                        const cardStyle = { width: cardW, minWidth: isMobile ? '140px' : '240px', maxWidth: '280px' };
+                                        const rowStyle = { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: isMobile ? '32px 16px' : '28px', width: '100%', marginBottom: '24px' };
+                                        const line = `${section.color}70`;
+                                        return (
+                                            <>
+                                                {chief.length > 0 && (
+                                                    <div style={rowStyle}>
+                                                        {chief.map(m => (
+                                                            <div key={m.id} style={{ ...cardStyle, width: isMobile ? 'calc(50% - 8px)' : '280px' }}>
+                                                                <CrewCard member={m} isFeatured isMobile={isMobile} />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {grid.length > 0 && (
+                                                    <div style={rowStyle}>
+                                                        {grid.map(m => (
+                                                            <div key={m.id} style={cardStyle}>
+                                                                <CrewCard member={m} isFeatured={false} isMobile={isMobile} />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {teams.map(({ parent, children }) => (
+                                                    <div key={parent.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '24px' }}>
+                                                        <div style={{ ...cardStyle, width: isMobile ? 'calc(50% - 8px)' : '280px' }}>
+                                                            <CrewCard member={parent} isFeatured={false} isMobile={isMobile} />
+                                                        </div>
+                                                        {/* tree connector: stem down from the head, bar across, a stub into each report */}
+                                                        <div style={{ width: 2, height: 22, background: line }} />
+                                                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                                            {children.map((c, idx) => (
+                                                                <div key={c.id} style={{ position: 'relative', paddingTop: 22, paddingLeft: isMobile ? 8 : 14, paddingRight: isMobile ? 8 : 14, width: isMobile ? '50%' : 'auto', boxSizing: 'border-box' }}>
+                                                                    <div style={{ position: 'absolute', top: 0, left: idx === 0 ? '50%' : 0, right: idx === children.length - 1 ? '50%' : 0, height: 2, background: line, display: children.length > 1 ? 'block' : 'none' }} />
+                                                                    <div style={{ position: 'absolute', top: 0, left: 'calc(50% - 1px)', width: 2, height: 22, background: line }} />
+                                                                    <div style={{ width: isMobile ? '100%' : 250 }}>
+                                                                        <CrewCard member={c} isFeatured={false} isMobile={isMobile} />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>

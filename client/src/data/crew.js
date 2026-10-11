@@ -29,12 +29,13 @@ export const STUDENT_SECTIONS = crew2026.map((sec, i) => {
     return {
         title: sec.title,
         color,
-        members: sec.members.map(({ name, role, avatar, phone, linkedin }, j) => ({
+        members: sec.members.map(({ name, role, avatar, phone, linkedin, reportsTo }, j) => ({
             id: `SC${String(i + 1).padStart(2, '0')}${j + 1}`,
             name,
             role,
             avatar: avatar || '',
             phone: phone || '',
+            reportsTo: reportsTo || '',
             links: linkedin ? [{ platform: 'LinkedIn', url: linkedin }] : [],
             avatarSeed: name,
             color,
@@ -78,6 +79,7 @@ export function mergeCrewFromDb(allCrew) {
                     role: c.role,
                     avatar: c.avatar || '',
                     phone: c.phone || '',
+                    reportsTo: c.reportsTo || '',
                     avatarSeed: c.name,
                     color,
                     glow: `${color}66`,

@@ -54,6 +54,8 @@ const CrewSchema = new mongoose.Schema({
         default: ''
     },
     // Shown on the crew card (tap-to-call)
+    // Name of the head this person reports to (drawn under them as a team tree on the Crew page)
+    reportsTo: { type: String, maxlength: 100, trim: true, default: '' },
     phone: { type: String, maxlength: 20, trim: true, default: '' },
     links: [SocialLinkSchema]
 }, { timestamps: true });
