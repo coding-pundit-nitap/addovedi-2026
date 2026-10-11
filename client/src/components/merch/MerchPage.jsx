@@ -122,7 +122,7 @@ function TeeCard({ item }) {
                         boxShadow: `0 0 20px ${item.color}40`,
                     }}
                 >
-                    ORDER →
+                    ORDER NOW →
                 </a>
             </div>
         </motion.div>
