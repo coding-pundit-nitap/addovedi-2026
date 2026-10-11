@@ -58,6 +58,14 @@ export default function App() {
     // the whole scene and replay the 6s intro, which froze the page and made the HOME link feel broken.
     const [heroMounted, setHeroMounted] = useState(!isStandalonePage);
     useEffect(() => { if (!isStandalonePage) setHeroMounted(true); }, [isStandalonePage]);
+    // Landing straight on /crew, /merch etc. then clicking ARENA used to build the whole 3D scene at that moment, leaving an
+    // empty lobby for ~15s. On desktop, build it quietly (paused) a few seconds after load so ARENA is ready when clicked.
+    useEffect(() => {
+        if (heroMounted || location.pathname === ADMIN_PATH || eventsGated) return;
+        if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const id = setTimeout(() => setHeroMounted(true), 4000);
+        return () => clearTimeout(id);
+    }, [heroMounted, location.pathname, eventsGated]);
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {

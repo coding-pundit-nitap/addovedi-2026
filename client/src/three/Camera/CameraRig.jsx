@@ -24,14 +24,28 @@ export default function CameraRig() {
 
     const phaseRef = useRef('idle'); // 'idle' | 'warping' | 'inside' | 'returning'
     const tlRef = useRef(null);
+    const exitTimerRef = useRef(null);
 
     useEffect(() => {
         const isMobile = window.innerWidth < 768;
         const responsiveScale = isMobile ? 0.45 : 1.0;
 
-        if (tlRef.current) {
-            tlRef.current.kill();
-            tlRef.current = null;
+        // Animations must survive route changes. They used to be killed here on every pathname change, which left
+        // phaseRef stuck on 'warping'/'returning' forever (e.g. Exit Lobby, open Merch, click ARENA = empty lobby).
+        const killTimeline = () => {
+            clearTimeout(exitTimerRef.current);
+            if (tlRef.current) { tlRef.current.kill(); tlRef.current = null; }
+        };
+
+        if (isEntered && phaseRef.current === 'returning') {
+            // Player is heading back in before the exit glide finished: drop it and start from a clean idle state.
+            killTimeline();
+            setPortalFlash(false);
+            phaseRef.current = 'idle';
+        } else if (!isEntered && phaseRef.current === 'warping') {
+            // Left mid fly-in: unwind through the normal exit path below.
+            killTimeline();
+            phaseRef.current = 'inside';
         }
 
         if (isEntered) {
@@ -47,6 +61,9 @@ export default function CameraRig() {
                 camera.position.set(0, 0.4, 0);
                 camera.rotation.set(0.42, 0, 0);
                 camera.updateMatrixWorld();
+                // Same scene state the fly-in leaves behind (sun gone/dimmed), otherwise the lobby is lit like the home page
+                useStore.getState().setSunDimFactor(0);
+                useStore.getState().setShowSun(false);
                 setPortalFlash(false);
                 return;
             }
@@ -193,7 +210,7 @@ export default function CameraRig() {
                 setPortalFlash(true);
 
                 // Wait for black overlay, then reset 3D scene elements and animate camera back
-                setTimeout(() => {
+                exitTimerRef.current = setTimeout(() => {
                     useStore.getState().setShowSun(true);
                     setIsEventPage(false);
 
@@ -244,13 +261,13 @@ export default function CameraRig() {
             }
         }
 
-        return () => {
-            if (tlRef.current) {
-                tlRef.current.kill();
-                tlRef.current = null;
-            }
-        };
     }, [isEntered, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Only tear animations down when the rig itself unmounts.
+    useEffect(() => () => {
+        clearTimeout(exitTimerRef.current);
+        if (tlRef.current) { tlRef.current.kill(); tlRef.current = null; }
+    }, []);
 
     useFrame(state => {
         const isMobile = window.innerWidth < 768;
