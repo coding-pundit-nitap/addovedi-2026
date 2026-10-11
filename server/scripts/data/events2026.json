@@ -283,12 +283,14 @@
     "title": "SOLID SIEGE",
     "subtitle": "IMAGINE. DESIGN. CREATE",
     "desc": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.",
-    "overview": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.\n\nParticipants will be challenged to transform ideas into precise and functional 3D models while applying engineering principles, creativity, and effective design practices. The event tests both technical proficiency and the ability to develop practical solutions within a limited time.\n\nVISUALIZE THE IDEA. DESIGN THE SOLUTION.",
+    "overview": "Solid Siege is the SolidWorks CAD competition of Addovedi 2026. Across three progressively harder rounds — 2D sketching, 3D part modelling and assembly design — participants race the clock to turn engineering drawings into accurate, clean SolidWorks models.\n\nA design problem with exact dimensions and required features is released at the start of each round. Model it exactly as specified within the time limit to qualify for the next round.\n\nRound 1 — 2D Mechanical Bracket (2 points): dimensional accuracy, correct geometry and a clean, well-constrained sketch.\nRound 2 — 3D Stepped Support (3 points): dimensional accuracy, correct features and a clean model tree.\nRound 3 — Wheel–Shaft Assembly (5 points): correct components, proper mates and overall assembly accuracy.\n\nRound scores build from 2 to 3 to 5 points, for a maximum of 10. Recorded time decides any tie.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gear",
+    "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "timeline": { "prize": "₹10,00,000+" }
    },
    {
     "title": "HYDRAULIC WARZONE",
