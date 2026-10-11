@@ -238,9 +238,10 @@ function EventDetailsModal({
                     paddingRight: isMobileModal ? '0' : '24px',
                     paddingBottom: isMobileModal ? '12px' : '0',
                     height: isMobileModal ? 'auto' : '100%',
-                    overflow: 'hidden',
+                    overflowY: isMobileModal ? 'hidden' : 'auto',
+                    overflowX: 'hidden',
                     flexShrink: 0
-                }}>
+                }} className="cyber-rules-scrollbar">
                     <div>
                         <div style={{ fontSize: '8px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '4px' }}>
                             {'MISSION_DATA › SECTOR_'}{activeEvent.categoryTitle?.toUpperCase().replace(/\s/g, '_')}
@@ -264,7 +265,7 @@ function EventDetailsModal({
 
                         {/* Event Heads Contact - Desktop Only */}
                         {!isMobileModal && (
-                            <div style={{ marginTop: '16px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '12px' }}>
+                            <div style={{ marginTop: '10px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '8px' }}>
                                 <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '6px' }}>
                                     {'DIRECT_COMMS'}
                                 </div>
@@ -285,26 +286,26 @@ function EventDetailsModal({
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: isMobileModal ? '1fr 1fr' : '1fr',
-                        gap: isMobileModal ? '3px' : '6px',
+                        gap: isMobileModal ? '3px' : '4px',
                         marginTop: isMobileModal ? '4px' : 'auto'
                     }}>
-                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ FEE ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{(activeEvent.fee || '').trim() || 'FREE'}</span>
                         </div>
-                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>[ PRIZE POOL ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{prizePool}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ BOUNTY ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#fff', fontWeight: 900 }}>{activeEvent.xp}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ DIFFICULTY ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#ff1f4f', fontWeight: 900 }}>{activeEvent.difficulty}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ STATUS ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#28c840', fontWeight: 900 }}>OPEN</span>
                         </div>
@@ -316,6 +317,10 @@ function EventDetailsModal({
                             onClick={onClose}
                             style={{
                                 marginTop: '10px',
+                                position: 'sticky',
+                                bottom: 0,
+                                zIndex: 2,
+                                backgroundColor: 'rgba(2,5,12,0.96)',
                                 background: 'transparent',
                                 border: '1px solid #ff1f4f50',
                                 color: '#ff1f4f',
