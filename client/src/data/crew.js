@@ -32,12 +32,13 @@ export const STUDENT_SECTIONS = crew2026.map((sec, i) => {
     return {
         title: sec.title,
         color,
-        members: sec.members.map(({ name, role, avatar, phone, linkedin, reportsTo }, j) => ({
+        members: sec.members.map(({ name, role, avatar, phone, email, linkedin, reportsTo }, j) => ({
             id: `SC${String(i + 1).padStart(2, '0')}${j + 1}`,
             name,
             role,
             avatar: avatar || '',
             phone: phone || '',
+            email: email || '',
             reportsTo: reportsTo || '',
             links: linkedin ? [{ platform: 'LinkedIn', url: linkedin }] : [],
             avatarSeed: name,
