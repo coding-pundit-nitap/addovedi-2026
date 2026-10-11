@@ -1,8 +1,8 @@
 [
-  { "name": "Dr. Brajgopal Datta", "role": "FACULTY COORDINATOR · EE SOCIETY", "main": true },
-  { "name": "Dr. Subhasish Banerjee", "role": "CSE SOCIETY COORDINATOR" },
-  { "name": "Dr. Sahadev Roy", "role": "ECE SOCIETY COORDINATOR" },
-  { "name": "Dr. Sandip Kumar Mandal", "role": "ME SOCIETY COORDINATOR" },
-  { "name": "Dr. Jaikesh", "role": "CE SOCIETY COORDINATOR" },
-  { "name": "Dr. Manjula Das Ghatak", "role": "ROBOTICS CLUB COORDINATOR" }
+  {"name": "Dr. Brajgopal Datta", "role": "FACULTY COORDINATOR · EE SOCIETY", "main": true},
+  {"name": "Dr. Subhasish Banerjee", "role": "CSE SOCIETY COORDINATOR", "avatar": "/crew/subhasish-banerjee.webp"},
+  {"name": "Dr. Sahadev Roy", "role": "ECE SOCIETY COORDINATOR", "avatar": "/crew/sahadev-roy.webp"},
+  {"name": "Dr. Sandip Kumar Mandal", "role": "ME SOCIETY COORDINATOR", "avatar": "/crew/sandip-kumar-mandal.webp"},
+  {"name": "Dr. Jaikesh", "role": "CE SOCIETY COORDINATOR", "avatar": "/crew/jaikesh.webp"},
+  {"name": "Dr. Manjula Das Ghatak", "role": "ROBOTICS CLUB COORDINATOR", "avatar": "/crew/manjula-das-ghatak.webp"}
 ]

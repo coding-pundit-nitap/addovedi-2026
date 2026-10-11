@@ -10,6 +10,9 @@ export const FACULTY_CREW = faculty2026.map((f, i) => {
         id: `FC${String(i + 1).padStart(2, '0')}`,
         name: f.name,
         role: f.role,
+        avatar: f.avatar || '',
+        phone: f.phone || '',
+        links: f.linkedin ? [{ platform: 'LinkedIn', url: f.linkedin }] : [],
         avatarSeed: f.name,
         color,
         glow: color === '#00E5FF' ? 'rgba(0,229,255,0.4)' : 'rgba(155,92,255,0.4)'
