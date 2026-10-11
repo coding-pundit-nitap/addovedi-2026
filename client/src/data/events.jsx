@@ -439,14 +439,36 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "SKY FORGE",
                 "subtitle": "DESIGN FOR THE SKY. BUILD FOR HEIGHT. LAUNCH FOR GLORY.",
                 "desc": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.",
-                "overview": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.\n\nUsing the materials and standardized syringe-based propulsion mechanism provided by the organizers, participants will design and build their own rockets to achieve maximum flight height. The challenge tests creativity, design optimization, aerodynamics, and engineering skills.",
+                "overview": "SKYFORGE is the pneumatic rocket aviation challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. In this two-round, hands-on competition, teams of three learn the fundamentals of aerospace engineering by designing, building and launching a lightweight model rocket.\n\nEvery rocket is launched with the same standardised syringe-based pneumatic propulsion system provided by the organisers. The goal is the maximum valid flight height, reached within all safety, dimensional, structural and competition requirements.\n\nRound 1 is rocket design and construction, followed by a technical inspection. Round 2 is the launch and maximum height challenge. Teams decide the body shape, nose cone, fin number, shape and placement, weight distribution and centre of gravity, so success depends on stability, low drag, structural strength and lightweight construction.\n\nScoring is out of 100: maximum valid flight height (70), rocket stability and flight performance (15), structural integrity (10) and rule compliance and safety (5).",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "rocket",
-                "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "minTeam": 3,
+                "maxTeam": 3,
+                "fee": "₹100 per team",
+                "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
+                "timeline": { "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Any change in team composition needs the organisers' approval.",
+                "Registration fee is ₹100 per team. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with accurate details.",
+                "Construction kits are given to the first 8 teams that complete both registration and payment, on a first come, first served basis. Later teams may still take part but without a kit. The organisers will announce when all 8 kits are allocated.",
+                "The kit contains small thermocol, MDF board, 10 mL and 20 mL syringes, Fevicol, super glue, saline tubing, nails, wire and basic construction materials. The organisers also provide the standard syringe-based pneumatic launcher used by every team.",
+                "Round 1 is design and construction. Build the rocket only from the permitted materials. You decide the body shape, nose cone, number, shape and placement of fins, weight distribution, centre of gravity and overall geometry within the limits announced by the organisers.",
+                "Dimensional and weight limits, if any, are announced by the organisers. No numerical limits apply unless officially announced. Organisers may inspect rockets at any stage of construction.",
+                "Every rocket goes through technical inspection: dimensions, weight, structural integrity, attachment to the launcher, rule compliance, design safety, stability and absence of prohibited mechanisms. Only rockets that pass qualify for Round 2.",
+                "Round 2 is the launch and maximum height challenge. Every team launches from the designated area with the same standard pneumatic launcher, under the coordinators' supervision. The highest valid altitude wins.",
+                "The altitude measurement method is announced before the launch round, and the official measurement result is final. The number of attempts per team is announced before Round 2. If several are allowed, the best valid altitude counts.",
+                "A launch is valid when the rocket is properly attached to the launcher, launched only on the official signal, from the designated area, with no unauthorised help, no prohibited propulsion and no interference, and the rocket meets all dimension, weight and safety requirements.",
+                "Scoring is out of 100: maximum valid flight height 70, rocket stability and flight performance 15, structural integrity 10, rule compliance and safety 5. Appearance and creativity carry no marks.",
+                "Prohibited: combustion engines, fuel, fire-based propulsion, explosives, chemical propellants, compressed gas cylinders, motorised or electric propulsion, pyrotechnics, any pressurised system other than the official launcher, and anything that gives an unfair launch advantage.",
+                "Safety: follow the organisers, stay behind the safety boundary during launch, do not approach the launch area until it is declared safe, and only officials may operate the launcher. No dangerous, sharp, explosive or burning payloads. Never aim a rocket at people, buildings or restricted areas.",
+                "A damaged rocket must be inspected before another attempt. Unsafe rockets may be rejected, and the organisers may stop any unsafe activity immediately. Decisions of the safety officials are final.",
+                "Penalties (severity decided by the judges): unauthorised propulsion or prohibited materials lead to an invalid attempt or disqualification. Launching before the signal makes the attempt invalid with no re-launch. Entering restricted areas, interfering with another team, manipulating measurement, unauthorised help or breaking safety rules lead to deductions, invalid attempts or disqualification.",
+                "Tie-break on equal altitude: higher stability score, then higher structural integrity score, then better compliance and safety score, then an additional launch if the organisers decide.",
+                "Disqualification applies for prohibited propulsion or dangerous materials, deliberately breaking safety rules, tampering with the launcher or the measurement, cheating, interfering with another team, deliberate damage to equipment, repeated disobedience or anything that compromises safety or fairness.",
+                "Report on schedule and attend any briefing. Keep construction and launch areas clean, do not enter restricted areas and do not interfere with other teams' rockets. The organisers may modify the launch area or procedure for safety and will announce changes before the relevant round.",
+                "The decisions of the judges and organisers on validity, penalties, measurement and final rankings are final and binding. Any situation not covered is decided by the organising committee and judging panel, and any rule change is announced before it takes effect."
+]
             }
         ]
     },
@@ -807,6 +829,7 @@ export const RULEBOOK_PDFS = {
     'dune-dominator': '/rulebooks/Addovedi-2026-dune-dominator-rulebook.pdf',
     'solid-siege': '/rulebooks/Addovedi-2026-solid-siege-rulebook.pdf',
     'hydraulic-warzone': '/rulebooks/Addovedi-2026-hydraulic-warzone-rulebook.pdf',
+    'sky-forge': '/rulebooks/Addovedi-2026-sky-forge-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};

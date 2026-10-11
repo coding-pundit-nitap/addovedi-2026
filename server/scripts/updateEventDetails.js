@@ -10,7 +10,7 @@ import SubEvent from '../models/SubEvent.js';
 const DATA = JSON.parse(readFileSync(new URL('./data/events2026.json', import.meta.url), 'utf8'));
 const confirm = process.argv.includes('--confirm');
 const named = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE'];
+const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE'];
 
 await mongoose.connect(process.env.MONGODB_URI);
 console.log(`DB host: ${mongoose.connection.host} / ${mongoose.connection.name}   mode: ${confirm ? 'WRITE' : 'DRY RUN'}`);

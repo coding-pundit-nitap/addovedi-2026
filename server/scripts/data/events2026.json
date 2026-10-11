@@ -313,12 +313,15 @@
     "title": "SKY FORGE",
     "subtitle": "DESIGN FOR THE SKY. BUILD FOR HEIGHT. LAUNCH FOR GLORY.",
     "desc": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.",
-    "overview": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.\n\nUsing the materials and standardized syringe-based propulsion mechanism provided by the organizers, participants will design and build their own rockets to achieve maximum flight height. The challenge tests creativity, design optimization, aerodynamics, and engineering skills.",
+    "overview": "SKYFORGE is the pneumatic rocket aviation challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. In this two-round, hands-on competition, teams of three learn the fundamentals of aerospace engineering by designing, building and launching a lightweight model rocket.\n\nEvery rocket is launched with the same standardised syringe-based pneumatic propulsion system provided by the organisers. The goal is the maximum valid flight height, reached within all safety, dimensional, structural and competition requirements.\n\nRound 1 is rocket design and construction, followed by a technical inspection. Round 2 is the launch and maximum height challenge. Teams decide the body shape, nose cone, fin number, shape and placement, weight distribution and centre of gravity, so success depends on stability, low drag, structural strength and lightweight construction.\n\nScoring is out of 100: maximum valid flight height (70), rocket stability and flight performance (15), structural integrity (10) and rule compliance and safety (5).",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "rocket",
-    "minTeam": 1,
-    "maxTeam": 5
+    "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "₹100 per team",
+    "timeline": { "prize": "₹13,000+ (including goodies)" }
    }
   ]
  },
