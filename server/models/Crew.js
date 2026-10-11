@@ -53,6 +53,8 @@ const CrewSchema = new mongoose.Schema({
         required: false,
         default: ''
     },
+    // Shown on the crew card (tap-to-call)
+    phone: { type: String, maxlength: 20, trim: true, default: '' },
     links: [SocialLinkSchema]
 }, { timestamps: true });
 

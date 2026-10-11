@@ -89,7 +89,7 @@ export default function AdminPage() {
     // don't need migrating if the calendar dates ever shift again.
     const DAY_LABELS = { 1: 'DAY ZERO — OCT 28', 2: 'DAY 1 — OCT 29', 3: 'DAY 2 — OCT 30' };
     const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
-    const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
+    const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', phone: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -784,7 +784,7 @@ export default function AdminPage() {
 
             fetchCrew();
             setEditingCrew(null);
-            setNewCrew({ name: '', role: '', avatar: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
+            setNewCrew({ name: '', role: '', avatar: '', phone: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
             alert('Crew member profile saved successfully!');
         } catch (err) {
             alert(`Error Saving Crew: ${err.message}`);
@@ -1899,6 +1899,7 @@ export default function AdminPage() {
                         <form onSubmit={saveCrew} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                             <input type="text" placeholder="Full Name" value={editingCrew ? editingCrew.name : newCrew.name} onChange={e => editingCrew ? setEditingCrew({ ...editingCrew, name: e.target.value.toUpperCase() }) : setNewCrew({ ...newCrew, name: e.target.value.toUpperCase() })} required />
                             <input type="text" placeholder="Role / Title (e.g. WEB HEAD)" value={editingCrew ? editingCrew.role : newCrew.role} onChange={e => editingCrew ? setEditingCrew({ ...editingCrew, role: e.target.value.toUpperCase() }) : setNewCrew({ ...newCrew, role: e.target.value.toUpperCase() })} required />
+                            <input type="text" placeholder="Phone (shown on card, e.g. +91 98765 43210)" maxLength={20} value={(editingCrew ? editingCrew.phone : newCrew.phone) || ''} onChange={e => editingCrew ? setEditingCrew({ ...editingCrew, phone: e.target.value }) : setNewCrew({ ...newCrew, phone: e.target.value })} />
                             <select value={(editingCrew ? editingCrew.type : newCrew.type) || 'STUDENT'} onChange={e => { const type = e.target.value; const category = type === 'FACULTY' ? 'FACULTY' : 'HEAD'; editingCrew ? setEditingCrew({ ...editingCrew, type, category }) : setNewCrew({ ...newCrew, type, category }); }}>
                                 <option value="STUDENT">STUDENT HEAD</option>
                                 <option value="FACULTY">FACULTY COORDINATOR</option>

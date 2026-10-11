@@ -29,11 +29,13 @@ export const STUDENT_SECTIONS = crew2026.map((sec, i) => {
     return {
         title: sec.title,
         color,
-        members: sec.members.map(({ name, role, avatar }, j) => ({
+        members: sec.members.map(({ name, role, avatar, phone, linkedin }, j) => ({
             id: `SC${String(i + 1).padStart(2, '0')}${j + 1}`,
             name,
             role,
             avatar: avatar || '',
+            phone: phone || '',
+            links: linkedin ? [{ platform: 'LinkedIn', url: linkedin }] : [],
             avatarSeed: name,
             color,
             glow: hexGlow(color)
@@ -75,6 +77,7 @@ export function mergeCrewFromDb(allCrew) {
                     name: c.name,
                     role: c.role,
                     avatar: c.avatar || '',
+                    phone: c.phone || '',
                     avatarSeed: c.name,
                     color,
                     glow: `${color}66`,
@@ -100,6 +103,7 @@ export function mergeFacultyFromDb(allCrew) {
                 name: c.name,
                 role: c.role,
                 avatar: c.avatar || '',
+                phone: c.phone || '',
                 avatarSeed: c.name,
                 color,
                 glow: i === 0 ? 'rgba(0,229,255,0.4)' : 'rgba(155,92,255,0.4)',
