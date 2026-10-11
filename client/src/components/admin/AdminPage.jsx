@@ -88,7 +88,7 @@ export default function AdminPage() {
     // (Oct 30) — kept as the stored values so existing scheduled sub-events
     // don't need migrating if the calendar dates ever shift again.
     const DAY_LABELS = { 1: 'DAY ZERO — OCT 28', 2: 'DAY 1 — OCT 29', 3: 'DAY 2 — OCT 30' };
-    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
+    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', phone: '', reportsTo: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
@@ -711,7 +711,7 @@ export default function AdminPage() {
 
             fetchEvents();
             setEditingSubEvent(null);
-            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
+            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
             alert('Sub-Event configuration saved successfully!');
         } catch (err) {
             alert(`Error Saving Sub-Event: ${err.message}`);
@@ -1819,7 +1819,11 @@ export default function AdminPage() {
                                     MAX TEAM SIZE (SAME AS MIN = FIXED SIZE)
                                     <input type="number" min="1" max="10" value={(editingSubEvent ? editingSubEvent.maxTeam : newSub.maxTeam) ?? 5} onChange={e => { const v = Number(e.target.value); editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, maxTeam: v }) : setNewSub({ ...newSub, maxTeam: v }); }} required />
                                 </label>
-                                
+                                <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontFamily: 'monospace', fontSize: '10px', color: '#9CA3AF' }}>
+                                    REGISTRATION FEE (BLANK = FREE)
+                                    <input type="text" maxLength={40} placeholder="e.g. ₹100 per team, or FREE" value={(editingSubEvent ? editingSubEvent.fee : newSub.fee) || ''} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, fee: e.target.value }) : setNewSub({ ...newSub, fee: e.target.value })} />
+                                </label>
+
                                 <div style={{ gridColumn: isMobile ? 'auto' : 'span 3', display: 'flex', gap: '10px' }}>
                                     <button type="submit" style={{ padding: '8px 24px', border: 'none', background: '#00E5FF', color: '#000', fontFamily: 'monospace', fontWeight: 900, cursor: 'pointer' }}>
                                         {editingSubEvent ? 'SAVE EDIT' : 'ADD SUB-EVENT'}

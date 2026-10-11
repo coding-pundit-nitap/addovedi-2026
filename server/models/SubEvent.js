@@ -38,6 +38,8 @@ const SubEventSchema = new mongoose.Schema({
     // Allowed team size (leader included). Equal values = fixed size, e.g. BGMI 4/4.
     minTeam: { type: Number, default: 1, min: 1, max: 10 },
     maxTeam: { type: Number, default: 5, min: 1, max: 10 },
+    // Registration fee shown in the event modal, e.g. '₹100' or 'FREE'. Blank = FREE.
+    fee: { type: String, default: '', trim: true, maxlength: 40 },
     overview: {
         type: String,
         required: false,

@@ -288,7 +288,7 @@ function EventDetailsModal({
                     }}>
                         <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ FEE ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900 }}>FREE</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{(activeEvent.fee || '').trim() || 'FREE'}</span>
                         </div>
                         <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>[ PRIZE POOL ]</span>
