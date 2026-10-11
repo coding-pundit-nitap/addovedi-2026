@@ -834,6 +834,17 @@ function useClonedScene(source) {
     return clone;
 }
 
+// The showcase spin/float is driven by time since the showcase MOUNTED, not by the canvas clock. The clock keeps running
+// behind the first-visit loading screen, so on a first visit it was already tens of seconds in when the lobby appeared
+// and the models showed up at an arbitrary, mid-spin angle (pointing at the camera) until a refresh reset the clock.
+function useShowcaseClock() {
+    const start = useRef(null);
+    return (clock) => {
+        if (start.current === null) start.current = clock.elapsedTime;
+        return clock.elapsedTime - start.current;
+    };
+}
+
 function WeaponShowcase({ activeColor }) {
     const showRef = useRef();
     const ring1Ref = useRef();
@@ -859,8 +870,9 @@ function WeaponShowcase({ activeColor }) {
         return clone;
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (showRef.current) {
             showRef.current.rotation.y = t * 0.12;
             showRef.current.position.y = posY + Math.sin(t * 0.5) * 0.2;
@@ -954,8 +966,9 @@ function RobotShowcase({ activeColor }) {
         return { mechaModel: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (robotRef.current) {
             robotRef.current.rotation.y = t * 0.12; // Match weapon showcase rotation speed (0.12)
             robotRef.current.position.y = 5.2 + Math.sin(t * 0.5) * 0.2; // Raised to 5.2 and animated
@@ -1046,8 +1059,9 @@ function ControllerShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (controllerRef.current) {
             controllerRef.current.rotation.y = t * 0.15; // Slow rotation
             controllerRef.current.rotation.x = Math.sin(t * 0.3) * 0.1; // Gentle sway tilt
@@ -1123,8 +1137,9 @@ function CodingShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (terminalRef.current) {
             terminalRef.current.rotation.y = t * 0.12; // Slow rotation
             terminalRef.current.rotation.x = Math.sin(t * 0.35) * 0.08; // Gentle sway tilt
@@ -1211,8 +1226,9 @@ function CivilShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (cityRef.current) {
             cityRef.current.rotation.y = t * 0.08; // Very slow majestic spin
             cityRef.current.rotation.x = Math.sin(t * 0.25) * 0.03 + 0.12; // Tighter vertical tilt for a tall tower
@@ -1288,8 +1304,9 @@ function ElectricalShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (transformerRef.current) {
             transformerRef.current.rotation.y = t * 0.12; // Slow rotation
             transformerRef.current.rotation.x = Math.sin(t * 0.3) * 0.06 + 0.15; // Gentle sway tilt
@@ -1365,8 +1382,9 @@ function AiShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (brainRef.current) {
             brainRef.current.rotation.y = t * 0.12; // Slow rotation
             brainRef.current.rotation.x = Math.sin(t * 0.3) * 0.05 + 0.1; // Gentle sway tilt
@@ -1438,8 +1456,9 @@ function ClockShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (clockRef.current) {
             clockRef.current.rotation.y = t * 0.14;
             clockRef.current.rotation.x = Math.sin(t * 0.3) * 0.08 + 0.1;
@@ -1501,8 +1520,9 @@ function PortalShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (portalRef.current) {
             portalRef.current.rotation.y = t * 0.10;
             portalRef.current.position.y = 4.8 + Math.sin(t * 0.45) * 0.22;
