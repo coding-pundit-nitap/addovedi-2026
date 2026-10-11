@@ -446,6 +446,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 3,
                 "maxTeam": 3,
                 "fee": "₹100 per team",
+                "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
                 "timeline": { "prize": "₹13,000+ (including goodies)" },
                 "rules": [
