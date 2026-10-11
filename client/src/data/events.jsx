@@ -47,8 +47,23 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹200 per team",
                 "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "timeline": { "prize": "₹22,000" },
-                "heads": [],
-                "rules": []
+                "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
+                "rules": [
+                "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
+                "Registration fee is ₹200 per team. Prizes worth ₹22,000.",
+                "The robot must be wired or wireless remote-controlled by the team. Autonomous robots are not allowed unless announced.",
+                "Maximum robot size 30 cm x 30 cm x 30 cm and maximum weight 5 kg.",
+                "Maximum operating voltage 12 V. Batteries must be sealed and safe. Pyrotechnic, liquid-based or hazardous parts are strictly prohibited.",
+                "Every robot goes through technical inspection before its first match. Each team must bring a spare battery and basic tools; components are not provided.",
+                "Round 1 is a qualifying group stage with round-robin matches. Round 2 is knockout, then semifinals and the final.",
+                "Each match is 5 minutes. A tie goes to a 2-minute golden-goal period, then a penalty shoot-out or a rematch.",
+                "Only one team member may operate the robot during a match. Other members must stay outside the arena.",
+                "A goal counts only when the whole ball crosses the goal line. A robot must not hold, lift or trap the ball for more than 5 seconds.",
+                "Intentionally damaging, flipping or trapping the opponent's robot is a foul. Repeated fouls lead to a warning, a goal penalty and then disqualification.",
+                "A robot immobilised for more than 10 seconds is out of play and the referee may restart the match. A team not ready within 3 minutes of being called forfeits.",
+                "Jammers, signal interference or any unfair electronic or mechanical method lead to immediate disqualification.",
+                "The decisions of the referees and the organizing committee are final and binding. The organizers may modify or clarify the rules, and any change will be announced."
+]
             },
             {
                 "title": "DUNE DOMINATOR",
@@ -63,8 +78,24 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹200 per team",
                 "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "timeline": { "prize": "₹20,000" },
-                "heads": [],
-                "rules": []
+                "heads": [{"name": "Vaibhav Gupta", "phone": "+91 95061 77693"}],
+                "rules": [
+                "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
+                "Registration fee is ₹200 per team. Prizes worth ₹20,000.",
+                "Round 1 (Elimination): carry 500 g of sand in the sand carrier with the lid fixed, cross the complete arena and clear every obstacle. Performance decides qualification for Round 2.",
+                "Round 2 (Final): carry 750 g of sand with the top open and cross the entire arena, losing as little sand and time as possible. Extra obstacles may be revealed on the spot. Final ranking comes from this round.",
+                "The arena layout and obstacles are revealed on the event day. The two rounds may use different arenas, with tunnels, bridges, banked sections and surprise obstacles.",
+                "Only self-powered rovers with a maximum battery voltage of 24 V are allowed. The rover must be controlled manually at all times through a wireless system. Autonomous or pre-programmed operation is strictly prohibited.",
+                "Maximum rover weight 2 kg (excluding sand). Maximum dimensions 40 cm x 30 cm x 30 cm (L x B x H). No motor speed restriction. PVC or plywood may be used for the structure.",
+                "Sand carrier: a 10 cm x 10 cm x 5 cm box of wood sheet at least 3 mm thick, mounted on the upper side of the rover, with a separate removable lid.",
+                "Wheels or continuous tracks, any number. No spikes, claws, screws, sharp protrusions or arena-damaging features. No active traction mechanisms that change geometry during a run. Wheels or tracks must be non-metallic.",
+                "Passive suspension is permitted. Active or electronically controlled suspension is not allowed, and suspension must not change the rover's geometry during a run.",
+                "The rover starts from the designated start point when the timer begins and must cross all obstacles. A maximum of 5 hand touches are allowed if it gets stuck or goes off track.",
+                "Penalty points are deducted for entering the Penalty Zone or touching the arena boundaries.",
+                "Judging: sand retention, time efficiency, stability and control, and operational discipline. Scoring weights and penalty values are announced on the event day and apply equally to all teams.",
+                "No changes, disassembly or modifications to the rover after the competition starts until results are declared. Intentional damage to the arena or other rovers, cheating or tampering leads to disqualification.",
+                "The decisions of the judges and event managers are final and binding. The organizers may modify the rules, arena specifications or judging criteria, and any change will be announced."
+]
             }
         ]
     },
@@ -729,6 +760,12 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
         EVENT_COORDINATORS[ev.title.toUpperCase()] = ev.heads;
     });
 });
+
+// Hosted rule-book PDFs (client/public/rulebooks), keyed by event slug
+export const RULEBOOK_PDFS = {
+    'robo-soccer': '/rulebooks/Addovedi-2026-robo-soccer-rulebook.pdf',
+    'dune-dominator': '/rulebooks/Addovedi-2026-dune-dominator-rulebook.pdf',
+};
 
 export const EVENT_RULES = {};
 CATEGORIES_WITH_EVENTS.forEach(cat => {

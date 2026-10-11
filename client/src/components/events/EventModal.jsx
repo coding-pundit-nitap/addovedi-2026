@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EVENT_RULES, GENERAL_RULES, slugify, EVENT_COORDINATORS } from '../../data/events';
+import { EVENT_RULES, GENERAL_RULES, RULEBOOK_PDFS, slugify, EVENT_COORDINATORS } from '../../data/events';
 import RegistrationForm from './RegistrationForm';
 
 function EventDetailsModal({
@@ -78,6 +78,8 @@ function EventDetailsModal({
 
 
     const handleDownloadPDF = () => {
+        const rulebook = RULEBOOK_PDFS[slugify(activeEvent.title)];
+        if (rulebook) { window.open(rulebook, '_blank', 'noopener'); return; } // official designed rule book
         const rules = EVENT_RULES[slugify(activeEvent.title)] || GENERAL_RULES;
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
@@ -434,7 +436,7 @@ function EventDetailsModal({
                                         e.currentTarget.style.boxShadow = `0 0 10px ${activeEvent.color}25`;
                                     }}
                                 >
-                                    DOWNLOAD RULES PDF ⭳
+                                    {RULEBOOK_PDFS[slugify(activeEvent.title)] ? 'DOWNLOAD RULE BOOK PDF ⭳' : 'DOWNLOAD RULES PDF ⭳'}
                                 </button>
                             </div>
                             <div style={{ overflowY: 'visible', maxHeight: 'none', paddingRight: '8px' }}>

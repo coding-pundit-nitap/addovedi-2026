@@ -27,7 +27,7 @@ for (const { events, ...cat } of DATA) {
             categoryTitle: cat.title,
             color: cat.color,
             modelType: cat.modelType,
-            heads: [],
+            heads: ev.heads || [],
             createdAt: stamp(),
         });
     }
