@@ -54,7 +54,9 @@ export default function CameraRig() {
                 return;
             }
 
-            const isAtEventRoute = location.pathname.startsWith('/event');
+            // window.location, not useLocation(): inside the paused canvas the router value lags behind, which made a
+            // click on ARENA from /timeline etc. play the whole fly-in through an already-switched (empty) scene.
+            const isAtEventRoute = window.location.pathname.startsWith('/event');
             // Direct load or instant navbar click bypass: if we are at /event route, position camera instantly inside VR lobby
             if (isAtEventRoute && phaseRef.current === 'idle') {
                 phaseRef.current = 'inside';
@@ -282,7 +284,7 @@ export default function CameraRig() {
             const breathingX = Math.cos(time * 0.6) * 0.04 * motionMult;
 
             // Check if we are inside a category or sub-event deck
-            const pathParts = location.pathname.split('/').filter(Boolean);
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
             const hasCategory = pathParts.length >= 2;
 
             // On mobile, the left sidebar is 60px wide — shift camera left so 3D cards visually center in remaining space

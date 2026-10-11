@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEventsVisible } from '../../utils/useRegistrationOpen';
 import { useStore } from '../../store/useStore';
 import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
@@ -143,14 +142,7 @@ export default function CommonNav() {
     const location = useLocation();
     const isSidebarOpen = useStore(s => s.isSidebarOpen);
     const setIsSidebarOpen = useStore(s => s.setIsSidebarOpen);
-    const { visible: eventsVisible } = useEventsVisible();
-    const go = (path) => {
-        if (!path) return;
-        // Entering the 3D lobby from inside the app (reusing the scene built for Home) leaves it blank or half-set-up
-        // for a while; a clean page load into /event always renders it right, like opening the link directly.
-        if (path === '/event' && eventsVisible && !location.pathname.startsWith('/event')) { window.location.assign('/event'); return; }
-        navigate(path);
-    };
+    const go = (path) => { if (path) navigate(path); };
 
     const activePath = location.pathname.startsWith('/event') ? '/event' : location.pathname;
     const badgeText = BADGE_MAP[activePath] || 'CORE PANEL · ACTIVE';
