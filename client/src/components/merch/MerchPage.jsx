@@ -122,7 +122,7 @@ function TeeCard({ item }) {
                         boxShadow: `0 0 20px ${item.color}40`,
                     }}
                 >
-                    ORDER VIA GOOGLE FORM →
+                    ORDER →
                 </a>
             </div>
         </motion.div>
@@ -182,7 +182,7 @@ export default function MerchPage() {
                             THE 2026 DROP
                         </h1>
                         <p className="merch-ov-label text-[13px] font-semibold text-[rgba(180,210,255,0.55)]" style={{ letterSpacing: '0.1em' }}>
-                            2 OFFICIAL TEES · REGULAR ₹349 / OVERSIZE ₹399 · ORDER VIA GOOGLE FORM
+                            2 OFFICIAL TEES · REGULAR ₹349 / OVERSIZE ₹399 · ORDER
                         </p>
                     </motion.div>
 
