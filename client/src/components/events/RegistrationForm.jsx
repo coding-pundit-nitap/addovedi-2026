@@ -274,7 +274,7 @@ export default function RegistrationForm({
                     {isVerified ? '✓' : '⏳'}
                 </div>
                 <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    {isVerified ? "YOU'RE_ALL_SET" : (existingReg?.teamId ? 'TEAM_READY · PAY ON UNSTOP' : 'ASSEMBLING_TEAM')}
+                    {isVerified ? "YOU'RE_ALL_SET" : (existingReg?.teamId ? (isMember ? 'TEAM_READY' : 'TEAM_READY · PAY ON UNSTOP') : 'ASSEMBLING_TEAM')}
                 </h3>
                 <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
                     Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
@@ -282,7 +282,7 @@ export default function RegistrationForm({
                     {isVerified
                         ? 'Your registration is verified. There is nothing more to do on Unstop. Here is everything you need for the event.'
                         : (existingReg?.teamId
-                            ? 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.'
+                            ? (isMember ? `Your team leader${existingReg?.leaderName ? ' (' + existingReg.leaderName + ')' : ''} completes registration on Unstop and pays for the team. You do not need to do anything on Unstop.` : 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.')
                             : 'Your team is not final yet. Every invited teammate must accept before you can register on Unstop.')}
                 </p>
 
@@ -346,7 +346,7 @@ export default function RegistrationForm({
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
-                    {existingReg?.teamId && !isVerified && (<button
+                    {existingReg?.teamId && !isVerified && existingReg?.isLeader !== false && (<button
                         type="button"
                         onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
                         style={{

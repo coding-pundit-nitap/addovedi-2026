@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
@@ -508,7 +509,7 @@ export default function TimelinePage() {
                         </div>
 
                         {/* Mobile detail panel (Modal Popup) */}
-                        <AnimatePresence>
+                        {createPortal(<AnimatePresence>
                             {selectedEv && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
@@ -518,11 +519,12 @@ export default function TimelinePage() {
                                     style={{
                                         position: 'fixed',
                                         inset: 0,
-                                        zIndex: 1000,
+                                        zIndex: 2000,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         padding: '16px',
+                                        overflowY: 'auto',
                                         background: 'rgba(0, 0, 0, 0.8)',
                                         backdropFilter: 'blur(8px)',
                                         WebkitBackdropFilter: 'blur(8px)',
@@ -537,6 +539,8 @@ export default function TimelinePage() {
                                         style={{
                                             width: '100%',
                                             maxWidth: '380px',
+                                            maxHeight: '100%',
+                                            overflowY: 'auto',
                                             position: 'relative'
                                         }}
                                     >
@@ -549,7 +553,7 @@ export default function TimelinePage() {
                                     </motion.div>
                                 </motion.div>
                             )}
-                        </AnimatePresence>
+                        </AnimatePresence>, document.body)}
                     </div>
                 )}
 
