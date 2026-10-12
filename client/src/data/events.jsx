@@ -371,6 +371,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 3,
                 "fee": "₹100 per team",
+                "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
                 "timeline": { "prize": "₹17,000+ (including goodies)" },
                 "rules": [
