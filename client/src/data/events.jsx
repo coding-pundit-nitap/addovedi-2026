@@ -326,6 +326,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 2,
                 "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
                 "timeline": { "prize": "₹13,000+ (including goodies)" },
                 "rules": [
