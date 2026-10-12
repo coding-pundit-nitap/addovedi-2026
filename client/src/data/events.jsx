@@ -820,7 +820,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "timeline": {
                     "prize": "₹8,000 cash (worth ₹25,000 with hoodies)"
                 },
-                "unstopUrl": "https://unstop.com"
+                "unstopUrl": "https://unstop.com/o/OlHyjMC?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
                 "title": "THE SEISMIC ARENA",
