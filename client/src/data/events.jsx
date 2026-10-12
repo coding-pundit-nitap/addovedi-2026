@@ -875,7 +875,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "heads": [
                     {
                         "name": "Dikenno Pul",
-                        "phone": ""
+                        "phone": "+91 69091 25886"
                     },
                     {
                         "name": "Mission Doley",

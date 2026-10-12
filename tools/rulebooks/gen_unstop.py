@@ -770,7 +770,7 @@ EV['edge-of-collapse'] = dict(title='EDGE OF COLLAPSE', desc=desc('EDGE OF COLLA
   "- **Ranking:** efficiency ratio (**max load / self-weight**). Tie: **lighter bridge**, then **lower deflection**.",
   "- **Do not damage other teams' models or equipment.** Misconduct = disqualification.",
   "- **Judges' and organisers' decisions are final.** Rules may be modified and will be communicated."],
- "Dikenno Pul and Mission Doley (**phone numbers to be announced**)"),
+ "Dikenno Pul, **+91 69091 25886** · Mission Doley (**phone number to be announced**)"),
  rounds="""# EDGE OF COLLAPSE · ROUND-WISE
 ## Round 1: Design and Inspection
 - Every bridge is **measured by the judges.**
@@ -785,7 +785,7 @@ EV['edge-of-collapse'] = dict(title='EDGE OF COLLAPSE', desc=desc('EDGE OF COLLA
 - **Maximum load held** is recorded. **Efficiency ratio = max load / self-weight.**
 ## Quick facts
 - **Teams of 3 to 4.** **Fee:** **Rs. 50 per member.** **Prize:** **Rs. 8,000 cash** (worth **Rs. 17,000** with hoodies).
-- **Coordinators:** Dikenno Pul, Mission Doley
+- **Coordinators:** Dikenno Pul, **+91 69091 25886** · Mission Doley (phone to be announced)
 """)
 
 EV['the-seismic-arena'] = dict(title='THE SEISMIC ARENA', desc=desc('THE SEISMIC ARENA','Build Tall. Build Smart. Survive the Shake.',
