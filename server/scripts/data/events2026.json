@@ -129,12 +129,15 @@
     "title": "TEKKEN SHOWDOWN",
     "subtitle": "FIGHT. COMBO. CONQUER",
     "desc": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.",
-    "overview": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.\n\nChoose your fighter, master your moves, and outplay your opponent on the road to victory. With no team to depend on, it all comes down to your skills, precision, and ability to perform under pressure.\n\nOnly the strongest fighter will survive the competition and claim the title of the ultimate champion.\n\nCHOOSE YOUR FIGHTER. ENTER THE ARENA. FIGHT FOR GLORY.",
+    "overview": "The Tekken 7 Tournament is the one-on-one fighting game competition of Addovedi 2026, NIT Arunachal Pradesh. Tekken 7 is one of the most widely played titles in the global fighting game community, and this tournament lets players show their execution, reads, match-up knowledge and composure under pressure. Every game is a head-to-head test of skill, with no one to rely on but yourself.\n\nThe tournament is individual (1 vs 1) and runs offline at the Institute campus over 2 days. Registration is free and happens online in advance. The expected number of players is about 10 to 15. If more than 15 register, only the top 15 are shortlisted.\n\nDay 1 — Qualifiers: all registered players compete in a pool round-robin or bracket (finalised by the organisers). Every match is a best-of-3 set, and only 2 players qualify for the final.\nDay 2 — Final: the 2 qualified players meet in a best-of-5 set (first to win 3 games). The result decides the winner, the runner-up and the prize positions.\n\nEach game is 3 rounds (first to win 2 rounds) with a 60-second round timer, random stage, handicap and items off, and all characters allowed, including DLC characters. Random Select is not allowed. The game is Tekken 7 on the latest official patch.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
+    "heads": [{"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "fee": "FREE",
+    "timeline": { "prize": "₹7,000+ including goodies" }
    }
   ]
  },
