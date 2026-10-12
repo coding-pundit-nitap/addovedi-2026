@@ -123,6 +123,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 3,
                 "maxTeam": 3,
                 "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
                 "rules": [
                 "Treasure Hunt is a team event. Each team has exactly 3 members, who may be from different branches, years or institutions. A participant may be in only one team, and one member is nominated as team leader (the point of contact). Registration is free.",
