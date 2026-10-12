@@ -236,12 +236,15 @@
     "title": "CIRCUIT DEBUGGING",
     "subtitle": "UNDERSTAND. SIMULATE. BUILD. DEBUG",
     "desc": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.",
-    "overview": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.\n\nTeams progress from Circuit IQ, where they test their technical knowledge, to a Virtual-to-Physical Circuit Challenge involving LTspice simulation, circuit analysis, and breadboard implementation. The final round puts their troubleshooting skills to the test as they identify, diagnose, and repair faults in a real hardware circuit.\n\nOBSERVE. MEASURE. DIAGNOSE. REPAIR.",
+    "overview": "Circuit Debugging is a three-round technical event of Addovedi 2026 that tests participants' knowledge, analytical ability, simulation skills, circuit construction, measurement and practical troubleshooting. Observe. Measure. Diagnose. Repair. Verify.\n\nThe event follows a progressive structure: Round 1 is Understand, Round 2 is Simulate and Analyse, and Round 3 is Debug and Repair. Participants move from theoretical circuit analysis to computer-based simulation and finally to real-world hardware debugging.\n\nRound 1 — Circuit IQ (30 marks): a 20-question MCQ screening round of 20 minutes on circuit theory, Ohm's and Kirchhoff's laws, resistors, capacitors, diodes, transistors and basic fault identification.\nRound 2 — Simulation Challenge (30 marks): qualified teams read a problem statement, build the circuit in LTspice, run the simulation and show the required voltage, current or waveform results.\nRound 3 — Hardware Debugging (40 marks): the final round gives teams a pre-assembled breadboard circuit with intentionally introduced faults. Teams must measure, find the faulty component or connection, explain the cause, repair it and show the circuit working.\n\nThe final ranking is the combined score across all three rounds, out of 100.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bug",
+    "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 2,
+    "fee": "₹50 per person",
+    "timeline": { "prize": "₹13,000+ (including goodies)" }
    },
    {
     "title": "ENERGIX",

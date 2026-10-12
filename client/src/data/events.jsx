@@ -319,14 +319,32 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "CIRCUIT DEBUGGING",
                 "subtitle": "UNDERSTAND. SIMULATE. BUILD. DEBUG",
                 "desc": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.",
-                "overview": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.\n\nTeams progress from Circuit IQ, where they test their technical knowledge, to a Virtual-to-Physical Circuit Challenge involving LTspice simulation, circuit analysis, and breadboard implementation. The final round puts their troubleshooting skills to the test as they identify, diagnose, and repair faults in a real hardware circuit.\n\nOBSERVE. MEASURE. DIAGNOSE. REPAIR.",
+                "overview": "Circuit Debugging is a three-round technical event of Addovedi 2026 that tests participants' knowledge, analytical ability, simulation skills, circuit construction, measurement and practical troubleshooting. Observe. Measure. Diagnose. Repair. Verify.\n\nThe event follows a progressive structure: Round 1 is Understand, Round 2 is Simulate and Analyse, and Round 3 is Debug and Repair. Participants move from theoretical circuit analysis to computer-based simulation and finally to real-world hardware debugging.\n\nRound 1 — Circuit IQ (30 marks): a 20-question MCQ screening round of 20 minutes on circuit theory, Ohm's and Kirchhoff's laws, resistors, capacitors, diodes, transistors and basic fault identification.\nRound 2 — Simulation Challenge (30 marks): qualified teams read a problem statement, build the circuit in LTspice, run the simulation and show the required voltage, current or waveform results.\nRound 3 — Hardware Debugging (40 marks): the final round gives teams a pre-assembled breadboard circuit with intentionally introduced faults. Teams must measure, find the faulty component or connection, explain the cause, repair it and show the circuit working.\n\nThe final ranking is the combined score across all three rounds, out of 100.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bug",
                 "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "maxTeam": 2,
+                "fee": "₹50 per person",
+                "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
+                "timeline": { "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team can have a maximum of 2 participants, and both are expected to take part actively throughout. No team member may be replaced after the event begins unless the organisers permit it in exceptional circumstances.",
+                "Registration fee is ₹50 per person. Prizes worth ₹13,000+ (including goodies).",
+                "The event has three rounds: Round 1 Circuit IQ (MCQ, 30 marks), Round 2 Simulation Challenge (LTspice, 30 marks) and Round 3 Hardware Debugging (breadboard, 40 marks). The total is 100 marks, and the final ranking is the combined score across all rounds, subject to the qualification criteria.",
+                "Round 1: 20 MCQs in 20 minutes, 1.5 marks each (30 marks). There is no negative marking unless the organisers announce otherwise. Topics include circuit theory, Ohm's and Kirchhoff's laws, series and parallel circuits, resistors, capacitors, diodes, transistors, symbols, basic fault identification and numerical questions.",
+                "The number of teams qualifying for Round 2 depends on how many teams take part. The qualification criteria are announced before the event begins.",
+                "Round 2: each qualified team gets a problem statement. Read it, construct the circuit in LTspice, run the right simulation, obtain the required voltage, current or waveforms and submit or demonstrate the results to the coordinators within the time limit.",
+                "Every team must bring its own laptop with LTspice installed and tested beforehand. The organisers are not responsible for delays caused by software installation, downloads, updates or laptop issues during the round.",
+                "Round 3: teams get a pre-assembled breadboard circuit with one or more intentionally introduced faults. Understand the expected behaviour, analyse the symptoms given by the organisers, troubleshoot systematically with the permitted instruments, find the faulty component or connection, explain the cause, correct it and show the circuit working again.",
+                "Diagnose the fault before replacing components. Random replacement of components may not be treated as a valid debugging approach.",
+                "The organisers provide the components, breadboards, measuring instruments and other equipment for the physical rounds. Use them carefully and responsibly, and do not intentionally damage or misuse any equipment.",
+                "Report to the venue before the prescribed reporting time and carry a valid college or institute ID card.",
+                "Do not interfere with another team's circuit, equipment or workstation. Follow the instructions of the coordinators and volunteers, and stop working immediately when time expires.",
+                "Teams may be asked to explain their calculations, circuit design, simulation or troubleshooting procedure. The organisers may inspect LTspice files, calculations, circuit connections and simulation results.",
+                "Any attempt to gain an unfair advantage or unauthorised help may lead to disqualification. Deliberate misconduct, cheating, equipment damage or interference with another team may lead to immediate disqualification.",
+                "The organisers may change the sequence, timing or qualification criteria if operations require it, and will tell participants before the concerned round. The decisions of the judging panel and event coordinators on evaluation, scoring and qualification are final."
+]
             },
             {
                 "title": "ENERGIX",
@@ -831,6 +849,7 @@ export const RULEBOOK_PDFS = {
     'solid-siege': '/rulebooks/Addovedi-2026-solid-siege-rulebook.pdf',
     'hydraulic-warzone': '/rulebooks/Addovedi-2026-hydraulic-warzone-rulebook.pdf',
     'sky-forge': '/rulebooks/Addovedi-2026-sky-forge-rulebook.pdf',
+    'circuit-debugging': '/rulebooks/Addovedi-2026-circuit-debugging-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};
