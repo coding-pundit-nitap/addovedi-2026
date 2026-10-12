@@ -12,7 +12,7 @@ const confirm = process.argv.includes('--confirm');
 const create = process.argv.includes('--create'); // insert the event if it is not in the DB yet
 const withDesc = process.argv.includes('--with-desc'); // also overwrite desc + subtitle from the data file
 const named = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN', 'TREASURE HUNT', 'REAL CRICKET 24', 'EDGE OF COLLAPSE'];
+const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN', 'TREASURE HUNT', 'REAL CRICKET 24', 'EDGE OF COLLAPSE', 'THE SEISMIC ARENA'];
 
 await mongoose.connect(process.env.MONGODB_URI);
 console.log(`DB host: ${mongoose.connection.host} / ${mongoose.connection.name}   mode: ${confirm ? 'WRITE' : 'DRY RUN'}`);

@@ -590,15 +590,44 @@
     "maxTeam": 5
    },
    {
-    "title": "EARTHQUAKE RESISTING BUILDING",
-    "subtitle": "FILTER. PURIFY. PERFORM",
-    "desc": "Water Filter is an on-the-spot engineering challenge where teams design and build an effective water filtration system using materials provided by the organizers.",
-    "overview": "Water Filter is an on-the-spot engineering challenge where teams design and build an effective water filtration system using materials provided by the organizers.\n\nParticipants must apply their creativity and understanding of filtration principles to develop a filter capable of improving water quality. The performance of each filter will be evaluated using a microscopic turbidity meter, testing how effectively it reduces turbidity.\n\nBUILD SMART. FILTER BETTER. MAKE A DIFFERENCE.",
+    "title": "THE SEISMIC ARENA",
+    "subtitle": "BUILD TALL. BUILD SMART. SURVIVE THE SHAKE.",
+    "desc": "Design and build a tower model that withstands inspection, a shake-and-water stability test and a strength test. The Seismic Arena tests stability, stiffness, bracing, damping and centre of mass.",
+    "overview": "The Seismic Arena is a structural engineering challenge of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 design and build a tower model that must survive physical evaluation and structural testing, putting stability, stiffness, bracing, damping and centre of mass to the test.\n\nThe tower is built from popsicle sticks and toothpicks on a thermocol base, at least 30 cm tall. It faces three rounds: a visual Looks Test, a Stability Test with a water-filled container on top while the tower is moved, and a Strength Test under incremental external load.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including hoodies.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bridge",
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "heads": [
+     {
+      "name": "Chochong Tsering",
+      "phone": "+91 92336 02960"
+     },
+     {
+      "name": "Kaling Yapi",
+      "phone": "+91 93628 13564"
+     }
+    ],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)"
+    },
+    "rules": [
+     "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
+     "A team may register only once (only the first entry counts). Only undergraduate and graduate students from recognized academic institutions can participate, and every participant must carry a valid student ID card.",
+     "Build a tower model that passes a visual inspection, a stability test with a water-filled container on top, and a strength test under external load at the top platform.",
+     "Only 5 materials are allowed: popsicle sticks, Fevi Quick, toothpicks, thermocol and Fevicol. The main frame must be built strictly with popsicle sticks and toothpicks only, bonded with the permitted adhesives. Thermocol is allowed for the base plate only.",
+     "Specification: a tower-type structure that can carry a payload / container on the top platform, minimum height 30 cm from the base to the top platform. The base must be made of thermocol, with any base dimensions the team wants.",
+     "Teams must bring their own permitted materials and supplies. Organisers will not provide tools or building materials at the venue.",
+     "Round 1, Design and Presentation (Looks Test): judges inspect every structure and award marks for structural concept, quality of construction, effective bracing, joint neatness and aesthetic presentation.",
+     "Round 2, Stability Test (Water on Top): a water-filled container is placed at the top of the structure and the tower is subjected to motion. Judges evaluate overall balance, damping and how much water is dispersed.",
+     "Round 3, Strength Test (External Load): incremental external load is applied at the top platform to assess load-bearing capacity and the ultimate failure limit.",
+     "Submit the structure at the registration desk before the deadline on event day, where each model is tagged with a team ID. Each team gets a continuous 5-minute window at the testing station for setup and testing.",
+     "All designs are checked for originality. Plagiarism or fraudulent construction methods mean immediate disqualification. Never touch or tamper with another team's structure or testing equipment.",
+     "Follow all instructions from organisers, volunteers and judges, and arrive on time (late arrivals may lose build or round time). Judges may disqualify any team for misconduct. The decision of the organising panel and judges is final and binding, and the organisers may modify rules and will inform registered teams."
+    ],
+    "unstopUrl": "https://unstop.com"
    },
    {
     "title": "EDGE OF COLLAPSE",

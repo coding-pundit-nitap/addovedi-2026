@@ -788,6 +788,41 @@ EV['edge-of-collapse'] = dict(title='EDGE OF COLLAPSE', desc=desc('EDGE OF COLLA
 - **Coordinators:** Dikenno Pul, Mission Doley
 """)
 
+EV['the-seismic-arena'] = dict(title='THE SEISMIC ARENA', desc=desc('THE SEISMIC ARENA','Build Tall. Build Smart. Survive the Shake.',
+ "**The Seismic Arena** is the **tower model engineering** challenge of Addovedi 2026 (NIT Arunachal Pradesh). Build a **tower** that survives a **looks test**, a **shake-and-water stability test** and a **strength test**. Tests **stability, bracing, damping and centre of mass.**",
+ ["- **Eligibility:** **undergraduate and graduate students** of recognized institutions, valid **student ID** required.",
+  "- **Team size:** **up to 3 members** (1 to 3). One entry per team.",
+  "- **Inter-college / inter-specialization:** **allowed**. Open to all branches.",
+  "- **Materials:** **popsicle sticks, toothpicks, Fevicol, Fevi Quick and thermocol** only. Frame in **sticks and toothpicks**, **thermocol for the base only.**",
+  "- **Size:** tower at least **30 cm** tall, with a top platform for the payload.",
+  "- **Rounds:** **Looks Test**, **Stability Test (water on top)**, **Strength Test (load).**",
+  "- **Bring:** your **own materials and tools.** The organisers provide none.",
+  FLOW.format(ev='The Seismic Arena'),
+  "- **Registration fee:** **Rs. 50 per member** (**Rs. 50** for 1, **Rs. 100** for 2, **Rs. 150** for 3).",
+  "- **Prize pool:** **Rs. 8,000 cash** (total worth **Rs. 17,000** including hoodies)."],
+ ["- **Only the 5 permitted materials.** Thermocol for the **base plate only.**",
+  "- **Submit before the deadline** at the registration desk. Models are tagged with a **team ID.**",
+  "- **5 minutes** per team at the testing station.",
+  "- **Originality is checked.** **Plagiarism or fraudulent methods = immediate disqualification.**",
+  "- **Never touch or tamper with another team's structure or equipment.**",
+  "- **Arrive on time.** Late arrivals may lose build or round time.",
+  "- **Judges' and organisers' decisions are final.** Rules may be modified and will be communicated."],
+ "Chochong Tsering, **+91 92336 02960** · Kaling Yapi, **+91 93628 13564**"),
+ rounds="""# THE SEISMIC ARENA · ROUND-WISE
+## Round 1: Design and Presentation (Looks Test)
+- Judges inspect every structure.
+- Marks for **structural concept, construction quality, bracing, joint neatness and presentation.**
+## Round 2: Stability Test (Water on Top)
+- A **water-filled container** is placed on top and the tower is **subjected to motion.**
+- Judges evaluate **balance, damping and how much water is dispersed.**
+## Round 3: Strength Test (External Load)
+- **Incremental load** is applied at the top platform.
+- Assesses **load-bearing capacity** and the **ultimate failure limit.**
+## Quick facts
+- **Teams of up to 3.** **Fee:** **Rs. 50 per member.** **Prize:** **Rs. 8,000 cash** (worth **Rs. 17,000** with hoodies).
+- **Coordinators:** Chochong Tsering, **+91 92336 02960** · Kaling Yapi, **+91 93628 13564**
+""")
+
 def inline(t):
     t = html.escape(t)
     t = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)
