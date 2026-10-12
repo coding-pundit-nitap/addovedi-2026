@@ -215,12 +215,15 @@
     "title": "CIRCUIT DESIGNING",
     "subtitle": "DESIGN . CONNECT . INNOVATE",
     "desc": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.",
-    "overview": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.\n\nParticipants will analyze the problem, design an appropriate circuit, and bring their ideas to life through effective component selection and circuit implementation.\n\nTHINK SMART. DESIGN BETTER. MAKE IT WORK.",
+    "overview": "Circuit Designing is a two-round analog electronics and circuit design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of analog electronics and circuit analysis, and their ability to design, simulate, analyse and defend circuits using LTspice. Design. Connect. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, time-bound circuit design and simulation with a viva in Round 2. Teams of up to two bring their own laptops with LTspice installed.\n\nRound 1 — Analog Electronics Quiz (25 marks): 25 MCQs in 30 minutes covering circuit analysis, semiconductor fundamentals, diode circuits and basic analog electronics. There is no negative marking, and 5 star-marked questions are used only for tie-breaking.\nRound 2 — Circuit Design with Viva (75 marks): participants get a circuit design problem with specified requirements and must design and simulate it in LTspice within the allotted time, then demonstrate and explain the circuit. Topics may include RC, RL and RLC circuits, low-pass and high-pass filters, diode circuits, rectifiers, clippers, clampers and other basic analog circuits.\n\nThe final score is out of 100, the combined score of both rounds.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bolt",
+    "heads": [{"name": "Anirudh Mishra", "phone": "+91 91404 63181"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 2,
+    "fee": "₹50 per member",
+    "timeline": { "prize": "₹13,000+ (including goodies)" }
    }
   ]
  },
