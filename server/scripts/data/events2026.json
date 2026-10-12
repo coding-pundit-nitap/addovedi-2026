@@ -80,20 +80,23 @@
     "minTeam": 3,
     "maxTeam": 3,
     "fee": "FREE",
-                "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "heads": [
      {
       "name": "Tapan Boruah",
       "phone": "+91 98590 40208"
      }
-    ]
+    ],
+    "timeline": {
+     "prize": "Exciting prizes"
+    }
    }
   ]
  },
  {
   "title": "GAMING NEXUS",
   "subtitle": "ESPORTS SHOWDOWN",
-  "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends and Tekken.",
+  "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends, Tekken and Real Cricket.",
   "color": "#9b5cff",
   "iconType": "gamepad",
   "modelType": "controller",
@@ -193,6 +196,41 @@
     "timeline": {
      "prize": "₹7,000+ including goodies"
     }
+   },
+   {
+    "title": "REAL CRICKET 24",
+    "subtitle": "PLAY THE GAME. OWN THE PITCH.",
+    "desc": "Step onto the virtual pitch and prove your skill in a one-on-one cricket showdown. Real Cricket 24 is a knockout tournament where timing, strategy and nerve decide who lifts the trophy.",
+    "overview": "Real Cricket 24 is the cricket gaming event of Addovedi 2026, NIT Arunachal Pradesh. Players compete one-on-one in a knockout tournament, where skill, strategy, quick reflexes and sportsmanship decide who takes the arena.\n\nPlayers are matched against each other, and the winners advance round by round through the qualifiers, knockouts and semi-final until the final. The game mode, settings, match length and best-of format are announced by the organisers, and matches are played on the equipment provided at the venue.\n\nRegistration is free.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com",
+    "heads": [
+     {
+      "name": "Vaibhav Gupta",
+      "phone": "+91 95061 77693"
+     }
+    ],
+    "timeline": {
+     "prize": "Exciting prizes"
+    },
+    "rules": [
+     "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
+     "Every player must carry a valid student ID card and give valid, accurate registration details. Details cannot be changed after the entry list is finalised without permission from the coordinators.",
+     "Players report at the announced venue and time and check in with the coordinators. A player who is not present when their match is called may be disqualified or given a walkover after a short waiting time. The match schedule and brackets are shared on the day or in the official WhatsApp group.",
+     "Format: Qualifiers, Knockouts, Semi-final, Final. Only winners advance. The number of rounds, match length and best-of format are announced by the organisers, brackets may be random or seeded, and the format may change depending on the number of entries (announced before play begins).",
+     "Matches are played only on the game, mode, map and settings fixed by the organisers, using only the equipment and accounts provided or approved by the organisers. Players must not leave the match area during a game without the referee's permission.",
+     "Players may bring their own controller or headset only if the organisers allow it, and it may be inspected. Do not change system settings, install software or tamper with the setup. Report any technical problem to the referee before the match begins, as problems raised after play has started may not be accepted.",
+     "Disconnections, crashes or technical faults are handled by the referee, who may pause, replay or resume the match. Short pauses are allowed only under the conditions announced by the organisers. The referee's record of the result is final, and both sides must confirm the result with the referee after every match.",
+     "If a match ends level, the referee decides it with an extra round, then sudden death, then a referee decision. The final's winner is the champion.",
+     "Fair play: no cheating (hacks, mods, scripts, macros, bug exploits, unauthorised software or hardware), no match-fixing or colluding with an opponent, no distracting or interfering with an opponent's screen or controls, and no outside help or coaching during a match unless announced. Abusive, offensive or discriminatory behaviour is not tolerated.",
+     "Penalties (warning, point deduction or forfeit) apply for late arrival, interfering with an opponent or the setup, unapproved equipment or settings, ignoring instructions, or unsporting conduct. Disqualification applies for cheating, match-fixing, damaging equipment or the venue, abusive behaviour, false registration details or playing under another person's name, and repeated violations.",
+     "Spectators must stay quiet and remain outside the match area. The organisers may modify or clarify the rules with an announcement before implementation. The decision of the referees / organising committee is final and binding."
+    ]
    }
   ]
  },

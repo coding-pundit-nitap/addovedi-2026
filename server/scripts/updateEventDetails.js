@@ -9,9 +9,10 @@ import SubEvent from '../models/SubEvent.js';
 
 const DATA = JSON.parse(readFileSync(new URL('./data/events2026.json', import.meta.url), 'utf8'));
 const confirm = process.argv.includes('--confirm');
+const create = process.argv.includes('--create'); // insert the event if it is not in the DB yet
 const withDesc = process.argv.includes('--with-desc'); // also overwrite desc + subtitle from the data file
 const named = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN', 'TREASURE HUNT'];
+const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN', 'TREASURE HUNT', 'REAL CRICKET 24'];
 
 await mongoose.connect(process.env.MONGODB_URI);
 console.log(`DB host: ${mongoose.connection.host} / ${mongoose.connection.name}   mode: ${confirm ? 'WRITE' : 'DRY RUN'}`);
@@ -24,7 +25,13 @@ for (const title of wanted) {
     if (src.fee !== undefined) set.fee = src.fee;
     if (src.unstopUrl) set.unstopUrl = src.unstopUrl;
     const doc = await SubEvent.findOne({ title }).collation({ locale: 'en', strength: 2 }).lean();
-    if (!doc) { console.log(`\n${title}: NOT FOUND in DB, skipped`); continue; }
+    if (!doc && create) {
+        const cat = DATA.find(c => c.events.some(e => e.title === title));
+        console.log(`\n${title}: not in DB, ${confirm ? 'CREATING' : 'would create'} under ${cat.title}`);
+        if (confirm) await SubEvent.create({ categoryTitle: cat.title, title, subtitle: src.subtitle, desc: src.desc, color: cat.color, xp: src.xp, difficulty: src.difficulty, iconType: src.iconType, modelType: cat.modelType, ...set });
+        continue;
+    }
+    if (!doc) { console.log(`\n${title}: NOT FOUND in DB, skipped (use --create to insert)`); continue; }
     console.log(`\n${title}  (_id ${doc._id})`);
     const brief = (o) => JSON.stringify({ ...o, overview: o.overview ? `${String(o.overview).length} chars` : undefined });
     console.log('  before:', brief({ minTeam: doc.minTeam, maxTeam: doc.maxTeam, fee: doc.fee, unstopUrl: doc.unstopUrl, heads: (doc.heads || []).map(h => ({ name: h.name, phone: h.phone })), prize: doc.timeline?.prize, overview: doc.overview }));

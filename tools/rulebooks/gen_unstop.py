@@ -687,7 +687,8 @@ EV['treasure-hunt'] = dict(title='TREASURE HUNT', desc=desc('TREASURE HUNT','The
   "- **Format:** a **trail of clues**: solve a clue, reach the checkpoint, get the next clue, finish at the treasure. Number of rounds announced by the organisers; an **elimination round** may come first.",
   "- **Tests:** logic, observation, teamwork, navigation, technical knowledge and speed.",
   FLOW.format(ev='Treasure Hunt'),
-  "- **Registration fee:** **FREE** (no entry fee)."],
+  "- **Registration fee:** **FREE** (no entry fee).",
+  "- **Prize pool:** **exciting prizes** for the winners."],
  ["- **Clues in order.** **No skipping checkpoints.** **All 3 members together** at every checkpoint.",
   "- **Do not remove, hide, damage or move clues.** **No sharing clues or answers** with other teams.",
   "- **Hints** (if offered) go only to the **team leader** and may carry a **time or point penalty**.",
@@ -712,8 +713,44 @@ EV['treasure-hunt'] = dict(title='TREASURE HUNT', desc=desc('TREASURE HUNT','The
 - Ranked by **checkpoints completed**, then **total time (with penalties)**, then **fewer hints**.
 - Ties: fewer hints, fewer penalties, earlier last checkpoint, then a short tie-breaker.
 ## Quick facts
-- **Teams of 3.** **Fee:** **FREE.**
+- **Teams of 3.** **Fee:** **FREE.** **Prize:** **exciting prizes.**
 - **Coordinator:** Tapan Boruah, **+91 98590 40208**
+""")
+
+EV['real-cricket-24'] = dict(title='REAL CRICKET 24', desc=desc('REAL CRICKET 24','Play the Game. Own the Pitch.',
+ "**Real Cricket 24** is the **cricket gaming event** of Addovedi 2026 (NIT Arunachal Pradesh). A **1v1 knockout tournament** where **timing, strategy, reflexes and sportsmanship** decide the champion. Played **offline at the Institute campus** on the equipment provided.",
+ ["- **Eligibility:** **college students**, valid **student ID** required.",
+  "- **Participation:** **individual (1v1).** One registration per player (only the first counts).",
+  "- **Inter-college / inter-specialization:** **allowed**. Open to all branches.",
+  "- **Format:** **knockout**: Qualifiers, Knockouts, Semi-final, Final. Only winners advance. Match length and best-of format are announced by the organisers.",
+  "- **Equipment:** systems and accounts provided by the organisers. **Own controller or headset only if allowed.**",
+  FLOW.format(ev='Real Cricket 24'),
+  "- **Registration fee:** **FREE** (no entry fee).",
+  "- **Prize pool:** **exciting prizes** for the winners."],
+ ["- **No cheating:** **no hacks, mods, scripts, macros or bug exploits.**",
+  "- **No match-fixing, collusion or playing under another name.** = **disqualification**.",
+  "- **Be ready when called.** A player not present may get a **walkover or be disqualified.**",
+  "- **Report technical problems to the referee before the match begins.**",
+  "- **Confirm the result with the referee** after every match.",
+  "- **Ties:** extra round, then sudden death, then referee decision.",
+  "- **No abusive or offensive behaviour.** Warning, then possible disqualification.",
+  "- **Referees' and organisers' decisions are final.** Rules may be modified and will be communicated."],
+ "Vaibhav Gupta, **+91 95061 77693**"),
+ rounds="""# REAL CRICKET 24 · ROUND-WISE
+## Stage 1: Qualifiers
+- **All registered players** are matched in the bracket (random or seeded).
+## Stage 2: Knockouts
+- **Only winners advance.** Match length and best-of format announced by the organisers.
+## Stage 3: Semi-final
+- The **last 4 players** play for a place in the final.
+## Stage 4: Final
+- The **2 finalists** play for the **champion title.**
+## Ties and results
+- **Extra round, then sudden death, then referee decision.**
+- Both players **confirm the result with the referee.**
+## Quick facts
+- **Solo (1v1).** **Fee:** **FREE.** **Prize:** **exciting prizes.**
+- **Coordinator:** Vaibhav Gupta, **+91 95061 77693**
 """)
 
 def inline(t):
