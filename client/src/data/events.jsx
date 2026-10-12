@@ -328,6 +328,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
                 "timeline": { "prize": "₹8,000 + goodies" },
                 "rules": [
