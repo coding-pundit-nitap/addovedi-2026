@@ -1802,13 +1802,7 @@ export default function AdminPage() {
                                                 <input type="text" placeholder="Start Time (24h, e.g. 13:00)" value={t.time} onChange={e => setT({ time: e.target.value })} />
                                                 <input type="text" placeholder="End Time (24h, e.g. 15:00)" value={t.end} onChange={e => setT({ end: e.target.value })} />
                                                 <input type="text" placeholder="Venue (e.g. Lab Alpha)" value={t.venue} onChange={e => setT({ venue: e.target.value })} />
-                                                <select value={t.mode} onChange={e => setT({ mode: e.target.value })}>
-                                                    <option value="Solo">SOLO</option>
-                                                    <option value="Team (2)">TEAM (2)</option>
-                                                    <option value="Team (3)">TEAM (3)</option>
-                                                    <option value="Team (4)">TEAM (4)</option>
-                                                    <option value="Team">TEAM</option>
-                                                </select>
+                                                <input type="text" maxLength={24} placeholder="Mode (e.g. Solo, Team of 3)" value={t.mode || ''} onChange={e => setT({ mode: e.target.value })} />
                                                 <input type="text" placeholder="Prize (e.g. ₹10,000)" value={t.prize} onChange={e => setT({ prize: e.target.value })} />
                                             </div>
                                             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '14px', marginTop: '10px' }}>

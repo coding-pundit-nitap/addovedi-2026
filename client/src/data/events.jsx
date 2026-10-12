@@ -46,7 +46,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "maxTeam": 4,
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-                "timeline": { "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 6", "prize": "₹22,000" },
+                "timeline": { "mode": "Team of 2-4", "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 6", "prize": "₹22,000" },
                 "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
                 "rules": [
                 "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
@@ -77,7 +77,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "maxTeam": 4,
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-                "timeline": { "day": 3, "time": "15:30", "end": "17:30", "venue": "Central Library, Classroom 6", "prize": "₹20,000" },
+                "timeline": { "mode": "Team of 2-4", "day": 3, "time": "15:30", "end": "17:30", "venue": "Central Library, Classroom 6", "prize": "₹20,000" },
                 "heads": [{"name": "Vaibhav Gupta", "phone": "+91 95061 77693"}],
                 "rules": [
                 "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
@@ -122,7 +122,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "iconType": "brain",
                 "minTeam": 3,
                 "maxTeam": 3,
-                "timeline": { "prize": "Exciting prizes" },
+                "timeline": { "mode": "Team of 3", "prize": "Exciting prizes" },
                 "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
@@ -168,7 +168,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nandu Giba Tamin", "phone": "+91 76300 64979"}, {"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
-                "timeline": { "day": 2, "time": "11:00", "end": "16:00", "label": "QUALIFIERS · DAY 1 OF 2", "venue": "TEL Centre", "prize": "₹22,000 + goodies", "sessions": [{ "day": 3, "time": "11:00", "end": "16:00", "venue": "TEL Centre", "label": "FINALS · DAY 2 OF 2" }] },
+                "timeline": { "mode": "Team of 4-5", "day": 2, "time": "11:00", "end": "16:00", "label": "QUALIFIERS · DAY 1 OF 2", "venue": "TEL Centre", "prize": "₹22,000 + goodies", "sessions": [{ "day": 3, "time": "11:00", "end": "16:00", "venue": "TEL Centre", "label": "FINALS · DAY 2 OF 2" }] },
                 "rules": [
                 "Each team may have a maximum of 5 members (a team has 5 players). A team may register only once; if it registers more than once, only the first submission is considered.",
                 "Registration is free. There is no entry fee. The prize pool is ₹22,000 plus goodies, shared among the 16 teams that qualify for the finals. The organisers will announce the exact prize distribution.",
@@ -200,7 +200,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹100 per player",
                 "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Tage Jarbo", "phone": "+91 87876 90625"}],
-                "timeline": { "day": 2, "time": "16:00", "end": "17:00", "venue": "TEL Centre", "prize": "₹15,000 including goodies" },
+                "timeline": { "mode": "Solo", "day": 2, "time": "16:00", "end": "17:00", "venue": "TEL Centre", "prize": "₹15,000 including goodies" },
                 "rules": [
                 "FC 26 is a 1v1 event: each entry is one player who represents themselves. A player may register only once, and substitutions are not allowed.",
                 "Registration fee is ₹100 per player. Prizes: ₹15,000 including goodies, given to the top finishers. The exact distribution is announced by the organisers.",
@@ -233,7 +233,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹100 per team",
                 "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nabam Rana", "phone": "+91 81319 03629"}],
-                "timeline": { "day": 3, "time": "16:00", "end": "17:30", "venue": "TEL Centre", "prize": "₹10,000 cash + exclusive hoodies" },
+                "timeline": { "mode": "Team of 5", "day": 3, "time": "16:00", "end": "17:30", "venue": "TEL Centre", "prize": "₹10,000 cash + exclusive hoodies" },
                 "rules": [
                 "Each team has 5 members. A team may register only once; if it registers more than once, only the first submission is considered.",
                 "Registration fee is ₹100 per team. Prizes: ₹10,000 cash prize plus exclusive hoodies.",
@@ -266,7 +266,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
-                "timeline": { "day": 2, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "₹7,000+ including goodies" },
+                "timeline": { "mode": "Solo", "day": 2, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "₹7,000+ including goodies" },
                 "rules": [
                 "Tekken 7 is an individual 1v1 event. Each entry is one player who represents themselves, and substitutions are not allowed. A player may register only once, and only the first registration counts.",
                 "Registration is free. There is no entry fee. The prize pool is ₹7,000+ including goodies, for the 1st and 2nd place winners. The organisers will announce the exact distribution.",
@@ -304,7 +304,7 @@ export const CATEGORIES_WITH_EVENTS = [
                         "phone": "+91 95061 77693"
                     }
                 ],
-                "timeline": { "day": 3, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "Exciting prizes" },
+                "timeline": { "mode": "Solo", "day": 3, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "Exciting prizes" },
                 "rules": [
                     "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
                     "Every player must carry a valid student ID card and give valid, accurate registration details. Details cannot be changed after the entry list is finalised without permission from the coordinators.",
@@ -347,7 +347,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
                 "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
-                "timeline": { "day": 1, "time": "17:00", "end": "17:00", "endDay": 2, "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM", "venue": "Central Library, Classroom 7", "prize": "₹30,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 2-4", "day": 1, "time": "17:00", "end": "17:00", "endDay": 2, "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM", "venue": "Central Library, Classroom 7", "prize": "₹30,000+ (including goodies)" },
                 "rules": [
                 "Teams must have a minimum of 2 and a maximum of 4 members. Each participant may join only one team. Team details must be final at verification.",
                 "Only the top 25 teams can participate, selected first come, first served by registration time.",
@@ -385,7 +385,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per person",
                 "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Riya Yadav", "phone": "+91 89575 08842"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
-                "timeline": { "day": 3, "time": "14:00", "end": "16:00", "venue": "Central Library, Classroom 1", "prize": "₹13,000+ (including goodies)" },
+                "timeline": { "mode": "Solo", "day": 3, "time": "14:00", "end": "16:00", "venue": "Central Library, Classroom 1", "prize": "₹13,000+ (including goodies)" },
                 "rules": [
                 "CODATHON is an individual event. A participant may register only once; if someone registers more than once, only the first registration is considered.",
                 "Registration fee is ₹50 per participant. Prizes worth ₹13,000+ (including goodies), shared among the winners. The position-wise distribution will be announced by the organisers.",
@@ -418,7 +418,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per person",
                 "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
-                "timeline": { "day": 3, "time": "10:00", "end": "12:00", "venue": "Central Library, Classroom 1", "prize": "₹8,000 + goodies" },
+                "timeline": { "mode": "Solo", "day": 3, "time": "10:00", "end": "12:00", "venue": "Central Library, Classroom 1", "prize": "₹8,000 + goodies" },
                 "rules": [
                 "The competition is individual. Team participation is not allowed. It is conducted offline at the designated venue.",
                 "Registration fee is ₹50 per participant, paid through Unstop. Prizes worth ₹8,000 plus goodies for the winners.",
@@ -464,7 +464,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Bishal Barman", "phone": "+91 81019 10731"}],
-                "timeline": { "day": 2, "time": "13:30", "end": "14:30", "venue": "Central Library, Classroom 2", "prize": "₹20,000 (including goodies)" },
+                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "13:30", "end": "14:30", "venue": "Central Library, Classroom 2", "prize": "₹20,000 (including goodies)" },
                 "rules": [
                 "Each team may have 1 to 3 members. The robot is built and run by the team.",
                 "Registration fee is ₹50 per member. Prizes worth ₹20,000 (including goodies).",
@@ -495,7 +495,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per person",
                 "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
-                "timeline": { "day": 2, "time": "11:30", "end": "13:30", "venue": "Central Library, Classroom 2", "prize": "Up to ₹8,000 + goodies" },
+                "timeline": { "mode": "Solo", "day": 2, "time": "11:30", "end": "13:30", "venue": "Central Library, Classroom 2", "prize": "Up to ₹8,000 + goodies" },
                 "rules": [
                 "Participation is individual. Each participant may register only once. If someone registers more than once, only the first registration is considered.",
                 "Open to undergraduate students of recognised institutions. Carry a valid student ID card of your institution and produce it on demand.",
@@ -528,7 +528,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Anirudh Mishra", "phone": "+91 91404 63181"}],
-                "timeline": { "day": 3, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 2", "prize": "₹13,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 1-2", "day": 3, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 2", "prize": "₹13,000+ (including goodies)" },
                 "rules": [
                 "Open to undergraduate students from recognised institutions. Each team may have a maximum of 2 participants. Each participant may register only once, and duplicate registrations are disregarded.",
                 "Registration fee is ₹50 per member. Registration is on Unstop. Prizes worth ₹13,000+ (including goodies).",
@@ -576,7 +576,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
-                "timeline": { "day": 2, "time": "09:00", "end": "11:00", "venue": "Central Library, Classroom 3", "prize": "₹13,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 1-2", "day": 2, "time": "09:00", "end": "11:00", "venue": "Central Library, Classroom 3", "prize": "₹13,000+ (including goodies)" },
                 "rules": [
                 "Each team can have a maximum of 2 participants, and both are expected to take part actively throughout. No team member may be replaced after the event begins unless the organisers permit it in exceptional circumstances.",
                 "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies).",
@@ -608,7 +608,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
-                "timeline": { "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 2-3", "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
                 "rules": [
                 "Each team must have a minimum of 2 and a maximum of 3 members, and all members are expected to contribute to the assigned tasks throughout the competition. Register your team according to the organisers' instructions.",
                 "Registration fee is ₹50 per member. Prizes worth ₹17,000+ (including goodies).",
@@ -640,7 +640,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
-                "timeline": { "day": 3, "time": "13:30", "end": "15:30", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 1-3", "day": 3, "time": "13:30", "end": "15:30", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
                 "rules": [
                 "A team may register only once. If a team registers more than once, only the first submission is considered. Each team may have a maximum of 3 members.",
                 "Only undergraduate students from any field are eligible. Students of all colleges and institutes can participate. Carry a valid student ID card.",
@@ -686,7 +686,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
-                "timeline": { "day": 3, "time": "09:00", "end": "12:00", "venue": "Central Library, Classroom 4", "prize": "₹10,00,000+" },
+                "timeline": { "mode": "Solo", "day": 3, "time": "09:00", "end": "12:00", "venue": "Central Library, Classroom 4", "prize": "₹10,00,000+" },
                 "rules": [
                 "Solid Siege is a progressive, three-round SolidWorks challenge. All participants begin with Round 1, and only those who qualify a round within its allotted time advance to the next.",
                 "Round 1 is 2D Mechanical Bracket (2 points), Round 2 is 3D Stepped Support (3 points) and Round 3 is Wheel–Shaft Assembly (5 points). The maximum score is 10.",
@@ -718,7 +718,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
-                "timeline": { "day": 2, "time": "10:00", "end": "11:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 3", "day": 2, "time": "10:00", "end": "11:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
                 "rules": [
                 "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Team composition cannot be changed after registration without the organisers' permission.",
                 "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with valid and accurate details.",
@@ -752,7 +752,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
-                "timeline": { "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
+                "timeline": { "mode": "Team of 3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
                 "rules": [
                 "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Any change in team composition needs the organisers' approval.",
                 "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with accurate details.",
@@ -780,7 +780,7 @@ export const CATEGORIES_WITH_EVENTS = [
     {
         "title": "URBAN BLUEPRINT",
         "subtitle": "STRUCTURAL ARCHITECTURE",
-        "desc": "Problem solving and structural challenges, from bridges to water filtration.",
+        "desc": "Problem solving and structural challenges, from bridges and towers to logic puzzles.",
         "color": "#1fff76",
         "iconType": "bridge",
         "modelType": "civil",
@@ -815,7 +815,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     "Follow all instructions from organisers, volunteers and judges, and arrive on time. Judges may disqualify any team for misconduct. The decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
                 ],
                 "fee": "₹50 per member",
-                "timeline": { "day": 3, "time": "10:30", "end": "12:30", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹25,000 with hoodies)" },
+                "timeline": { "mode": "Team of 1-3", "day": 3, "time": "10:30", "end": "12:30", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹25,000 with hoodies)" },
                 "unstopUrl": "https://unstop.com/o/OlHyjMC?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
@@ -853,7 +853,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     "Follow all instructions from organisers, volunteers and judges, and arrive on time (late arrivals may lose build or round time). Judges may disqualify any team for misconduct. The decision of the organising panel and judges is final and binding, and the organisers may modify rules and will inform registered teams."
                 ],
                 "fee": "₹50 per member",
-                "timeline": { "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
+                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
                 "unstopUrl": "https://unstop.com/o/BlgenMs?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
@@ -891,7 +891,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     "Violating any bridge rule (prohibited materials, exceeding size or weight limits) means immediate disqualification and no prizes. Do not damage other teams' models or equipment. Judges may disqualify any team for misconduct, and the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
                 ],
                 "fee": "₹50 per member",
-                "timeline": { "day": 2, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
+                "timeline": { "mode": "Team of 3-4", "day": 2, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
                 "unstopUrl": "https://unstop.com/o/5PvlMNO?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             }
         ]

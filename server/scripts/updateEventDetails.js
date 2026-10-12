@@ -22,7 +22,7 @@ for (const title of wanted) {
     const set = { minTeam: src.minTeam, maxTeam: src.maxTeam, heads: src.heads || [], 'timeline.prize': src.timeline?.prize || '' };
     if (src.overview) set.overview = src.overview;
     if (withDesc) { set.desc = src.desc; set.subtitle = src.subtitle; }
-    for (const k of ['day', 'time', 'end', 'venue']) if (src.timeline?.[k] !== undefined) set[`timeline.${k}`] = src.timeline[k];
+    for (const k of ['day', 'time', 'end', 'venue', 'mode']) if (src.timeline?.[k] !== undefined) set[`timeline.${k}`] = src.timeline[k];
     for (const k of ['endDay', 'label', 'sessions']) if (src.timeline?.[k] !== undefined) set[`timeline.${k}`] = src.timeline[k];
     if (src.fee !== undefined) set.fee = src.fee;
     if (src.unstopUrl) set.unstopUrl = src.unstopUrl;

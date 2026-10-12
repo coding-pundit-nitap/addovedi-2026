@@ -34,7 +34,8 @@
      "day": 2,
      "time": "15:00",
      "venue": "Central Library, Classroom 6",
-     "end": "17:00"
+     "end": "17:00",
+     "mode": "Team of 2-4"
     }
    },
    {
@@ -60,7 +61,8 @@
      "day": 3,
      "time": "15:30",
      "venue": "Central Library, Classroom 6",
-     "end": "17:30"
+     "end": "17:30",
+     "mode": "Team of 2-4"
     }
    }
   ]
@@ -96,7 +98,8 @@
      }
     ],
     "timeline": {
-     "prize": "Exciting prizes"
+     "prize": "Exciting prizes",
+     "mode": "Team of 3"
     }
    }
   ]
@@ -150,7 +153,8 @@
        "venue": "TEL Centre",
        "label": "FINALS · DAY 2 OF 2"
       }
-     ]
+     ],
+     "mode": "Team of 4-5"
     }
    },
    {
@@ -176,7 +180,8 @@
      "day": 2,
      "time": "16:00",
      "venue": "TEL Centre",
-     "end": "17:00"
+     "end": "17:00",
+     "mode": "Solo"
     }
    },
    {
@@ -202,7 +207,8 @@
      "day": 3,
      "time": "16:00",
      "venue": "TEL Centre",
-     "end": "17:30"
+     "end": "17:30",
+     "mode": "Team of 5"
     }
    },
    {
@@ -228,7 +234,8 @@
      "day": 2,
      "time": "09:00",
      "venue": "TEL Centre",
-     "end": "10:30"
+     "end": "10:30",
+     "mode": "Solo"
     }
    },
    {
@@ -254,7 +261,8 @@
      "day": 3,
      "time": "09:00",
      "venue": "TEL Centre",
-     "end": "10:30"
+     "end": "10:30",
+     "mode": "Solo"
     },
     "rules": [
      "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
@@ -313,7 +321,8 @@
      "venue": "Central Library, Classroom 7",
      "end": "17:00",
      "endDay": 2,
-     "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM"
+     "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM",
+     "mode": "Team of 2-4"
     }
    },
    {
@@ -343,7 +352,8 @@
      "day": 3,
      "time": "14:00",
      "venue": "Central Library, Classroom 1",
-     "end": "16:00"
+     "end": "16:00",
+     "mode": "Solo"
     }
    },
    {
@@ -369,7 +379,8 @@
      "day": 3,
      "time": "10:00",
      "venue": "Central Library, Classroom 1",
-     "end": "12:00"
+     "end": "12:00",
+     "mode": "Solo"
     }
    }
   ]
@@ -409,7 +420,8 @@
      "day": 2,
      "time": "13:30",
      "venue": "Central Library, Classroom 2",
-     "end": "14:30"
+     "end": "14:30",
+     "mode": "Team of 1-3"
     }
    },
    {
@@ -435,7 +447,8 @@
      "day": 2,
      "time": "11:30",
      "venue": "Central Library, Classroom 2",
-     "end": "13:30"
+     "end": "13:30",
+     "mode": "Solo"
     }
    },
    {
@@ -461,7 +474,8 @@
      "day": 3,
      "time": "11:00",
      "venue": "Central Library, Classroom 2",
-     "end": "13:00"
+     "end": "13:00",
+     "mode": "Team of 1-2"
     }
    }
   ]
@@ -501,7 +515,8 @@
      "day": 2,
      "time": "09:00",
      "venue": "Central Library, Classroom 3",
-     "end": "11:00"
+     "end": "11:00",
+     "mode": "Team of 1-2"
     }
    },
    {
@@ -531,7 +546,8 @@
      "day": 2,
      "time": "15:00",
      "venue": "Central Library, Classroom 3",
-     "end": "17:00"
+     "end": "17:00",
+     "mode": "Team of 2-3"
     }
    },
    {
@@ -557,7 +573,8 @@
      "day": 3,
      "time": "13:30",
      "venue": "Central Library, Classroom 3",
-     "end": "15:30"
+     "end": "15:30",
+     "mode": "Team of 1-3"
     }
    }
   ]
@@ -597,7 +614,8 @@
      "day": 3,
      "time": "09:00",
      "venue": "Central Library, Classroom 4",
-     "end": "12:00"
+     "end": "12:00",
+     "mode": "Solo"
     }
    },
    {
@@ -623,7 +641,8 @@
      "day": 2,
      "time": "10:00",
      "venue": "Central Library, Classroom 4",
-     "end": "11:00"
+     "end": "11:00",
+     "mode": "Team of 3"
     }
    },
    {
@@ -649,7 +668,8 @@
      "day": 2,
      "time": "14:00",
      "venue": "Central Library, Classroom 4",
-     "end": "15:00"
+     "end": "15:00",
+     "mode": "Team of 3"
     }
    }
   ]
@@ -657,7 +677,7 @@
  {
   "title": "URBAN BLUEPRINT",
   "subtitle": "STRUCTURAL ARCHITECTURE",
-  "desc": "Problem solving and structural challenges, from bridges to water filtration.",
+  "desc": "Problem solving and structural challenges, from bridges and towers to logic puzzles.",
   "color": "#1fff76",
   "iconType": "bridge",
   "modelType": "civil",
@@ -688,7 +708,8 @@
      "day": 3,
      "time": "10:30",
      "venue": "Central Library, Classroom 5",
-     "end": "12:30"
+     "end": "12:30",
+     "mode": "Team of 1-3"
     },
     "rules": [
      "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including hoodies.",
@@ -731,7 +752,8 @@
      "day": 2,
      "time": "14:00",
      "venue": "Central Library, Classroom 5",
-     "end": "15:00"
+     "end": "15:00",
+     "mode": "Team of 1-3"
     },
     "rules": [
      "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
@@ -775,7 +797,8 @@
      "day": 2,
      "time": "11:00",
      "venue": "Central Library, Classroom 5",
-     "end": "13:00"
+     "end": "13:00",
+     "mode": "Team of 3-4"
     },
     "rules": [
      "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
