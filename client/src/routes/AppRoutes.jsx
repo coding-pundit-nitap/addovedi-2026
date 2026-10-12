@@ -11,6 +11,7 @@ const AlliancesPage = lazy(() => import("../components/alliances/AlliancesPage")
 const AboutPage = lazy(() => import("../components/about/AboutPage"));
 const AdminPage = lazy(() => import("../components/admin/AdminPage"));
 const MerchPage = lazy(() => import("../components/merch/MerchPage"));
+const HowToRegisterPage = lazy(() => import("../components/guide/HowToRegisterPage")); // not preloaded: only fetched when opened
 
 // While an admin has the Events section switched off, every /event address shows "coming soon".
 function EventsGate() {
@@ -51,6 +52,7 @@ export default function AppRoutes() {
             <Route path="/alliances" element={<AlliancesPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/merch" element={<MerchPage />} />
+            <Route path="/how-to-register" element={<HowToRegisterPage />} />
             <Route path={ADMIN_PATH} element={<AdminPage />} />
             <Route path="/event" element={<EventsGate />} />
             <Route path="/event/:categoryName" element={<EventsGate />} />

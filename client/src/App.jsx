@@ -51,7 +51,7 @@ export default function App() {
         if (!showLoader) useStore.getState().setAppReady(true);
     }, [showLoader]);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated;
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated;
 
     // The 3D scene is created the first time a non-standalone page (Home / Arena) is shown, then kept alive
     // and just paused + hidden behind pages like /crew. Unmounting it made every trip back to Home rebuild
@@ -63,7 +63,7 @@ export default function App() {
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated;
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated;
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
@@ -85,7 +85,7 @@ export default function App() {
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || eventsGated) return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated) return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {

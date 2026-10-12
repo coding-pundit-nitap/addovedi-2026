@@ -107,6 +107,7 @@ export default function CommonSidebar() {
         { label: 'CREW',        path: '/crew' },
         { label: 'ABOUT',       path: '/about' },
         { label: 'MERCH',       path: '/merch' },
+        { label: 'GUIDE',       path: '/how-to-register' },
     ];
 
     const handleNavigation = (label, path) => {

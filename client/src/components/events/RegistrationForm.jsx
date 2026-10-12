@@ -1,4 +1,5 @@
 import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
+import GuideLink from '../guide/GuideLink';
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
@@ -233,6 +234,7 @@ export default function RegistrationForm({
                 >
                     OPEN PLAYER HQ ▶
                 </button>
+                <GuideLink step={10} label="Not sure how? See the step-by-step guide" />
             </div>
         );
     }
@@ -285,6 +287,7 @@ export default function RegistrationForm({
                             ? (isMember ? `Your team leader${existingReg?.leaderName ? ' (' + existingReg.leaderName + ')' : ''} completes registration on Unstop and pays for the team. You do not need to do anything on Unstop.` : 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.')
                             : 'Your team is not final yet. Every invited teammate must accept before you can register on Unstop.')}
                 </p>
+                {!isVerified && <GuideLink step={existingReg?.teamId ? 18 : 14} label="What happens next?" />}
 
                 {existingReg?.teamId && (
                     <div style={{ width: '100%', maxWidth: '340px', border: `1px solid ${activeEvent.color}80`, background: `${activeEvent.color}10`, padding: '10px 12px', textAlign: 'center' }}>
@@ -507,6 +510,7 @@ export default function RegistrationForm({
                 <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', lineHeight: 1.3 }}>
                     Provide this Addovedi ID during registration on <strong>Unstop</strong>. Submitting registers your team and sends invites to your teammates. Once all of them accept, you get a Team ID and can complete registration on the official Unstop portal.
                 </div>
+                <div style={{ marginTop: '6px' }}><GuideLink step={12} label="How to fill this form" /></div>
             </div>
 
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">

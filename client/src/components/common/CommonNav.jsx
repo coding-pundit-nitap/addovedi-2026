@@ -11,6 +11,7 @@ const NAV_LINKS = [
     { label: 'CREW',        path: '/crew' },
     { label: 'ABOUT',       path: '/about' },
     { label: 'MERCH',       path: '/merch' },
+    { label: 'GUIDE',       path: '/how-to-register' },
 ];
 
 const BADGE_MAP = {
@@ -19,6 +20,7 @@ const BADGE_MAP = {
     '/crew': 'PERSONNEL DATA · ACTIVE',
     '/about': 'ADDOVEDI HQ · ACTIVE',
     '/merch': 'SUPPLY DEPOT · ACTIVE',
+    '/how-to-register': 'PLAYER GUIDE · ACTIVE',
     '/event': 'ARENA GRIDS · ACTIVE',
     '/': 'CORE ENGINE · ACTIVE',
 };
@@ -147,7 +149,7 @@ export default function CommonNav() {
     const activePath = location.pathname.startsWith('/event') ? '/event' : location.pathname;
     const badgeText = BADGE_MAP[activePath] || 'CORE PANEL · ACTIVE';
 
-    const isFixed = ['/crew', '/alliances', '/timeline', '/about', '/merch'].includes(location.pathname);
+    const isFixed = ['/crew', '/alliances', '/timeline', '/about', '/merch', '/how-to-register'].includes(location.pathname);
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {

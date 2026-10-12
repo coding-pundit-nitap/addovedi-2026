@@ -397,6 +397,7 @@ export default function HeroOverlay() {
                                     { label: 'CREW', active: false },
                                     { label: 'ABOUT', active: false },
                                     { label: 'MERCH', active: false },
+                                    { label: 'GUIDE', active: false },
                                 ].map(({ label, active }) => (
                                     <a
                                         key={label}
@@ -417,6 +418,8 @@ export default function HeroOverlay() {
                                                 navigate('/crew');
                                             } else if (label === 'MERCH') {
                                                 navigate('/merch');
+                                            } else if (label === 'GUIDE') {
+                                                navigate('/how-to-register');
                                             }
                                         }}
                                         className={`nav-link-item${active ? ' nav-link-active' : ''}`}
