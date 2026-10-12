@@ -169,12 +169,15 @@
     "title": "CODATHON",
     "subtitle": "THINK. CODE. SOLVE. CONQUER",
     "desc": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.",
-    "overview": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.\n\nFrom debugging tricky code to solving challenging programming problems, every round will test your coding skills, problem-solving ability, speed, and logical thinking. The competition gets tougher with every challenge, demanding accuracy and efficiency under pressure.\n\nThink fast, code smarter, and rise above the competition. Only the sharpest minds will conquer the leaderboard.\n\nCODE HARD. THINK SMART. RULE THE ARENA.",
+    "overview": "CODATHON is the programming and Computer Science competition of Addovedi 2026, organised by Coding Pundit, Department of Computer Science and Engineering. It runs as one continuous session in two stages: a 20-question Computer Science fundamentals assessment, followed immediately by a coding challenge. Think. Code. Solve. Conquer.\n\nIt is an individual event, and participants bring their own laptop. Ranking is based on the combined performance across both stages. The event tests CS fundamentals, logical reasoning, problem solving, programming and optimisation.\n\nStage 1 — CS Fundamentals Assessment: 20 objective questions covering programming fundamentals, data structures and algorithms, operating systems, DBMS, computer networks, OOP, software engineering, aptitude and logical reasoning, and basic development concepts.\nStage 2 — Coding Challenge: starts right after Stage 1 with problems of increasing difficulty. Topics may include arrays, strings, searching and sorting, recursion, hashing, stacks and queues, trees and graphs, dynamic programming, greedy algorithms and mathematical and implementation problems.\n\nCoding solutions are evaluated automatically against test cases, checking correctness, algorithmic approach and time and space complexity. Stage weights, durations and the coding platform will be announced by the organisers.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "code",
+    "heads": [{"name": "Riya Yadav", "phone": "+91 89575 08842"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "timeline": { "prize": "₹13,000+ (including goodies)" }
    },
    {
     "title": "PROMPT & PIXEL",
