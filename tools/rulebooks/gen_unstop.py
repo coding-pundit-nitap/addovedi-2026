@@ -823,6 +823,43 @@ EV['the-seismic-arena'] = dict(title='THE SEISMIC ARENA', desc=desc('THE SEISMIC
 - **Coordinators:** Chochong Tsering, **+91 92336 02960** · Kaling Yapi, **+91 93628 13564**
 """)
 
+EV['brainwave-bonanza'] = dict(title='BRAINWAVE BONANZA', desc=desc('BRAINWAVE BONANZA','Think Fast. Think Sharp. Forge the Answer.',
+ "**Brainwave Bonanza** is the **logic and aptitude competition** of Addovedi 2026 (NIT Arunachal Pradesh). Teams solve **logic, aptitude and technical problems** under **strict time limits** across **3 rounds worth 100 points**. Ranked on **accuracy, speed and quality of reasoning.**",
+ ["- **Eligibility:** **undergraduate and graduate students** from any field, valid **student ID** required.",
+  "- **Team size:** **up to 3 members** (1 to 3). One entry per team. **Same members in every round**, no substitution.",
+  "- **Inter-college / inter-specialization:** **allowed**. Open to all branches.",
+  "- **Rounds:** **Screening Quiz (20)**, **Puzzle Gauntlet (50)**, **Rapid Forge (30)**, buzzer-style final.",
+  "- **Not allowed:** **phones, smartwatches, calculators (unless allowed), internet, notes and AI tools.**",
+  FLOW.format(ev='Brainwave Bonanza'),
+  "- **Registration fee:** **Rs. 50 per member** (**Rs. 50** for 1, **Rs. 100** for 2, **Rs. 150** for 3).",
+  "- **Prize pool:** **Rs. 8,000 cash** (total worth **Rs. 25,000** including hoodies)."],
+ ["- **No cheating or prohibited devices.** = **immediate disqualification** and no prizes.",
+  "- **No talking to other teams** or taking outside help during a round.",
+  "- **Report 15 minutes early.** Late teams may get **no extra time.**",
+  "- **Submit answer sheets the moment time is called.**",
+  "- **The organisers' answer key is final.** Challenges only **in writing, right after the round.**",
+  "- **Wrong answers in the final may carry negative marking.**",
+  "- **Plagiarism disqualifies the whole team.**",
+  "- **Judges' and organisers' decisions are final.** Rules may be modified and will be communicated."],
+ "**Coordinators to be announced**"),
+ rounds="""# BRAINWAVE BONANZA · ROUND-WISE
+## Round 1: Screening Quiz (20 points)
+- **Written or online quiz** of aptitude, logical reasoning and basic technical questions.
+- Ties broken by **time taken to submit.**
+- Only the **top teams qualify** for Round 2.
+## Round 2: Puzzle Gauntlet (50 points)
+- **Puzzles and problems of increasing difficulty** within the time limit.
+- Each problem has **pre-announced marks.** **Partial marks** for partially correct reasoning.
+- **Show your working** where asked.
+## Final Round: Rapid Forge (30 points)
+- **Live buzzer-style round** among the finalist teams.
+- Correct answers earn points, wrong answers **may carry negative marking.**
+- **Highest total score wins.** Ties: **tie-breaker question.**
+## Quick facts
+- **Teams of up to 3.** **Fee:** **Rs. 50 per member.** **Prize:** **Rs. 8,000 cash** (worth **Rs. 25,000** with hoodies).
+- **Coordinators:** to be announced
+""")
+
 def inline(t):
     t = html.escape(t)
     t = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)

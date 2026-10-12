@@ -579,15 +579,34 @@
   "difficulty": "MEDIUM",
   "events": [
    {
-    "title": "BRAIN FORGE",
-    "subtitle": "IDENTIFY. IDEATE. SOLVE",
-    "desc": "BRAIN FORGE is a real-world problem-solving competition that challenges participants to turn critical thinking and creativity into practical solutions.",
-    "overview": "BRAIN FORGE is a real-world problem-solving competition that challenges participants to turn critical thinking and creativity into practical solutions.\n\nA broad problem area will be revealed after registrations close. Teams must explore the given area, identify a specific real-life problem, and develop an innovative and practical solution. The final idea will be presented before a panel of judges.\n\nTHINK DEEP. SOLVE SMART. FORGE THE FUTURE.",
+    "title": "BRAINWAVE BONANZA",
+    "subtitle": "THINK FAST. THINK SHARP. FORGE THE ANSWER.",
+    "desc": "A team-based problem-solving competition of logic, aptitude and technical puzzles under time pressure. Brainwave Bonanza runs through a Screening Quiz, a Puzzle Gauntlet and a live buzzer-style final.",
+    "overview": "Brainwave Bonanza is the logic and aptitude competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 solve logic, aptitude and technical problems under strict time limits, testing logical reasoning, analytical thinking, technical aptitude and quick decisions under pressure.\n\nThere are three rounds worth 100 points: the Screening Quiz (20), the Puzzle Gauntlet (50) and the live buzzer-style final, Rapid Forge (30). Teams are ranked on accuracy, speed and quality of reasoning.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹25,000 including hoodies.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "brain",
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "heads": [],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹25,000 with hoodies)"
+    },
+    "rules": [
+     "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including hoodies.",
+     "A team may register only once (only the first entry counts). Undergraduate and graduate students from any field can participate, and every participant must carry a valid student ID card. The same members must play all rounds and substitution is not allowed once the event begins.",
+     "Scoring (100 points): Round 1 Screening Quiz 20, Round 2 Puzzle Gauntlet 50, Final Round Rapid Forge 30. Teams are ranked on accuracy, speed and quality of reasoning.",
+     "Round 1, Screening Quiz (20 points): a written or online quiz of aptitude, logical reasoning and basic technical questions. The duration and number of questions are announced at the start. Ties are broken by the time taken to submit, and only the top teams, as decided by the organisers, qualify for Round 2.",
+     "Round 2, Puzzle Gauntlet (50 points): teams solve puzzles and problem statements of increasing difficulty within the time limit. Each problem has pre-announced marks and partial marks may be given for partially correct reasoning. Show your working where asked, as answers without working may not get full marks.",
+     "Final Round, Rapid Forge (30 points): a live head-to-head buzzer-style round among the finalist teams. Correct answers earn points and wrong answers may carry negative marking as announced. The team with the highest total score across all rounds wins, and ties are broken by a tie-breaker question.",
+     "No mobile phones, smartwatches, calculators (unless a round allows them), internet, notes or AI tools. Teams must not communicate with other teams or take outside help during a round, and must follow the quiz master and invigilators at all times.",
+     "The organisers' answer key is final. A team may challenge a question in writing to the judges right after the round, and the judges' decision is final. Misprinted or ambiguous questions may be cancelled or rescored.",
+     "Report to the venue at least 15 minutes before the start. Teams arriving after a round has started may not get extra time. The timer is controlled by the organisers and runs continuously, and answer sheets must be submitted as soon as time is called.",
+     "Cheating or using prohibited devices means immediate disqualification and no prizes. Plagiarism disqualifies the whole team. Do not damage other teams' materials or equipment.",
+     "Follow all instructions from organisers, volunteers and judges, and arrive on time. Judges may disqualify any team for misconduct. The decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
+    ],
+    "unstopUrl": "https://unstop.com"
    },
    {
     "title": "THE SEISMIC ARENA",
