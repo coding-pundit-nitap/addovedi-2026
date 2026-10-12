@@ -843,7 +843,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "timeline": {
                     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)"
                 },
-                "unstopUrl": "https://unstop.com"
+                "unstopUrl": "https://unstop.com/o/BlgenMs?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
                 "title": "EDGE OF COLLAPSE",
