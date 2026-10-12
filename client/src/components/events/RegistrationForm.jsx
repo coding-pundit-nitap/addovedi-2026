@@ -263,7 +263,7 @@ export default function RegistrationForm({
     if (isCurrentEventRegistered) {
         const isMember = existingReg && existingReg.isLeader === false;
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '30px 10px' : '50px 30px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 10px 32px' : '32px 30px 40px', fontFamily: "'Rajdhani', sans-serif", minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
                 <div
                     className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-1 ${isVerified ? '' : 'animate-pulse'}`}
                     style={{
