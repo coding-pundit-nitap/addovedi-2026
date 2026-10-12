@@ -106,12 +106,15 @@
     "title": "MOBILE LEGENDS: BANG BANG",
     "subtitle": "CHOOSE YOUR HERO. MASTER YOUR STRATEGY. CONQUER THE ARENA",
     "desc": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.",
-    "overview": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.\n\nEvery match demands perfect coordination, tactical gameplay, and mastery of your chosen role. Whether you lead the attack, protect your teammates, or turn the battle around with a game-changing move, every decision can make the difference between defeat and glory.\n\nGather your squad and prepare for battle. The arena is waiting.\n\nTEAM UP. FIGHT SMART. CLAIM VICTORY.",
+    "overview": "The MLBB Tournament is the Mobile Legends: Bang Bang competition of Addovedi 2026, NIT Arunachal Pradesh. MLBB has been growing fast in Northeast India and across the country, and this tournament brings teams together to compete through gameplay skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stage is managed and scheduled online by the event committee, and the final match is played physically at the Institute campus, giving players and spectators a real esports experience. Teams have 5 members. If more than 40 teams register, only the top 40 are shortlisted.\n\nRound 1 — League / Group Stage: the 40 selected teams are split into 4 groups of 10 and play round-robin matches. The group winners advance.\nRound 2 — Knockout / Quarterfinals: elimination matches decide the semifinalists.\nRound 3 — Semifinals: the four qualified teams compete, and the winners go to the final.\nRound 4 — Final: the two semifinal winners play the final at the Institute campus for 1st and 2nd place.\n\nFaculty coordinators and student volunteers supervise and referee every match, and the same rulebook applies to all teams.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
-    "minTeam": 1,
-    "maxTeam": 5
+    "heads": [{"name": "Nabam Rana", "phone": "+91 81319 03629"}],
+    "minTeam": 5,
+    "maxTeam": 5,
+    "fee": "₹100 per team",
+    "timeline": { "prize": "₹10,000 cash + exclusive hoodies" }
    },
    {
     "title": "TEKKEN SHOWDOWN",
