@@ -500,6 +500,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 2,
                 "maxTeam": 3,
                 "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
                 "timeline": { "prize": "₹17,000+ (including goodies)" },
                 "rules": [
