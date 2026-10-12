@@ -38,9 +38,17 @@ const STYLES = `
 .guide-btn.pri:hover:not(:disabled){filter:brightness(1.1);background:linear-gradient(135deg,#0891b2,#00D9FF);}
 .guide-hint{font-size:13px;color:rgba(255,255,255,.4);}
 .guide-cta{margin-top:18px;display:flex;flex-wrap:wrap;gap:12px;}
-.guide-zoom{position:fixed;inset:0;z-index:400;background:rgba(2,5,10,.96);overflow:auto;-webkit-overflow-scrolling:touch;cursor:zoom-out;}
-.guide-zoom img{display:block;width:max(100%,1100px);height:auto;margin:0 auto;}
-.guide-zoom b{position:fixed;top:14px;right:18px;z-index:401;font:700 22px 'Orbitron',monospace;color:#00D9FF;background:rgba(2,8,16,.85);border:1px solid rgba(0,217,255,.5);width:42px;height:42px;display:flex;align-items:center;justify-content:center;}
+.guide-zoom{scroll-behavior:auto;position:fixed;inset:0;z-index:400;background:#02050a;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.guide-zoom.big{display:block;overflow:auto;-webkit-overflow-scrolling:touch;}
+.guide-zoom img{display:block;user-select:none;-webkit-user-drag:none;}
+.guide-zoom img.fit{width:100%;max-width:1700px;max-height:100%;height:auto;object-fit:contain;}
+.guide-zoom img.big{width:max(210vw,1500px);max-width:none;height:auto;}
+.guide-zoom img.rot{position:absolute;left:50%;top:50%;width:min(100dvh,177.78vw);max-width:none;height:auto;transform:translate(-50%,-50%) rotate(90deg);}
+.guide-zbar{position:fixed;top:12px;right:12px;z-index:401;display:flex;gap:8px;}
+.guide-zbtn{font:700 12px 'Orbitron',monospace;letter-spacing:.1em;color:#00D9FF;background:rgba(2,8,16,.9);border:1px solid rgba(0,217,255,.55);height:42px;min-width:42px;padding:0 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.guide-zbtn.rotbtn{display:none;}
+.guide-zhint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:401;font:600 12px 'Orbitron',monospace;letter-spacing:.1em;color:rgba(255,255,255,.55);background:rgba(2,8,16,.8);padding:7px 12px;pointer-events:none;white-space:nowrap;}
+@media (orientation:portrait) and (max-width:900px){.guide-zbtn.rotbtn{display:flex}}
 @media (max-width:900px){.guide-grid{grid-template-columns:1fr;gap:18px}.guide-tabs{flex-direction:row;flex-wrap:wrap;margin-top:14px}.guide-tab{padding:8px 11px}.guide-side{order:0}}
 @media (max-width:640px){.guide-in{padding:112px 14px 48px}.guide-body{padding:14px}.guide-btn{flex:1;min-width:0;padding:13px 10px}.guide-hint{display:none}}
 `;
@@ -53,7 +61,7 @@ const stepFromHash = () => {
 export default function HowToRegisterPage() {
     const navigate = useNavigate();
     const [i, setI] = useState(stepFromHash);
-    const [zoom, setZoom] = useState(false);
+    const [zoom, setZoom] = useState(false); // false | 'fit' | 'big' | 'rot'
     const touchX = useRef(null);
     const step = GUIDE_STEPS[i];
     const last = i === GUIDE_STEPS.length - 1;
@@ -79,10 +87,30 @@ export default function HowToRegisterPage() {
             if (e.key === 'ArrowRight') go((c) => c + 1);
             else if (e.key === 'ArrowLeft') go((c) => c - 1);
             else if (e.key === 'Escape') setZoom(false);
+            else if (e.key === '+' || e.key === '=') setZoom('big');
+            else if (e.key === '-') setZoom((z) => (z ? 'fit' : z));
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [go]);
+
+    useEffect(() => {
+        if (!zoom) return undefined;
+        const wrap = document.querySelector('.guide-wrap');
+        const prev = wrap ? wrap.style.overflowY : '';
+        if (wrap) wrap.style.overflowY = 'hidden';
+        return () => { if (wrap) wrap.style.overflowY = prev; };
+    }, [zoom]);
+
+    // when entering the zoomed view, start in the middle of the picture
+    const zoomRef = useRef(null);
+    useEffect(() => {
+        if (zoom !== 'big') return undefined;
+        const center = () => { const el = zoomRef.current; if (el) el.scrollTo({ left: (el.scrollWidth - el.clientWidth) / 2, top: (el.scrollHeight - el.clientHeight) / 2, behavior: 'instant' }); };
+        center();
+        const id = requestAnimationFrame(() => { center(); requestAnimationFrame(center); });
+        return () => cancelAnimationFrame(id);
+    }, [zoom]);
 
     useEffect(() => { const t = document.title; document.title = 'How to Register · Addovedi 2026'; return () => { document.title = t; }; }, []);
 
@@ -114,7 +142,7 @@ export default function HowToRegisterPage() {
 
                 <div className="guide-main">
                 <div className="guide-card" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className="guide-shot" onClick={() => setZoom(true)} role="button" aria-label="Enlarge screenshot">
+                    <div className="guide-shot" onClick={() => setZoom('fit')} role="button" aria-label="Enlarge screenshot">
                         <img key={step.n} src={step.img} alt={`${step.title}. ${step.caption}`} width="1600" height="900" decoding="async" fetchpriority={i === 0 ? 'high' : 'auto'} />
                         <span className="guide-zoomhint">TAP TO ENLARGE</span>
                     </div>
@@ -142,9 +170,14 @@ export default function HowToRegisterPage() {
             </div>
 
             {zoom && (
-                <div className="guide-zoom" onClick={() => setZoom(false)}>
-                    <b aria-hidden="true">✕</b>
-                    <img src={step.img} alt={step.title} />
+                <div className={`guide-zoom${zoom === 'big' ? ' big' : ''}`} ref={zoomRef} onClick={() => { if (zoom === 'fit') setZoom(false); }}>
+                    <div className="guide-zbar" onClick={(e) => e.stopPropagation()}>
+                        <button className="guide-zbtn" onClick={() => setZoom((z) => (z === 'big' ? 'fit' : 'big'))} aria-label={zoom === 'big' ? 'Fit to screen' : 'Zoom in'}>{zoom === 'big' ? '⤡ FIT' : '⤢ ZOOM'}</button>
+                        <button className="guide-zbtn rotbtn" onClick={() => setZoom((z) => (z === 'rot' ? 'fit' : 'rot'))} aria-label="Rotate view">{zoom === 'rot' ? '⟲ BACK' : '⟳ ROTATE'}</button>
+                        <button className="guide-zbtn" onClick={() => setZoom(false)} aria-label="Close">✕</button>
+                    </div>
+                    <img className={zoom} src={step.img} alt={step.title} draggable="false" onClick={(e) => { e.stopPropagation(); setZoom((z) => (z === 'fit' ? 'big' : z === 'big' ? 'fit' : 'fit')); }} />
+                    <div className="guide-zhint">{zoom === 'fit' ? 'TAP IMAGE TO ZOOM · TAP OUTSIDE TO CLOSE' : zoom === 'big' ? 'DRAG TO LOOK AROUND · TAP TO FIT' : 'ROTATED VIEW · USE BACK TO RETURN'}</div>
                 </div>
             )}
         </div>
