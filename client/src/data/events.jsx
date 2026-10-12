@@ -249,6 +249,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
                 "timeline": { "prize": "₹7,000+ including goodies" },
                 "rules": [
