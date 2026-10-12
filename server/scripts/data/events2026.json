@@ -200,12 +200,15 @@
     "title": "VERILOG",
     "subtitle": "DESIGN. SIMULATE. INNOVATE",
     "desc": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.",
-    "overview": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.\n\nFrom basic combinational circuits to complex digital logic, the competition challenges participants to think like hardware designers and transform ideas into functional designs.\n\nCODE THE LOGIC. DESIGN THE HARDWARE. BUILD THE FUTURE.",
+    "overview": "Verilog is a two-round digital design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of digital logic fundamentals and their ability to model, simulate and verify digital circuits using the Verilog Hardware Description Language. Design. Simulate. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, competitive design under time pressure in Round 2. Participation is individual, and both rounds are conducted on participants' own laptops using Icarus Verilog or Vivado, used offline.\n\nRound 1 — Qualifying Round: covers the fundamentals of Verilog and logic design and tests conceptual understanding of digital logic. It is the filter for Round 2.\nRound 2 — Competitive Round: qualified participants attempt advanced Verilog design problems on a best-time basis. The correctness of the functional simulation and the speed of completion decide the ranking.\n\nThe format, duration and evaluation of Round 1, and the number of qualifiers, are announced by the organisers. The nature and number of Round 2 problems are disclosed at the time of the round.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "code",
+    "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "timeline": { "prize": "Up to ₹8,000 + goodies" }
    },
    {
     "title": "CIRCUIT DESIGNING",

@@ -278,14 +278,33 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "VERILOG",
                 "subtitle": "DESIGN. SIMULATE. INNOVATE",
                 "desc": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.",
-                "overview": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.\n\nFrom basic combinational circuits to complex digital logic, the competition challenges participants to think like hardware designers and transform ideas into functional designs.\n\nCODE THE LOGIC. DESIGN THE HARDWARE. BUILD THE FUTURE.",
+                "overview": "Verilog is a two-round digital design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of digital logic fundamentals and their ability to model, simulate and verify digital circuits using the Verilog Hardware Description Language. Design. Simulate. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, competitive design under time pressure in Round 2. Participation is individual, and both rounds are conducted on participants' own laptops using Icarus Verilog or Vivado, used offline.\n\nRound 1 — Qualifying Round: covers the fundamentals of Verilog and logic design and tests conceptual understanding of digital logic. It is the filter for Round 2.\nRound 2 — Competitive Round: qualified participants attempt advanced Verilog design problems on a best-time basis. The correctness of the functional simulation and the speed of completion decide the ranking.\n\nThe format, duration and evaluation of Round 1, and the number of qualifiers, are announced by the organisers. The nature and number of Round 2 problems are disclosed at the time of the round.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "code",
                 "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "maxTeam": 1,
+                "fee": "₹50 per person",
+                "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
+                "timeline": { "prize": "Up to ₹8,000 + goodies" },
+                "rules": [
+                "Participation is individual. Each participant may register only once. If someone registers more than once, only the first registration is considered.",
+                "Open to undergraduate students of recognised institutions. Carry a valid student ID card of your institution and produce it on demand.",
+                "Registration fee is ₹50 per individual participant. Prizes worth up to ₹8,000 plus goodies (includes the 1st and 2nd prize). Registration is complete only when confirmed by the organisers, who may limit the number of participants.",
+                "Round 1 is a qualifying round on Verilog fundamentals and logic design. The format, duration and evaluation method are announced by the organisers, and so is the number of participants who qualify for Round 2.",
+                "Round 2 is a competitive round with advanced Verilog design problems. The nature and number of problems are disclosed at the time of the round.",
+                "Round 2 is judged on a best-time basis: correct functional simulation together with speed of completion decides the ranking. The organisers may apply extra criteria, announced before the round begins.",
+                "Both rounds are conducted on your own laptop. Permitted software is Icarus Verilog and Vivado, used offline. At least one of them must be installed and working beforehand. The organisers do not provide computers.",
+                "Laptops must be fully charged and you should bring your own charger. The organisers are not responsible for hardware, software or battery failure. Do not install or use any other software, extension or tool unless the organisers permit it.",
+                "You are solely responsible for your laptop and set-up. Report any issue to the coordinators at the venue immediately.",
+                "Report at the venue at the announced time. Late entry may be refused.",
+                "Internet access, mobile phones, storage devices, notes and any other aids are not permitted during the rounds unless the organisers specifically allow them.",
+                "Artificial intelligence tools, code generators and any external help are strictly prohibited.",
+                "All work must be your own. Copying, sharing solutions or any plagiarism leads to disqualification. Do not interfere with other participants' laptops, files or work.",
+                "Follow the instructions of the coordinators and judges at all times and maintain discipline. Misconduct, unfair means or breaking the rules may lead to a penalty or disqualification at the judges' discretion.",
+                "Tie-break: ties in Round 1 are resolved by performance in that round. A tie after Round 2 is resolved by Round 2 performance, then Round 1 performance. If it still persists, the organisers and judges decide the criteria.",
+                "Prizes go only to participants who followed all the rules. Certificates are provided as decided by the organisers. In any dispute or discrepancy, the decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
+]
             },
             {
                 "title": "CIRCUIT DESIGNING",
@@ -889,6 +908,7 @@ export const RULEBOOK_PDFS = {
     'circuit-debugging': '/rulebooks/Addovedi-2026-circuit-debugging-rulebook.pdf',
     'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',
     'energix': '/rulebooks/Addovedi-2026-energix-rulebook.pdf',
+    'verilog': '/rulebooks/Addovedi-2026-verilog-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};
