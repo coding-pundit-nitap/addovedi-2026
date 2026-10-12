@@ -336,6 +336,12 @@ export default function HologramCards() {
         const subList = subEventsData[selectedDivision] || [];
         const count = subList.length;
 
+        // 4 or more events share one row. Cards are 3.3 wide, so spacing and size shrink together as the count grows:
+        // the outer cards stay inside the visible width (about +-6.5) and neighbours never overlap (4 events: full size,
+        // 5 events: ~65%, 6 events: ~52%).
+        const crowdedSpacing = count > 3 ? Math.min(3.9, 13.5 / count) : 4.5;
+        const cardScale = count > 3 ? Math.min(1, (crowdedSpacing - 0.5) / 3.3) : 1;
+
         return subList.map((item, idx) => {
             let x = 0;
             let z = -9.6;
@@ -349,15 +355,15 @@ export default function HologramCards() {
                 if (idx === 0) { x = -2.5; z = -9.6; rotY = 0.1; }
                 if (idx === 1) { x = 2.5; z = -9.6; rotY = -0.1; }
             } else if (count > 0) {
-                const spacing = count > 3 ? 10.0 / (count - 1) : 4.5;
-                x = (idx - (count - 1) / 2) * spacing;
+                x = (idx - (count - 1) / 2) * crowdedSpacing;
                 rotY = -x * 0.035;
             }
 
             return {
                 ...item,
                 pos: [x, 3.3, z],
-                rot: [0, rotY, 0]
+                rot: [0, rotY, 0],
+                cardScale
             };
         });
     }, [selectedDivision, activeRotationIndex, categoriesList]);
@@ -1741,9 +1747,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
             });
 
             gsap.to(cardRef.current.scale, {
-                x: 1.0,
-                y: 1.0,
-                z: 1.0,
+                x: data.cardScale || 1.0,
+                y: data.cardScale || 1.0,
+                z: data.cardScale || 1.0,
                 duration: 1.25,
                 delay: delay,
                 ease: 'back.out(1.1)'
@@ -1808,7 +1814,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
             }
         }
 
-        const targetScale = (hovered && !isMobile) ? 1.03 : 1.0;
+        const targetScale = ((hovered && !isMobile) ? 1.03 : 1.0) * (data.cardScale || 1);
 
         const targetRotX = (hovered && !isMobile) ? 0.02 : 0;
         const targetRotY = (hovered && !isMobile) ? baseRotY - 0.02 : baseRotY;
