@@ -168,7 +168,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nandu Giba Tamin", "phone": "+91 76300 64979"}, {"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
-                "timeline": { "day": 2, "time": "11:00", "end": "16:00", "venue": "TEL Centre", "prize": "₹22,000 + goodies" },
+                "timeline": { "day": 2, "time": "11:00", "end": "16:00", "label": "QUALIFIERS · DAY 1 OF 2", "venue": "TEL Centre", "prize": "₹22,000 + goodies", "sessions": [{ "day": 3, "time": "11:00", "end": "16:00", "venue": "TEL Centre", "label": "FINALS · DAY 2 OF 2" }] },
                 "rules": [
                 "Each team may have a maximum of 5 members (a team has 5 players). A team may register only once; if it registers more than once, only the first submission is considered.",
                 "Registration is free. There is no entry fee. The prize pool is ₹22,000 plus goodies, shared among the 16 teams that qualify for the finals. The organisers will announce the exact prize distribution.",
@@ -347,7 +347,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "fee": "₹50 per member",
                 "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
                 "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
-                "timeline": { "day": 1, "time": "17:00", "venue": "Central Library, Classroom 7", "prize": "₹30,000+ (including goodies)" },
+                "timeline": { "day": 1, "time": "17:00", "end": "17:00", "endDay": 2, "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM", "venue": "Central Library, Classroom 7", "prize": "₹30,000+ (including goodies)" },
                 "rules": [
                 "Teams must have a minimum of 2 and a maximum of 4 members. Each participant may join only one team. Team details must be final at verification.",
                 "Only the top 25 teams can participate, selected first come, first served by registration time.",
@@ -1109,32 +1109,36 @@ const DAY_META = [
 ];
 const TIMELINE_DAY_DATES = DAY_META.map(d => d.isoDate);
 
-// Events the one-day timeline model can't express on its own (the DB schema
-// holds a single day/start/end per event). `label` replaces the card subtitle;
-// `endsAt` is a full ISO finish time for runs that cross midnight; `extra`
-// are further sessions on other day buckets (1/2/3 = Oct 28/29/30).
-const TIMELINE_SESSIONS = {
-    'HACKATHON': { label: '24-HOUR RUN · ENDS 29 OCT 5:00 PM', endsAt: '2026-10-29T17:00:00' },
-    'BGMI': {
-        label: 'QUALIFIERS · DAY 1 OF 2',
-        extra: [{ day: 3, time: '11:00', end: '16:00', label: 'FINALS · DAY 2 OF 2' }]
-    }
-};
-
-function computeEventStatus(day, time, end, endsAt) {
+// `endDay` (optional) is the day bucket a slot finishes on when that differs
+// from the day it starts, e.g. the 24h Hackathon.
+function computeEventStatus(day, time, end, endDay) {
     if (!day || !time) return 'UPCOMING';
-    const dateStr = TIMELINE_DAY_DATES[day - 1];
-    const start = new Date(`${dateStr}T${time}:00`);
+    const start = new Date(`${TIMELINE_DAY_DATES[day - 1]}T${time}:00`);
     if (Number.isNaN(start.getTime())) return 'UPCOMING';
     const now = new Date();
-    if (endsAt) {
-        const finish = new Date(endsAt);
-        if (!Number.isNaN(finish.getTime()) && now > finish) return 'COMPLETED';
-    } else if (end) {
-        const finish = new Date(`${dateStr}T${end}:00`);
+    if (end) {
+        const finish = new Date(`${TIMELINE_DAY_DATES[(endDay || day) - 1]}T${end}:00`);
         if (!Number.isNaN(finish.getTime()) && now > finish) return 'COMPLETED';
     }
     return now >= start ? 'LIVE' : 'UPCOMING';
+}
+
+// Display form of a slot's end time: "17:00 (Oct 29)" when it finishes on a later day.
+function slotEndLabel(slot) {
+    if (!slot.end) return '';
+    return slot.endDay && slot.endDay !== slot.day && DAY_META[slot.endDay - 1] ? `${slot.end} (${DAY_META[slot.endDay - 1].date})` : slot.end;
+}
+
+// Every scheduled slot of an event: the primary one on `timeline` plus any
+// admin-added `timeline.sessions` (later rounds / other days).
+function timelineSlots(t) {
+    if (!t) return [];
+    const slots = [];
+    if (t.day >= 1 && t.day <= 3 && t.time) slots.push({ day: t.day, time: t.time, end: t.end || '', endDay: t.endDay || null, venue: t.venue, label: t.label });
+    (t.sessions || []).forEach(x => {
+        if (x && x.day >= 1 && x.day <= 3 && x.time) slots.push({ day: x.day, time: x.time, end: x.end || '', endDay: x.endDay || null, venue: x.venue || t.venue, label: x.label });
+    });
+    return slots;
 }
 
 // Builds the Timeline page's day-by-day schedule from live (DB-merged)
@@ -1149,32 +1153,23 @@ export function buildTimelineDays(categoriesList, subEventsMap) {
         const events = (subEventsMap && subEventsMap[cat.title]) || [];
         events.forEach(ev => {
             const t = ev.timeline;
-            if (!t || !(t.day >= 1 && t.day <= 3) || !t.time) return;
-            const sess = TIMELINE_SESSIONS[ev.title] || {};
-            const entry = {
-                id: slugify(ev.title),
-                title: ev.title,
-                subtitle: sess.label || ev.subtitle,
-                category: cat.shortName || cat.title,
-                categorySlug: slugify(cat.title),
-                time: t.time,
-                end: t.end || '',
-                venue: t.venue || 'Main Arena',
-                mode: t.mode || 'Solo',
-                registered: 0,
-                prize: t.prize || 'Trophies',
-                status: computeEventStatus(t.day, t.time, t.end, sess.endsAt),
-                desc: ev.desc,
-                heads: ev.heads || []
-            };
-            days[t.day - 1].events.push(entry);
-            (sess.extra || []).forEach(x => {
-                days[x.day - 1].events.push({
-                    ...entry,
-                    subtitle: x.label || entry.subtitle,
-                    time: x.time,
-                    end: x.end || '',
-                    status: computeEventStatus(x.day, x.time, x.end)
+            timelineSlots(t).forEach(slot => {
+                days[slot.day - 1].events.push({
+                    id: slugify(ev.title),
+                    title: ev.title,
+                    subtitle: slot.label || ev.subtitle,
+                    category: cat.shortName || cat.title,
+                    categorySlug: slugify(cat.title),
+                    time: slot.time,
+                    end: slotEndLabel(slot),
+                    endDay: slot.endDay,
+                    venue: slot.venue || 'Main Arena',
+                    mode: t.mode || 'Solo',
+                    registered: 0,
+                    prize: t.prize || 'Trophies',
+                    status: computeEventStatus(slot.day, slot.time, slot.end, slot.endDay),
+                    desc: ev.desc,
+                    heads: ev.heads || []
                 });
             });
         });
@@ -1259,26 +1254,24 @@ export const DAYS = DAY_META.map(d => ({ ...d, events: [] }));
 
 CATEGORIES_WITH_EVENTS.forEach(cat => {
     cat.events.forEach(ev => {
-        if (ev.timeline && ev.timeline.day >= 1 && ev.timeline.day <= 3) {
-            const sess = TIMELINE_SESSIONS[ev.title] || {};
-            const entry = {
+        timelineSlots(ev.timeline).forEach(slot => {
+            DAYS[slot.day - 1].events.push({
                 id: slugify(ev.title),
                 title: ev.title,
-                subtitle: sess.label || ev.subtitle,
+                subtitle: slot.label || ev.subtitle,
                 category: ev.category || cat.shortName || cat.title.replace(' & RC', '').replace(' & CS', '').replace('QUEST', '').replace('GUILD', '').replace('ARENA', '').replace(' & DESIGN', '').replace(' & DATA SCIENCE', '').trim(),
                 categorySlug: slugify(cat.title),
-                time: ev.timeline.time,
-                end: ev.timeline.end,
-                venue: ev.timeline.venue || 'Main Arena',
+                time: slot.time,
+                end: slotEndLabel(slot),
+                endDay: slot.endDay,
+                venue: slot.venue || 'Main Arena',
                 mode: ev.timeline.mode || 'Solo',
                 registered: ev.timeline.registered || 0,
                 prize: ev.timeline.prize || 'Trophies',
-                status: ev.timeline.status || computeEventStatus(ev.timeline.day, ev.timeline.time, ev.timeline.end, sess.endsAt),
+                status: ev.timeline.status || computeEventStatus(slot.day, slot.time, slot.end, slot.endDay),
                 desc: ev.desc
-            };
-            DAYS[ev.timeline.day - 1].events.push(entry);
-            (sess.extra || []).forEach(x => DAYS[x.day - 1].events.push({ ...entry, subtitle: x.label || entry.subtitle, time: x.time, end: x.end || '', status: computeEventStatus(x.day, x.time, x.end) }));
-        }
+            });
+        });
     });
 });
 

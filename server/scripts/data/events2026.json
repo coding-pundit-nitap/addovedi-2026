@@ -140,7 +140,17 @@
      "day": 2,
      "time": "11:00",
      "venue": "TEL Centre",
-     "end": "16:00"
+     "end": "16:00",
+     "label": "QUALIFIERS · DAY 1 OF 2",
+     "sessions": [
+      {
+       "day": 3,
+       "time": "11:00",
+       "end": "16:00",
+       "venue": "TEL Centre",
+       "label": "FINALS · DAY 2 OF 2"
+      }
+     ]
     }
    },
    {
@@ -300,7 +310,10 @@
      "prize": "₹30,000+ (including goodies)",
      "day": 1,
      "time": "17:00",
-     "venue": "Central Library, Classroom 7"
+     "venue": "Central Library, Classroom 7",
+     "end": "17:00",
+     "endDay": 2,
+     "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM"
     }
    },
    {

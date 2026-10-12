@@ -23,6 +23,7 @@ for (const title of wanted) {
     if (src.overview) set.overview = src.overview;
     if (withDesc) { set.desc = src.desc; set.subtitle = src.subtitle; }
     for (const k of ['day', 'time', 'end', 'venue']) if (src.timeline?.[k] !== undefined) set[`timeline.${k}`] = src.timeline[k];
+    for (const k of ['endDay', 'label', 'sessions']) if (src.timeline?.[k] !== undefined) set[`timeline.${k}`] = src.timeline[k];
     if (src.fee !== undefined) set.fee = src.fee;
     if (src.unstopUrl) set.unstopUrl = src.unstopUrl;
     const doc = await SubEvent.findOne({ title }).collation({ locale: 'en', strength: 2 }).lean();

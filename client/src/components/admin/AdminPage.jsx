@@ -83,7 +83,7 @@ export default function AdminPage() {
     const [editingSponsor, setEditingSponsor] = useState(null);
 
     // New Data Add states
-    const emptyTimeline = { day: '', time: '', end: '', venue: '', mode: 'Solo', prize: '' };
+    const emptyTimeline = { day: '', time: '', end: '', endDay: '', label: '', venue: '', mode: 'Solo', prize: '', sessions: [] };
     // Bucket 1 is "Day Zero" (Oct 28, from 5PM), 2 is Day 1 (Oct 29), 3 is Day 2
     // (Oct 30) — kept as the stored values so existing scheduled sub-events
     // don't need migrating if the calendar dates ever shift again.
@@ -654,7 +654,10 @@ export default function AdminPage() {
         while (safeHeads.length < 2) {
             safeHeads.push({ name: '', phone: '' });
         }
-        const safeTimeline = { ...emptyTimeline, ...(sub.timeline || {}), day: sub.timeline?.day ?? '' };
+        const safeTimeline = {
+            ...emptyTimeline, ...(sub.timeline || {}), day: sub.timeline?.day ?? '', endDay: sub.timeline?.endDay ?? '', label: sub.timeline?.label || '',
+            sessions: (sub.timeline?.sessions || []).map(x => ({ day: x.day ?? '', time: x.time || '', end: x.end || '', endDay: x.endDay ?? '', venue: x.venue || '', label: x.label || '' }))
+        };
         setEditingSubEvent({ ...sub, unstopUrl: sub.unstopUrl || 'https://unstop.com', heads: safeHeads, timeline: safeTimeline });
     };
 
@@ -675,7 +678,16 @@ export default function AdminPage() {
         // Normalize the timeline.day select ('' means "not scheduled yet")
         // to null rather than sending an empty string into a Number field.
         if (rest.timeline && typeof rest.timeline === 'object') {
-            rest.timeline = { ...rest.timeline, day: rest.timeline.day === '' ? null : Number(rest.timeline.day) };
+            const num = (v) => (v === '' || v == null ? null : Number(v));
+            rest.timeline = {
+                ...rest.timeline,
+                day: num(rest.timeline.day),
+                endDay: num(rest.timeline.endDay),
+                // drop half-filled session rows (a session needs a day and a start time)
+                sessions: (rest.timeline.sessions || [])
+                    .filter(x => x && x.day !== '' && x.day != null && String(x.time || '').trim())
+                    .map(x => ({ day: Number(x.day), time: String(x.time).trim(), end: String(x.end || '').trim(), endDay: num(x.endDay), venue: x.venue || '', label: x.label || '' }))
+            };
         }
 
         return rest;
@@ -1779,6 +1791,7 @@ export default function AdminPage() {
                                         const t = targetObj.timeline || emptyTimeline;
                                         const setT = (patch) => targetSetter({ ...targetObj, timeline: { ...t, ...patch } });
                                         return (
+                                        <>
                                             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr 1fr', gap: '14px', marginTop: '10px' }}>
                                                 <select value={t.day} onChange={e => setT({ day: e.target.value })}>
                                                     <option value="">NOT SCHEDULED</option>
@@ -1798,6 +1811,42 @@ export default function AdminPage() {
                                                 </select>
                                                 <input type="text" placeholder="Prize (e.g. ₹10,000)" value={t.prize} onChange={e => setT({ prize: e.target.value })} />
                                             </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '14px', marginTop: '10px' }}>
+                                                <input type="text" maxLength={80} placeholder="Round label for this slot (optional, e.g. QUALIFIERS)" value={t.label || ''} onChange={e => setT({ label: e.target.value })} />
+                                                <select value={t.endDay ?? ''} onChange={e => setT({ endDay: e.target.value })}>
+                                                    <option value="">ENDS THE SAME DAY</option>
+                                                    <option value="1">ENDS ON {DAY_LABELS[1]}</option>
+                                                    <option value="2">ENDS ON {DAY_LABELS[2]}</option>
+                                                    <option value="3">ENDS ON {DAY_LABELS[3]}</option>
+                                                </select>
+                                            </div>
+                                            <div style={{ marginTop: '12px', fontSize: '9.5px', fontFamily: "'Orbitron', monospace", color: '#00E5FF', letterSpacing: '0.1em' }}>ADDITIONAL SESSIONS (LATER ROUNDS OR DAYS)</div>
+                                            {(t.sessions || []).map((x, i) => {
+                                                const setS = (patch) => setT({ sessions: t.sessions.map((y, j) => j === i ? { ...y, ...patch } : y) });
+                                                return (
+                                                    <div key={i} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1.3fr 0.8fr 0.8fr 1.2fr 1.3fr 1.2fr auto', gap: '10px', marginTop: '8px', alignItems: 'center' }}>
+                                                        <select value={x.day} onChange={e => setS({ day: e.target.value })}>
+                                                            <option value="">DAY?</option>
+                                                            <option value="1">{DAY_LABELS[1]}</option>
+                                                            <option value="2">{DAY_LABELS[2]}</option>
+                                                            <option value="3">{DAY_LABELS[3]}</option>
+                                                        </select>
+                                                        <input type="text" placeholder="Start 24h" value={x.time} onChange={e => setS({ time: e.target.value })} />
+                                                        <input type="text" placeholder="End 24h" value={x.end} onChange={e => setS({ end: e.target.value })} />
+                                                        <select value={x.endDay ?? ''} onChange={e => setS({ endDay: e.target.value })}>
+                                                            <option value="">ENDS SAME DAY</option>
+                                                            <option value="1">ENDS DAY ZERO</option>
+                                                            <option value="2">ENDS DAY 1</option>
+                                                            <option value="3">ENDS DAY 2</option>
+                                                        </select>
+                                                        <input type="text" maxLength={80} placeholder="Venue" value={x.venue} onChange={e => setS({ venue: e.target.value })} />
+                                                        <input type="text" maxLength={80} placeholder="Round label (e.g. FINALS)" value={x.label} onChange={e => setS({ label: e.target.value })} />
+                                                        <button type="button" onClick={() => setT({ sessions: t.sessions.filter((_, j) => j !== i) })} style={{ padding: '6px 10px', border: '1px solid #FF2C6D80', background: 'transparent', color: '#FF2C6D', fontFamily: 'monospace', cursor: 'pointer' }}>✕</button>
+                                                    </div>
+                                                );
+                                            })}
+                                            <button type="button" onClick={() => setT({ sessions: [...(t.sessions || []), { day: '', time: '', end: '', endDay: '', venue: t.venue || '', label: '' }] })} style={{ marginTop: '10px', padding: '6px 14px', border: '1px solid #00E5FF80', background: 'transparent', color: '#00E5FF', fontFamily: 'monospace', fontSize: '10px', cursor: 'pointer' }}>+ ADD SESSION</button>
+                                        </>
                                         );
                                     })()}
                                 </div>
@@ -1868,7 +1917,7 @@ export default function AdminPage() {
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
                                                     {sub.timeline?.day ? (
-                                                        <span style={{ color: '#1FFF76' }}>{DAY_LABELS[sub.timeline.day] || `DAY ${sub.timeline.day}`} · {sub.timeline.time || '—'}</span>
+                                                        <span style={{ color: '#1FFF76' }}>{DAY_LABELS[sub.timeline.day] || `DAY ${sub.timeline.day}`} · {sub.timeline.time || '—'}{(sub.timeline.sessions || []).length > 0 ? ` +${sub.timeline.sessions.length} MORE` : ''}</span>
                                                     ) : (
                                                         <span style={{ color: 'rgba(255,255,255,0.3)' }}>NOT SCHEDULED</span>
                                                     )}
