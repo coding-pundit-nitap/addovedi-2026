@@ -84,12 +84,15 @@
     "title": "BGMI",
     "subtitle": "DROP IN. GEAR UP. SURVIVE. CONQUER",
     "desc": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.",
-    "overview": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.\n\nFrom the moment you drop onto the battlefield, every decision matters. Loot your gear, plan your moves, communicate with your squad, and outplay your opponents as the battleground closes in.\n\nOnly the strongest teams will survive the chaos and rise to claim the title of the ultimate champions.\n\nDrop Together. Fight Hard. Survive the Arena.",
+    "overview": "The BGMI Tournament is the Battlegrounds Mobile India competition of Addovedi 2026, NIT Arunachal Pradesh. BGMI has been gaining popularity in Northeast India and across the country, and this tournament brings teams together to compete through survival skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stages are managed and scheduled online by the event committee, and the final matches are played physically at the Institute campus. Teams have 5 members. If more than 60 teams register, only the top 60 are shortlisted. Registration is free.\n\nRound 1 — Qualifiers: 60 teams play over 3 days, 3 matches a day (9 matches). The top 24 teams qualify for the semifinals.\nRound 2 — Semifinals: the 24 qualified teams play over 3 days, 4 matches a day (12 matches). The top 16 teams qualify for the finals.\nRound 3 — Finals: the 16 qualified teams play over 3 days, 4 matches a day (12 matches). The final standings after all matches decide the winners and prize positions.\n\nThe overall prize pool is ₹22,000 plus goodies, shared among the 16 finalist teams. The event runs under serious supervision.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
+    "heads": [{"name": "Nandu Giba Tamin", "phone": "+91 76300 64979"}, {"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
     "minTeam": 4,
-    "maxTeam": 4
+    "maxTeam": 5,
+    "fee": "FREE",
+    "timeline": { "prize": "₹22,000 + goodies" }
    },
    {
     "title": "FIFA SHOWDOWN",
