@@ -92,18 +92,22 @@
     "minTeam": 4,
     "maxTeam": 5,
     "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹22,000 + goodies" }
    },
    {
     "title": "FIFA SHOWDOWN",
     "subtitle": "KICK OFF. COMPETE. CONQUER",
     "desc": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.",
-    "overview": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.\n\nChoose your team, master your tactics, and go head-to-head against your opponents in high-energy matches. Every pass, tackle, attack, and goal can change the course of the game.\n\nOutplay your rivals, dominate the pitch, and fight your way to the top. Only the best player will emerge as the ultimate champion.\n\nPLAY HARD. SCORE BIG. RULE THE ARENA.",
+    "overview": "The FC 26 Tournament is a competitive 1v1 gaming event of Addovedi 2026, played on EA SPORTS FC 26 on PlayStation 5 at the National Institute of Technology, Jote. It brings students together for a fun, competitive and fair gaming experience, with sportsmanship and fair play expected from the first kick-off to the final.\n\nIt is a pure single-elimination knockout. There is no group stage, league stage or points table. The winner of each match advances and the loser is eliminated. Depending on the number of players, rounds may include the Round of 32, Round of 16, quarterfinals, semifinals and final, and some players may get a bye. Each player represents themselves.\n\nEach match is played over 10 minutes per half. If the score is level after full time, extra time is played, and a penalty shootout follows if it is still level. Controllers must be standard and unmodified, and results are confirmed with the organiser after every match.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
+    "heads": [{"name": "Tage Jarbo", "phone": "+91 87876 90625"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "fee": "₹100 per player",
+    "timeline": { "prize": "₹15,000 including goodies" }
    },
    {
     "title": "MOBILE LEGENDS: BANG BANG",
