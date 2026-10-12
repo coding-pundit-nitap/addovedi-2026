@@ -45,6 +45,9 @@ export const changeAdminPassword = async (adminId, currentPassword, newPassword)
     }
 
     admin.password = await hashPasswordAsync(newPassword);
+    // Whole seconds, so the fresh token below (iat is whole seconds) is never older than this stamp.
+    admin.passwordChangedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
     await admin.save();
-    return true;
+    const JWT_SECRET = process.env.JWT_SECRET;
+    return jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '12h' });
 };

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import Registration from '../models/Registration.js';
 import GlobalUser from '../models/GlobalUser.js';
 import Counter from '../models/Counter.js';
@@ -7,6 +8,23 @@ import { hashPasswordAsync, verifyPasswordAsync } from '../utils/hash.js';
 import { isValidEmail, isValidPhone, normalizePhone, phoneKey } from '../utils/validators.js';
 
 const PUBLIC_FIELDS = '-passwordHash -__v';
+
+// Not a full policy (students pick their own), just the passwords that are guessed first, plus blank-ish ones.
+const PROFILE_LABELS = { gender: 'gender', dob: 'date of birth', college: 'college', department: 'department', year: 'year', state: 'state', city: 'city', emergencyContact: 'emergency contact number', avatar: 'avatar' };
+const COMMON_PASSWORDS = new Set(['password', 'password1', 'password123', '12345678', '123456789', '1234567890', 'qwertyui', 'qwerty123', 'iloveyou', 'abc12345', 'admin123', 'welcome1', 'letmein1', 'addovedi', 'addovedi2026', 'addovedi@2026', 'passw0rd', '11111111', '00000000', 'abcd1234', '87654321']);
+function assertStrongEnough(password, email, phone) {
+    const p = password.trim();
+    if (p.length < 8) throw new Error('Password cannot be blank or only spaces.');
+    if (new Set(p).size < 3) throw new Error('That password is too simple. Use at least 3 different characters.');
+    const lower = p.toLowerCase();
+    if (COMMON_PASSWORDS.has(lower)) throw new Error('That password is too common. Please choose a harder one.');
+    if (typeof email === 'string' && lower === email.trim().toLowerCase()) throw new Error('Your password cannot be your email address.');
+    if (typeof phone === 'string' && lower.replace(/\D/g, '') === phoneKey(phone)) throw new Error('Your password cannot be your mobile number.');
+}
+
+// A real bcrypt hash of a throwaway string: login compares against it when the account does not exist so that
+// "unknown email" and "wrong password" take the same time and cannot be told apart by response timing.
+const DUMMY_HASH = bcrypt.hashSync('addovedi-timing-pad', 12);
 
 function signParticipantToken(id) {
     const JWT_SECRET = process.env.JWT_SECRET;
@@ -57,6 +75,7 @@ export const signup = async ({ name, email, phone, password }) => {
     if (name.trim().length > 100 || email.length > 254) {
         throw new Error('Name or email is too long.');
     }
+    assertStrongEnough(password, email, phone);
 
     const normalizedEmail = email.trim().toLowerCase();
     const passwordHash = await hashPasswordAsync(password);
@@ -111,7 +130,8 @@ export const login = async ({ email, password }) => {
     }
     const user = await GlobalUser.findOne({ email: email.trim().toLowerCase() });
     if (password.length > 128) throw new Error('Invalid email or password.');
-    if (!user || !(await verifyPasswordAsync(password, user.passwordHash))) {
+    const ok = await verifyPasswordAsync(password, user ? user.passwordHash : DUMMY_HASH);
+    if (!user || !ok) {
         throw new Error('Invalid email or password.');
     }
     const obj = user.toObject({ versionKey: false });
@@ -133,7 +153,29 @@ export const updateProfile = async (id, callerId, data) => {
     for (const key of allowed) {
         if (data[key] !== undefined) update[key] = data[key];
     }
-    if (update.emergencyContact && !isValidPhone(update.emergencyContact)) {
+    for (const [key, value] of Object.entries(update)) {
+        if (typeof value !== 'string') throw new Error(`Please enter a valid ${PROFILE_LABELS[key]}.`);
+        update[key] = value.trim();
+    }
+    // Free-text fields need a real answer, not a single character or just digits/punctuation.
+    for (const key of ['college', 'department', 'state', 'city']) {
+        if (key in update && (update[key].length < 2 || !/\p{L}/u.test(update[key]))) {
+            throw new Error(`Please enter a valid ${PROFILE_LABELS[key]}.`);
+        }
+    }
+    if ('gender' in update && !update.gender) throw new Error('Please select your gender.');
+    if ('year' in update && !update.year) throw new Error('Please select your year.');
+    if ('dob' in update) {
+        const d = new Date(`${update.dob}T00:00:00Z`);
+        const age = (Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(update.dob) || Number.isNaN(d.getTime()) || age < 10 || age > 80) {
+            throw new Error('Please enter a valid date of birth.');
+        }
+    }
+    if ('avatar' in update && !/^[a-z0-9_-]{1,40}$/i.test(update.avatar)) {
+        throw new Error('Invalid avatar.');
+    }
+    if (update.emergencyContact !== undefined && !isValidPhone(update.emergencyContact)) {
         throw new Error('Please enter a valid emergency contact number.');
     }
     const user = await GlobalUser.findByIdAndUpdate(id, update, { new: true, runValidators: true }).select(PUBLIC_FIELDS);
@@ -185,6 +227,7 @@ export const changePassword = async (id, currentPassword, newPassword) => {
     if (newPassword === currentPassword) {
         throw new Error('New password must be different from the current one.');
     }
+    assertStrongEnough(newPassword, '', '');
     const user = await GlobalUser.findById(id);
     if (!user || currentPassword.length > 128 || !(await verifyPasswordAsync(currentPassword, user.passwordHash))) {
         throw new Error('Current password is incorrect.');

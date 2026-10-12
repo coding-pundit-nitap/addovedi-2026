@@ -33,6 +33,15 @@ export default function AdminPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // The admin console must never show up in search results (the site-wide tag says index, follow).
+    useEffect(() => {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex, nofollow';
+        document.head.appendChild(meta);
+        return () => meta.remove();
+    }, []);
+
     const pageRef = useRef(null);
     const [token, setToken] = useState(localStorage.getItem('admin_token') || '');
     const [username, setUsername] = useState(localStorage.getItem('admin_username') || '');
@@ -495,8 +504,8 @@ export default function AdminPage() {
             setChangePwMsg({ type: 'error', text: 'NEW PASSWORDS DO NOT MATCH.' });
             return;
         }
-        if (changePwForm.newPassword.length < 6) {
-            setChangePwMsg({ type: 'error', text: 'NEW PASSWORD MUST BE AT LEAST 6 CHARACTERS.' });
+        if (changePwForm.newPassword.length < 10) {
+            setChangePwMsg({ type: 'error', text: 'NEW PASSWORD MUST BE AT LEAST 10 CHARACTERS.' });
             return;
         }
         setChangePwLoading(true);
@@ -511,7 +520,9 @@ export default function AdminPage() {
             });
             const data = await safeFetchJson(res);
             if (!res.ok) throw new Error(data.message || 'Failed to update password');
-            setChangePwMsg({ type: 'success', text: 'PASSWORD UPDATED SUCCESSFULLY. RE-LOGIN RECOMMENDED.' });
+            // The server ends every older admin session on a password change and returns a fresh token for this one.
+            if (data.token) { localStorage.setItem('admin_token', data.token); setToken(data.token); }
+            setChangePwMsg({ type: 'success', text: 'PASSWORD UPDATED. OTHER ADMIN SESSIONS WERE SIGNED OUT.' });
             setChangePwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err) {
             setChangePwMsg({ type: 'error', text: err.message.toUpperCase() });
@@ -526,7 +537,13 @@ export default function AdminPage() {
             return;
         }
         const headers = ['Event', 'Category', 'Team Name', 'Team ID', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Status', 'Unstop Ref ID', 'Registered At'];
-        const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`; // quote + escape embedded double quotes
+        // Quote + escape embedded double quotes, and defuse spreadsheet formulas: a cell starting with = + - @ (or a tab/CR) is
+        // executed by Excel/Sheets when the admin opens the export, so a team named =HYPERLINK(...) must be stored as plain text.
+        const q = (v) => {
+            let t = String(v ?? '');
+            if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+            return `"${t.replace(/"/g, '""')}"`;
+        };
         const csvRows = [headers.join(',')];
 
         data.forEach(r => {

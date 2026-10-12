@@ -2,8 +2,10 @@ import * as globalUserService from '../services/globalUserService.js';
 import { verifyTurnstileToken } from '../utils/turnstile.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 import Registration from '../models/Registration.js';
 import { expireStaleInvites } from './registrationController.js';
+import { clientMessage } from '../utils/errors.js';
 
 export const signup = async (req, res) => {
     try {
@@ -13,9 +15,10 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: 'CAPTCHA verification failed. Please try again.' });
         }
         const user = await globalUserService.signup(payload);
+        await recordAuditLog(req, { action: 'PARTICIPANT_SIGNUP', username: user.addovediId, details: {} });
         return res.status(201).json(user);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -24,7 +27,12 @@ export const login = async (req, res) => {
         const user = await globalUserService.login(req.body);
         return res.json(user);
     } catch (err) {
-        return res.status(401).json({ message: err.message });
+        // Failed sign-ins are logged against a short hash of the email (enough to spot one account being hammered, without
+        // writing the address itself or anything that was typed as the password into the audit trail).
+        const typed = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+        const ref = crypto.createHash('sha256').update(typed).digest('hex').slice(0, 12);
+        await recordAuditLog(req, { action: 'PARTICIPANT_LOGIN_FAILED', username: `acct:${ref}`, details: {}, status: 'FAILED' });
+        return res.status(401).json({ message: clientMessage(err) });
     }
 };
 
@@ -34,7 +42,7 @@ export const updateProfile = async (req, res) => {
         return res.json(user);
     } catch (err) {
         const status = err.message === 'Not authorized to update this profile.' ? 403 : 400;
-        return res.status(status).json({ message: err.message });
+        return res.status(status).json({ message: clientMessage(err) });
     }
 };
 
@@ -60,7 +68,7 @@ export const checkUid = async (req, res) => {
         }
         return res.json({ exists: true, name: user.name, busy });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -68,7 +76,7 @@ export const listPlayers = async (req, res) => {
     try {
         return res.json(await globalUserService.listPlayers());
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -78,7 +86,7 @@ export const deletePlayer = async (req, res) => {
         await recordAuditLog(req, { action: 'DELETE_PLAYER', details: { addovediId: player.addovediId, name: player.name } });
         return res.json({ message: 'Player removed' });
     } catch (err) {
-        return res.status(err.status || 400).json({ message: err.message });
+        return res.status(err.status || 400).json({ message: clientMessage(err) });
     }
 };
 
@@ -86,9 +94,10 @@ export const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
         const result = await globalUserService.changePassword(req.participantId, currentPassword, newPassword);
+        await recordAuditLog(req, { action: 'PARTICIPANT_PASSWORD_CHANGED', username: req.participantAddovediId, details: {} });
         return res.json({ message: 'Password updated.', ...result });
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -99,6 +108,6 @@ export const resetPassword = async (req, res) => {
         await recordAuditLog(req, { action: 'RESET_PLAYER_PASSWORD', details: { addovediId: player.addovediId, name: player.name } });
         return res.json({ tempPassword, addovediId: player.addovediId, name: player.name });
     } catch (err) {
-        return res.status(err.status || 400).json({ message: err.message });
+        return res.status(err.status || 400).json({ message: clientMessage(err) });
     }
 };

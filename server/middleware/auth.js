@@ -32,8 +32,12 @@ export const protect = async (req, res, next) => {
         }
         // A valid signature isn't enough: the account must still exist, so removing
         // an admin cuts off their session immediately instead of after the 12h token expiry.
-        const admin = await Admin.findById(decoded.id).select('username').lean();
+        const admin = await Admin.findById(decoded.id).select('username passwordChangedAt').lean();
         if (!admin) {
+            return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
+        }
+        // A password change kills every admin session issued before it (a stolen token must not outlive the rotation).
+        if (admin.passwordChangedAt && (decoded.iat || 0) < Math.floor(admin.passwordChangedAt.getTime() / 1000)) {
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
         }
         req.adminId = decoded.id;

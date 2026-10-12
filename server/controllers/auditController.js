@@ -1,4 +1,5 @@
 import AuditLog from '../models/AuditLog.js';
+import { clientMessage } from '../utils/errors.js';
 
 // Get all audit logs with sorting and limit
 export const getAuditLogs = async (req, res) => {
@@ -7,7 +8,7 @@ export const getAuditLogs = async (req, res) => {
         const logs = await AuditLog.find().sort({ createdAt: -1 }).limit(limit);
         return res.json(logs);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -17,6 +18,6 @@ export const clearAuditLogs = async (req, res) => {
         await AuditLog.deleteMany({});
         return res.json({ message: 'Audit logs cleared successfully' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };

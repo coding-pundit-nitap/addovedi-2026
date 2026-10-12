@@ -1,5 +1,6 @@
 import { authenticateAdmin, changeAdminPassword } from '../services/authService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
+import { clientMessage } from '../utils/errors.js';
 
 export const login = async (req, res) => {
     const { username, password } = req.body;
@@ -31,7 +32,7 @@ export const login = async (req, res) => {
             details: { reason: err.message },
             status: 'FAILED'
         });
-        return res.status(401).json({ message: err.message });
+        return res.status(401).json({ message: clientMessage(err) });
     }
 };
 
@@ -42,13 +43,13 @@ export const verify = (req, res) => {
 export const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        if (!currentPassword || !newPassword) {
+        if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || !currentPassword || !newPassword) {
             return res.status(400).json({ message: 'Current and new passwords are required' });
         }
-        if (newPassword.length < 10) {
-            return res.status(400).json({ message: 'New password must be at least 10 characters' });
+        if (newPassword.length < 10 || newPassword.length > 128) {
+            return res.status(400).json({ message: 'New password must be 10 to 128 characters' });
         }
-        await changeAdminPassword(req.adminId, currentPassword, newPassword);
+        const token = await changeAdminPassword(req.adminId, currentPassword, newPassword);
 
         await recordAuditLog(req, {
             action: 'ADMIN_PASSWORD_CHANGED',
@@ -57,7 +58,7 @@ export const changePassword = async (req, res) => {
             status: 'SUCCESS'
         });
 
-        return res.json({ success: true, message: 'Password updated successfully' });
+        return res.json({ success: true, message: 'Password updated successfully', token });
     } catch (err) {
         await recordAuditLog(req, {
             action: 'ADMIN_PASSWORD_CHANGE_FAILED',
@@ -65,6 +66,6 @@ export const changePassword = async (req, res) => {
             details: { reason: err.message },
             status: 'FAILED'
         });
-        return res.status(401).json({ message: err.message });
+        return res.status(401).json({ message: clientMessage(err) });
     }
 };

@@ -1,9 +1,18 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+
+// Every limiter logs when it blocks someone, so abuse (or a limit that is too tight for the campus network) is visible
+// in the server logs. Only the limiter name, the route and the key class are logged, never bodies or tokens.
+const blocked = (name) => (req, res, _next, options) => {
+    console.warn(`[RATE-LIMIT] ${name} blocked ${req.method} ${req.originalUrl.split('?')[0]} ip=${req.ip}`);
+    return res.status(options.statusCode).json(options.message);
+};
+const makeLimiter = (name, opts) => rateLimit({ ...opts, handler: blocked(name) });
+
 
 // Narrow guard against brute-force / credential stuffing on the single admin account.
-export const loginLimiter = rateLimit({
+export const loginLimiter = makeLimiter('loginLimiter', {
     windowMs: 15 * 60 * 1000,
-    limit: 10,
+    limit: 60, // generous: the tight per-attempt guard is adminAccountLimiter (username + IP)
     skipSuccessfulRequests: true,
     standardHeaders: true,
     legacyHeaders: false,
@@ -15,7 +24,7 @@ export const loginLimiter = rateLimit({
 // rateLimit() instance keeps its own independent counter store.
 // Participant login: only FAILED attempts count (a campus NAT shares one public IP among
 // hundreds of students, so counting successes would lock real users out on launch day).
-export const participantLoginLimiter = rateLimit({
+export const participantLoginLimiter = makeLimiter('participantLoginLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 200,
     skipSuccessfulRequests: true,
@@ -26,7 +35,7 @@ export const participantLoginLimiter = rateLimit({
 
 // Signup already requires a Cloudflare Turnstile token, so the per-IP ceiling can be generous
 // (many students sign up from the same college network).
-export const participantSignupLimiter = rateLimit({
+export const participantSignupLimiter = makeLimiter('participantSignupLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 400,
     standardHeaders: true,
@@ -34,13 +43,16 @@ export const participantSignupLimiter = rateLimit({
     message: { message: 'Too many attempts. Please try again later.' }
 });
 
-// Per-ACCOUNT failed-login cap, keyed on the email/username being guessed. The per-IP limiters
-// can't stop a distributed guess against one account; this does, regardless of source IP.
+// Per-account-per-IP failed-login cap: slows guessing against one account from any single address.
+// The key is account + caller IP, NOT the account alone: a key on the account alone lets anyone lock a victim (or the
+// admin) out for 15 minutes by failing 10 logins on purpose. With the IP in the key an attacker only exhausts their own
+// bucket, while a real owner on another address can still sign in.
 const accountKey = (field) => (req) => {
     const v = req.body && req.body[field];
-    return typeof v === 'string' ? `acct:${v.trim().toLowerCase().slice(0, 254)}` : 'acct:none';
+    const who = typeof v === 'string' ? v.trim().toLowerCase().slice(0, 254) : 'none';
+    return `acct:${who}|${ipKeyGenerator(req.ip || '')}`;
 };
-export const participantAccountLimiter = rateLimit({
+export const participantAccountLimiter = makeLimiter('participantAccountLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 10,
     skipSuccessfulRequests: true,
@@ -50,7 +62,7 @@ export const participantAccountLimiter = rateLimit({
     legacyHeaders: false,
     message: { message: 'Too many failed attempts for this account. Please try again later.' }
 });
-export const adminAccountLimiter = rateLimit({
+export const adminAccountLimiter = makeLimiter('adminAccountLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 10,
     skipSuccessfulRequests: true,
@@ -64,7 +76,7 @@ export const adminAccountLimiter = rateLimit({
 // Prevents spamming fake event registrations / cancellations.
 // Registration now also requires a valid participant login, so abuse is already
 // account-bound; this per-IP ceiling is kept roomy for shared college networks.
-export const registrationLimiter = rateLimit({
+export const registrationLimiter = makeLimiter('registrationLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 60,
     keyGenerator: (req) => `u:${req.participantAddovediId || 'anon'}`, // per player, not per IP (shared campus Wi-Fi); mount AFTER requireParticipant
@@ -78,7 +90,7 @@ export const registrationLimiter = rateLimit({
 // registration it has no CAPTCHA, so without its own tight ceiling a script
 // could flood the admin inbox with spam messages all day within the much
 // more generous shared apiLimiter.
-export const messageLimiter = rateLimit({
+export const messageLimiter = makeLimiter('messageLimiter', {
     windowMs: 60 * 60 * 1000,
     limit: 30, // has a CAPTCHA now; this is per address, and a whole campus can share one
     standardHeaders: true,
@@ -90,7 +102,7 @@ export const messageLimiter = rateLimit({
 // lookup-by-id routes are otherwise walkable end-to-end under the shared
 // apiLimiter alone. This keeps scripted enumeration slow enough to be
 // impractical without affecting a real visitor checking their own status.
-export const lookupLimiter = rateLimit({
+export const lookupLimiter = makeLimiter('lookupLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 60,
     standardHeaders: true,
@@ -103,7 +115,7 @@ const isPublicPoll = (req) => req.method === 'GET' && POLLED_PATHS.test(req.path
 
 // Backstop for the cached public polling endpoints: ~50 req/s per IP. Cheap to serve (cached),
 // so this only stops raw floods, not a lecture hall of real visitors on one NAT.
-export const publicReadLimiter = rateLimit({
+export const publicReadLimiter = makeLimiter('publicReadLimiter', {
     windowMs: 60 * 1000,
     limit: 30000, // a whole campus can share one IP; polling cost is bounded by publicCache, not this
     skip: (req) => !isPublicPoll(req),
@@ -116,7 +128,7 @@ export const publicReadLimiter = rateLimit({
 // account instead of per IP address. Per-IP counters are wrong for these: a college network puts hundreds of
 // students behind one address, and a single browser tab polling every few seconds used to exhaust a shared
 // per-IP budget, which then blocked profile saves with "Too many requests". Must run AFTER requireParticipant.
-export const participantActionLimiter = rateLimit({
+export const participantActionLimiter = makeLimiter('participantActionLimiter', {
     windowMs: 60 * 1000,
     limit: 90,
     keyGenerator: (req) => `u:${req.participantAddovediId || 'anon'}`,
@@ -131,7 +143,7 @@ export const participantActionLimiter = rateLimit({
 // seconds (see client polling intervals) so admin-portal edits show up
 // without a manual reload — a single visitor browsing a few pages can
 // legitimately generate a few hundred GETs in a 15 minute window.
-export const apiLimiter = rateLimit({
+export const apiLimiter = makeLimiter('apiLimiter', {
     windowMs: 15 * 60 * 1000,
     limit: 30000, // per IP; shared campus Wi-Fi. Real abuse limits are per-account (login/registration/action limiters)
     // The polled public read endpoints are cached server-side (see utils/publicCache.js) and
@@ -141,4 +153,16 @@ export const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many requests. Please try again later.' }
+});
+
+// Teammate Addovedi-ID lookups (name + availability). Tighter than the general action limit because this is the only
+// endpoint that turns a guessable sequential ID into a name.
+export const checkUidLimiter = makeLimiter('checkUidLimiter', {
+    windowMs: 60 * 1000,
+    limit: 40,
+    keyGenerator: (req) => `u:${req.participantAddovediId || 'anon'}`,
+    validate: { keyGeneratorIpFallback: false },
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'You are checking IDs too quickly. Please wait a moment.' }
 });

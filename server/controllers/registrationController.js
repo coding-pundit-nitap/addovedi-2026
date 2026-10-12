@@ -3,7 +3,8 @@ import SubEvent from '../models/SubEvent.js';
 import { isRegistrationOpen, getSettings, registrationModeOf } from '../services/settingsService.js';
 import GlobalUser from '../models/GlobalUser.js';
 import { finalizeIfReady, readyToFinalize } from '../services/teamService.js';
-import { isValidEmail, isValidPhone } from '../utils/validators.js';
+import { recordAuditLog } from '../utils/auditLogger.js';
+import { clientMessage } from '../utils/errors.js';
 
 const MAX_MEMBERS = 10;
 const REINVITE_COOLDOWN_MS = 60 * 60 * 1000; // after a DECLINE (not after an expiry)
@@ -11,7 +12,42 @@ const MAX_INVITES_PER_PERSON = 3;
 
 const reinviteAt = (m) => (m.status === 'REJECTED' && !m.expired && m.respondedAt)
     ? new Date(new Date(m.respondedAt).getTime() + REINVITE_COOLDOWN_MS) : null;
-const REQUIRED_STRING_FIELDS = ['eventTitle', 'categoryTitle', 'teamName', 'leaderName', 'leaderUID', 'leaderPhone'];
+const CI = { locale: 'en', strength: 2 };
+
+// One request at a time per EVENT for everything that decides who is on which team (register, invite, accept, finalize).
+// The "is this player already on another team for this event?" check is check-then-write, so without this two leaders
+// adding the same teammate (or a teammate accepting two invites) at the same instant could both pass it and leave one
+// person on two final teams. The API runs as a single instance (Render), so an in-process queue is enough; the volume is
+// tiny (a college fest), so serialising per event costs nothing.
+const eventLocks = new Map();
+const withEventLock = async (key, fn) => {
+    const prev = eventLocks.get(key) || Promise.resolve();
+    let release;
+    const mine = new Promise(r => { release = r; });
+    const tail = prev.then(() => mine);
+    eventLocks.set(key, tail);
+    await prev;
+    try {
+        return await fn();
+    } finally {
+        release();
+        if (eventLocks.get(key) === tail) eventLocks.delete(key);
+    }
+};
+const eventKey = (title) => String(title || '').trim().toLowerCase();
+
+// Wraps the handlers that take a registrationId: finds the registration's event, then runs the handler under that event's lock.
+const lockedByRegistration = (handler) => async (req, res) => {
+    try {
+        const id = req.body?.registrationId;
+        const reg = (typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id))
+            ? await Registration.findById(id).select('eventTitle').lean() : null;
+        if (!reg) return handler(req, res); // the handler answers the 400/404 itself
+        return await withEventLock(eventKey(reg.eventTitle), () => handler(req, res));
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
 
 // Escapes regex metacharacters so user-supplied search text is matched
 // literally instead of being interpreted as a (potentially catastrophic) pattern.
@@ -54,7 +90,7 @@ export const createRegistration = async (req, res) => {
     }
     inFlight.add(lockKey);
     try {
-        return await createRegistrationLocked(req, res);
+        return await withEventLock(eventKey(req.body?.eventTitle), () => createRegistrationLocked(req, res));
     } finally {
         inFlight.delete(lockKey);
     }
@@ -73,57 +109,60 @@ const createRegistrationLocked = async (req, res) => {
             return res.status(403).json({ code: 'PROFILE_INCOMPLETE', message: 'Please complete your profile in Player HQ before registering for events.' });
         }
 
-        const { eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, teamSize, members, userEmail, unstopRefId } = req.body;
+        const { eventTitle, teamName, teamSize, members } = req.body;
 
-        if (REQUIRED_STRING_FIELDS.some(field => typeof req.body[field] !== 'string' || !req.body[field].trim())) {
-            return res.status(400).json({ message: 'All required fields (eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone) must be provided.' });
+        if (typeof eventTitle !== 'string' || !eventTitle.trim() || typeof teamName !== 'string' || !teamName.trim()) {
+            return res.status(400).json({ message: 'Event and team name are required.' });
+        }
+        if (eventTitle.length > 200) {
+            return res.status(400).json({ message: 'That event name is invalid.' });
+        }
+        if (teamName.trim().length > 100) {
+            return res.status(400).json({ message: 'Team name must be at most 100 characters.' });
         }
 
-        // The logged-in participant can only register THEMSELVES as team leader. Previously any
-        // visitor could submit someone else's (sequential, guessable) Addovedi ID as leader.
-        if (leaderUID.trim().toUpperCase() !== req.participantAddovediId.toUpperCase()) {
-            return res.status(403).json({ message: 'You can only register a team under your own Addovedi ID.' });
-        }
+        // Identity comes from the logged-in account, never from the request body: a client used to be able to send any
+        // leader name / phone / email (and an "Unstop reference") that the organisers then saw as fact. The leader is
+        // always the caller, so there is nothing for them to spoof.
+        const leaderUID = leaderAccount.addovediId;
+        const leaderName = leaderAccount.name;
+        const leaderPhone = leaderAccount.phone;
+        const userEmail = leaderAccount.email;
 
-        if (Array.isArray(members) && members.length > MAX_MEMBERS) {
+        if (members !== undefined && members !== null && !Array.isArray(members)) {
+            return res.status(400).json({ message: 'Team members must be a list.' });
+        }
+        const memberList = Array.isArray(members) ? members : [];
+        if (memberList.length > MAX_MEMBERS) {
             return res.status(400).json({ message: `A team can have at most ${MAX_MEMBERS + 1} members.` });
         }
-        if ([eventTitle, categoryTitle, teamName, leaderName, leaderUID, leaderPhone, userEmail || '', unstopRefId || ''].some(v => typeof v !== 'string' || v.length > 200)) {
-            return res.status(400).json({ message: 'One of the fields is too long or invalid.' });
-        }
-
-        if (!isValidPhone(leaderPhone)) {
-            return res.status(400).json({ message: 'Please provide a valid 10-digit mobile number for the team leader.' });
-        }
-        if (userEmail && !isValidEmail(userEmail)) {
-            return res.status(400).json({ message: 'Please provide a valid email address.' });
-        }
-
-        // A blank teammate row is not a teammate: every listed member needs an Addovedi ID.
-        if (Array.isArray(members) && members.some(m => !(m?.uid || '').trim())) {
+        // A blank or malformed teammate row is not a teammate: every listed member needs an Addovedi ID.
+        if (memberList.some(m => !m || typeof m !== 'object' || typeof m.uid !== 'string' || !m.uid.trim() || m.uid.length > 50
+            || (m.name !== undefined && m.name !== null && typeof m.name !== 'string'))) {
             return res.status(400).json({ message: 'Every team member needs an Addovedi ID. Fill in the blank teammate ID(s) or reduce the team size.' });
         }
 
-        // Enforce the admin-configured team size for this event (leader included).
-        // Events that only exist in the client's static fallback have no DB record, so no limit applies.
+        // The event must exist. Previously any title was accepted (and got a Team ID), so junk events with junk team sizes
+        // landed in the organisers' lists and exports.
         const eventDoc = await SubEvent.findOne({ title: eventTitle.trim() })
-            .collation({ locale: 'en', strength: 2 })
-            .select('minTeam maxTeam');
-        if (eventDoc) {
-            const actualSize = 1 + (Array.isArray(members) ? members.length : 0);
-            const { minTeam, maxTeam } = eventDoc;
-            if (actualSize < minTeam || actualSize > maxTeam || Number(teamSize) !== actualSize) {
-                const range = minTeam === maxTeam ? `exactly ${minTeam}` : `${minTeam} to ${maxTeam}`;
-                return res.status(400).json({ message: `This event needs ${range} team member${maxTeam === 1 ? '' : 's'} (including the leader). You entered ${actualSize}.` });
-            }
+            .collation(CI)
+            .select('title categoryTitle minTeam maxTeam');
+        if (!eventDoc) {
+            return res.status(404).json({ message: 'That event does not exist.' });
         }
+        const actualSize = 1 + memberList.length;
+        const claimedSize = Number(teamSize);
+        const { minTeam, maxTeam } = eventDoc;
+        if (!Number.isInteger(claimedSize) || actualSize < minTeam || actualSize > maxTeam || claimedSize !== actualSize) {
+            const range = minTeam === maxTeam ? `exactly ${minTeam}` : `${minTeam} to ${maxTeam}`;
+            return res.status(400).json({ message: `This event needs ${range} team member${maxTeam === 1 ? '' : 's'} (including the leader). You entered ${actualSize}.` });
+        }
+        const eventName = eventDoc.title;
 
         // Every Addovedi ID on the team (leader + members) must belong to a
         // real, registered participant account — prevents made-up/garbage IDs
         // from being entered as team members.
-        const memberUidList = Array.isArray(members)
-            ? members.map(m => (m?.uid || '').trim()).filter(Boolean)
-            : [];
+        const memberUidList = memberList.map(m => m.uid.trim());
         const allUids = [leaderUID.trim(), ...memberUidList];
         if (new Set(allUids.map(u => u.toUpperCase())).size !== allUids.length) {
             return res.status(400).json({ message: 'The same Addovedi ID is listed more than once in this team.' });
@@ -147,7 +186,7 @@ const createRegistrationLocked = async (req, res) => {
         // O(log n) lookup regardless of how large the event's roster gets.
         await expireStaleInvites();
         const conflict = await Registration.findOne({
-            eventTitle: eventTitle.trim(),
+            eventTitle: eventName,
             status: { $ne: 'CANCELLED' },
             $or: [
                 { leaderUID: { $in: allUids } },
@@ -162,29 +201,28 @@ const createRegistrationLocked = async (req, res) => {
             ];
             const duplicateUid = allUids.find(u => conflictUids.includes(u.toLowerCase()));
             return res.status(400).json({
-                message: `Player with Addovedi ID "${(duplicateUid || '').toUpperCase()}" is already registered under team "${conflict.teamName}" for "${eventTitle}". Multiple team enlistments for the same event are forbidden.`
+                message: `Player with Addovedi ID "${(duplicateUid || '').toUpperCase()}" is already registered under team "${conflict.teamName}" for "${eventName}". Multiple team enlistments for the same event are forbidden.`
             });
         }
 
         const registration = new Registration({
-            eventTitle: eventTitle.trim(),
-            categoryTitle: categoryTitle.trim(),
+            eventTitle: eventName,
+            categoryTitle: eventDoc.categoryTitle,
             teamName: teamName.trim(),
-            leaderName: leaderName.trim(),
-            leaderUID: leaderUID.trim(),
-            leaderPhone: leaderPhone.trim(),
-            teamSize: Number(teamSize) || 1,
+            leaderName,
+            leaderUID,
+            leaderPhone,
+            teamSize: actualSize,
             // Only the two known fields, length-capped — never store arbitrary client objects.
-            members: Array.isArray(members) ? members.map(m => ({ name: String(m?.name || '').slice(0, 100), uid: String(m?.uid || '').slice(0, 50), status: 'PENDING' })) : [],
-            userEmail: userEmail ? userEmail.trim() : '',
-            unstopRefId: unstopRefId ? unstopRefId.trim() : ''
-            // status is intentionally never taken from the client — it always
-            // starts PENDING_UNSTOP_VERIFICATION (model default) and can only be
-            // advanced to VERIFIED by an authenticated admin via updateRegistrationStatus.
+            members: memberList.map(m => ({ name: String(m.name || '').slice(0, 100), uid: m.uid.trim().toUpperCase(), status: 'PENDING' })),
+            userEmail
+            // status / unstopRefId are intentionally never taken from the client — a registration always starts
+            // PENDING_UNSTOP_VERIFICATION (model default) and only an authenticated admin can verify it or record the Unstop reference.
         });
 
         await registration.save();
         await finalizeIfReady(registration); // solo entries are final straight away
+        await recordAuditLog(req, { action: 'PARTICIPANT_REGISTERED', username: leaderUID, details: { event: eventName, teamName: registration.teamName, teamSize: actualSize } });
         return res.status(201).json({ message: 'Registration successful', registration });
     } catch (err) {
         if (err?.code === 11000) {
@@ -221,7 +259,7 @@ export const getAllRegistrations = async (req, res) => {
         const registrations = await Registration.find(filter).sort({ createdAt: -1 });
         return res.json(registrations);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -276,7 +314,7 @@ export const getRegistrationStats = async (req, res) => {
             participantHistory: Object.values(participantMap)
         });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -290,7 +328,7 @@ export const deleteRegistration = async (req, res) => {
         }
         return res.json({ message: 'Registration record deleted successfully' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -331,6 +369,7 @@ export const cancelRegistration = async (req, res) => {
             return res.status(404).json({ message: 'No matching registration found for your account' });
         }
 
+        await recordAuditLog(req, { action: 'PARTICIPANT_CANCELLED', username: req.participantAddovediId, details: { event: eventTitle.trim().slice(0, 200) } });
         return res.json({ message: 'Registration cancelled successfully' });
     } catch (err) {
         return res.status(500).json({ message: 'Server error cancelling registration' });
@@ -392,7 +431,7 @@ export const getMyRegistrations = async (req, res) => {
 // A teammate accepts or declines (or later leaves) a team they were added to.
 // Frozen once admin has VERIFIED the registration against Unstop — after that the roster is
 // what the organisers confirmed, so changes go through the admin.
-export const respondToTeamInvite = async (req, res) => {
+const respondToTeamInviteImpl = async (req, res) => {
     try {
         const { registrationId, accept } = req.body;
         if (typeof registrationId !== 'string' || typeof accept !== 'boolean') {
@@ -422,6 +461,19 @@ export const respondToTeamInvite = async (req, res) => {
         }
         if (member.status === 'REJECTED') {
             return res.status(409).json({ message: member.expired ? 'This invite expired after 24 hours. Ask the team leader to add you again.' : 'You already declined this team. Ask the team leader to add you again.' });
+        }
+        if (accept) {
+            // Accepting is final, so make sure this player has not already joined (or leads) another team for the same event,
+            // e.g. two leaders added them before either invite was answered.
+            const other = await Registration.findOne({
+                _id: { $ne: reg._id },
+                eventTitle: reg.eventTitle,
+                status: { $ne: 'CANCELLED' },
+                $or: [{ leaderUID: uid }, { members: { $elemMatch: { uid, status: { $nin: ['PENDING', 'REJECTED'] } } } }]
+            }).collation({ locale: 'en', strength: 2 }).select('teamName').lean();
+            if (other) {
+                return res.status(409).json({ message: `You are already on team "${other.teamName}" for this event, so you cannot join another. Decline this invite.` });
+            }
         }
         member.status = accept ? 'ACCEPTED' : 'REJECTED';
         member.respondedAt = new Date();
@@ -456,7 +508,7 @@ export const updateRegistrationStatus = async (req, res) => {
         await reg.save();
         return res.json({ message: 'Registration updated successfully', registration: reg });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -480,7 +532,7 @@ const loadLeaderTeam = async (req, res) => {
 };
 
 // Invite someone (or re-invite a teammate who declined / let the invite expire).
-export const inviteMember = async (req, res) => {
+const inviteMemberImpl = async (req, res) => {
     try {
         if (!(await isRegistrationOpen())) {
             return res.status(403).json({ code: 'REGISTRATION_CLOSED', message: 'Registration is not open, so new invites cannot be sent.' });
@@ -536,7 +588,7 @@ export const inviteMember = async (req, res) => {
 };
 
 // Withdraw a still-pending invite (frees the slot to invite someone else).
-export const uninviteMember = async (req, res) => {
+const uninviteMemberImpl = async (req, res) => {
     try {
         const reg = await loadLeaderTeam(req, res);
         if (!reg) return;
@@ -554,7 +606,7 @@ export const uninviteMember = async (req, res) => {
 };
 
 // Declined/expired teammates and no one pending: continue with the players who accepted (if the event allows that size).
-export const continueSmallerTeam = async (req, res) => {
+const continueSmallerTeamImpl = async (req, res) => {
     try {
         const reg = await loadLeaderTeam(req, res);
         if (!reg) return;
@@ -577,3 +629,9 @@ export const continueSmallerTeam = async (req, res) => {
         return res.status(500).json({ message: 'Server error' });
     }
 };
+
+// Each of these decides team membership, so each runs under its event's lock (see withEventLock).
+export const respondToTeamInvite = lockedByRegistration(respondToTeamInviteImpl);
+export const inviteMember = lockedByRegistration(inviteMemberImpl);
+export const uninviteMember = lockedByRegistration(uninviteMemberImpl);
+export const continueSmallerTeam = lockedByRegistration(continueSmallerTeamImpl);

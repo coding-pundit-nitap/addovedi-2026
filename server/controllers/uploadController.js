@@ -1,5 +1,6 @@
 import cloudinary from '../config/cloudinary.js';
 import { compressImage } from '../utils/imageCompress.js';
+import { clientMessage } from '../utils/errors.js';
 
 /**
  * Handles binary image buffer parsing and streams it straight to Cloudinary servers.
@@ -30,7 +31,7 @@ export const uploadImage = async (req, res) => {
             { folder: 'addovedi_techfest', ...(img.format ? { format: img.format } : {}) },
             (error, result) => {
                 if (error) {
-                    return res.status(500).json({ message: `Cloudinary error: ${error.message}` });
+                    return res.status(500).json({ message: `Image upload failed. Please try again.` });
                 }
                 return res.json({ url: result.secure_url, bytesBefore: img.before, bytesAfter: img.after });
             }
@@ -38,6 +39,6 @@ export const uploadImage = async (req, res) => {
 
         uploadStream.end(img.buffer);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };

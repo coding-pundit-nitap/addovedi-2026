@@ -1,13 +1,14 @@
 import * as messageService from '../services/messageService.js';
 import { verifyTurnstileToken } from '../utils/turnstile.js';
 import { isValidEmail } from '../utils/validators.js';
+import { clientMessage } from '../utils/errors.js';
 
 export const getMessages = async (req, res) => {
     try {
         const messages = await messageService.getInboxMessages();
         return res.json(messages);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -38,6 +39,6 @@ export const deleteMessage = async (req, res) => {
         await messageService.deleteContactMessage(req.params.id);
         return res.json({ message: 'Message successfully deleted' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };

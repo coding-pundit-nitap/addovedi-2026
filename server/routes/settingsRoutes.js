@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getSettings, setRegistrationMode, registrationModeOf, setRegistrationOpen, setCrewVisible, setEventsVisible } from '../services/settingsService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { protect } from '../middleware/auth.js';
+import { clientMessage } from '../utils/errors.js';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.get('/registration', async (req, res) => {
         const mode = registrationModeOf(await getSettings());
         return res.json({ registrationMode: mode, registrationOpen: mode === 'open' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 
@@ -26,7 +27,7 @@ router.put('/registration', protect, async (req, res) => {
         await recordAuditLog(req, { action: `REGISTRATION_${mode.toUpperCase()}`, details: {} });
         return res.json({ registrationMode: mode, registrationOpen: mode === 'open' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 
@@ -36,7 +37,7 @@ router.get('/crew', async (req, res) => {
         const s = await getSettings();
         return res.json({ crewVisible: s.crewVisible === true });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 
@@ -50,7 +51,7 @@ router.put('/crew', protect, async (req, res) => {
         await recordAuditLog(req, { action: s.crewVisible ? 'SHOW_CREW_PAGE' : 'HIDE_CREW_PAGE', details: {} });
         return res.json({ crewVisible: s.crewVisible });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 
@@ -61,7 +62,7 @@ router.get('/events', async (req, res) => {
         const s = await getSettings();
         return res.json({ eventsVisible: s.eventsVisible !== false });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 
@@ -75,7 +76,7 @@ router.put('/events', protect, async (req, res) => {
         await recordAuditLog(req, { action: s.eventsVisible ? 'SHOW_EVENTS_SECTION' : 'HIDE_EVENTS_SECTION', details: {} });
         return res.json({ eventsVisible: s.eventsVisible !== false });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 });
 

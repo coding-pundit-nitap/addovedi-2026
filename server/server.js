@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import { expireStaleInvites } from './controllers/registrationController.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -62,6 +63,18 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 // Small body cap: no endpoint accepts anything near this (images go through multer, not JSON).
 app.use(express.json({ limit: '50kb' }));
 app.use(sanitizeInput);
+
+// One line per API request that is NOT a cached public poll (those run every few seconds per visitor and would drown the
+// log): method, path (no query string), status, duration, caller IP and, if logged in, nothing else. No bodies, headers or tokens.
+app.use('/api', (req, res, next) => {
+    const started = Date.now();
+    res.on('finish', () => {
+        const isPoll = req.method === 'GET' && res.statusCode < 400 && /^\/api\/(events|crew|alliances|status-settings|settings\/\w+|registrations\/my\/[^/]+)\/?$/.test(req.originalUrl.split('?')[0]);
+        if (isPoll) return;
+        console.log(`[REQ] ${req.method} ${req.originalUrl.split('?')[0]} ${res.statusCode} ${Date.now() - started}ms ip=${req.ip}`);
+    });
+    next();
+});
 app.use('/api', publicReadLimiter);
 app.use('/api', apiLimiter);
 app.use('/api', invalidatePublicCache);
@@ -72,8 +85,15 @@ app.use('/api', apiRouter);
 
 // Basic health check route
 app.get('/api/status', (req, res) => {
+    // readyState 1 = connected. Reporting "ok" while the database is down would hide an outage from Render's health checks.
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({ status: 'degraded', message: 'Database unavailable' });
+    }
     res.json({ status: 'ok', message: 'Addovedi Techfest Command Server is active' });
 });
+
+// Unknown API routes answer JSON, not Express's default HTML page (which names the framework and echoes the path).
+app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 
 // Centralized error handler: never leak stack traces / internals to clients.
 app.use((err, req, res, next) => {
@@ -83,15 +103,22 @@ app.use((err, req, res, next) => {
     if (err && (err.name === 'MulterError' || /unsupported file type/i.test(err.message || ''))) {
         return res.status(400).json({ message: err.message });
     }
+    if (err && err.type === 'entity.parse.failed') {
+        return res.status(400).json({ message: 'Malformed request body' });
+    }
+    if (err && err.type === 'entity.too.large') {
+        return res.status(413).json({ message: 'Request body too large' });
+    }
     console.error('[UNHANDLED ERROR]', err);
-    const isProd = process.env.NODE_ENV === 'production';
-    return res.status(err.status || 500).json({
-        message: isProd ? 'Internal server error' : (err.message || 'Internal server error')
-    });
+    return res.status(err.status || 500).json({ message: 'Internal server error' });
 });
 
 // Database seeding function
 const seedDatabase = async () => {
+    // The built-in sample categories / events / crew / sponsors are placeholders for local development. On production they
+    // are never inserted automatically (an empty or wrongly-pointed database would otherwise go live showing fake sponsors
+    // like NVIDIA and sample events). Set SEED_DEMO_DATA=true to force it. The admin account seed below is unaffected.
+    const seedDemo = process.env.NODE_ENV !== 'production' || process.env.SEED_DEMO_DATA === 'true';
     try {
         let admin = await Admin.findOne({ username: 'admin' });
         if (!admin) {
@@ -113,7 +140,7 @@ const seedDatabase = async () => {
         // root cause of "admin portal changes don't stick" — seeding must never
         // run again once real data exists.
         const catCount = await Category.countDocuments();
-        if (catCount === 0) {
+        if (catCount === 0 && seedDemo) {
             const defaultCats = [
                 { title: 'ROBOTICS PROTOCOL', subtitle: 'AUTONOMOUS MECHA DYNAMICS', desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
                 { title: 'CYBER CODE', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
@@ -129,7 +156,7 @@ const seedDatabase = async () => {
 
         // 3. Seed default sub-events ONLY on a truly empty database (see note above).
         const subCount = await SubEvent.countDocuments();
-        if (subCount === 0) {
+        if (subCount === 0 && seedDemo) {
             const defaultSubs = [
                 // 1. CYBER CODE
                 {
@@ -415,7 +442,7 @@ const seedDatabase = async () => {
 
         // 4. Seed default crew members ONLY on a truly empty database (see note above).
         const crewCount = await Crew.countDocuments();
-        if (crewCount === 0) {
+        if (crewCount === 0 && seedDemo) {
             const defaultCrew = [
                 // EXECUTIVE
                 { name: 'AMAN VERMA', role: 'PRESIDENT', category: 'CORE', statText: 'LEADERSHIP', statVal: 96, featured: true, featuredHeading: 'TECHFEST PRESIDENT', bio: 'Coordinated 3-day Techfest, Led 46-member team, Secured 12+ sponsors', links: [] },
@@ -466,7 +493,7 @@ const seedDatabase = async () => {
 
         // 5. Seed default sponsors ONLY on a truly empty database (see note above).
         const sponsorCount = await Sponsor.countDocuments();
-        if (sponsorCount === 0) {
+        if (sponsorCount === 0 && seedDemo) {
             const defaultSponsors = [
                 { name: 'NVIDIA', category: 'TITLE', sub: 'Technology Partner', logo: 'NV', desc: 'Accelerating AI and real-time graphics pipelines.', support: ['AI Arena', 'Rendering Server', 'GPU Workshops'], url: '#' },
                 { name: 'AMD', category: 'TITLE', sub: 'Hardware Sponsor', logo: 'AMD', desc: 'Powering high-frequency compute processors in coding grids.', support: ['Coding Arena', 'Host Servers', 'Hackathons'], url: '#' },
@@ -511,6 +538,20 @@ const startServer = async () => {
     server.requestTimeout = 30 * 1000;
     server.keepAliveTimeout = 5 * 1000;
     server.maxRequestsPerSocket = 1000;
+
+    // Let Render's redeploys drain in-flight requests instead of cutting registrations off mid-write.
+    const shutdown = (signal) => {
+        console.log(`[SERVER] ${signal} received, shutting down.`);
+        server.close(() => mongoose.connection.close(false).finally(() => process.exit(0)));
+        setTimeout(() => process.exit(0), 10000).unref();
+    };
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
 };
+
+// A stray rejected promise must be logged, not take the whole API down mid-fest (or hide silently).
+process.on('unhandledRejection', (reason) => console.error('[UNHANDLED REJECTION]', reason));
+// After an uncaught exception the process state is unknown: log it and exit so Render restarts a clean instance.
+process.on('uncaughtException', (err) => { console.error('[UNCAUGHT EXCEPTION]', err); process.exit(1); });
 
 startServer();

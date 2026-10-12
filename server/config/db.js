@@ -10,6 +10,9 @@ const configureDns = () => {
     }
 };
 
+// Fail a query after 4s when the database is unreachable instead of Mongoose's default 10s of buffering.
+mongoose.set('bufferTimeoutMS', 4000);
+
 const connectDB = async () => {
     const connString = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/addovedi';
     
@@ -18,7 +21,7 @@ const connectDB = async () => {
 
     try {
         await mongoose.connect(connString, {
-            serverSelectionTimeoutMS: 10000
+            serverSelectionTimeoutMS: 6000
         });
         console.log(`[DB] MongoDB Connected successfully.`);
     } catch (err) {
@@ -26,7 +29,7 @@ const connectDB = async () => {
         try {
             configureDns();
             await mongoose.connect(connString, {
-                serverSelectionTimeoutMS: 10000
+                serverSelectionTimeoutMS: 6000
             });
             console.log(`[DB] MongoDB Connected successfully on DNS retry.`);
         } catch (retryErr) {

@@ -14,7 +14,7 @@ const upload = multer({
     limits: { fileSize: 25 * 1024 * 1024 }, // 25MB in: the server shrinks it (see utils/imageCompress.js), so big phone photos are fine
     fileFilter: (req, file, cb) => {
         if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-            return cb(new Error('Unsupported file type. Only JPEG, PNG, WEBP, GIF and SVG images are allowed.'));
+            return cb(new Error('Unsupported file type. Only JPEG, PNG, WEBP and GIF images are allowed.'));
         }
         cb(null, true);
     }

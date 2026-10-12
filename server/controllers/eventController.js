@@ -1,12 +1,13 @@
 import * as eventService from '../services/eventService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
+import { clientMessage } from '../utils/errors.js';
 
 export const getEvents = async (req, res) => {
     try {
         const data = await eventService.getEventsAndCategories();
         return res.json(data);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -21,7 +22,7 @@ export const createCategory = async (req, res) => {
 
         return res.status(201).json(cat);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -37,7 +38,7 @@ export const updateCategory = async (req, res) => {
 
         return res.json(cat);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -52,7 +53,7 @@ export const deleteCategory = async (req, res) => {
 
         return res.json({ message: 'Category and all corresponding sub-events cascade deleted' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -67,7 +68,7 @@ export const createSubEvent = async (req, res) => {
 
         return res.status(201).json(sub);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -83,7 +84,7 @@ export const updateSubEvent = async (req, res) => {
 
         return res.json(sub);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -98,6 +99,6 @@ export const deleteSubEvent = async (req, res) => {
 
         return res.json({ message: 'Sub-Event successfully deleted' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
