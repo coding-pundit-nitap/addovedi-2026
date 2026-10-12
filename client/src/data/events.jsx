@@ -349,16 +349,34 @@ export const CATEGORIES_WITH_EVENTS = [
             },
             {
                 "title": "ENERGIX",
-                "subtitle": "POWER IDEAS. ENGINEER SOLUTIONS",
-                "desc": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.",
-                "overview": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.\n\nFrom renewable energy and electric vehicles to energy storage, smart grids, energy efficiency, and sustainability, participants will analyze technical challenges and present practical, innovative, and technically sound solutions.\n\nThe event goes beyond presentations—it encourages participants to apply engineering principles, research, data, and problem-solving skills to develop meaningful solutions for the future.\n\nTHINK ENERGY. ENGINEER THE FUTURE.",
+                "subtitle": "THINK. SIMULATE. DEBUG. INNOVATE.",
+                "desc": "ENERGIX is a three-round MATLAB and Simulink competition that tests circuit simulation skills and the ability to troubleshoot and improve electrical circuit models, from a quiz to simulation to circuit debugging.",
+                "overview": "ENERGIX is a technical competition of Addovedi 2026 that evaluates participants' knowledge of MATLAB and Simulink, their circuit simulation skills, and their ability to troubleshoot and improve electrical circuit models. Think. Simulate. Debug. Innovate.\n\nThe event has three rounds that move from fundamental theoretical knowledge to practical simulation and circuit debugging, for a total of 100 marks.\n\nRound 1 — Quiz Round (30 marks): questions on MATLAB fundamentals, commands and syntax, variables, operators and basic programming, and an introduction to Simulink blocks and their applications.\nRound 2 — Simulation Round (30 marks): each team receives a circuit problem statement with input parameters and a target output, builds or configures the model in MATLAB/Simulink and submits the final model and output waveform.\nRound 3 — Debug and Improve a Circuit (40 marks): teams get a Simulink circuit model with deliberately introduced faults, find and correct the errors, improve the circuit, run the simulation to the specified output and explain their debugging approach to the judges.\n\nFinal rankings come from the combined marks of all three rounds. Teams bring their own laptop with MATLAB and Simulink installed and tested.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bolt",
-                "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "minTeam": 2,
+                "maxTeam": 3,
+                "fee": "₹100 per team",
+                "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
+                "timeline": { "prize": "₹17,000+ (including goodies)" },
+                "rules": [
+                "Each team must have a minimum of 2 and a maximum of 3 members, and all members are expected to contribute to the assigned tasks throughout the competition. Register your team according to the organisers' instructions.",
+                "Registration fee is ₹100 per team. Prizes worth ₹17,000+ (including goodies).",
+                "The competition has three rounds with a total of 100 marks: Round 1 Quiz Round (30), Round 2 Simulation Round (30) and Round 3 Debug and Improve a Circuit Round (40).",
+                "Round 1 covers MATLAB fundamentals, commands and syntax, variables, operators and basic programming concepts, and an introduction to Simulink blocks and their applications. Complete the quiz within the time limit specified by the organisers.",
+                "Using unauthorised materials or external help, or communicating with other teams, during the quiz is prohibited.",
+                "Round 2: each team receives a circuit problem statement with specified input parameters and a target output, which may involve an electronics circuit. Construct or configure the circuit model in MATLAB/Simulink and submit the final simulation model and output waveform to the organisers.",
+                "Every team must bring a laptop with MATLAB and Simulink installed and tested before the event. Installing MATLAB R2025a is strongly encouraged to avoid compatibility issues. Teams are responsible for making sure their software works before the competition begins.",
+                "All circuit parameters and target output requirements needed for Round 2 are given in the problem statement. The simulation must be completed within the announced time limit.",
+                "Round 2 marks are based on the simulation process, parameter optimisation, output accuracy, waveform verification and submission of the completed model.",
+                "Round 3: each team receives a Simulink circuit model with deliberately introduced faults. Analyse it, identify the errors, correct them, improve the circuit, run the simulation successfully to the specified output and submit the corrected model and output waveform. Be ready to explain your debugging approach and corrections to the judges.",
+                "Work only on the circuit model provided by the organisers, and identify and correct the faults independently without unauthorised help. The final model must run successfully and meet the specified output.",
+                "Round 3 marks are based on fault identification, accuracy of corrections, output performance, waveform verification and technical explanation.",
+                "Follow the organisers' instructions, complete each round within the allotted time and maintain discipline and fair play. Copying another team's work, sharing solutions during a round or using unauthorised assistance is prohibited.",
+                "Submit your work in the format and manner specified by the organisers. The organisers may clarify the rules and resolve unforeseen issues to keep the event fair and orderly.",
+                "Final rankings are decided by the total marks across all three rounds (maximum 100). In a tie, the team with the lowest time across the rounds gets preference. The judges' decisions on technical evaluation and final rankings are final."
+]
             },
             {
                 "title": "ELECTROMIND",
@@ -870,6 +888,7 @@ export const RULEBOOK_PDFS = {
     'sky-forge': '/rulebooks/Addovedi-2026-sky-forge-rulebook.pdf',
     'circuit-debugging': '/rulebooks/Addovedi-2026-circuit-debugging-rulebook.pdf',
     'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',
+    'energix': '/rulebooks/Addovedi-2026-energix-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};

@@ -9,8 +9,9 @@ import SubEvent from '../models/SubEvent.js';
 
 const DATA = JSON.parse(readFileSync(new URL('./data/events2026.json', import.meta.url), 'utf8'));
 const confirm = process.argv.includes('--confirm');
+const withDesc = process.argv.includes('--with-desc'); // also overwrite desc + subtitle from the data file
 const named = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND'];
+const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX'];
 
 await mongoose.connect(process.env.MONGODB_URI);
 console.log(`DB host: ${mongoose.connection.host} / ${mongoose.connection.name}   mode: ${confirm ? 'WRITE' : 'DRY RUN'}`);
@@ -19,6 +20,7 @@ for (const title of wanted) {
     const src = DATA.flatMap(c => c.events).find(e => e.title === title);
     const set = { minTeam: src.minTeam, maxTeam: src.maxTeam, heads: src.heads || [], 'timeline.prize': src.timeline?.prize || '' };
     if (src.overview) set.overview = src.overview;
+    if (withDesc) { set.desc = src.desc; set.subtitle = src.subtitle; }
     if (src.fee !== undefined) set.fee = src.fee;
     if (src.unstopUrl) set.unstopUrl = src.unstopUrl;
     const doc = await SubEvent.findOne({ title }).collation({ locale: 'en', strength: 2 }).lean();

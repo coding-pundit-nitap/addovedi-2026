@@ -249,14 +249,17 @@
    },
    {
     "title": "ENERGIX",
-    "subtitle": "POWER IDEAS. ENGINEER SOLUTIONS",
-    "desc": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.",
-    "overview": "EnergiX is a technical paper presentation and engineering problem-solving competition that challenges participants to explore real-world problems in energy and electrical engineering.\n\nFrom renewable energy and electric vehicles to energy storage, smart grids, energy efficiency, and sustainability, participants will analyze technical challenges and present practical, innovative, and technically sound solutions.\n\nThe event goes beyond presentations—it encourages participants to apply engineering principles, research, data, and problem-solving skills to develop meaningful solutions for the future.\n\nTHINK ENERGY. ENGINEER THE FUTURE.",
+    "subtitle": "THINK. SIMULATE. DEBUG. INNOVATE.",
+    "desc": "ENERGIX is a three-round MATLAB and Simulink competition that tests circuit simulation skills and the ability to troubleshoot and improve electrical circuit models, from a quiz to simulation to circuit debugging.",
+    "overview": "ENERGIX is a technical competition of Addovedi 2026 that evaluates participants' knowledge of MATLAB and Simulink, their circuit simulation skills, and their ability to troubleshoot and improve electrical circuit models. Think. Simulate. Debug. Innovate.\n\nThe event has three rounds that move from fundamental theoretical knowledge to practical simulation and circuit debugging, for a total of 100 marks.\n\nRound 1 — Quiz Round (30 marks): questions on MATLAB fundamentals, commands and syntax, variables, operators and basic programming, and an introduction to Simulink blocks and their applications.\nRound 2 — Simulation Round (30 marks): each team receives a circuit problem statement with input parameters and a target output, builds or configures the model in MATLAB/Simulink and submits the final model and output waveform.\nRound 3 — Debug and Improve a Circuit (40 marks): teams get a Simulink circuit model with deliberately introduced faults, find and correct the errors, improve the circuit, run the simulation to the specified output and explain their debugging approach to the judges.\n\nFinal rankings come from the combined marks of all three rounds. Teams bring their own laptop with MATLAB and Simulink installed and tested.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bolt",
-    "minTeam": 1,
-    "maxTeam": 5
+    "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
+    "minTeam": 2,
+    "maxTeam": 3,
+    "fee": "₹100 per team",
+    "timeline": { "prize": "₹17,000+ (including goodies)" }
    },
    {
     "title": "ELECTROMIND",
