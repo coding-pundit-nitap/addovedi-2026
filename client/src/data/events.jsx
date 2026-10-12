@@ -177,6 +177,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 5,
                 "maxTeam": 5,
                 "fee": "₹100 per team",
+                "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nabam Rana", "phone": "+91 81319 03629"}],
                 "timeline": { "prize": "₹10,000 cash + exclusive hoodies" },
                 "rules": [
