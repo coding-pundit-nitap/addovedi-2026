@@ -410,13 +410,13 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "SOLID SIEGE",
                 "subtitle": "IMAGINE. DESIGN. CREATE",
                 "desc": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.",
-                "overview": "Solid Siege is the SolidWorks CAD competition of Addovedi 2026. Across three progressively harder rounds — 2D sketching, 3D part modelling and assembly design — participants race the clock to turn engineering drawings into accurate, clean SolidWorks models.\n\nA design problem with exact dimensions and required features is released at the start of each round. Model it exactly as specified within the time limit to qualify for the next round.\n\nRound 1 — 2D Mechanical Bracket (2 points): dimensional accuracy, correct geometry and a clean, well-constrained sketch.\nRound 2 — 3D Stepped Support (3 points): dimensional accuracy, correct features and a clean model tree.\nRound 3 — Wheel–Shaft Assembly (5 points): correct components, proper mates and overall assembly accuracy.\n\nRound scores build from 2 to 3 to 5 points, for a maximum of 10. Recorded time decides any tie.",
+                "overview": "Solid Siege is the SolidWorks CAD competition of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. Across three progressively harder rounds — 2D sketching, 3D part modelling and assembly design — participants race the clock to turn engineering drawings into accurate, clean SolidWorks models.\n\nA design problem with exact dimensions and required features is released at the start of each round. Model it exactly as specified within the time limit to qualify for the next round.\n\nRound 1 — 2D Mechanical Bracket (2 points): dimensional accuracy, correct geometry and a clean, well-constrained sketch.\nRound 2 — 3D Stepped Support (3 points): dimensional accuracy, correct features and a clean model tree.\nRound 3 — Wheel–Shaft Assembly (5 points): correct components, proper mates and overall assembly accuracy.\n\nRound scores build from 2 to 3 to 5 points, for a maximum of 10. Recorded time decides any tie.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "gear",
                 "minTeam": 1,
                 "maxTeam": 1,
-                "fee": "₹50 per participant",
+                "fee": "FREE",
                 "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
                 "timeline": { "prize": "₹10,00,000+" },
@@ -429,13 +429,13 @@ export const CATEGORIES_WITH_EVENTS = [
                 "Evaluation may consider dimensional accuracy, feature correctness, constraints, modelling quality and completion. The judges may finalise the detailed checklist before the event.",
                 "Marks: Round 1 is geometry and dimensions (1.0) plus constraints and a clean sketch (1.0). Round 2 is geometry and dimensions (1.5), features and model tree (1.0) and finish (0.5). Round 3 is components (1.5), mates (1.5), assembly accuracy (1.5) and finish (0.5).",
                 "Final ranking is based on total score. Ties are broken by recorded time, comparing the Round 3 time first, then Round 2, then Round 1. The faster participant gets priority at the first round where the times differ.",
-                "Unauthorised external help, pre-made models or any other unfair means lead to disqualification.",
-                "Participants must carry a valid student ID card from their institution.",
+                "Disqualification applies for unauthorised external help, pre-made models or files, any other unfair means, interfering with other participants, their systems or their files, or misconduct during the event.",
+                "Participants must carry a valid student ID card from their institution, provide valid and accurate registration details, and report according to the schedule announced by the organisers.",
                 "A participant may register only once. In case of multiple registrations, only the first is considered.",
                 "Official start and submission times recorded by the coordinators are used for all timing decisions.",
-                "Participants must maintain proper conduct and must not interfere with other participants, their systems or their files.",
+                "Participants must maintain proper conduct, follow the coordinators' instructions throughout the event and must not interfere with other participants, their systems or their files.",
                 "The decision of the judges and organising committee on qualification, scoring and disqualification is final and binding. The organisers may modify or clarify the rules, and any change will be announced before implementation.",
-                "Registration fee: ₹50 per participant. Prize pool: ₹10,00,000+. The position-wise distribution will be announced by the organisers."
+                "Registration is free. Prize pool: ₹10,00,000+. The position-wise distribution will be announced by the organisers."
 ]
             },
             {
