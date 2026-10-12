@@ -841,7 +841,7 @@ EV['brainwave-bonanza'] = dict(title='BRAINWAVE BONANZA', desc=desc('BRAINWAVE B
   "- **Wrong answers in the final may carry negative marking.**",
   "- **Plagiarism disqualifies the whole team.**",
   "- **Judges' and organisers' decisions are final.** Rules may be modified and will be communicated."],
- "**Coordinators to be announced**"),
+ "Saloni Nand, **+91 70858 33096**"),
  rounds="""# BRAINWAVE BONANZA · ROUND-WISE
 ## Round 1: Screening Quiz (20 points)
 - **Written or online quiz** of aptitude, logical reasoning and basic technical questions.
@@ -857,7 +857,7 @@ EV['brainwave-bonanza'] = dict(title='BRAINWAVE BONANZA', desc=desc('BRAINWAVE B
 - **Highest total score wins.** Ties: **tie-breaker question.**
 ## Quick facts
 - **Teams of up to 3.** **Fee:** **Rs. 50 per member.** **Prize:** **Rs. 8,000 cash** (worth **Rs. 25,000** with hoodies).
-- **Coordinators:** to be announced
+- **Coordinator:** Saloni Nand, **+91 70858 33096**
 """)
 
 def inline(t):

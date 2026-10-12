@@ -589,7 +589,12 @@
     "minTeam": 1,
     "maxTeam": 3,
     "fee": "₹50 per member",
-    "heads": [],
+    "heads": [
+     {
+      "name": "Saloni Nand",
+      "phone": "+91 70858 33096"
+     }
+    ],
     "timeline": {
      "prize": "₹8,000 cash (worth ₹25,000 with hoodies)"
     },

@@ -802,7 +802,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "iconType": "brain",
                 "minTeam": 1,
                 "maxTeam": 3,
-                "heads": [],
+                "heads": [{"name": "Saloni Nand", "phone": "+91 70858 33096"}],
                 "rules": [
                     "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including hoodies.",
                     "A team may register only once (only the first entry counts). Undergraduate and graduate students from any field can participate, and every participant must carry a valid student ID card. The same members must play all rounds and substitution is not allowed once the event begins.",
