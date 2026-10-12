@@ -285,6 +285,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
                 "timeline": { "prize": "Up to ₹8,000 + goodies" },
                 "rules": [
