@@ -321,14 +321,31 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "PROMPT & PIXEL",
                 "subtitle": "PROMPT. DESIGN. BUILD",
                 "desc": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.",
-                "overview": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.\n\nGiven a theme or problem statement on the spot, participants will use their creativity, UI/UX knowledge, frontend development skills, and AI tools to design and build an innovative responsive landing page within a limited time.\n\nPROMPT SMART. DESIGN BOLD. BUILD THE FUTURE.",
+                "overview": "PROMPT & PIXEL is the AI-assisted web design and landing page development competition of Addovedi 2026, organised by Coding Pundit. It tests creativity, UI/UX design skills, frontend development ability, prompt engineering skills and the effective use of AI tools. Prompt. Design. Build.\n\nAt the start, every participant gets a common theme or problem statement and must conceptualise, design and develop a responsive landing page within the allotted time. The competition is individual and conducted offline at the designated venue.\n\nStage 1 — Theme announcement and planning: understand the theme and audience, plan the layout and user experience, choose the visual style, colours and typography, and plan how you will use AI tools.\nStage 2 — Landing page development: build the page using AI chatbots and coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets.\nStage 3 — Final submission and judging: submit your project. There is no presentation round, and the judges evaluate submissions directly.\n\nJudging is out of 100: creativity and originality (25), UI/UX and visual design (25), functionality and frontend (20), AI usage and prompt engineering (15) and responsiveness (15).",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "web",
                 "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "maxTeam": 1,
+                "fee": "₹50 per person",
+                "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
+                "timeline": { "prize": "₹8,000 + goodies" },
+                "rules": [
+                "The competition is individual. Team participation is not allowed. It is conducted offline at the designated venue.",
+                "Registration fee is ₹50 per participant, paid through Unstop. Prizes worth ₹8,000 plus goodies for the winners.",
+                "After registering, join the official WhatsApp group, follow its announcements and instructions, and report to the venue at the specified time. Only registered participants can take part.",
+                "A common theme or problem statement is announced at the start. Understand the theme and target audience, plan the layout and experience, and decide the visual style, colours and typography.",
+                "The landing page must be built within the allotted competition time, and should be responsive and visually attractive, with clear information hierarchy, interactive elements, smooth animations and transitions, intuitive navigation and consistent branding and typography.",
+                "AI chatbots, coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets may be used. AI tools are allowed and encouraged, subject to the AI rules announced by the organisers.",
+                "The permitted AI tools and models, and whether free or premium versions are used, are announced at the start of the event. Do not assume any particular model, platform or premium subscription will be needed unless the organisers say so.",
+                "You must create your solution during the competition. Previously completed websites or complete pre-built solutions must not be submitted. Open-source libraries and assets may be used as permitted by the organisers.",
+                "There is no presentation or pitching round. Submit your completed project through the method announced at the venue. You may need to give participant details, the project files and source code, the AI tools and models used, 1 to 2 important prompts and a short description of the solution.",
+                "Make sure your submission is functional, accessible and ready for evaluation. Late submissions will not be considered.",
+                "Judges check each landing page for functionality, on desktop and mobile views, and consider AI usage and the submitted prompts. Each participant gets a score out of 100.",
+                "Judging criteria (100 marks): creativity and originality 25, UI/UX and visual design 25, functionality and frontend 20, AI usage and prompt engineering 15, responsiveness 15.",
+                "Bring your own laptop and any accessories you need, unless the organisers say otherwise. Make sure your development environment and tools are ready before the competition begins.",
+                "Follow all instructions from the organisers during the event. Copying or substantially reproducing another participant's work leads to disqualification. The judges' decision is final and binding."
+]
             }
         ]
     },
@@ -1035,6 +1052,7 @@ export const RULEBOOK_PDFS = {
     'hackathon': '/rulebooks/Addovedi-2026-hackathon-rulebook.pdf',
     'bgmi': '/rulebooks/Addovedi-2026-bgmi-rulebook.pdf',
     'fifa-showdown': '/rulebooks/Addovedi-2026-fifa-showdown-rulebook.pdf',
+    'prompt-pixel': '/rulebooks/Addovedi-2026-prompt-pixel-rulebook.pdf',
     'mobile-legends-bang-bang': '/rulebooks/Addovedi-2026-mobile-legends-bang-bang-rulebook.pdf',
     'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',
     'energix': '/rulebooks/Addovedi-2026-energix-rulebook.pdf',

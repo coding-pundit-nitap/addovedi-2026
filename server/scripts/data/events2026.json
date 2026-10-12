@@ -180,12 +180,15 @@
     "title": "PROMPT & PIXEL",
     "subtitle": "PROMPT. DESIGN. BUILD",
     "desc": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.",
-    "overview": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.\n\nGiven a theme or problem statement on the spot, participants will use their creativity, UI/UX knowledge, frontend development skills, and AI tools to design and build an innovative responsive landing page within a limited time.\n\nPROMPT SMART. DESIGN BOLD. BUILD THE FUTURE.",
+    "overview": "PROMPT & PIXEL is the AI-assisted web design and landing page development competition of Addovedi 2026, organised by Coding Pundit. It tests creativity, UI/UX design skills, frontend development ability, prompt engineering skills and the effective use of AI tools. Prompt. Design. Build.\n\nAt the start, every participant gets a common theme or problem statement and must conceptualise, design and develop a responsive landing page within the allotted time. The competition is individual and conducted offline at the designated venue.\n\nStage 1 — Theme announcement and planning: understand the theme and audience, plan the layout and user experience, choose the visual style, colours and typography, and plan how you will use AI tools.\nStage 2 — Landing page development: build the page using AI chatbots and coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets.\nStage 3 — Final submission and judging: submit your project. There is no presentation round, and the judges evaluate submissions directly.\n\nJudging is out of 100: creativity and originality (25), UI/UX and visual design (25), functionality and frontend (20), AI usage and prompt engineering (15) and responsiveness (15).",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "web",
+    "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
     "minTeam": 1,
-    "maxTeam": 5
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "timeline": { "prize": "₹8,000 + goodies" }
    }
   ]
  },
