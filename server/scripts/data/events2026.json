@@ -142,12 +142,15 @@
     "title": "HACKATHON",
     "subtitle": "IDEATE. INNOVATE. BUILD. CONQUER",
     "desc": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.",
-    "overview": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.\n\nParticipants will brainstorm innovative ideas, design engaging user experiences, and develop functional websites within a limited time. The challenge is to combine creativity, UI/UX design, frontend development, and problem-solving to build a website that delivers a meaningful solution.\n\nTHINK. DESIGN. DEVELOP.",
+    "overview": "The ADDOVEDI 2026 Hackathon is a 24-hour continuous software development and innovation competition organised by Coding Pundit, Department of Computer Science and Engineering, NIT Arunachal Pradesh. It tests creativity, problem-solving, technical knowledge, teamwork and the ability to build a practical solution in limited time. Ideate. Innovate. Build. Conquer.\n\nThe competition moves from idea validation, to prototype development, and finally to a complete solution presentation. The evaluation gets more rigorous at every stage, so winning teams need both innovation and good software engineering.\n\nRound 1 — Innovation and Idea Pitch: held only if more than 20 teams register. The top 15 teams qualify. If 20 or fewer teams register, the event starts directly at Round 2.\nRound 2 — Prototype Development: teams build a working MVP for the released problem statement, with periodic progress evaluations. A screening round (5-minute presentation + 3-minute demo and Q&A) picks the top 8 finalists.\nRound 3 — Final Demonstration: finalists present the complete solution to the judges, followed by Q&A from faculty.\n\nJudging is out of 100: problem and solution (25), UI/UX and product (25), technical implementation (25) and presentation and Q&A (25). Build a solution, not just a project.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "web",
-    "minTeam": 1,
-    "maxTeam": 5
+    "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "timeline": { "prize": "₹30,000+ (including goodies)" }
    },
    {
     "title": "CODATHON",
