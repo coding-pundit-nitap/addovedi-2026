@@ -272,6 +272,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 3,
                 "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Bishal Barman", "phone": "+91 81019 10731"}],
                 "timeline": { "prize": "₹20,000 (including goodies)" },
                 "rules": [
