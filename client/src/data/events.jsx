@@ -318,6 +318,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 2,
                 "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Anirudh Mishra", "phone": "+91 91404 63181"}],
                 "timeline": { "prize": "₹13,000+ (including goodies)" },
                 "rules": [
