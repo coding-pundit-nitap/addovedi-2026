@@ -19,12 +19,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "robot",
-    "heads": [{ "name": "Tapan Boruah", "phone": "+91 98590 40208" }],
+    "heads": [
+     {
+      "name": "Tapan Boruah",
+      "phone": "+91 98590 40208"
+     }
+    ],
     "minTeam": 2,
     "maxTeam": 4,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹22,000" }
+    "timeline": {
+     "prize": "₹22,000"
+    }
    },
    {
     "title": "DUNE DOMINATOR",
@@ -34,12 +41,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "robot",
-    "heads": [{ "name": "Vaibhav Gupta", "phone": "+91 95061 77693" }],
+    "heads": [
+     {
+      "name": "Vaibhav Gupta",
+      "phone": "+91 95061 77693"
+     }
+    ],
     "minTeam": 2,
     "maxTeam": 4,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹20,000" }
+    "timeline": {
+     "prize": "₹20,000"
+    }
    }
   ]
  },
@@ -59,12 +73,19 @@
     "title": "TREASURE HUNT",
     "subtitle": "The Hunt Begins. Can You Find What Others Cannot?",
     "desc": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.",
-    "overview": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.\n\nEach clue will test your logic, observation, creativity, problem-solving skills, and teamwork. Follow the trail carefully—every answer leads to the next challenge, but one wrong move could take you off the path!\n\nThink fast, decode the mystery, and stay ahead of the competition. Only the smartest and most determined teams will reach the final destination.",
+    "overview": "Treasure Hunt is the campus-wide clue-solving adventure of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 race across the arena, decode riddles and puzzles, reach hidden checkpoints and follow the trail to the final treasure.\n\nEach solved clue leads to the next location. The team that completes the trail correctly, in the right order and in the shortest time, wins the hunt. It tests logical reasoning, observation, teamwork, navigation, technical knowledge and speed.\n\nRegistration is free. A briefing before the hunt explains the hunt area, boundaries and time limit, and an elimination round may be held before the main hunt.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "brain",
-    "minTeam": 1,
-    "maxTeam": 5
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "FREE",
+    "heads": [
+     {
+      "name": "Tapan Boruah",
+      "phone": "+91 98590 40208"
+     }
+    ]
    }
   ]
  },
@@ -88,12 +109,23 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
-    "heads": [{"name": "Nandu Giba Tamin", "phone": "+91 76300 64979"}, {"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
+    "heads": [
+     {
+      "name": "Nandu Giba Tamin",
+      "phone": "+91 76300 64979"
+     },
+     {
+      "name": "Harsh Sharma",
+      "phone": "+91 77620 67934"
+     }
+    ],
     "minTeam": 4,
     "maxTeam": 5,
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹22,000 + goodies" }
+    "timeline": {
+     "prize": "₹22,000 + goodies"
+    }
    },
    {
     "title": "FIFA SHOWDOWN",
@@ -103,12 +135,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
-    "heads": [{"name": "Tage Jarbo", "phone": "+91 87876 90625"}],
+    "heads": [
+     {
+      "name": "Tage Jarbo",
+      "phone": "+91 87876 90625"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "₹100 per player",
     "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹15,000 including goodies" }
+    "timeline": {
+     "prize": "₹15,000 including goodies"
+    }
    },
    {
     "title": "MOBILE LEGENDS: BANG BANG",
@@ -118,12 +157,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
-    "heads": [{"name": "Nabam Rana", "phone": "+91 81319 03629"}],
+    "heads": [
+     {
+      "name": "Nabam Rana",
+      "phone": "+91 81319 03629"
+     }
+    ],
     "minTeam": 5,
     "maxTeam": 5,
     "fee": "₹100 per team",
     "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹10,000 cash + exclusive hoodies" }
+    "timeline": {
+     "prize": "₹10,000 cash + exclusive hoodies"
+    }
    },
    {
     "title": "TEKKEN SHOWDOWN",
@@ -133,12 +179,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gamepad",
-    "heads": [{"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
+    "heads": [
+     {
+      "name": "Harsh Sharma",
+      "phone": "+91 77620 67934"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹7,000+ including goodies" }
+    "timeline": {
+     "prize": "₹7,000+ including goodies"
+    }
    }
   ]
  },
@@ -162,12 +215,23 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "web",
-    "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
+    "heads": [
+     {
+      "name": "Divyanshu Gupta",
+      "phone": "+91 96954 31255"
+     },
+     {
+      "name": "Vinay Pal",
+      "phone": "+91 88403 37686"
+     }
+    ],
     "minTeam": 2,
     "maxTeam": 4,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
-    "timeline": { "prize": "₹30,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹30,000+ (including goodies)"
+    }
    },
    {
     "title": "CODATHON",
@@ -177,12 +241,23 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "code",
-    "heads": [{"name": "Riya Yadav", "phone": "+91 89575 08842"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
+    "heads": [
+     {
+      "name": "Riya Yadav",
+      "phone": "+91 89575 08842"
+     },
+     {
+      "name": "Vinay Pal",
+      "phone": "+91 88403 37686"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹13,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)"
+    }
    },
    {
     "title": "PROMPT & PIXEL",
@@ -192,12 +267,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "web",
-    "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
+    "heads": [
+     {
+      "name": "Anshu Kumar Gupta",
+      "phone": "+91 98629 58644"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹8,000 + goodies" }
+    "timeline": {
+     "prize": "₹8,000 + goodies"
+    }
    }
   ]
  },
@@ -221,12 +303,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "robot",
-    "heads": [{"name": "Bishal Barman", "phone": "+91 81019 10731"}],
+    "heads": [
+     {
+      "name": "Bishal Barman",
+      "phone": "+91 81019 10731"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 3,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹20,000 (including goodies)" }
+    "timeline": {
+     "prize": "₹20,000 (including goodies)"
+    }
    },
    {
     "title": "VERILOG",
@@ -236,12 +325,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "code",
-    "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
+    "heads": [
+     {
+      "name": "Krish Prasad",
+      "phone": "+91 87309 56612"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "Up to ₹8,000 + goodies" }
+    "timeline": {
+     "prize": "Up to ₹8,000 + goodies"
+    }
    },
    {
     "title": "CIRCUIT DESIGNING",
@@ -251,12 +347,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bolt",
-    "heads": [{"name": "Anirudh Mishra", "phone": "+91 91404 63181"}],
+    "heads": [
+     {
+      "name": "Anirudh Mishra",
+      "phone": "+91 91404 63181"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 2,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹13,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)"
+    }
    }
   ]
  },
@@ -280,12 +383,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bug",
-    "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
+    "heads": [
+     {
+      "name": "Neeraj Bhandari",
+      "phone": "+91 76670 58211"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 2,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹13,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)"
+    }
    },
    {
     "title": "ENERGIX",
@@ -295,12 +405,23 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bolt",
-    "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
+    "heads": [
+     {
+      "name": "Prakash Tamang",
+      "phone": "+91 98628 46350"
+     },
+     {
+      "name": "Roshni Yadav",
+      "phone": "+91 98628 46350"
+     }
+    ],
     "minTeam": 2,
     "maxTeam": 3,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹17,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹17,000+ (including goodies)"
+    }
    },
    {
     "title": "ELECTROMIND",
@@ -310,12 +431,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "brain",
-    "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
+    "heads": [
+     {
+      "name": "Saurav Kumar",
+      "phone": "+91 97987 27650"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 3,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹17,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹17,000+ (including goodies)"
+    }
    }
   ]
  },
@@ -339,12 +467,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gear",
-    "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
+    "heads": [
+     {
+      "name": "Nikhil Raj",
+      "phone": "+91 95087 15131"
+     }
+    ],
     "minTeam": 1,
     "maxTeam": 1,
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹10,00,000+" }
+    "timeline": {
+     "prize": "₹10,00,000+"
+    }
    },
    {
     "title": "HYDRAULIC WARZONE",
@@ -354,12 +489,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "gear",
-    "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
+    "heads": [
+     {
+      "name": "Rokkala Nirmal",
+      "phone": "+91 90002 61037"
+     }
+    ],
     "minTeam": 3,
     "maxTeam": 3,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹13,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)"
+    }
    },
    {
     "title": "SKY FORGE",
@@ -369,12 +511,19 @@
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "rocket",
-    "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
+    "heads": [
+     {
+      "name": "Thirumalai Nathan",
+      "phone": "+91 63743 70906"
+     }
+    ],
     "minTeam": 3,
     "maxTeam": 3,
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
-    "timeline": { "prize": "₹13,000+ (including goodies)" }
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)"
+    }
    }
   ]
  },

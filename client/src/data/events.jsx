@@ -116,14 +116,27 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "TREASURE HUNT",
                 "subtitle": "The Hunt Begins. Can You Find What Others Cannot?",
                 "desc": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.",
-                "overview": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.\n\nEach clue will test your logic, observation, creativity, problem-solving skills, and teamwork. Follow the trail carefully—every answer leads to the next challenge, but one wrong move could take you off the path!\n\nThink fast, decode the mystery, and stay ahead of the competition. Only the smartest and most determined teams will reach the final destination.",
+                "overview": "Treasure Hunt is the campus-wide clue-solving adventure of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 race across the arena, decode riddles and puzzles, reach hidden checkpoints and follow the trail to the final treasure.\n\nEach solved clue leads to the next location. The team that completes the trail correctly, in the right order and in the shortest time, wins the hunt. It tests logical reasoning, observation, teamwork, navigation, technical knowledge and speed.\n\nRegistration is free. A briefing before the hunt explains the hunt area, boundaries and time limit, and an elimination round may be held before the main hunt.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "brain",
-                "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "minTeam": 3,
+                "maxTeam": 3,
+                "fee": "FREE",
+                "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
+                "rules": [
+                "Treasure Hunt is a team event. Each team has exactly 3 members, who may be from different branches, years or institutions. A participant may be in only one team, and one member is nominated as team leader (the point of contact). Registration is free.",
+                "Every participant must carry a valid student ID card. Team composition cannot be changed after registration without permission from the coordinators.",
+                "Teams must report at the announced venue and time with all members present. A late team may start without extra time, at the coordinators' discretion. A briefing before the hunt explains the hunt area, boundaries, out-of-bounds places and the time limit.",
+                "The hunt is a trail of clues: solve a clue, reach the checkpoint, get the next clue, and finish at the final treasure. Clues can be riddles, ciphers, pictures, puzzles, technical questions or physical tasks. The number of rounds and checkpoints is announced by the organisers, and an elimination round may be held first.",
+                "Clues must be solved in the given order and checkpoints cannot be skipped. All members must be together at every checkpoint and report to the volunteer there. Teams may get clues in a different order. Never share clues, answers or locations with other teams.",
+                "Clues must not be removed, hidden, damaged or moved. Hints, if available, go only to the team leader and may carry a time or point penalty, as announced at the briefing.",
+                "Ranking: 1) number of checkpoints validly completed, 2) total time taken including penalties, 3) fewer hints used. Ties are broken by fewer hints, then fewer penalties, then the earlier last checkpoint, and if still tied the organisers may hold a short tie-breaker challenge.",
+                "Safety: no running in crowded areas, corridors, stairways or near roads. Stay within the announced boundaries, do not enter labs, offices or hostels unless a clue leads there with permission, do not climb walls, trees or roofs, do not use vehicles, and keep your phones reachable. Report any injury to the nearest coordinator immediately.",
+                "Fair play: do not follow, track or copy other teams, take help from anyone outside the team, or tamper with or mislead other teams. Using the internet or apps is allowed only when announced for a clue. Do not pressure volunteers for answers.",
+                "Penalties (announced at the briefing) apply for reaching a checkpoint without all members, entering out-of-bounds areas, taking a hint, ignoring instructions or minor misconduct. Disqualification applies for removing or damaging clues, unfair means, skipping checkpoints or false answers, damaging campus property, unsafe behaviour, misconduct, or repeated violations.",
+                "The official time recorded by the coordinators is used for all timing decisions. The organisers may modify or clarify the rules with an announcement before implementation. The decision of the coordinators / organising committee is final and binding."
+                ]
             }
         ]
     },
@@ -1095,6 +1108,7 @@ export const RULEBOOK_PDFS = {
     'fifa-showdown': '/rulebooks/Addovedi-2026-fifa-showdown-rulebook.pdf',
     'prompt-pixel': '/rulebooks/Addovedi-2026-prompt-pixel-rulebook.pdf',
     'codathon': '/rulebooks/Addovedi-2026-codathon-rulebook.pdf',
+    'treasure-hunt': '/rulebooks/Addovedi-2026-treasure-hunt-rulebook.pdf',
     'tekken-showdown': '/rulebooks/Addovedi-2026-tekken-showdown-rulebook.pdf',
     'mobile-legends-bang-bang': '/rulebooks/Addovedi-2026-mobile-legends-bang-bang-rulebook.pdf',
     'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',

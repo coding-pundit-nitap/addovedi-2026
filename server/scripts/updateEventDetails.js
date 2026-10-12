@@ -11,7 +11,7 @@ const DATA = JSON.parse(readFileSync(new URL('./data/events2026.json', import.me
 const confirm = process.argv.includes('--confirm');
 const withDesc = process.argv.includes('--with-desc'); // also overwrite desc + subtitle from the data file
 const named = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN'];
+const wanted = named.length ? named : ['ROBO SOCCER', 'DUNE DOMINATOR', 'SOLID SIEGE', 'HYDRAULIC WARZONE', 'SKY FORGE', 'CIRCUIT DEBUGGING', 'ELECTROMIND', 'ENERGIX', 'VERILOG', 'CIRCUIT DESIGNING', 'LINE FOLLOWER', 'HACKATHON', 'MOBILE LEGENDS: BANG BANG', 'BGMI', 'FIFA SHOWDOWN', 'PROMPT & PIXEL', 'CODATHON', 'TEKKEN SHOWDOWN', 'TREASURE HUNT'];
 
 await mongoose.connect(process.env.MONGODB_URI);
 console.log(`DB host: ${mongoose.connection.host} / ${mongoose.connection.name}   mode: ${confirm ? 'WRITE' : 'DRY RUN'}`);

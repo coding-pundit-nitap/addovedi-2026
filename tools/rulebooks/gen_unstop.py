@@ -679,6 +679,43 @@ EV['tekken-showdown'] = dict(title='TEKKEN 7 TOURNAMENT', desc=desc('TEKKEN 7 TO
 - **Coordinator:** Harsh Sharma, **+91 77620 67934**
 """)
 
+EV['treasure-hunt'] = dict(title='TREASURE HUNT', desc=desc('TREASURE HUNT','The Hunt Begins. Can You Find What Others Cannot?',
+ "**Treasure Hunt** is the **campus-wide clue-solving adventure** of Addovedi 2026 (NIT Arunachal Pradesh). Teams **decode riddles and puzzles**, reach **hidden checkpoints** and follow the trail to the **final treasure**. Fastest correct trail wins.",
+ ["- **Eligibility:** **college students**, valid **student ID** required.",
+  "- **Team size:** exactly **3 members** (any branch, year or institution). One member is the **team leader**. One team per participant.",
+  "- **Inter-college / inter-specialization:** **allowed**.",
+  "- **Format:** a **trail of clues**: solve a clue, reach the checkpoint, get the next clue, finish at the treasure. Number of rounds announced by the organisers; an **elimination round** may come first.",
+  "- **Tests:** logic, observation, teamwork, navigation, technical knowledge and speed.",
+  FLOW.format(ev='Treasure Hunt'),
+  "- **Registration fee:** **FREE** (no entry fee)."],
+ ["- **Clues in order.** **No skipping checkpoints.** **All 3 members together** at every checkpoint.",
+  "- **Do not remove, hide, damage or move clues.** **No sharing clues or answers** with other teams.",
+  "- **Hints** (if offered) go only to the **team leader** and may carry a **time or point penalty**.",
+  "- **Safety first:** **no running** in crowded areas, **no climbing**, **no vehicles**, stay inside the **announced boundaries**.",
+  "- **Fair play:** **no following other teams**, **no outside help**. Internet/apps only if the organisers allow it for a clue.",
+  "- **Ranking:** most **checkpoints** completed, then **least total time**, then **fewer hints**.",
+  "- **Disqualification** for tampering with clues, unfair means, skipping checkpoints, unsafe behaviour or misconduct.",
+  "- **Coordinators' decisions are final.** Rules may be modified and will be communicated."],
+ "Tapan Boruah, **+91 98590 40208**"),
+ rounds="""# TREASURE HUNT · ROUND-WISE
+## Briefing
+- **All 3 members must be present.** Hunt area, boundaries, out-of-bounds places and the **time limit** are explained.
+- Each team gets its **starting clue** and any team card.
+## Round 1: Qualifier (if held)
+- The organisers **may hold an elimination round** first. Format announced before it begins.
+## Main Hunt
+- **Solve a clue, reach the checkpoint, report to the volunteer, get the next clue.**
+- Clues are riddles, ciphers, pictures, puzzles, technical questions or physical tasks.
+- Teams may get clues in a **different order**.
+- Trail ends at the **final treasure**.
+## Scoring
+- Ranked by **checkpoints completed**, then **total time (with penalties)**, then **fewer hints**.
+- Ties: fewer hints, fewer penalties, earlier last checkpoint, then a short tie-breaker.
+## Quick facts
+- **Teams of 3.** **Fee:** **FREE.**
+- **Coordinator:** Tapan Boruah, **+91 98590 40208**
+""")
+
 def inline(t):
     t = html.escape(t)
     t = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)
