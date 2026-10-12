@@ -218,6 +218,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 2,
                 "maxTeam": 4,
                 "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
                 "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
                 "timeline": { "prize": "₹30,000+ (including goodies)" },
                 "rules": [
