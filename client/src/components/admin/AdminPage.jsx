@@ -525,24 +525,26 @@ export default function AdminPage() {
             alert('No registration data available to export.');
             return;
         }
-        const headers = ['Event', 'Category', 'Team Name', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Status', 'Unstop Ref ID', 'Registered At'];
+        const headers = ['Event', 'Category', 'Team Name', 'Team ID', 'Leader Name', 'Leader UID', 'Leader Email', 'Leader Phone', 'Team Size', 'Members', 'Status', 'Unstop Ref ID', 'Registered At'];
+        const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`; // quote + escape embedded double quotes
         const csvRows = [headers.join(',')];
 
         data.forEach(r => {
             const membersStr = (r.members || []).map(m => `${m.name || ''} (${m.uid || ''}) [${m.status || 'ACCEPTED'}]`).join('; ');
             const row = [
-                `"${r.eventTitle || ''}"`,
-                `"${r.categoryTitle || ''}"`,
-                `"${r.teamName || ''}"`,
-                `"${r.leaderName || ''}"`,
-                `"${r.leaderUID || ''}"`,
-                `"${r.userEmail || ''}"`,
-                `"${r.leaderPhone || ''}"`,
+                q(r.eventTitle),
+                q(r.categoryTitle),
+                q(r.teamName),
+                q(r.teamId),
+                q(r.leaderName),
+                q(r.leaderUID),
+                q(r.userEmail),
+                q(r.leaderPhone),
                 r.teamSize || 1,
-                `"${membersStr}"`,
-                `"${r.status || ''}"`,
-                `"${r.unstopRefId || ''}"`,
-                `"${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}"`
+                q(membersStr),
+                q(r.status),
+                q(r.unstopRefId),
+                q(r.createdAt ? new Date(r.createdAt).toLocaleString() : '')
             ];
             csvRows.push(row.join(','));
         });
