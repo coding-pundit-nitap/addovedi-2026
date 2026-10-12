@@ -364,14 +364,31 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "ELECTROMIND",
                 "subtitle": "KNOW IT. IDENTIFY IT. MEASURE IT. BUILD IT. SOLVE IT",
                 "desc": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.",
-                "overview": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.\n\nThe event challenges participants through different stages involving technical concepts, component identification, measurement, problem-solving, and basic circuit design. It is a test of not only what you know, but also how effectively you can apply that knowledge in practical situations.\n\nTHINK. TEST. BUILD. SOLVE.",
+                "overview": "ELECTROMIND is a three-round technical competition of Addovedi 2026 designed to test and develop students' technical knowledge, component identification skills, measurement ability, practical understanding, problem-solving skills and basic circuit design capabilities. Know it. Identify it. Measure it. Build it. Solve it.\n\nRound 1 — Electromind Quiz: a multiple-choice quiz on the fundamentals of electrical and electronics engineering, covering basic and practical concepts.\nRound 2 — Identify & Measure: an individual practical round with real components and devices. Each team member takes a turn to identify the component, state its applications and perform the assigned measurements, including reading values from printed markings and verifying them with instruments.\nRound 3 — Build the Solution: each team gets a simple real-world problem statement and a set of components. Teams understand the problem, select components, design the circuit, calculate, build it, measure the output and demonstrate the working solution.\n\nProblem statements include an automatic street light, a temperature-controlled fan, an adjustable 3–7 V power supply, an automatic emergency light, a water level indicator with alarm, an adjustable timer light, overvoltage protection, a two-level battery indicator, DC motor speed control and a rain detection alarm.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "brain",
                 "minTeam": 1,
-                "maxTeam": 5,
-                "heads": [],
-                "rules": []
+                "maxTeam": 3,
+                "fee": "₹100 per team",
+                "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
+                "timeline": { "prize": "₹17,000+ (including goodies)" },
+                "rules": [
+                "A team may register only once. If a team registers more than once, only the first submission is considered. Each team may have a maximum of 3 members.",
+                "Only undergraduate students from any field are eligible. Participation is open only to students of NIT Arunachal Pradesh and students of institutes in the State of Arunachal Pradesh. Carry a valid student ID card.",
+                "Registration fee is ₹100 per team. Prizes worth ₹17,000+ (including goodies).",
+                "Round 1 is the Electromind Quiz, a set of MCQs on the fundamentals of electrical and electronics engineering. Teams qualify for Round 2 based on top performance, group participation (maximum 3 members) and the time limit.",
+                "Round 2 is Identify & Measure. It is an individual practical round: the members of each team take part one by one and independently identify real electrical and electronic components or devices, state their applications and perform the assigned measurements.",
+                "You may be asked to read component values from printed markings and verify them with measuring instruments.",
+                "Round 2 is judged on time, accuracy, identification and application. The team score is the sum of all individual participants' scores (Participant 1 + Participant 2 + Participant 3).",
+                "Round 3 is Build the Solution. Teams receive a simple real-world problem statement and a set of components, then select components, design the circuit, calculate, build it, measure the output and demonstrate the working solution.",
+                "In Round 3 you must decide which components you need and collect them from the coordinators at the start of the round, in a single go. Once your turn is over, no additional components are provided, and no extra component is given if one gets damaged.",
+                "Each team selects only one problem statement. Statements are allotted first come, first served based on the registration portal timeline.",
+                "Round 3 problem statements: 1) automatic street light with adjustable sensitivity, 2) temperature-controlled fan, 3) adjustable 3–7 V DC power supply from a 9 V battery, 4) automatic emergency light, 5) water level indicator with high-level alarm, 6) adjustable timer-based light (about 5–30 seconds), 7) overvoltage warning and load protection, 8) two-level battery voltage indicator, 9) DC motor speed control with protection, 10) rain or water detection alarm.",
+                "Smartphones, calculators, the internet and AI are prohibited. If anyone is found using them, the whole team is disqualified without any warning.",
+                "In case of disputes or discrepancies, the decision of the organisers and judges is final and binding.",
+                "The organisers may modify any or all rules. Any change will be communicated to registered participants."
+]
             }
         ]
     },
@@ -851,6 +868,7 @@ export const RULEBOOK_PDFS = {
     'hydraulic-warzone': '/rulebooks/Addovedi-2026-hydraulic-warzone-rulebook.pdf',
     'sky-forge': '/rulebooks/Addovedi-2026-sky-forge-rulebook.pdf',
     'circuit-debugging': '/rulebooks/Addovedi-2026-circuit-debugging-rulebook.pdf',
+    'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',
 };
 
 export const EVENT_RULES = {};
