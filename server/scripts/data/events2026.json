@@ -22,7 +22,7 @@
     "heads": [{ "name": "Tapan Boruah", "phone": "+91 98590 40208" }],
     "minTeam": 2,
     "maxTeam": 4,
-    "fee": "₹200 per team",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹22,000" }
    },
@@ -37,7 +37,7 @@
     "heads": [{ "name": "Vaibhav Gupta", "phone": "+91 95061 77693" }],
     "minTeam": 2,
     "maxTeam": 4,
-    "fee": "₹200 per team",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹20,000" }
    }
@@ -247,7 +247,7 @@
     "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
     "minTeam": 1,
     "maxTeam": 2,
-    "fee": "₹50 per person",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹13,000+ (including goodies)" }
    },
@@ -262,7 +262,7 @@
     "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
     "minTeam": 2,
     "maxTeam": 3,
-    "fee": "₹100 per team",
+    "fee": "₹50 per member",
     "timeline": { "prize": "₹17,000+ (including goodies)" }
    },
    {
@@ -276,7 +276,7 @@
     "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
     "minTeam": 1,
     "maxTeam": 3,
-    "fee": "₹100 per team",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹17,000+ (including goodies)" }
    }
@@ -320,7 +320,7 @@
     "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
     "minTeam": 3,
     "maxTeam": 3,
-    "fee": "₹100 per team",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹13,000+ (including goodies)" }
    },
@@ -335,7 +335,7 @@
     "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
     "minTeam": 3,
     "maxTeam": 3,
-    "fee": "₹100 per team",
+    "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": { "prize": "₹13,000+ (including goodies)" }
    }
