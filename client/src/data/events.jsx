@@ -297,7 +297,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "FREE",
-                "unstopUrl": "https://unstop.com",
+                "unstopUrl": "https://unstop.com/o/I7lzduH?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [
                     {
                         "name": "Vaibhav Gupta",
