@@ -375,7 +375,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "timeline": { "prize": "₹17,000+ (including goodies)" },
                 "rules": [
                 "A team may register only once. If a team registers more than once, only the first submission is considered. Each team may have a maximum of 3 members.",
-                "Only undergraduate students from any field are eligible. Participation is open only to students of NIT Arunachal Pradesh and students of institutes in the State of Arunachal Pradesh. Carry a valid student ID card.",
+                "Only undergraduate students from any field are eligible. Students of all colleges and institutes can participate. Carry a valid student ID card.",
                 "Registration fee is ₹100 per team. Prizes worth ₹17,000+ (including goodies).",
                 "Round 1 is the Electromind Quiz, a set of MCQs on the fundamentals of electrical and electronics engineering. Teams qualify for Round 2 based on top performance, group participation (maximum 3 members) and the time limit.",
                 "Round 2 is Identify & Measure. It is an individual practical round: the members of each team take part one by one and independently identify real electrical and electronic components or devices, state their applications and perform the assigned measurements.",
