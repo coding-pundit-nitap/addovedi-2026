@@ -601,15 +601,44 @@
     "maxTeam": 5
    },
    {
-    "title": "BRIDGE MAKING",
-    "subtitle": "DESIGN. BUILD. BEAR THE LOAD",
-    "desc": "Bridge Making is a hands-on engineering competition where teams design and construct a bridge using limited materials provided by the organizers.",
-    "overview": "Bridge Making is a hands-on engineering competition where teams design and construct a bridge using limited materials provided by the organizers.\n\nParticipants will use popsicle sticks, Fevicol, and cutters to build a strong and efficient structure. The completed bridges will then undergo load testing to evaluate their strength and load-bearing capacity.\n\nThe challenge tests creativity, structural design, material efficiency, and practical engineering skills.\n\nBUILD SMART. STAND STRONG. CARRY THE LOAD.",
+    "title": "EDGE OF COLLAPSE",
+    "subtitle": "DESIGN LIGHT. BUILD STRONG. HOLD THE LOAD.",
+    "desc": "Build a lightweight three-hinged bridge model that carries the maximum possible load. Edge of Collapse tests structural behaviour, load paths, truss geometry, joint quality and material efficiency.",
+    "overview": "Edge of Collapse is a structural design and fabrication competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 to 4 build a lightweight bridge model that must carry the maximum possible load, testing their understanding of structural behaviour, load paths, truss geometry, joint quality and material efficiency.\n\nTeams build a three-hinged bridge from popsicle sticks and white glue that spans a fixed gap and supports a progressively increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio.\n\nThe event has three rounds: Design and Inspection, Knowledge of the Bridge, and the Load Test. Registration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including hoodies.",
     "xp": "1,500 XP",
     "difficulty": "MEDIUM",
     "iconType": "bridge",
-    "minTeam": 1,
-    "maxTeam": 5
+    "minTeam": 3,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "heads": [
+     {
+      "name": "Dikenno Pul",
+      "phone": ""
+     },
+     {
+      "name": "Mission Doley",
+      "phone": ""
+     }
+    ],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)"
+    },
+    "rules": [
+     "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
+     "Build a three-hinged bridge model that spans a fixed gap and carries a gradually increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio (maximum load held divided by the bridge's weight) that follows all size and material rules.",
+     "Allowed materials: standard wooden ice-cream (popsicle) sticks, trimmed to length only (no cutting of the cross-section), and water-based white adhesive (PVA / white glue). Cotton thread is allowed only for decorative binding and must not carry load. Quick-set, epoxy and hot-melt adhesives are not allowed.",
+     "Strictly prohibited: metal, plastic, cardboard, bamboo, and any pre-made construction kit or pre-fabricated part.",
+     "Size: overall length 50 cm, deck 45 cm, clear span between supports 45 cm during testing. The bridge must be three-hinged, rest on the supports without anchoring, nails or clamps, and have a continuous deck at least 5 cm wide with free space at mid-span so a 4 cm x 4 cm test block can pass along the deck.",
+     "Round 1, Design and Inspection: every bridge is measured by the judges. Judges assess neatness of construction, joint quality and originality of the structural design. A bridge that does not meet the specifications is disqualified directly.",
+     "Round 2, Knowledge of the Bridge: teams are questioned on the bridge they built, and the judges assess the team's practical knowledge of their own bridge.",
+     "Round 3, Load Test: each team gets one official load test. The bridge sits on two supports and load is added gradually in equal increments through a loading block at the centre. The test ends when the bridge fractures, a joint separates or the mid-span deflection exceeds the judges' limit. The maximum load held is the team's load capacity. A bridge that fails to span the gap, or collapses under the loading block's own weight, fails Round 3.",
+     "Ranking: Efficiency Ratio = maximum load held / self-weight of the bridge, and a higher ratio ranks higher. In a tie the lighter bridge wins, and if still tied, the bridge with lower deflection at the common load wins.",
+     "Bridges may be built in advance and the finished model must be brought to the venue. Each team may submit only one bridge, at the registration desk before the deadline on the day of the event. No modification, repair or addition is allowed once the bridge is weighed and submitted, and the adhesive must be fully cured (wet or tacky bridges are not accepted).",
+     "Each team gets 5 minutes at the testing station, including placement and loading, and the timer runs continuously once the team is called. Stay behind the safety line during load testing. Damage to testing equipment through misuse may lead to disqualification.",
+     "Violating any bridge rule (prohibited materials, exceeding size or weight limits) means immediate disqualification and no prizes. Do not damage other teams' models or equipment. Judges may disqualify any team for misconduct, and the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+    ],
+    "unstopUrl": "https://unstop.com"
    }
   ]
  }

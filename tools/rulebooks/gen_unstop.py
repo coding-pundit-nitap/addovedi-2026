@@ -753,6 +753,41 @@ EV['real-cricket-24'] = dict(title='REAL CRICKET 24', desc=desc('REAL CRICKET 24
 - **Coordinator:** Vaibhav Gupta, **+91 95061 77693**
 """)
 
+EV['edge-of-collapse'] = dict(title='EDGE OF COLLAPSE', desc=desc('EDGE OF COLLAPSE','Design Light. Build Strong. Hold the Load.',
+ "**Edge of Collapse** is the **bridge model engineering** competition of Addovedi 2026 (NIT Arunachal Pradesh). Teams build a **lightweight three-hinged bridge** that must carry the **maximum load**. The winner has the **highest load-to-self-weight ratio.**",
+ ["- **Eligibility:** **college students**, valid **student ID** required.",
+  "- **Team size:** **3 to 4 members.** One bridge per team.",
+  "- **Inter-college / inter-specialization:** **allowed**. Open to all branches.",
+  "- **Materials:** **popsicle sticks** and **water-based white glue (PVA)** only. **No metal, plastic, cardboard, bamboo or pre-made parts.**",
+  "- **Size:** **50 cm** long, **45 cm clear span**, deck at least **5 cm wide**, **three-hinged**, no anchoring.",
+  "- **Rounds:** **Design and Inspection**, **Knowledge of the Bridge**, **Load Test.**",
+  FLOW.format(ev='Edge of Collapse'),
+  "- **Registration fee:** **Rs. 50 per member** (**Rs. 150** for 3, **Rs. 200** for 4).",
+  "- **Prize pool:** **Rs. 8,000 cash** (total worth **Rs. 17,000** including hoodies)."],
+ ["- **Build in advance** and bring the finished bridge. **No changes after weighing and submission.** Glue must be **fully cured.**",
+  "- **Prohibited materials or exceeding size or weight limits = immediate disqualification** and no prizes.",
+  "- **5 minutes** per team at the testing station. **Stay behind the safety line.**",
+  "- **Ranking:** efficiency ratio (**max load / self-weight**). Tie: **lighter bridge**, then **lower deflection**.",
+  "- **Do not damage other teams' models or equipment.** Misconduct = disqualification.",
+  "- **Judges' and organisers' decisions are final.** Rules may be modified and will be communicated."],
+ "Dikenno Pul and Mission Doley (**phone numbers to be announced**)"),
+ rounds="""# EDGE OF COLLAPSE · ROUND-WISE
+## Round 1: Design and Inspection
+- Every bridge is **measured by the judges.**
+- Judges assess **neatness, joint quality and originality** of the design.
+- A bridge that **does not meet the specifications is disqualified.**
+## Round 2: Knowledge of the Bridge
+- Teams are **questioned on the bridge they built.**
+- Judges assess the team's **practical knowledge** of their own bridge.
+## Round 3: Load Test
+- **One official test.** Bridge on two supports, **load added in equal steps** at mid-span.
+- Ends when the bridge **fractures, a joint separates or deflection exceeds the limit.**
+- **Maximum load held** is recorded. **Efficiency ratio = max load / self-weight.**
+## Quick facts
+- **Teams of 3 to 4.** **Fee:** **Rs. 50 per member.** **Prize:** **Rs. 8,000 cash** (worth **Rs. 17,000** with hoodies).
+- **Coordinators:** Dikenno Pul, Mission Doley
+""")
+
 def inline(t):
     t = html.escape(t)
     t = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)
