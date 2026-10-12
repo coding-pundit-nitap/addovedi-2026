@@ -54,7 +54,7 @@ function TimelineCardInner({ ev, catInfo, isSelected, isHovered, statusText, sta
                         letterSpacing: '0.12em',
                         fontWeight: 700
                     }}>
-                        {ev.time} – {ev.end}
+                        {ev.end ? `${ev.time} – ${ev.end}` : `${ev.time} onwards`}
                     </span>
                     
                     {/* Live status badge */}

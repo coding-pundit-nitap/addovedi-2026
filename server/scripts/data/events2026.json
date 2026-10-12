@@ -30,7 +30,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹22,000"
+     "prize": "₹22,000",
+     "day": 2,
+     "time": "15:00",
+     "venue": "Central Library, Classroom 6",
+     "end": "17:00"
     }
    },
    {
@@ -52,7 +56,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹20,000"
+     "prize": "₹20,000",
+     "day": 3,
+     "time": "15:30",
+     "venue": "Central Library, Classroom 6",
+     "end": "17:30"
     }
    }
   ]
@@ -128,7 +136,11 @@
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹22,000 + goodies"
+     "prize": "₹22,000 + goodies",
+     "day": 2,
+     "time": "11:00",
+     "venue": "TEL Centre",
+     "end": "16:00"
     }
    },
    {
@@ -150,7 +162,11 @@
     "fee": "₹100 per player",
     "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹15,000 including goodies"
+     "prize": "₹15,000 including goodies",
+     "day": 2,
+     "time": "16:00",
+     "venue": "TEL Centre",
+     "end": "17:00"
     }
    },
    {
@@ -172,7 +188,11 @@
     "fee": "₹100 per team",
     "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹10,000 cash + exclusive hoodies"
+     "prize": "₹10,000 cash + exclusive hoodies",
+     "day": 3,
+     "time": "16:00",
+     "venue": "TEL Centre",
+     "end": "17:30"
     }
    },
    {
@@ -194,7 +214,11 @@
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹7,000+ including goodies"
+     "prize": "₹7,000+ including goodies",
+     "day": 2,
+     "time": "09:00",
+     "venue": "TEL Centre",
+     "end": "10:30"
     }
    },
    {
@@ -216,7 +240,11 @@
      }
     ],
     "timeline": {
-     "prize": "Exciting prizes"
+     "prize": "Exciting prizes",
+     "day": 3,
+     "time": "09:00",
+     "venue": "TEL Centre",
+     "end": "10:30"
     },
     "rules": [
      "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
@@ -269,7 +297,10 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
     "timeline": {
-     "prize": "₹30,000+ (including goodies)"
+     "prize": "₹30,000+ (including goodies)",
+     "day": 1,
+     "time": "17:00",
+     "venue": "Central Library, Classroom 7"
     }
    },
    {
@@ -295,7 +326,11 @@
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹13,000+ (including goodies)"
+     "prize": "₹13,000+ (including goodies)",
+     "day": 3,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 1",
+     "end": "16:00"
     }
    },
    {
@@ -317,7 +352,11 @@
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹8,000 + goodies"
+     "prize": "₹8,000 + goodies",
+     "day": 3,
+     "time": "10:00",
+     "venue": "Central Library, Classroom 1",
+     "end": "12:00"
     }
    }
   ]
@@ -353,7 +392,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹20,000 (including goodies)"
+     "prize": "₹20,000 (including goodies)",
+     "day": 2,
+     "time": "13:30",
+     "venue": "Central Library, Classroom 2",
+     "end": "14:30"
     }
    },
    {
@@ -375,7 +418,11 @@
     "fee": "₹50 per person",
     "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "Up to ₹8,000 + goodies"
+     "prize": "Up to ₹8,000 + goodies",
+     "day": 2,
+     "time": "11:30",
+     "venue": "Central Library, Classroom 2",
+     "end": "13:30"
     }
    },
    {
@@ -397,7 +444,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹13,000+ (including goodies)"
+     "prize": "₹13,000+ (including goodies)",
+     "day": 3,
+     "time": "11:00",
+     "venue": "Central Library, Classroom 2",
+     "end": "13:00"
     }
    }
   ]
@@ -433,7 +484,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹13,000+ (including goodies)"
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "09:00",
+     "venue": "Central Library, Classroom 3",
+     "end": "11:00"
     }
    },
    {
@@ -459,7 +514,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹17,000+ (including goodies)"
+     "prize": "₹17,000+ (including goodies)",
+     "day": 2,
+     "time": "15:00",
+     "venue": "Central Library, Classroom 3",
+     "end": "17:00"
     }
    },
    {
@@ -481,7 +540,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹17,000+ (including goodies)"
+     "prize": "₹17,000+ (including goodies)",
+     "day": 3,
+     "time": "13:30",
+     "venue": "Central Library, Classroom 3",
+     "end": "15:30"
     }
    }
   ]
@@ -517,7 +580,11 @@
     "fee": "FREE",
     "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹10,00,000+"
+     "prize": "₹10,00,000+",
+     "day": 3,
+     "time": "09:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "12:00"
     }
    },
    {
@@ -539,7 +606,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹13,000+ (including goodies)"
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "10:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "11:00"
     }
    },
    {
@@ -561,7 +632,11 @@
     "fee": "₹50 per member",
     "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
     "timeline": {
-     "prize": "₹13,000+ (including goodies)"
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "15:00"
     }
    }
   ]
@@ -596,7 +671,11 @@
      }
     ],
     "timeline": {
-     "prize": "₹8,000 cash (worth ₹25,000 with hoodies)"
+     "prize": "₹8,000 cash (worth ₹25,000 with hoodies)",
+     "day": 3,
+     "time": "10:30",
+     "venue": "Central Library, Classroom 5",
+     "end": "12:30"
     },
     "rules": [
      "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including hoodies.",
@@ -635,7 +714,11 @@
      }
     ],
     "timeline": {
-     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)"
+     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)",
+     "day": 2,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 5",
+     "end": "15:00"
     },
     "rules": [
      "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
@@ -675,7 +758,11 @@
      }
     ],
     "timeline": {
-     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)"
+     "prize": "₹8,000 cash (worth ₹17,000 with hoodies)",
+     "day": 2,
+     "time": "11:00",
+     "venue": "Central Library, Classroom 5",
+     "end": "13:00"
     },
     "rules": [
      "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",

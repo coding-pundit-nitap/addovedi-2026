@@ -113,7 +113,7 @@ export default function EventPanel({ ev, dayColor, visible, onClose }) {
                     {/* Details grid */}
                     <div style={{ display:'flex', flexDirection:'column', gap:'8px', flex:1 }}>
                         {[
-                            { label:'TIME',         val:`${ev.time} – ${ev.end}` },
+                            { label:'TIME',         val: ev.end ? `${ev.time} – ${ev.end}` : `${ev.time} onwards` },
                             { label:'VENUE',        val: ev.venue },
                             { label:'MODE',         val: ev.mode },
                             { label:'REGISTRATION', val:`${ev.registered} TEAMS / PLAYERS` },
