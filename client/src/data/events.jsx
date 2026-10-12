@@ -183,6 +183,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "₹100 per player",
+                "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Tage Jarbo", "phone": "+91 87876 90625"}],
                 "timeline": { "prize": "₹15,000 including goodies" },
                 "rules": [
