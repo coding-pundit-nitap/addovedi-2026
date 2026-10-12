@@ -315,6 +315,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "minTeam": 1,
                 "maxTeam": 1,
                 "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
                 "heads": [{"name": "Riya Yadav", "phone": "+91 89575 08842"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
                 "timeline": { "prize": "₹13,000+ (including goodies)" },
                 "rules": [
