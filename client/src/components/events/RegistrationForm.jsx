@@ -1,5 +1,6 @@
 import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
 import GuideLink from '../guide/GuideLink';
+import { isUnstopOnlyCategory } from '../../utils/unstopOnly';
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
@@ -91,6 +92,38 @@ export default function RegistrationForm({
         e.target.style.borderColor = `${activeEvent.color}30`; 
         e.target.style.boxShadow = 'none'; 
     };
+
+    // Gaming Nexus and Fun Arena: registration happens only on Unstop (no login, profile, team form or verification).
+    if (isUnstopOnlyCategory(activeCategory?.title || activeEvent?.categoryTitle)) {
+        const url = activeEvent.unstopUrl;
+        const hasLink = /^https:\/\/unstop\.com\//.test(url || '');
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 10px 32px' : '32px 30px 40px', fontFamily: "'Rajdhani', sans-serif", minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>↗</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.1em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>REGISTER ON UNSTOP</h3>
+                <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 400, margin: 0 }}>
+                    Registration for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> is done directly on Unstop. You don't need an Addovedi profile or any verification here.
+                </p>
+                {activeEvent.fee && (
+                    <div style={{ border: `1px solid ${activeEvent.color}60`, background: `${activeEvent.color}10`, padding: '8px 18px', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
+                        FEE · <strong style={{ color: '#fff' }}>{activeEvent.fee}</strong>
+                    </div>
+                )}
+                {hasLink ? (
+                    <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: 'block', padding: '14px 28px', background: activeEvent.color, color: '#02050c', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", fontSize: '12px', letterSpacing: '0.1em', textDecoration: 'none', boxShadow: `0 0 20px ${activeEvent.color}80`, maxWidth: '100%' }}
+                    >
+                        REGISTER ON UNSTOP ↗
+                    </a>
+                ) : (
+                    <div style={{ padding: '12px 22px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)', fontSize: '13px' }}>The Unstop registration link will be added soon.</div>
+                )}
+            </div>
+        );
+    }
 
     if (!loggedInUser) {
         return (
