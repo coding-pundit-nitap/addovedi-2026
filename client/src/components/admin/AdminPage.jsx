@@ -18,6 +18,7 @@ import ScrollIndicator from '../common/ScrollIndicator';
 import UnstopReconcile from './UnstopReconcile';
 import SiteToggle from './RegistrationToggle';
 import RegistrationModeToggle from './RegistrationModeToggle';
+import EventRegistrationSwitches from './EventRegistrationSwitches';
 import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
 import RegistrationEditor from './RegistrationEditor';
 import { API_BASE } from '../../constants/api';
@@ -1268,6 +1269,7 @@ export default function AdminPage() {
                             confirmOn="SHOW THE EVENTS SECTION TO EVERYONE?"
                             confirmOff='HIDE THE EVENTS SECTION? Visitors will see "Events coming soon" instead of the arena and event pages.' />
                         <RegistrationModeToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout} />
+                        <EventRegistrationSwitches apiBase={API_BASE} getHeaders={getHeaders} subEvents={subEvents} onChanged={fetchEvents} onUnauthorized={handleLogout} />
                         <UnstopReconcile
                             apiBase={API_BASE}
                             getHeaders={getHeaders}

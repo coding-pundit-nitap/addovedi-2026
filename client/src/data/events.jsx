@@ -1084,6 +1084,7 @@ export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
             minTeam: s.minTeam ?? 1,
             maxTeam: s.maxTeam ?? 5,
             fee: s.fee || '',
+            registrationClosed: s.registrationClosed === true,
             categoryTitle: matchedCat ? matchedCat.title : s.categoryTitle,
             color: s.color,
             xp: s.xp,
