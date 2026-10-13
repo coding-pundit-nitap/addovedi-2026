@@ -111,8 +111,7 @@ const createRegistrationLocked = async (req, res) => {
         }
 
         const leaderAccount = await GlobalUser.findOne({ addovediId: String(req.participantAddovediId).toUpperCase() }).lean();
-        const profileFields = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
-        if (!leaderAccount || profileFields.some(f => !String(leaderAccount[f] || '').trim())) {
+        if (!isProfileComplete(leaderAccount)) {
             return res.status(403).json({ code: 'PROFILE_INCOMPLETE', message: 'Please complete your profile in Player HQ before registering for events.' });
         }
 
@@ -445,6 +444,10 @@ export const getMyRegistrations = async (req, res) => {
 // A teammate accepts or declines (or later leaves) a team they were added to.
 // Frozen once admin has VERIFIED the registration against Unstop — after that the roster is
 // what the organisers confirmed, so changes go through the admin.
+// A player's profile counts as complete once every one of these is filled in. Needed to lead a team AND to accept an invite.
+const PROFILE_FIELDS = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
+const isProfileComplete = (account) => Boolean(account) && PROFILE_FIELDS.every(f => String(account[f] || '').trim());
+
 const respondToTeamInviteImpl = async (req, res) => {
     try {
         const { registrationId, accept } = req.body;
@@ -477,6 +480,11 @@ const respondToTeamInviteImpl = async (req, res) => {
             return res.status(409).json({ message: member.expired ? 'This invite expired after 24 hours. Ask the team leader to add you again.' : 'You already declined this team. Ask the team leader to add you again.' });
         }
         if (accept) {
+            // Joining a team needs a complete profile, same as leading one. Declining never does.
+            const account = await GlobalUser.findOne({ addovediId: String(uid).toUpperCase() }).lean();
+            if (!isProfileComplete(account)) {
+                return res.status(403).json({ code: 'PROFILE_INCOMPLETE', message: 'Please complete your profile in Player HQ before joining a team, then accept the invite again.' });
+            }
             // Accepting is final, so make sure this player has not already joined (or leads) another team for the same event,
             // e.g. two leaders added them before either invite was answered.
             const other = await Registration.findOne({
