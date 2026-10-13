@@ -34,8 +34,13 @@ export const createSubEvent = async (data) => {
 };
 
 export const updateSubEvent = async (id, data) => {
-    const { _id, __v, createdAt, updatedAt, ...cleanData } = data || {};
+    // registrationClosed is only ever changed by its own endpoint, so saving the event form can never flip it back.
+    const { _id, __v, createdAt, updatedAt, registrationClosed, ...cleanData } = data || {};
     return await SubEvent.findByIdAndUpdate(id, cleanData, { new: true, runValidators: true });
+};
+
+export const setSubEventRegistrationClosed = async (id, closed) => {
+    return await SubEvent.findByIdAndUpdate(id, { $set: { registrationClosed: closed } }, { new: true });
 };
 
 export const deleteSubEvent = async (id) => {

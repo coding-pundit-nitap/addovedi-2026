@@ -167,7 +167,7 @@ function EventDetailsModal({
                     <div class="meta">
                         <div>XP BOUNTY: ${activeEvent.xp || 'N/A'}</div>
                         <div>DIFFICULTY: ${activeEvent.difficulty || 'N/A'}</div>
-                        <div>STATUS: REGISTRATION OPEN</div>
+                        <div>STATUS: REGISTRATION ${activeEvent.registrationClosed ? 'CLOSED' : 'OPEN'}</div>
                     </div>
                     <ul>
                         ${rules.map((rule, idx) => `
@@ -307,7 +307,7 @@ function EventDetailsModal({
                         </div>
                         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ STATUS ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#28c840', fontWeight: 900 }}>OPEN</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.registrationClosed ? '#ff1f4f' : '#28c840', fontWeight: 900 }}>{activeEvent.registrationClosed ? 'CLOSED' : 'OPEN'}</span>
                         </div>
                     </div>
 

@@ -146,9 +146,12 @@ const createRegistrationLocked = async (req, res) => {
         // landed in the organisers' lists and exports.
         const eventDoc = await SubEvent.findOne({ title: eventTitle.trim() })
             .collation(CI)
-            .select('title categoryTitle minTeam maxTeam');
+            .select('title categoryTitle minTeam maxTeam registrationClosed');
         if (!eventDoc) {
             return res.status(404).json({ message: 'That event does not exist.' });
+        }
+        if (eventDoc.registrationClosed === true) {
+            return res.status(403).json({ code: 'EVENT_REGISTRATION_CLOSED', message: 'Registration for this event is closed.' });
         }
         const actualSize = 1 + memberList.length;
         const claimedSize = Number(teamSize);
@@ -539,6 +542,10 @@ const inviteMemberImpl = async (req, res) => {
         }
         const reg = await loadLeaderTeam(req, res);
         if (!reg) return;
+        const evDoc = await SubEvent.findOne({ title: reg.eventTitle }).collation(CI).select('registrationClosed').lean();
+        if (evDoc?.registrationClosed === true) {
+            return res.status(403).json({ code: 'EVENT_REGISTRATION_CLOSED', message: 'Registration for this event is closed, so new invites cannot be sent.' });
+        }
         const uid = String(req.body?.uid || '').trim().toUpperCase();
         if (!uid || uid.length > 50) return res.status(400).json({ message: 'Enter a valid Addovedi ID.' });
         if (uid === reg.leaderUID.toUpperCase()) return res.status(400).json({ message: 'You are already the team leader.' });

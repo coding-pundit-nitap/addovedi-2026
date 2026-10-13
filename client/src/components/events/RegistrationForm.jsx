@@ -30,7 +30,7 @@ export default function RegistrationForm({
     btnThemeStyles
 }) {
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
-    const { open: registrationOpen, mode: registrationMode } = useRegistrationOpen();
+    const { open: registrationOpen, mode: registrationMode, known: registrationKnown } = useRegistrationOpen();
     const [inviteUid, setInviteUid] = useState('');
     const [inviteStatus, setInviteStatus] = useState(undefined); // undefined | 'checking' | 'valid' | 'invalid' | 'busy'
     const checkInviteUid = async (uid) => {
@@ -93,8 +93,30 @@ export default function RegistrationForm({
         e.target.style.boxShadow = 'none'; 
     };
 
+    // Closed for THIS event (admin switch). Gaming Nexus / Fun Arena skip the Addovedi flow below, so for them the main
+    // registration switch is applied here too. People who already have a registration for the event still see its status.
+    const alreadyIn = Boolean(existingReg) || isRegistered;
+    const eventClosed = activeEvent?.registrationClosed === true;
+    const unstopOnly = isUnstopOnlyCategory(activeCategory?.title || activeEvent?.categoryTitle);
+    if (!alreadyIn && (eventClosed || (unstopOnly && registrationKnown && !registrationOpen))) {
+        const soon = registrationKnown && !registrationOpen && registrationMode !== 'closed';
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '36px 12px' : '56px 30px', minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>{soon ? '⏳' : '🔒'}</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>
+                    {soon ? 'REGISTRATION STARTING SOON' : 'REGISTRATION CLOSED'}
+                </h3>
+                <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.65)', maxWidth: 380, lineHeight: 1.6, margin: 0 }}>
+                    {soon
+                        ? <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> haven't opened yet. Check back soon.</>
+                        : <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> are now closed.</>}
+                </p>
+            </div>
+        );
+    }
+
     // Gaming Nexus and Fun Arena: registration happens only on Unstop (no login, profile, team form or verification).
-    if (isUnstopOnlyCategory(activeCategory?.title || activeEvent?.categoryTitle)) {
+    if (unstopOnly) {
         const url = activeEvent.unstopUrl;
         const hasLink = /^https:\/\/unstop\.com\//.test(url || '');
         return (

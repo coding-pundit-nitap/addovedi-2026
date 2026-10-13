@@ -102,3 +102,18 @@ export const deleteSubEvent = async (req, res) => {
         return res.status(500).json({ message: clientMessage(err) });
     }
 };
+
+// Admin only: close / re-open registration for ONE event. Does not touch existing registrations, teams or any other field.
+export const setSubEventRegistration = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (typeof id !== 'string' || !/^[a-f0-9]{24}$/i.test(id)) return res.status(400).json({ message: 'Invalid event.' });
+        if (typeof req.body?.closed !== 'boolean') return res.status(400).json({ message: 'closed must be true or false.' });
+        const sub = await eventService.setSubEventRegistrationClosed(id, req.body.closed);
+        if (!sub) return res.status(404).json({ message: 'SubEvent not found' });
+        await recordAuditLog(req, { action: req.body.closed ? 'EVENT_REGISTRATION_CLOSED' : 'EVENT_REGISTRATION_OPENED', details: { subEventId: id, title: sub.title } });
+        return res.json({ title: sub.title, registrationClosed: sub.registrationClosed === true });
+    } catch (err) {
+        return res.status(500).json({ message: clientMessage(err) });
+    }
+};

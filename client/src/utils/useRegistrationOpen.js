@@ -35,6 +35,7 @@ export function useCrewVisible() {
 export default function useRegistrationOpen() {
     const [mode, setMode] = useState('soon');
     const [loaded, setLoaded] = useState(false);
+    const [known, setKnown] = useState(false); // true only once the server has actually answered
     useEffect(() => {
         let cancelled = false;
         const load = async () => {
@@ -43,7 +44,7 @@ export default function useRegistrationOpen() {
                 if (!res.ok) throw new Error(String(res.status));
                 const data = await res.json();
                 const m = data.registrationMode || (data.registrationOpen === true ? 'open' : 'soon');
-                if (!cancelled) setMode(m);
+                if (!cancelled) { setMode(m); setKnown(true); }
             } catch { /* keep last known */ }
             if (!cancelled) setLoaded(true);
         };
@@ -51,7 +52,7 @@ export default function useRegistrationOpen() {
         const t = setInterval(load, 15000);
         return () => { cancelled = true; clearInterval(t); };
     }, []);
-    return { open: mode === 'open', mode, loaded };
+    return { open: mode === 'open', mode, loaded, known };
 }
 
 // Events section switch. Unlike the flags above this one fails OPEN: if the server can't be reached (or is an
