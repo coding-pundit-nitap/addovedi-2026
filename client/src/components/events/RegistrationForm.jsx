@@ -1,5 +1,6 @@
 import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
 import GuideLink from '../guide/GuideLink';
+import WhatsAppJoin from './WhatsAppJoin';
 import { isUnstopOnlyCategory } from '../../utils/unstopOnly';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -148,6 +149,7 @@ export default function RegistrationForm({
                 ) : (
                     <div style={{ padding: '12px 22px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)', fontSize: '13px' }}>The Unstop registration link will be added soon.</div>
                 )}
+                <div style={{ width: '100%', maxWidth: 400 }}><WhatsAppJoin eventTitle={activeEvent.title} /></div>
             </div>
         );
     }
@@ -455,6 +457,7 @@ export default function RegistrationForm({
                                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, marginTop: '4px' }}>
                                     Carry your college ID card and report on time. Schedule updates and announcements will appear on the Timeline page and in your event group.
                                 </div>
+                                {existingReg.myStatus !== 'PENDING' && existingReg.myStatus !== 'REJECTED' && <WhatsAppJoin eventTitle={activeEvent.title} compact />}
                                 {coords.length > 0 && (
                                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
                                         Questions? {coords.map((h, i) => (<span key={i}>{i > 0 ? ' · ' : ''}<strong style={{ color: '#fff' }}>{h.name}</strong>{h.phone ? ` ${h.phone}` : ''}</span>))}
