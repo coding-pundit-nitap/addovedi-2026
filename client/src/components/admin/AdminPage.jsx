@@ -116,6 +116,13 @@ export default function AdminPage() {
     const [regSearchTerm, setRegSearchTerm] = useState('');
     const [regViewMode, setRegViewMode] = useState('participants'); // 'participants' | 'events'
     const [selectedEventRoster, setSelectedEventRoster] = useState(null);
+    // The roster drawer is always built from the CURRENT registrations (not the copy taken when the card was clicked), so
+    // teams added or changed since then show up, and it scrolls into view when an event is picked.
+    const rosterRegs = selectedEventRoster ? registrations.filter(r => r.eventTitle === selectedEventRoster.eventTitle) : [];
+    const rosterRef = useRef(null);
+    useEffect(() => {
+        if (selectedEventRoster && rosterRef.current) rosterRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, [selectedEventRoster?.eventTitle]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Audit Logs state
     const [auditLogs, setAuditLogs] = useState([]);
@@ -1620,23 +1627,23 @@ export default function AdminPage() {
 
                                 {/* Selected Event Participant Roster Drawer */}
                                 {selectedEventRoster && (
-                                    <div style={{ background: 'rgba(2, 12, 26, 0.95)', border: '1.5px solid #00E5FF', padding: '20px', borderRadius: '8px', marginTop: '20px', boxShadow: '0 0 25px rgba(0,229,255,0.15)' }}>
+                                    <div ref={rosterRef} style={{ scrollMarginTop: '12px', background: 'rgba(2, 12, 26, 0.95)', border: '1.5px solid #00E5FF', padding: '20px', borderRadius: '8px', marginTop: '20px', boxShadow: '0 0 25px rgba(0,229,255,0.15)' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,229,255,0.2)', paddingBottom: '12px', marginBottom: '16px' }}>
                                             <div>
                                                 <span style={{ fontSize: '8px', fontFamily: "'Orbitron', monospace", color: '#00E5FF' }}>ROSTER BREAKDOWN FOR</span>
                                                 <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '15px', color: '#FFF', margin: '2px 0 0 0' }}>
-                                                    {selectedEventRoster.eventTitle} ({selectedEventRoster.registrations.length} REGISTERED TEAMS)
+                                                    {selectedEventRoster.eventTitle} ({rosterRegs.length} REGISTERED TEAMS)
                                                 </h3>
                                             </div>
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 <button
-                                                    onClick={() => exportToCSV(selectedEventRoster.registrations, `${selectedEventRoster.eventTitle}_roster.csv`)}
+                                                    onClick={() => exportToCSV(rosterRegs, `${selectedEventRoster.eventTitle}_roster.csv`)}
                                                     style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', padding: '6px 12px', background: 'rgba(0,229,255,0.15)', border: '1px solid #00E5FF', color: '#00E5FF', borderRadius: '4px', cursor: 'pointer' }}
                                                 >
                                                     EXPORT CSV
                                                 </button>
                                                 <button
-                                                    onClick={() => printRegistrations(`${selectedEventRoster.eventTitle} — Roster`, selectedEventRoster.registrations)}
+                                                    onClick={() => printRegistrations(`${selectedEventRoster.eventTitle} — Roster`, rosterRegs)}
                                                     style={{ fontFamily: "'Orbitron', monospace", fontSize: '8.5px', padding: '6px 12px', background: 'rgba(155,92,255,0.15)', border: '1px solid #9b5cff', color: '#9b5cff', borderRadius: '4px', cursor: 'pointer' }}
                                                 >
                                                     PRINT / SAVE AS PDF
@@ -1665,7 +1672,7 @@ export default function AdminPage() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {selectedEventRoster.registrations.map(r => (
+                                                    {rosterRegs.map(r => (
                                                         <tr key={r._id}>
                                                             <td style={{ fontWeight: 700, color: '#FFF' }}>{r.teamName}</td>
                                                             <td style={{ color: '#00E5FF' }}>{r.leaderName}</td>
