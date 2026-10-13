@@ -11,6 +11,17 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
 const isValidEmail = (email) => typeof email === 'string' && EMAIL_REGEX.test(email.trim());
 const isValidPhone = (phone) => typeof phone === 'string' && PHONE_REGEX.test(phone.trim().replace(/[\s-]/g, ''));
+// Same rule the server enforces (a real date, age 10 to 80), but says WHY it is wrong. Returns '' when the date is fine.
+const dobProblem = (dob) => {
+    const v = String(dob || '').trim();
+    if (!v) return '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'Check the year: it must be 4 digits, like 2005.';
+    const d = new Date(`${v}T00:00:00Z`);
+    if (Number.isNaN(d.getTime())) return 'That date does not exist. Please check the day and month.';
+    const age = Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000));
+    if (age < 10 || age > 80) return age < 0 ? 'That date is in the future. Please enter your real date of birth.' : `That date of birth makes you ${age}. Please enter your real date of birth (age 10 to 80).`;
+    return '';
+};
 
 // Mock list of cyberpunk gamer avatars
 const GAMER_AVATARS = [
@@ -302,6 +313,11 @@ export default function AuthModal() {
         const missing = required.filter(([k]) => !String(globalForm[k] || '').trim()).map(([, label]) => label);
         if (missing.length) {
             setErrorMsg(`PLEASE FILL IN: ${missing.join(', ')}.`);
+            return;
+        }
+        const dobIssue = dobProblem(globalForm.dob);
+        if (dobIssue) {
+            setErrorMsg(dobIssue.toUpperCase());
             return;
         }
         if (!isValidPhone(globalForm.emergencyContact)) {
@@ -832,6 +848,9 @@ export default function AuthModal() {
                                             onChange={handleGlobalChange}
                                             className="hud-input px-3.5 py-2.5 text-xs rounded-none"
                                         />
+                                        {dobProblem(globalForm.dob) && (
+                                            <span role="alert" style={{ fontSize: '10px', color: '#ff6b6b', lineHeight: 1.4 }}>{dobProblem(globalForm.dob)}</span>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col gap-1">
