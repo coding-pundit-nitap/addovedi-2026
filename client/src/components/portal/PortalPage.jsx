@@ -871,6 +871,8 @@ export default function AuthModal() {
                                             <option value="2nd Year">2ND YEAR · AGENT</option>
                                             <option value="3rd Year">3RD YEAR · ELITE</option>
                                             <option value="4th Year">4TH YEAR · COMMANDER</option>
+                                            <option value="M.Tech">M.TECH · SCHOLAR</option>
+                                            <option value="PhD">PHD · DOCTORATE</option>
                                         </select>
                                     </div>
 
