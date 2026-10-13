@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { refreshMyAccount } from './utils/account';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
@@ -31,6 +32,16 @@ export default function App() {
             const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
             if (u && !u.token) localStorage.removeItem('addovedi_user');
         } catch { localStorage.removeItem('addovedi_user'); }
+    }, []);
+
+    // Keep the signed-in player's cached account details fresh (an admin may have corrected them): on load, when the tab
+    // comes back into view, and every 2 minutes while it is visible. One tiny read-only request each time.
+    useEffect(() => {
+        refreshMyAccount();
+        const onVisible = () => { if (!document.hidden) refreshMyAccount(); };
+        document.addEventListener('visibilitychange', onVisible);
+        const id = setInterval(() => { if (!document.hidden) refreshMyAccount(); }, 120000);
+        return () => { document.removeEventListener('visibilitychange', onVisible); clearInterval(id); };
     }, []);
 
     // A player on an admin-issued temporary password can't do anything until they set their own,

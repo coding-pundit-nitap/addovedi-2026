@@ -395,6 +395,21 @@ export default function AdminPage() {
         }
     };
 
+    // Admin edits a player's account details (name, email, phone, profile). Returns { ok, message } for the dialog.
+    const savePlayerEdit = async (player, body) => {
+        try {
+            const res = await fetch(`${API_BASE}/participants/${player._id}/admin`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+            if (res.status === 401) { alert('SESSION EXPIRED OR UNAUTHORIZED. PLEASE LOG IN AGAIN.'); handleLogout(); return { ok: false, message: 'Session expired.' }; }
+            const data = await safeFetchJson(res);
+            if (!res.ok) return { ok: false, message: data.message || 'Could not save.' };
+            await fetchPlayers();
+            await fetchRegistrations();
+            return { ok: true };
+        } catch (err) {
+            return { ok: false, message: 'Network error. Nothing was saved.' };
+        }
+    };
+
     const removePlayer = async (player) => {
         if (!confirm(`REMOVE PLAYER ${player.name} (${player.addovediId}) PERMANENTLY? Their account is deleted and they will have to sign up again.`)) return;
         try {
@@ -2339,6 +2354,7 @@ export default function AdminPage() {
                     onClose={() => setViewPlayerUid(null)}
                     onDelete={removePlayer}
                     onResetPassword={resetPlayerPassword}
+                    onEditSave={savePlayerEdit}
                 />
 
                 {activeTab === 'audit' && (

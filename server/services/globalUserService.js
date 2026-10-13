@@ -257,3 +257,104 @@ export const adminResetPassword = async (id) => {
     await user.save();
     return { player: user, tempPassword: temp };
 };
+
+// ── Admin: correct a player's account details ──
+// Admin-only (route uses `protect`). Same validation as signup / profile update, plus the one-account-per-email and
+// per-mobile-number rules. Only a fixed list of fields can change: never the Addovedi ID, password, or session fields.
+// Registrations keep a copy of the leader's name / phone / email (and teammates' names). So the correction shows up
+// everywhere, those copies are updated on all of the player's registrations. Nothing else on a registration changes
+// (team name, Team ID, status, teammates and their statuses stay as they are).
+const ADMIN_EDITABLE = ['name', 'email', 'phone', 'gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
+const mask = (v) => { const s = String(v ?? ''); return s.length <= 4 ? '****' : `${'*'.repeat(s.length - 4)}${s.slice(-4)}`; };
+const SENSITIVE = new Set(['email', 'phone', 'dob', 'emergencyContact']);
+const bad = (message, status = 400) => Object.assign(new Error(message), { status });
+
+export const adminUpdatePlayer = async (id, data) => {
+    if (typeof id !== 'string' || !/^[a-f0-9]{24}$/i.test(id)) throw bad('Invalid player.');
+    const user = await GlobalUser.findById(id);
+    if (!user) throw bad('Player not found', 404);
+
+    const incoming = {};
+    for (const key of ADMIN_EDITABLE) {
+        if (data?.[key] === undefined) continue;
+        if (typeof data[key] !== 'string') throw bad(`Please enter a valid ${PROFILE_LABELS[key] || key}.`);
+        incoming[key] = data[key].trim();
+    }
+
+    if ('name' in incoming && (!incoming.name || incoming.name.length > 100 || !/\p{L}/u.test(incoming.name))) throw bad('Name must be 1 to 100 characters.');
+    if ('email' in incoming) {
+        if (!isValidEmail(incoming.email) || incoming.email.length > 254) throw bad('Please enter a valid email address.');
+        incoming.email = incoming.email.toLowerCase();
+    }
+    if ('phone' in incoming) {
+        if (!isValidPhone(incoming.phone)) throw bad('Please enter a valid 10-digit mobile number.');
+        incoming.phone = normalizePhone(incoming.phone);
+    }
+    for (const key of ['college', 'department', 'state', 'city']) {
+        if (key in incoming && (incoming[key].length < 2 || !/\p{L}/u.test(incoming[key]))) throw bad(`Please enter a valid ${PROFILE_LABELS[key]}.`);
+    }
+    if ('gender' in incoming && !incoming.gender) throw bad('Please select the gender.');
+    if ('year' in incoming && !incoming.year) throw bad('Please select the year.');
+    if ('dob' in incoming) {
+        const d = new Date(`${incoming.dob}T00:00:00Z`);
+        const age = (Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(incoming.dob) || Number.isNaN(d.getTime()) || age < 10 || age > 80) throw bad('Please enter a valid date of birth.');
+    }
+    if ('emergencyContact' in incoming && !isValidPhone(incoming.emergencyContact)) throw bad('Please enter a valid emergency contact number.');
+
+    // keep only what actually changes
+    const changes = {};
+    for (const [k, v] of Object.entries(incoming)) if (String(user[k] ?? '') !== v) changes[k] = v;
+    if (!Object.keys(changes).length) throw bad('Nothing was changed.');
+
+    if (changes.email && await GlobalUser.exists({ email: changes.email, _id: { $ne: user._id } })) throw bad('This email is already used by another account.', 409);
+    if (changes.phone) {
+        const key = phoneKey(changes.phone);
+        if (await GlobalUser.exists({ phoneKey: key, _id: { $ne: user._id } })) throw bad('This mobile number is already used by another account.', 409);
+        changes.phoneKey = key;
+    }
+
+    const before = {}; for (const k of Object.keys(changes)) if (k !== 'phoneKey') before[k] = user[k];
+    let updated;
+    try {
+        updated = await GlobalUser.findByIdAndUpdate(user._id, { $set: changes }, { new: true, runValidators: true }).select(PUBLIC_FIELDS);
+    } catch (err) {
+        if (err?.code === 11000) {
+            const field = Object.keys(err.keyPattern || {})[0];
+            throw bad(field === 'email' ? 'This email is already used by another account.' : 'This mobile number is already used by another account.', 409);
+        }
+        throw err;
+    }
+
+    // Refresh the copies stored on this player's registrations.
+    let synced = 0;
+    {
+        const uid = user.addovediId;
+        const live = {};
+        const ci = { locale: 'en', strength: 2 };
+        const leaderSet = {};
+        if (changes.name) leaderSet.leaderName = changes.name;
+        if (changes.phone) leaderSet.leaderPhone = changes.phone;
+        if (changes.email) leaderSet.userEmail = changes.email;
+        if (Object.keys(leaderSet).length) {
+            const r = await Registration.updateMany({ leaderUID: uid, ...live }, { $set: leaderSet }).collation(ci);
+            synced += r.modifiedCount || 0;
+        }
+        if (changes.name) {
+            const r = await Registration.updateMany({ ...live, members: { $elemMatch: { uid } } }, { $set: { 'members.$[m].name': changes.name } }, { arrayFilters: [{ 'm.uid': uid }], collation: ci });
+            synced += r.modifiedCount || 0;
+        }
+    }
+
+    const after = {}; for (const k of Object.keys(before)) after[k] = updated[k];
+    const log = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, SENSITIVE.has(k) ? mask(v) : v]));
+    return { player: updated, auditDetails: { addovediId: user.addovediId, changed: Object.keys(before), before: log(before), after: log(after), registrationsUpdated: synced } };
+};
+
+// The signed-in player's own account, fresh from the database (used by the website to refresh its cached copy, e.g.
+// after an admin corrected their details). Same safe fields as login / profile update: never the password hash.
+export const getMyAccount = async (id) => {
+    const user = await GlobalUser.findById(id).select(PUBLIC_FIELDS).lean();
+    if (!user) throw Object.assign(new Error('Account not found.'), { status: 404 });
+    return user;
+};

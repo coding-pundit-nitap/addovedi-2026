@@ -111,3 +111,24 @@ export const resetPassword = async (req, res) => {
         return res.status(err.status || 400).json({ message: clientMessage(err) });
     }
 };
+
+// Admin only: correct a player's account details (see adminUpdatePlayer for what can and cannot change).
+export const adminUpdatePlayer = async (req, res) => {
+    try {
+        const { player, auditDetails } = await globalUserService.adminUpdatePlayer(req.params.id, req.body || {});
+        await recordAuditLog(req, { action: 'ADMIN_PLAYER_EDITED', details: auditDetails });
+        return res.json({ message: 'Player updated.', player, registrationsUpdated: auditDetails.registrationsUpdated });
+    } catch (err) {
+        return res.status(err.status || 400).json({ message: err.status ? err.message : clientMessage(err) });
+    }
+};
+
+// The signed-in player's own account (fresh from the database).
+export const getMyAccount = async (req, res) => {
+    try {
+        const user = await globalUserService.getMyAccount(req.participantId);
+        return res.json(user);
+    } catch (err) {
+        return res.status(err.status || 400).json({ message: err.status ? err.message : clientMessage(err) });
+    }
+};
