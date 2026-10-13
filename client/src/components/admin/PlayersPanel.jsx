@@ -17,7 +17,7 @@ const FIELD = { width: '100%', boxSizing: 'border-box', padding: '7px 9px', back
 const EDIT_FIELDS = [
     ['name', 'NAME'], ['email', 'EMAIL'], ['phone', 'PHONE'], ['gender', 'GENDER', ['Male', 'Female', 'Other']],
     ['dob', 'DATE OF BIRTH (YYYY-MM-DD)'], ['college', 'COLLEGE'], ['department', 'DEPARTMENT'],
-    ['year', 'YEAR', ['1st Year', '2nd Year', '3rd Year', '4th Year']], ['state', 'STATE'], ['city', 'CITY'], ['emergencyContact', 'EMERGENCY CONTACT'],
+    ['year', 'YEAR', ['1st Year', '2nd Year', '3rd Year', '4th Year', 'M.Tech', 'PhD']], ['state', 'STATE'], ['city', 'CITY'], ['emergencyContact', 'EMERGENCY CONTACT'],
 ];
 
 // Admin-only editor for a player's account details. The server re-validates everything (valid email / phone, one account

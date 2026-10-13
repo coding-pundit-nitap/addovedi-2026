@@ -2,6 +2,7 @@ import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
 import GuideLink from '../guide/GuideLink';
 import { isUnstopOnlyCategory } from '../../utils/unstopOnly';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../../store/useStore';
 import { API_BASE } from '../../constants/api';
 import useRegistrationOpen from '../../utils/useRegistrationOpen';
@@ -48,6 +49,7 @@ export default function RegistrationForm({
     const [teamBusy, setTeamBusy] = useState(false);
     const runTeamAction = async (path, body) => { setTeamBusy(true); try { return handleTeamAction ? await handleTeamAction(path, body) : false; } finally { setTeamBusy(false); } };
     const [isCancelling, setIsCancelling] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
     // Tracks each team member's Addovedi-ID verification: undefined (not yet
     // checked), 'checking', 'valid', or 'invalid'. Keyed by member index.
@@ -492,14 +494,7 @@ export default function RegistrationForm({
                         <button
                             type="button"
                             disabled={isCancelling}
-                            onClick={async () => {
-                                if (!window.confirm('Cancel this registration for the whole team?')) return;
-                                setIsCancelling(true);
-                                if (handleCancelRegistration) {
-                                    await handleCancelRegistration();
-                                }
-                                setIsCancelling(false);
-                            }}
+                            onClick={() => setShowCancelConfirm(true)}
                             style={{
                                 padding: '10px',
                                 background: 'rgba(239, 68, 68, 0.15)',
@@ -514,6 +509,54 @@ export default function RegistrationForm({
                         >
                             {isCancelling ? 'CANCELING...' : 'CANCEL REGISTRATION ✕'}
                         </button>
+                    )}
+                    {showCancelConfirm && createPortal(
+                        <div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Confirm cancelling the registration"
+                            onClick={() => setShowCancelConfirm(false)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setShowCancelConfirm(false); }}
+                            style={{ position: 'fixed', inset: 0, zIndex: 100000, background: 'rgba(0,0,0,0.78)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+                        >
+                            <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, background: '#080b14', border: `1px solid ${activeEvent.color}80`, boxShadow: `0 0 40px ${activeEvent.color}33`, padding: isMobileModal ? 18 : 26, textAlign: 'center', fontFamily: "'Rajdhani', sans-serif" }}>
+                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? 14 : 16, fontWeight: 900, letterSpacing: '0.1em', color: '#fff', marginBottom: 12 }}>CANCEL REGISTRATION?</div>
+                                {existingReg?.teamId ? (
+                                    <p style={{ fontSize: isMobileModal ? 14 : 16, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, margin: '0 0 6px' }}>
+                                        If you have <strong style={{ color: '#FBBF24' }}>already registered or paid on Unstop</strong>, please <strong style={{ color: '#FBBF24' }}>don't cancel</strong>. The admin will verify your registration soon.
+                                    </p>
+                                ) : (
+                                    <p style={{ fontSize: isMobileModal ? 14 : 16, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, margin: '0 0 6px' }}>
+                                        Cancel this registration for the whole team? Any invites you sent will be withdrawn.
+                                    </p>
+                                )}
+                                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', margin: '0 0 18px' }}>Cancelling removes your whole team from this event.</p>
+                                <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between' }}>
+                                    <button
+                                        type="button"
+                                        disabled={isCancelling}
+                                        onClick={async () => {
+                                            setShowCancelConfirm(false);
+                                            setIsCancelling(true);
+                                            if (handleCancelRegistration) await handleCancelRegistration();
+                                            setIsCancelling(false);
+                                        }}
+                                        style={{ flex: 1, padding: '12px 8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.6)', color: '#f87171', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: 11, letterSpacing: '0.08em', cursor: 'pointer' }}
+                                    >
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        type="button"
+                                        autoFocus
+                                        onClick={() => setShowCancelConfirm(false)}
+                                        style={{ flex: 1, padding: '12px 8px', background: activeEvent.color, border: 'none', color: '#02050c', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", fontSize: 11, letterSpacing: '0.08em', cursor: 'pointer' }}
+                                    >
+                                        BACK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>,
+                        document.body
                     )}
                 </div>
             </div>
