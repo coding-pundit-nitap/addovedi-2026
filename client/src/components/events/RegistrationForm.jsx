@@ -98,6 +98,9 @@ export default function RegistrationForm({
     const alreadyIn = Boolean(existingReg) || isRegistered;
     const eventClosed = activeEvent?.registrationClosed === true;
     const unstopOnly = isUnstopOnlyCategory(activeCategory?.title || activeEvent?.categoryTitle);
+    // While this event (or the main switch) is closed the server refuses new invites. A team that is already registered keeps
+    // everything it has and simply carries on from the same point once registration is open again.
+    const inviteBlocked = eventClosed || (registrationKnown && !registrationOpen);
     if (!alreadyIn && (eventClosed || (unstopOnly && registrationKnown && !registrationOpen))) {
         const soon = registrationKnown && !registrationOpen && registrationMode !== 'closed';
         return (
@@ -375,7 +378,7 @@ export default function RegistrationForm({
                                             {m.expired ? 'Did not respond in 24 hours. ' : 'Declined this invite. '}
                                             {left <= 0 ? 'Invite limit reached for this player.' : waiting
                                                 ? `You can invite them again after ${until.toLocaleTimeString()}.`
-                                                : <button type="button" disabled={teamBusy} onClick={() => runTeamAction('invite', { uid: m.uid })} style={{ background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontSize: '10px', cursor: 'pointer', padding: '2px 8px' }}>INVITE AGAIN ({left} left)</button>}
+                                                : inviteBlocked ? 'You can invite them again when registration re-opens.' : <button type="button" disabled={teamBusy} onClick={() => runTeamAction('invite', { uid: m.uid })} style={{ background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontSize: '10px', cursor: 'pointer', padding: '2px 8px' }}>INVITE AGAIN ({left} left)</button>}
                                         </div>
                                     )}
                                 </div>
@@ -389,7 +392,10 @@ export default function RegistrationForm({
 
                 {existingReg?.isLeader && !existingReg.teamId && !isVerified && (
                     <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-                        {(existingReg.members || []).filter(m => m.status !== 'REJECTED').length + 1 < (existingReg.teamSize || 1) && (
+                        {inviteBlocked && (
+                            <p style={{ fontSize: '11px', color: '#FBBF24', margin: 0, lineHeight: 1.5 }}>Registration is closed right now, so new invites are paused. Your team and the invites already sent are saved, and you can carry on from here when registration opens again. Teammates can still accept the invites they have.</p>
+                        )}
+                        {!inviteBlocked && (existingReg.members || []).filter(m => m.status !== 'REJECTED').length + 1 < (existingReg.teamSize || 1) && (
                             <div style={{ display: 'flex', gap: 6 }}>
                                 <input value={inviteUid} onChange={e => { setInviteUid(e.target.value); setInviteStatus(undefined); }} onBlur={() => checkInviteUid(inviteUid)} placeholder="ADDOVEDI ID TO INVITE" className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} />
                                 <button type="button" disabled={teamBusy || !inviteUid.trim() || inviteStatus === 'busy' || inviteStatus === 'invalid'} onClick={async () => { if (await runTeamAction('invite', { uid: inviteUid })) { setInviteUid(''); setInviteStatus(undefined); } }} style={{ padding: '0 14px', background: activeEvent.color, color: '#02050c', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '11px' }}>INVITE</button>
