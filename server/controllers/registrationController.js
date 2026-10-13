@@ -5,6 +5,7 @@ import GlobalUser from '../models/GlobalUser.js';
 import { finalizeIfReady, readyToFinalize } from '../services/teamService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { clientMessage } from '../utils/errors.js';
+import { isValidEmail } from '../utils/validators.js';
 import { getPauseInfo, isEventPaused } from '../services/registrationPauseService.js';
 
 const MAX_MEMBERS = 10;
@@ -658,7 +659,6 @@ export const continueSmallerTeam = lockedByRegistration(continueSmallerTeamImpl)
 // event's min/max, every Addovedi ID must be a real account, nobody on two live teams for one event) and run under the same
 // per-event lock. Teammates added by an admin join as ACCEPTED straight away (no invite). They never touch other registrations.
 const PHONE_RE = /^[+\d][\d\s\-()]{5,19}$/;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const uidOf = (m) => String(typeof m === 'string' ? m : (m && m.uid) || '').trim().toUpperCase();
 const isLiveMember = (m) => m.status !== 'REJECTED';
 
@@ -769,11 +769,11 @@ const adminUpdateRegistrationImpl = async (req, res) => {
             reg.leaderName = leaderName.trim();
         }
         if (leaderPhone !== undefined) {
-            if (typeof leaderPhone !== 'string' || !PHONE_RE.test(leaderPhone.trim())) throw new AdminInputError('Enter a valid leader phone number.');
+            if (typeof leaderPhone !== 'string' || leaderPhone.length > 40 || !PHONE_RE.test(leaderPhone.trim())) throw new AdminInputError('Enter a valid leader phone number.');
             reg.leaderPhone = leaderPhone.trim();
         }
         if (userEmail !== undefined) {
-            if (typeof userEmail !== 'string' || (userEmail.trim() && (!EMAIL_RE.test(userEmail.trim()) || userEmail.trim().length > 254))) throw new AdminInputError('Enter a valid contact email (or leave it empty).');
+            if (typeof userEmail !== 'string' || (userEmail.trim() && !isValidEmail(userEmail))) throw new AdminInputError('Enter a valid contact email (or leave it empty).');
             reg.userEmail = userEmail.trim();
         }
 

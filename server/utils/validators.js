@@ -3,7 +3,8 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
 
 export function isValidEmail(email) {
-    return typeof email === 'string' && EMAIL_REGEX.test(email.trim());
+    // Emails are at most 254 characters; checking that first bounds the work the pattern below can be made to do.
+    return typeof email === 'string' && email.length <= 254 && EMAIL_REGEX.test(email.trim());
 }
 
 // Strips spaces/hyphens (people type "+91 98765 43210") before validating.
