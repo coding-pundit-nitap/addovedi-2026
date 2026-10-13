@@ -5,6 +5,7 @@ import GlobalUser from '../models/GlobalUser.js';
 import { finalizeIfReady, readyToFinalize } from '../services/teamService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { clientMessage } from '../utils/errors.js';
+import { getPauseInfo, isEventPaused } from '../services/registrationPauseService.js';
 
 const MAX_MEMBERS = 10;
 const REINVITE_COOLDOWN_MS = 60 * 60 * 1000; // after a DECLINE (not after an expiry)
@@ -66,17 +67,22 @@ let lastSweep = 0;
 export const expireStaleInvites = async (force = false) => {
     if (!force && Date.now() - lastSweep < 30 * 1000) return;
     lastSweep = Date.now();
+    // The 24h clock does not run while registration is closed (main switch not open, or that event closed).
+    const pause = await getPauseInfo();
+    if (!pause.mainOpen) return;
+    const openEvents = pause.closedTitles.length ? { eventTitle: { $nin: pause.closedTitles } } : {};
     const cutoff = new Date(Date.now() - INVITE_TTL_MS);
-    const set = { 'm.status': 'REJECTED', 'm.expired': true, 'm.respondedAt': new Date() };
+    // (the array-filter identifier `m` must be addressed through the array path, otherwise the update silently does nothing)
+    const set = { 'members.$[m].status': 'REJECTED', 'members.$[m].expired': true, 'members.$[m].respondedAt': new Date() };
     // invites that carry their own timestamp
     await Registration.updateMany(
-        { status: { $ne: 'CANCELLED' }, members: { $elemMatch: { status: 'PENDING', invitedAt: { $lt: cutoff } } } },
+        { status: { $ne: 'CANCELLED' }, ...openEvents, members: { $elemMatch: { status: 'PENDING', invitedAt: { $lt: cutoff } } } },
         { $set: set },
         { arrayFilters: [{ 'm.status': 'PENDING', 'm.invitedAt': { $lt: cutoff } }] }
     );
     // older pending invites without one: fall back to when the registration was created
     await Registration.updateMany(
-        { status: { $ne: 'CANCELLED' }, createdAt: { $lt: cutoff }, members: { $elemMatch: { status: 'PENDING', invitedAt: { $exists: false } } } },
+        { status: { $ne: 'CANCELLED' }, ...openEvents, createdAt: { $lt: cutoff }, members: { $elemMatch: { status: 'PENDING', invitedAt: { $exists: false } } } },
         { $set: set },
         { arrayFilters: [{ 'm.status': 'PENDING', 'm.invitedAt': { $exists: false } }] }
     );
@@ -402,7 +408,9 @@ export const getMyRegistrations = async (req, res) => {
             .select('eventTitle categoryTitle teamName leaderUID leaderName status unstopRefId teamSize teamId members createdAt')
             .sort({ createdAt: -1 });
 
+        const pause = await getPauseInfo();
         const result = regs.map(r => {
+            const paused = isEventPaused(pause, r.eventTitle);
             const isLeader = r.leaderUID.toLowerCase() === uid.toLowerCase();
             const mine = isLeader ? null : r.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
             return {
@@ -421,7 +429,9 @@ export const getMyRegistrations = async (req, res) => {
                 myStatus: isLeader ? 'LEADER' : (mine?.status || 'ACCEPTED'),
                 // Only the leader sees who accepted / is pending / declined.
                 members: isLeader ? r.members.map(m => ({ name: m.name, uid: m.uid, status: m.status || 'ACCEPTED', expired: m.expired === true, inviteCount: m.inviteCount || 1, canReinviteAt: reinviteAt(m) })) : undefined,
-                inviteExpiresAt: !isLeader && mine?.status === 'PENDING' ? new Date(new Date(mine.invitedAt || r.createdAt).getTime() + INVITE_TTL_MS) : undefined
+                // no expiry date while registration is closed: the clock is paused and restarts when it re-opens
+                inviteExpiresAt: !isLeader && mine?.status === 'PENDING' && !paused ? new Date(new Date(mine.invitedAt || r.createdAt).getTime() + INVITE_TTL_MS) : undefined,
+                invitePaused: !isLeader && mine?.status === 'PENDING' && paused ? true : undefined
             };
         });
 

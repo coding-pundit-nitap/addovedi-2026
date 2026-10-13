@@ -467,7 +467,7 @@ export default function RegistrationForm({
                             {existingReg.myStatus === 'PENDING' ? (
                                 <>
                                     <p style={{ fontSize: '12px', color: '#F59E0B', margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
-                                        {existingReg.leaderName} added you to this team. Do you want to join?{existingReg.inviteExpiresAt ? ` Respond before ${new Date(existingReg.inviteExpiresAt).toLocaleString()} or the invite expires.` : ''}
+                                        {existingReg.leaderName} added you to this team. Do you want to join?{existingReg.inviteExpiresAt ? ` Respond before ${new Date(existingReg.inviteExpiresAt).toLocaleString()} or the invite expires.` : (existingReg.invitePaused ? ' Registration is closed right now, so your invite is on hold and will not expire. You can accept or decline whenever you like.' : '')}
                                     </p>
                                     <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
                                         <button type="button" onClick={() => handleRespondInvite && handleRespondInvite(true)} style={{ flex: 1, padding: '10px', background: 'rgba(31,255,118,0.15)', border: '1px solid #1FFF76', color: '#1FFF76', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.08em', cursor: 'pointer' }}>ACCEPT ✓</button>

@@ -3,6 +3,7 @@ import { getSettings, setRegistrationMode, registrationModeOf, setRegistrationOp
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { protect } from '../middleware/auth.js';
 import { clientMessage } from '../utils/errors.js';
+import { invalidatePauseInfo, restartPendingInviteClocks } from '../services/registrationPauseService.js';
 
 const router = Router();
 
@@ -23,7 +24,11 @@ router.put('/registration', protect, async (req, res) => {
         if (!['soon', 'open', 'closed'].includes(mode)) {
             return res.status(400).json({ message: "registrationMode must be 'soon', 'open' or 'closed'." });
         }
+        const wasOpen = registrationModeOf(await getSettings()) === 'open';
         await setRegistrationMode(mode);
+        invalidatePauseInfo();
+        // Re-opening: pending invites get a fresh 24h (the clock was paused while it was closed).
+        if (mode === 'open' && !wasOpen) await restartPendingInviteClocks();
         await recordAuditLog(req, { action: `REGISTRATION_${mode.toUpperCase()}`, details: {} });
         return res.json({ registrationMode: mode, registrationOpen: mode === 'open' });
     } catch (err) {

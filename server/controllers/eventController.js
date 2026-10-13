@@ -1,6 +1,7 @@
 import * as eventService from '../services/eventService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { clientMessage } from '../utils/errors.js';
+import { invalidatePauseInfo, restartPendingInviteClocks } from '../services/registrationPauseService.js';
 
 export const getEvents = async (req, res) => {
     try {
@@ -111,6 +112,8 @@ export const setSubEventRegistration = async (req, res) => {
         if (typeof req.body?.closed !== 'boolean') return res.status(400).json({ message: 'closed must be true or false.' });
         const sub = await eventService.setSubEventRegistrationClosed(id, req.body.closed);
         if (!sub) return res.status(404).json({ message: 'SubEvent not found' });
+        invalidatePauseInfo();
+        if (req.body.closed === false) await restartPendingInviteClocks({ eventTitle: sub.title });
         await recordAuditLog(req, { action: req.body.closed ? 'EVENT_REGISTRATION_CLOSED' : 'EVENT_REGISTRATION_OPENED', details: { subEventId: id, title: sub.title } });
         return res.json({ title: sub.title, registrationClosed: sub.registrationClosed === true });
     } catch (err) {
