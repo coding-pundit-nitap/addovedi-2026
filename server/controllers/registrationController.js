@@ -635,3 +635,184 @@ export const respondToTeamInvite = lockedByRegistration(respondToTeamInviteImpl)
 export const inviteMember = lockedByRegistration(inviteMemberImpl);
 export const uninviteMember = lockedByRegistration(uninviteMemberImpl);
 export const continueSmallerTeam = lockedByRegistration(continueSmallerTeamImpl);
+
+// ───────────────────────── Admin tools: create a registration / edit one ─────────────────────────
+// Admin-only (routes use `protect`). They reuse the same rules as player registration (event must exist, team size within the
+// event's min/max, every Addovedi ID must be a real account, nobody on two live teams for one event) and run under the same
+// per-event lock. Teammates added by an admin join as ACCEPTED straight away (no invite). They never touch other registrations.
+const PHONE_RE = /^[+\d][\d\s\-()]{5,19}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const uidOf = (m) => String(typeof m === 'string' ? m : (m && m.uid) || '').trim().toUpperCase();
+const isLiveMember = (m) => m.status !== 'REJECTED';
+
+class AdminInputError extends Error { constructor(message, status = 400) { super(message); this.status = status; } }
+
+// Returns Map(UPPER_ID -> account) or throws if any ID has no account.
+async function loadAccountsOrThrow(uids) {
+    const found = await GlobalUser.find({ addovediId: { $in: uids } }).collation(CI).select('addovediId name phone email').lean();
+    const map = new Map(found.map(a => [String(a.addovediId).toUpperCase(), a]));
+    const missing = uids.find(u => !map.has(u));
+    if (missing) throw new AdminInputError(`Addovedi ID "${missing}" was not found. Every team member must already have an Addovedi account.`);
+    return map;
+}
+
+// Throws if any of `uids` is already on another live registration for this event (excluding registration `exceptId`).
+async function assertNoTeamClash(eventName, uids, exceptId) {
+    await expireStaleInvites();
+    const filter = {
+        eventTitle: eventName,
+        status: { $ne: 'CANCELLED' },
+        $or: [{ leaderUID: { $in: uids } }, { members: { $elemMatch: { uid: { $in: uids }, status: { $ne: 'REJECTED' } } } }]
+    };
+    if (exceptId) filter._id = { $ne: exceptId };
+    const clash = await Registration.findOne(filter).collation(CI).lean();
+    if (clash) {
+        const clashing = new Set([clash.leaderUID, ...(clash.members || []).filter(isLiveMember).map(m => m.uid)].map(u => String(u || '').toUpperCase()));
+        const who = uids.find(u => clashing.has(u)) || '';
+        throw new AdminInputError(`${who} is already registered under team "${clash.teamName}" for "${eventName}". A player can only be on one team per event.`);
+    }
+}
+
+function assertTeamSize(eventDoc, size) {
+    if (!eventDoc) return;
+    const { minTeam, maxTeam } = eventDoc;
+    if (size < minTeam || size > maxTeam) {
+        const range = minTeam === maxTeam ? `exactly ${minTeam}` : `${minTeam} to ${maxTeam}`;
+        throw new AdminInputError(`This event needs ${range} team member${maxTeam === 1 ? '' : 's'} (including the leader). That would make ${size}.`);
+    }
+}
+
+const adminCreateRegistrationImpl = async (req, res) => {
+    try {
+        const { eventTitle, teamName, leaderUID: rawLeader, members, markVerified, unstopRefId } = req.body || {};
+        if (typeof eventTitle !== 'string' || !eventTitle.trim()) throw new AdminInputError('Choose an event.');
+        if (typeof teamName !== 'string' || !teamName.trim() || teamName.trim().length > 100) throw new AdminInputError('Enter a team name (up to 100 characters).');
+        const leaderUID = uidOf(rawLeader);
+        if (!leaderUID || leaderUID.length > 50) throw new AdminInputError('Enter the team leader\'s Addovedi ID.');
+        if (members !== undefined && !Array.isArray(members)) throw new AdminInputError('Team members must be a list.');
+        const memberUids = (members || []).map(uidOf).filter(Boolean);
+        if (memberUids.length > MAX_MEMBERS) throw new AdminInputError(`A team can have at most ${MAX_MEMBERS + 1} members.`);
+        const all = [leaderUID, ...memberUids];
+        if (new Set(all).size !== all.length) throw new AdminInputError('The same Addovedi ID is listed more than once.');
+
+        const eventDoc = await SubEvent.findOne({ title: eventTitle.trim() }).collation(CI).select('title categoryTitle minTeam maxTeam').lean();
+        if (!eventDoc) throw new AdminInputError('That event does not exist.', 404);
+        assertTeamSize(eventDoc, all.length);
+
+        const accounts = await loadAccountsOrThrow(all);
+        await assertNoTeamClash(eventDoc.title, all, null);
+
+        const leader = accounts.get(leaderUID);
+        const now = new Date();
+        const registration = new Registration({
+            eventTitle: eventDoc.title,
+            categoryTitle: eventDoc.categoryTitle,
+            teamName: teamName.trim(),
+            leaderName: leader.name,
+            leaderUID: leader.addovediId,
+            leaderPhone: leader.phone,
+            userEmail: leader.email,
+            teamSize: all.length,
+            members: memberUids.map(u => ({ name: accounts.get(u).name, uid: accounts.get(u).addovediId, status: 'ACCEPTED', invitedAt: now, respondedAt: now })),
+            unstopRefId: typeof unstopRefId === 'string' ? unstopRefId.slice(0, 200) : ''
+        });
+        await registration.save();
+        await finalizeIfReady(registration); // everyone is already accepted, so the Team ID is issued now
+        if (markVerified === true) {
+            const fresh = await Registration.findById(registration._id);
+            if (fresh?.teamId) { fresh.status = 'VERIFIED'; await fresh.save(); registration.status = 'VERIFIED'; }
+        }
+        await recordAuditLog(req, { action: 'ADMIN_REGISTRATION_CREATED', details: { registrationId: String(registration._id), event: eventDoc.title, teamName: registration.teamName, leader: registration.leaderUID, members: memberUids, teamId: registration.teamId || null, verified: registration.status === 'VERIFIED' } });
+        return res.status(201).json({ message: 'Registration added.', registration });
+    } catch (err) {
+        if (err instanceof AdminInputError) return res.status(err.status).json({ message: err.message });
+        if (err?.code === 11000) return res.status(400).json({ message: 'This leader already has a registration for this event.' });
+        console.error('Admin create registration error:', err);
+        return res.status(500).json({ message: 'Server error creating registration' });
+    }
+};
+
+const adminUpdateRegistrationImpl = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!/^[a-f0-9]{24}$/i.test(id)) throw new AdminInputError('Invalid registration.');
+        const reg = await Registration.findById(id);
+        if (!reg) throw new AdminInputError('Registration record not found', 404);
+        if (reg.status === 'CANCELLED') throw new AdminInputError('This registration is cancelled and cannot be edited.', 409);
+
+        const { teamName, leaderName, leaderPhone, userEmail, members } = req.body || {};
+        const before = { teamName: reg.teamName, leaderName: reg.leaderName, leaderPhone: reg.leaderPhone, userEmail: reg.userEmail, members: (reg.members || []).filter(isLiveMember).map(m => m.uid), teamSize: reg.teamSize };
+
+        if (teamName !== undefined) {
+            if (typeof teamName !== 'string' || !teamName.trim() || teamName.trim().length > 100) throw new AdminInputError('Team name must be 1 to 100 characters.');
+            reg.teamName = teamName.trim();
+        }
+        if (leaderName !== undefined) {
+            if (typeof leaderName !== 'string' || !leaderName.trim() || leaderName.trim().length > 100) throw new AdminInputError('Leader name must be 1 to 100 characters.');
+            reg.leaderName = leaderName.trim();
+        }
+        if (leaderPhone !== undefined) {
+            if (typeof leaderPhone !== 'string' || !PHONE_RE.test(leaderPhone.trim())) throw new AdminInputError('Enter a valid leader phone number.');
+            reg.leaderPhone = leaderPhone.trim();
+        }
+        if (userEmail !== undefined) {
+            if (typeof userEmail !== 'string' || (userEmail.trim() && (!EMAIL_RE.test(userEmail.trim()) || userEmail.trim().length > 254))) throw new AdminInputError('Enter a valid contact email (or leave it empty).');
+            reg.userEmail = userEmail.trim();
+        }
+
+        if (members !== undefined) {
+            if (!Array.isArray(members)) throw new AdminInputError('Team members must be a list.');
+            const desired = members.map(uidOf).filter(Boolean);
+            if (new Set(desired).size !== desired.length) throw new AdminInputError('The same Addovedi ID is listed more than once.');
+            if (desired.includes(String(reg.leaderUID).toUpperCase())) throw new AdminInputError('The team leader is already on the team.');
+            if (desired.length > MAX_MEMBERS) throw new AdminInputError(`A team can have at most ${MAX_MEMBERS + 1} members.`);
+
+            const liveNow = new Set(reg.members.filter(isLiveMember).map(m => String(m.uid).toUpperCase()));
+            const toAdd = desired.filter(u => !liveNow.has(u));
+            const desiredSet = new Set(desired);
+
+            const eventDoc = await SubEvent.findOne({ title: reg.eventTitle }).collation(CI).select('minTeam maxTeam').lean();
+            assertTeamSize(eventDoc, desired.length + 1);
+            if (toAdd.length) {
+                const accounts = await loadAccountsOrThrow(toAdd);
+                await assertNoTeamClash(reg.eventTitle, toAdd, reg._id);
+                const now = new Date();
+                for (const u of toAdd) {
+                    const acc = accounts.get(u);
+                    const old = reg.members.find(m => String(m.uid).toUpperCase() === u); // a previously declined/expired row: reuse it
+                    if (old) { old.name = acc.name; old.status = 'ACCEPTED'; old.expired = false; old.respondedAt = now; }
+                    else reg.members.push({ name: acc.name, uid: acc.addovediId, status: 'ACCEPTED', invitedAt: now, respondedAt: now });
+                }
+            }
+            // Remove live members the admin took off the list. Declined/expired rows are history and stay untouched.
+            reg.members = reg.members.filter(m => !isLiveMember(m) || desiredSet.has(String(m.uid).toUpperCase()));
+            reg.teamSize = desired.length + 1;
+        }
+
+        await reg.save();
+        if (!reg.teamId) await finalizeIfReady(reg); // an unfinished team that is now complete gets its Team ID
+        const after = { teamName: reg.teamName, leaderName: reg.leaderName, leaderPhone: reg.leaderPhone, userEmail: reg.userEmail, members: reg.members.filter(isLiveMember).map(m => m.uid), teamSize: reg.teamSize };
+        await recordAuditLog(req, { action: 'ADMIN_REGISTRATION_EDITED', details: { registrationId: String(reg._id), event: reg.eventTitle, teamId: reg.teamId || null, before, after } });
+        return res.json({ message: 'Registration updated.', registration: reg });
+    } catch (err) {
+        if (err instanceof AdminInputError) return res.status(err.status).json({ message: err.message });
+        console.error('Admin edit registration error:', err);
+        return res.status(500).json({ message: 'Server error updating registration' });
+    }
+};
+
+export const adminCreateRegistration = async (req, res) => {
+    try {
+        const title = req.body?.eventTitle;
+        if (typeof title !== 'string' || !title.trim()) return adminCreateRegistrationImpl(req, res);
+        return await withEventLock(eventKey(title), () => adminCreateRegistrationImpl(req, res));
+    } catch (err) { return res.status(500).json({ message: 'Server error' }); }
+};
+export const adminUpdateRegistration = async (req, res) => {
+    try {
+        const id = req.params?.id;
+        const reg = (typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id)) ? await Registration.findById(id).select('eventTitle').lean() : null;
+        if (!reg) return adminUpdateRegistrationImpl(req, res); // answers 400/404 itself
+        return await withEventLock(eventKey(reg.eventTitle), () => adminUpdateRegistrationImpl(req, res));
+    } catch (err) { return res.status(500).json({ message: 'Server error' }); }
+};

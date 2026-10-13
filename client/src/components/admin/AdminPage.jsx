@@ -19,6 +19,7 @@ import UnstopReconcile from './UnstopReconcile';
 import SiteToggle from './RegistrationToggle';
 import RegistrationModeToggle from './RegistrationModeToggle';
 import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
+import RegistrationEditor from './RegistrationEditor';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
 
@@ -69,6 +70,7 @@ export default function AdminPage() {
     // Events Database state
     const [categories, setCategories] = useState(CARD_DATA);
     const [subEvents, setSubEvents] = useState([]);
+    const [regEditor, setRegEditor] = useState(null); // null | { mode: 'create' } | { mode: 'edit', reg }
     const [loadingEvents, setLoadingEvents] = useState(false);
 
     // Crew Database state
@@ -1229,6 +1231,20 @@ export default function AdminPage() {
                 {/* ── TAB: EVENT REGISTRATIONS ── */}
                 {activeTab === 'registrations' && (
                     <div style={{ background: '#0D1320', padding: '24px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.1)' }}>
+                        {regEditor && (
+                            <RegistrationEditor
+                                key={regEditor.mode + (regEditor.reg?._id || '')}
+                                apiBase={API_BASE}
+                                getHeaders={getHeaders}
+                                mode={regEditor.mode}
+                                registration={regEditor.reg}
+                                subEvents={subEvents}
+                                eventTitles={[...new Set(subEvents.map(e => e.title))].sort()}
+                                onClose={() => setRegEditor(null)}
+                                onSaved={fetchRegistrations}
+                                onUnauthorized={handleLogout}
+                            />
+                        )}
                         <SiteToggle apiBase={API_BASE} getHeaders={getHeaders} onUnauthorized={handleLogout}
                             path="events" flag="eventsVisible" title="EVENTS SECTION" onLabel="LIVE" offLabel="HIDDEN (COMING SOON)"
                             onButton="HIDE EVENTS" offButton="SHOW EVENTS"
@@ -1255,7 +1271,13 @@ export default function AdminPage() {
                                 </span>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => setRegEditor({ mode: 'create' })}
+                                    style={{ fontFamily: "'Orbitron', monospace", fontSize: '8px', fontWeight: 800, padding: '8px 14px', border: '1px solid #1FFF76', color: '#1FFF76', background: 'rgba(31,255,118,0.08)', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    + ADD REGISTRATION
+                                </button>
                                 <button
                                     onClick={() => exportToCSV(registrations, 'addovedi_master_registrations.csv')}
                                     style={{ fontFamily: "'Orbitron', monospace", fontSize: '8px', fontWeight: 800, padding: '8px 14px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', borderRadius: '4px', cursor: 'pointer' }}
@@ -1466,6 +1488,14 @@ export default function AdminPage() {
                                                             {reg.createdAt ? new Date(reg.createdAt).toLocaleString() : 'N/A'}
                                                         </td>
                                                         <td>
+                                                            {reg.status !== 'CANCELLED' && (
+                                                                <button
+                                                                    onClick={() => setRegEditor({ mode: 'edit', reg })}
+                                                                    style={{ padding: '4px 10px', border: '1px solid #00E5FF', color: '#00E5FF', background: 'transparent', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', borderRadius: '3px', marginRight: '6px' }}
+                                                                >
+                                                                    EDIT
+                                                                </button>
+                                                            )}
                                                             <button
                                                                 onClick={() => deleteRegistrationRecord(reg._id)}
                                                                 style={{ padding: '4px 10px', border: '1px solid #ff1f4f', color: '#ff1f4f', background: 'transparent', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', borderRadius: '3px' }}

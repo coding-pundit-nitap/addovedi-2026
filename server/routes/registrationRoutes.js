@@ -10,7 +10,9 @@ import {
     respondToTeamInvite,
     inviteMember,
     uninviteMember,
-    continueSmallerTeam
+    continueSmallerTeam,
+    adminCreateRegistration,
+    adminUpdateRegistration
 } from '../controllers/registrationController.js';
 import { protect, requireParticipant } from '../middleware/auth.js';
 import { registrationLimiter, participantActionLimiter } from '../middleware/rateLimiters.js';
@@ -29,6 +31,8 @@ router.get('/my/:addovediId', requireParticipant, participantActionLimiter, getM
 // Admin routes: view & manage registrations
 router.get('/', protect, getAllRegistrations);
 router.get('/stats', protect, getRegistrationStats);
+router.post('/admin', protect, adminCreateRegistration);
+router.put('/:id/admin', protect, adminUpdateRegistration);
 router.patch('/:id', protect, updateRegistrationStatus);
 router.delete('/:id', protect, deleteRegistration);
 
