@@ -23,6 +23,7 @@ import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
 import RegistrationEditor from './RegistrationEditor';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
+import { XP_PER_REGISTRATION } from '../../utils/xp';
 
 export default function AdminPage() {
     const navigate = useNavigate();
@@ -100,7 +101,7 @@ export default function AdminPage() {
     // (Oct 30) — kept as the stored values so existing scheduled sub-events
     // don't need migrating if the calendar dates ever shift again.
     const DAY_LABELS = { 1: 'DAY ZERO — OCT 28', 2: 'DAY 1 — OCT 29', 3: 'DAY 2 — OCT 30' };
-    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
+    const [newSub, setNewSub] = useState({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '200 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
     const [newCrew, setNewCrew] = useState({ name: '', role: '', avatar: '', phone: '', reportsTo: '', type: 'STUDENT', category: 'HEAD', statText: 'MISSIONS CODE', statVal: 10, featured: false, featuredHeading: '', bio: '', links: [] });
     const [newSponsor, setNewSponsor] = useState({ name: '', category: 'GOLD', sub: 'Technology Sponsor', logo: 'NV', logoImage: '', desc: '', support: '', url: '#' });
 
@@ -767,7 +768,7 @@ export default function AdminPage() {
 
             fetchEvents();
             setEditingSubEvent(null);
-            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '1,500 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
+            setNewSub({ categoryTitle: '', title: '', subtitle: '', desc: '', overview: '', minTeam: 1, maxTeam: 5, fee: '', color: '#00d9ff', xp: '200 XP', difficulty: 'MEDIUM', iconType: 'code', modelType: 'coding', unstopUrl: 'https://unstop.com', heads: [{ name: '', phone: '' }, { name: '', phone: '' }], timeline: { ...emptyTimeline } });
             alert('Sub-Event configuration saved successfully!');
         } catch (err) {
             alert(`Error Saving Sub-Event: ${err.message}`);
@@ -1804,7 +1805,6 @@ export default function AdminPage() {
                                 </select>
                                 <input type="text" placeholder="Title (e.g. BUG HUNT)" value={editingSubEvent ? editingSubEvent.title : newSub.title} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, title: e.target.value.toUpperCase() }) : setNewSub({ ...newSub, title: e.target.value.toUpperCase() })} required />
                                 <input type="text" placeholder="Subtitle (e.g. GATE CIRCUITS)" value={editingSubEvent ? editingSubEvent.subtitle : newSub.subtitle} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, subtitle: e.target.value }) : setNewSub({ ...newSub, subtitle: e.target.value })} required />
-                                <input type="text" placeholder="XP (e.g. 2,000 XP)" value={editingSubEvent ? editingSubEvent.xp : newSub.xp} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, xp: e.target.value }) : setNewSub({ ...newSub, xp: e.target.value })} required />
                                 <input type="text" placeholder="Color Hex" value={editingSubEvent ? editingSubEvent.color : newSub.color} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, color: e.target.value }) : setNewSub({ ...newSub, color: e.target.value })} required />
                                 <select value={editingSubEvent ? editingSubEvent.difficulty : newSub.difficulty} onChange={e => editingSubEvent ? setEditingSubEvent({ ...editingSubEvent, difficulty: e.target.value }) : setNewSub({ ...newSub, difficulty: e.target.value })}>
                                     <option value="MEDIUM">MEDIUM</option>
@@ -1978,7 +1978,7 @@ export default function AdminPage() {
                                                         {sub.unstopUrl ? (sub.unstopUrl.length > 25 ? sub.unstopUrl.substring(0, 25) + '...' : sub.unstopUrl) : 'unstop.com'}
                                                     </a>
                                                 </td>
-                                                <td>{sub.xp}</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>{XP_PER_REGISTRATION} XP</td>
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
                                                     {sub.timeline?.day ? (
