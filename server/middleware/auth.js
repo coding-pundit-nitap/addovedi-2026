@@ -32,6 +32,10 @@ export const protect = async (req, res, next) => {
         }
         // A valid signature isn't enough: the account must still exist, so removing
         // an admin cuts off their session immediately instead of after the 12h token expiry.
+        // The id must be a plain 24-hex string: an object such as {"$ne":null} would turn this lookup into a query.
+        if (typeof decoded.id !== 'string' || !/^[a-f0-9]{24}$/i.test(decoded.id)) {
+            return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
+        }
         const admin = await Admin.findById(decoded.id).select('username passwordChangedAt').lean();
         if (!admin) {
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
@@ -71,6 +75,9 @@ const buildRequireParticipant = (allowTempPassword) => async (req, res, next) =>
             return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
         }
         // Same as admins: a removed player's still-unexpired 30-day token stops working.
+        if (typeof decoded.id !== 'string' || !/^[a-f0-9]{24}$/i.test(decoded.id)) {
+            return res.status(401).json({ message: 'Unauthorized. Invalid or expired token.' });
+        }
         const user = await GlobalUser.findById(decoded.id).select('addovediId passwordChangedAt mustChangePassword').lean();
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized. This account no longer exists.' });
