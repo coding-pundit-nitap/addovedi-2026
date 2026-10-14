@@ -5,6 +5,9 @@ import { useStore } from '../../store/useStore';
 import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
 import TurnstileWidget from '../common/TurnstileWidget';
 import ChangePasswordPanel from './ChangePasswordPanel';
+import XpPanel from './XpPanel';
+import LeaderboardModal from './LeaderboardModal';
+import { verifiedCount, xpStats } from '../../utils/xp';
 import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, memberMeta, INVITES_CHANGED_EVENT } from '../../utils/registrations';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -58,6 +61,7 @@ export default function AuthModal() {
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('login'); // 'login' | 'signup'
     const [isEditing, setIsEditing] = useState(false);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
     // Mirrors isEditing for the 8s background sync below, which must not overwrite what the player is typing.
     const isEditingRef = useRef(false);
     useEffect(() => { isEditingRef.current = isEditing; }, [isEditing]);
@@ -1117,7 +1121,7 @@ export default function AuthModal() {
                                     <div className="w-full flex items-center justify-between border-t border-[#00d9ff]/15 pt-4 mt-3 relative z-10 select-none">
                                         <div className="flex flex-col items-start font-mono gap-1 text-[7px] text-white/40">
                                             <span>ISSUED: ADDOVEDI_OS</span>
-                                            <span>LEVEL: OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}</span>
+                                            <span>LEVEL: OPERATIVE_{String(xpStats(verifiedCount(registeredEvents)).level).padStart(2, '0')}</span>
                                             <span>VERIFIER: SECURE_QR</span>
                                         </div>
 
@@ -1225,10 +1229,12 @@ export default function AuthModal() {
                                                 className="text-[9px] font-black tracking-widest"
                                                 style={{ color: currentAvatarData.color, fontFamily: "'Orbitron', monospace" }}
                                             >
-                                                OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}
+                                                OPERATIVE_{String(xpStats(verifiedCount(registeredEvents)).level).padStart(2, '0')}
                                             </span>
                                         </div>
                                     </div>
+
+                                    <XpPanel registrations={registeredEvents} onOpenLeaderboard={() => setShowLeaderboard(true)} />
 
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
                                         <div className="flex flex-col">
@@ -1381,6 +1387,7 @@ export default function AuthModal() {
                     )}
                 </AnimatePresence>
             </div>
+            {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} />}
         </motion.div>
     );
 }

@@ -5,6 +5,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
 import { fetchMyRegistrations, respondToTeamInvite, teamAction } from '../../utils/registrations';
+import { verifiedCount, xpStats } from '../../utils/xp';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import addovediLogo from '../../assets/images/addovedi-logo-white.png';
@@ -57,7 +58,8 @@ export default function EventsPage() {
     // submits the form themselves, so this can't come from localStorage,
     // which only ever reflected whatever the leader's own browser wrote).
     const [myRegistrations, setMyRegistrations] = useState([]);
-    const registeredCount = myRegistrations.length;
+    // XP counts verified registrations only (see utils/xp.js)
+    const registeredCount = verifiedCount(myRegistrations);
 
     const refreshMyRegistrations = async () => {
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
@@ -80,12 +82,8 @@ export default function EventsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // XP per event = 200, level up every 3 events, max level 10
-    const totalXP = registeredCount * 200;
-    const playerLevel = Math.min(10, 1 + Math.floor(registeredCount / 3));
-    const xpForCurrentLevel = Math.floor(registeredCount / 3) * 600;
-    const xpForNextLevel = xpForCurrentLevel + 600;
-    const xpProgress = playerLevel >= 10 ? 100 : Math.round(((totalXP - xpForCurrentLevel) / 600) * 100);
+    // 200 XP per verified registration, a level every 3 of them, max level 10
+    const { xp: totalXP, level: playerLevel, progress: xpProgress } = xpStats(registeredCount);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);

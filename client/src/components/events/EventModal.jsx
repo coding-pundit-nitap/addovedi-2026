@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EVENT_RULES, GENERAL_RULES, RULEBOOK_PDFS, slugify, EVENT_COORDINATORS } from '../../data/events';
 import RegistrationForm from './RegistrationForm';
+import { XP_PER_REGISTRATION } from '../../utils/xp';
 
 function EventDetailsModal({
     activeEvent,
@@ -165,7 +166,7 @@ function EventDetailsModal({
                 <div class="container">
                     <h1>${activeEvent.title}</h1>
                     <div class="meta">
-                        <div>XP BOUNTY: ${activeEvent.xp || 'N/A'}</div>
+                        <div>XP BOUNTY: ${XP_PER_REGISTRATION} XP</div>
                         <div>DIFFICULTY: ${activeEvent.difficulty || 'N/A'}</div>
                         <div>STATUS: REGISTRATION ${activeEvent.registrationClosed ? 'CLOSED' : 'OPEN'}</div>
                     </div>
@@ -299,7 +300,7 @@ function EventDetailsModal({
                         </div>
                         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ BOUNTY ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#fff', fontWeight: 900 }}>{activeEvent.xp}</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#fff', fontWeight: 900 }}>{XP_PER_REGISTRATION} XP</span>
                         </div>
                         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ DIFFICULTY ]</span>
@@ -400,7 +401,7 @@ function EventDetailsModal({
                                 </div>
                             )}
                             <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '10px', fontSize: '10px' }}>
-                                {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', activeEvent.xp, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
+                                {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', `${XP_PER_REGISTRATION} XP`, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
                                     <div key={k} style={{ flex: 1, padding: isMobileModal ? '12px' : '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: isMobileModal ? 'row' : 'column', justifycontent: isMobileModal ? 'space-between' : 'flex-start', alignItems: isMobileModal ? 'center' : 'flex-start', gap: '8px' }}>
                                         <div style={{ color: 'rgba(255,255,255,0.4)', fontFamily: "'Orbitron', sans-serif", fontSize: '9px', letterSpacing: '0.15em' }}>{k}</div>
                                         <div style={{ color: c, fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: isMobileModal ? '12px' : '14px' }}>{v}</div>

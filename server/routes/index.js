@@ -10,6 +10,7 @@ import registrationRoutes from './registrationRoutes.js';
 import auditRoutes from './auditRoutes.js';
 import globalUserRoutes from './globalUserRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
+import leaderboardRoutes from './leaderboardRoutes.js';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use('/status-settings', statusRoutes);
 router.use('/messages', messageRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/registrations', registrationRoutes);
+router.use('/leaderboard', leaderboardRoutes);
 router.use('/audit-logs', auditRoutes);
 router.use('/settings', settingsRoutes);
 
