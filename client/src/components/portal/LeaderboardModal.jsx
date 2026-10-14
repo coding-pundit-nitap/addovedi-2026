@@ -81,7 +81,7 @@ export default function LeaderboardModal({ onClose }) {
                                 </table>
                             )}
                             <p style={{ margin: '12px 2px 0', fontSize: '11px', lineHeight: 1.5, color: 'rgba(255,255,255,0.5)' }}>
-                                XP counts verified registrations only ({d.xpPerRegistration} XP each). Players with the same XP share a rank. Gaming Nexus and Treasure Hunt register on Unstop and do not earn XP.
+                                XP counts verified registrations only ({d.xpPerRegistration} XP each). Players with the same XP are ordered alphabetically by name. Gaming Nexus and Treasure Hunt register on Unstop and do not earn XP.
                             </p>
                         </>
                     )}

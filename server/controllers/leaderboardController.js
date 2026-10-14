@@ -10,6 +10,15 @@ const MAX_LEVEL = 10;
 const LIST_SIZE = 20;
 const CACHE_MS = 20 * 1000;
 
+// Alphabetical order for ties compares only the LETTERS of a name (case, accents, digits and symbols ignored), so a name like
+// "!!Aaron" or "1abc" cannot jump the queue. A name with no letters at all sorts after everyone else.
+const collator = new Intl.Collator('en', { sensitivity: 'base' });
+const sortKey = (name) => String(name || '').normalize('NFKD').replace(/[^\p{L} ]/gu, '').replace(/\s+/g, ' ').trim();
+const byName = (a, b) => {
+    const ka = sortKey(a), kb = sortKey(b);
+    if (!ka !== !kb) return ka ? -1 : 1;
+    return collator.compare(ka, kb);
+};
 const levelFor = (count) => Math.min(MAX_LEVEL, 1 + Math.floor(count / REGISTRATIONS_PER_LEVEL));
 // Display name only: no HTML is ever built from it, but strip control characters and cap the length anyway.
 const cleanName = (name) => String(name || '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40) || 'Player';
@@ -40,10 +49,10 @@ async function computeRanking() {
     const rows = counts
         .filter(c => nameOf.has(c._id))
         .map(c => ({ id: c._id, name: nameOf.get(c._id), n: c.n }))
-        .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
-    // Equal XP shares a rank (1, 1, 1, then 4), so the list never implies an order between tied players.
-    let rank = 0, prev = null;
-    rows.forEach((r, i) => { if (r.n !== prev) { rank = i + 1; prev = r.n; } r.rank = rank; });
+        .sort((a, b) => b.n - a.n || byName(a.name, b.name) || (a.id < b.id ? -1 : 1));
+    // Players with equal XP are ordered alphabetically by name, so every player has a distinct rank (1, 2, 3, ...) and the
+    // top 3 are always three specific players. Only the letters of the names are compared (see sortKey).
+    rows.forEach((r, i) => { r.rank = i + 1; });
     return rows;
 }
 
