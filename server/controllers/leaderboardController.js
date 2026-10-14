@@ -30,16 +30,23 @@ let cached = { at: 0, data: null, pending: null };
 async function computeRanking() {
     const counts = await Registration.aggregate([
         { $match: { status: 'VERIFIED' } },
-        { $project: { _id: 0, uids: { $concatArrays: [
-            ['$leaderUID'],
-            { $map: {
-                input: { $filter: { input: { $ifNull: ['$members', []] }, as: 'm', cond: { $eq: [{ $ifNull: ['$$m.status', 'ACCEPTED'] }, 'ACCEPTED'] } } },
-                as: 'm', in: '$$m.uid'
-            } }
-        ] } } },
+        // Per registration: the leader plus every accepted teammate, upper-cased and de-duplicated ($setUnion), so a player can
+        // never earn two XP awards from one registration. Tolerates damaged documents (members missing / not a list, entries that
+        // are not objects, non-string ids) instead of failing the whole leaderboard.
+        { $project: { _id: 0, uids: { $setUnion: [{ $map: {
+            input: { $concatArrays: [
+                ['$leaderUID'],
+                { $map: {
+                    input: { $filter: { input: { $cond: [{ $isArray: '$members' }, '$members', []] }, as: 'm', cond: { $eq: [{ $ifNull: ['$$m.status', 'ACCEPTED'] }, 'ACCEPTED'] } } },
+                    as: 'm', in: '$$m.uid'
+                } }
+            ] },
+            as: 'u',
+            in: { $cond: [{ $eq: [{ $type: '$$u' }, 'string'] }, { $toUpper: '$$u' }, null] }
+        } }] } } },
         { $unwind: '$uids' },
         { $match: { uids: { $type: 'string', $ne: '' } } },
-        { $group: { _id: { $toUpper: '$uids' }, n: { $sum: 1 } } }
+        { $group: { _id: '$uids', n: { $sum: 1 } } }
     ]);
     const ids = counts.map(c => c._id);
     const users = ids.length
