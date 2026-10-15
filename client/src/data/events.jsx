@@ -822,7 +822,7 @@ export const CATEGORIES_WITH_EVENTS = [
                 "title": "THE SEISMIC ARENA",
                 "subtitle": "BUILD TALL. BUILD SMART. SURVIVE THE SHAKE.",
                 "desc": "Design and build a tower model that withstands inspection, a shake-and-water stability test and a strength test. The Seismic Arena tests stability, stiffness, bracing, damping and centre of mass.",
-                "overview": "The Seismic Arena is a structural engineering challenge of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 design and build a tower model that must survive physical evaluation and structural testing, putting stability, stiffness, bracing, damping and centre of mass to the test.\n\nThe tower is built from popsicle sticks and toothpicks on a thermocol base, at least 30 cm tall. It faces three rounds: a visual Looks Test, a Stability Test with a water-filled container on top while the tower is moved, and a Strength Test under incremental external load.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including hoodies.",
+                "overview": "The Seismic Arena is a structural engineering challenge of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 design and build a tower model that must survive physical evaluation and structural testing, putting stability, stiffness, bracing, damping and centre of mass to the test.\n\nThe tower is built from popsicle sticks and toothpicks on a thermocol base, at least 30 cm tall. It faces three rounds: a visual Looks Test, a Stability Test with a water-filled container on top while the tower is moved, and a Strength Test under incremental external load.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bridge",
@@ -839,7 +839,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     }
                 ],
                 "rules": [
-                    "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
+                    "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
                     "A team may register only once (only the first entry counts). Only undergraduate and graduate students from recognized academic institutions can participate, and every participant must carry a valid student ID card.",
                     "Build a tower model that passes a visual inspection, a stability test with a water-filled container on top, and a strength test under external load at the top platform.",
                     "Only 5 materials are allowed: popsicle sticks, Fevi Quick, toothpicks, thermocol and Fevicol. The main frame must be built strictly with popsicle sticks and toothpicks only, bonded with the permitted adhesives. Thermocol is allowed for the base plate only.",
@@ -853,14 +853,14 @@ export const CATEGORIES_WITH_EVENTS = [
                     "Follow all instructions from organisers, volunteers and judges, and arrive on time (late arrivals may lose build or round time). Judges may disqualify any team for misconduct. The decision of the organising panel and judges is final and binding, and the organisers may modify rules and will inform registered teams."
                 ],
                 "fee": "₹50 per member",
-                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
+                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with goodies)" },
                 "unstopUrl": "https://unstop.com/o/BlgenMs?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
                 "title": "EDGE OF COLLAPSE",
                 "subtitle": "DESIGN LIGHT. BUILD STRONG. HOLD THE LOAD.",
                 "desc": "Build a lightweight three-hinged bridge model that carries the maximum possible load. Edge of Collapse tests structural behaviour, load paths, truss geometry, joint quality and material efficiency.",
-                "overview": "Edge of Collapse is a structural design and fabrication competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 to 4 build a lightweight bridge model that must carry the maximum possible load, testing their understanding of structural behaviour, load paths, truss geometry, joint quality and material efficiency.\n\nTeams build a three-hinged bridge from popsicle sticks and white glue that spans a fixed gap and supports a progressively increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio.\n\nThe event has three rounds: Design and Inspection, Knowledge of the Bridge, and the Load Test. Registration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including hoodies.",
+                "overview": "Edge of Collapse is a structural design and fabrication competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 to 4 build a lightweight bridge model that must carry the maximum possible load, testing their understanding of structural behaviour, load paths, truss geometry, joint quality and material efficiency.\n\nTeams build a three-hinged bridge from popsicle sticks and white glue that spans a fixed gap and supports a progressively increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio.\n\nThe event has three rounds: Design and Inspection, Knowledge of the Bridge, and the Load Test. Registration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
                 "xp": "1,500 XP",
                 "difficulty": "MEDIUM",
                 "iconType": "bridge",
@@ -877,7 +877,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     }
                 ],
                 "rules": [
-                    "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including hoodies.",
+                    "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
                     "Build a three-hinged bridge model that spans a fixed gap and carries a gradually increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio (maximum load held divided by the bridge's weight) that follows all size and material rules.",
                     "Allowed materials: standard wooden ice-cream (popsicle) sticks, trimmed to length only (no cutting of the cross-section), and water-based white adhesive (PVA / white glue). Cotton thread is allowed only for decorative binding and must not carry load. Quick-set, epoxy and hot-melt adhesives are not allowed.",
                     "Strictly prohibited: metal, plastic, cardboard, bamboo, and any pre-made construction kit or pre-fabricated part.",
@@ -891,7 +891,7 @@ export const CATEGORIES_WITH_EVENTS = [
                     "Violating any bridge rule (prohibited materials, exceeding size or weight limits) means immediate disqualification and no prizes. Do not damage other teams' models or equipment. Judges may disqualify any team for misconduct, and the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
                 ],
                 "fee": "₹50 per member",
-                "timeline": { "mode": "Team of 3-4", "day": 2, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with hoodies)" },
+                "timeline": { "mode": "Team of 3-4", "day": 2, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with goodies)" },
                 "unstopUrl": "https://unstop.com/o/5PvlMNO?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             }
         ]
