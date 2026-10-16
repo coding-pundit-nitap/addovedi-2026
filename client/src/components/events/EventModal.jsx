@@ -24,6 +24,7 @@ function EventDetailsModal({
     handleRegisterSubmit,
     handleCancelRegistration,
     handleRespondInvite,
+    handleTeamAction,
     isRegistered,
     existingReg
 }) {
@@ -482,6 +483,7 @@ function EventDetailsModal({
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
                             handleRespondInvite={handleRespondInvite}
+                            handleTeamAction={handleTeamAction}
                             isRegistered={isRegistered}
                             existingReg={existingReg}
                             isMobileModal={isMobileModal}
@@ -532,6 +534,7 @@ export default function EventModal({
     handleRegisterSubmit,
     handleCancelRegistration,
     handleRespondInvite,
+    handleTeamAction,
     isRegistered,
     existingReg
 }) {
@@ -623,6 +626,7 @@ export default function EventModal({
                             handleRegisterSubmit={handleRegisterSubmit}
                             handleCancelRegistration={handleCancelRegistration}
                             handleRespondInvite={handleRespondInvite}
+                            handleTeamAction={handleTeamAction}
                             isRegistered={isRegistered}
                             existingReg={existingReg}
                         />
