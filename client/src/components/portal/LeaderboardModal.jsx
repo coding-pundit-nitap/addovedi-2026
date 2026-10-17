@@ -57,7 +57,7 @@ export default function LeaderboardModal({ onClose }) {
                             <div style={{ border: '1px solid rgba(0,217,255,0.35)', background: 'rgba(0,217,255,0.08)', padding: '10px 12px', marginBottom: '10px', fontSize: '13px' }}>
                                 {d.me.rank
                                     ? <>You are <strong style={{ color: '#00D9FF' }}>#{d.me.rank}</strong> of {d.totalPlayers} ranked players · Level {d.me.level} · {d.me.xp.toLocaleString('en-IN')} XP</>
-                                    : <>You are not ranked yet. You earn <strong style={{ color: '#00D9FF' }}>{d.xpPerRegistration} XP</strong> each time the admin verifies one of your registrations.</>}
+                                    : <>You are not ranked yet. You earn <strong style={{ color: '#00D9FF' }}>{d.xpTeamEvent || d.xpPerRegistration} XP</strong> ({d.xpSingleEvent || 250} XP in single-player events) each time the admin verifies one of your registrations.</>}
                             </div>
                             {d.top.length === 0 ? (
                                 <div style={{ padding: '22px 0', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>No one has earned XP yet. The first verified registration will start the board!</div>
@@ -81,7 +81,7 @@ export default function LeaderboardModal({ onClose }) {
                                 </table>
                             )}
                             <p style={{ margin: '12px 2px 0', fontSize: '11px', lineHeight: 1.5, color: 'rgba(255,255,255,0.5)' }}>
-                                XP counts verified registrations only ({d.xpPerRegistration} XP each). Players with the same XP are ordered alphabetically by name. Gaming Nexus and Treasure Hunt register on Unstop and do not earn XP.
+                                XP counts verified registrations only ({d.xpTeamEvent || d.xpPerRegistration} XP each, {d.xpSingleEvent || 250} XP in single-player events). Players with the same XP are ordered alphabetically by name. Gaming Nexus and Treasure Hunt register on Unstop and do not earn XP.
                             </p>
                         </>
                     )}

@@ -23,7 +23,7 @@ import PlayersPanel, { PlayerProfileModal } from './PlayersPanel';
 import RegistrationEditor from './RegistrationEditor';
 import { API_BASE } from '../../constants/api';
 import { CARD_DATA } from '../../data/events';
-import { XP_PER_REGISTRATION } from '../../utils/xp';
+import { xpForEvent } from '../../utils/xp';
 
 export default function AdminPage() {
     const navigate = useNavigate();
@@ -1978,7 +1978,7 @@ export default function AdminPage() {
                                                         {sub.unstopUrl ? (sub.unstopUrl.length > 25 ? sub.unstopUrl.substring(0, 25) + '...' : sub.unstopUrl) : 'unstop.com'}
                                                     </a>
                                                 </td>
-                                                <td style={{ whiteSpace: 'nowrap' }}>{XP_PER_REGISTRATION} XP</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>{xpForEvent(sub)} XP</td>
                                                 <td>{sub.heads ? sub.heads.map(h => h.name).join(', ') : 'N/A'}</td>
                                                 <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>
                                                     {sub.timeline?.day ? (

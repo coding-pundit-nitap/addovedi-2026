@@ -2,6 +2,7 @@ import * as eventService from '../services/eventService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { clientMessage } from '../utils/errors.js';
 import { invalidatePauseInfo, restartPendingInviteClocks } from '../services/registrationPauseService.js';
+import { invalidateXpCaches } from '../services/xpService.js';
 
 export const getEvents = async (req, res) => {
     try {
@@ -61,6 +62,7 @@ export const deleteCategory = async (req, res) => {
 export const createSubEvent = async (req, res) => {
     try {
         const sub = await eventService.createSubEvent(req.body);
+        invalidateXpCaches();
 
         await recordAuditLog(req, {
             action: 'CREATE_SUB_EVENT',
@@ -76,6 +78,7 @@ export const createSubEvent = async (req, res) => {
 export const updateSubEvent = async (req, res) => {
     try {
         const sub = await eventService.updateSubEvent(req.params.id, req.body);
+        invalidateXpCaches();   // a team-size change moves XP for every registration of this event
         if (!sub) return res.status(404).json({ message: 'SubEvent not found' });
 
         await recordAuditLog(req, {
@@ -92,6 +95,7 @@ export const updateSubEvent = async (req, res) => {
 export const deleteSubEvent = async (req, res) => {
     try {
         await eventService.deleteSubEvent(req.params.id);
+        invalidateXpCaches();
 
         await recordAuditLog(req, {
             action: 'DELETE_SUB_EVENT',

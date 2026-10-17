@@ -6,6 +6,7 @@ import { finalizeIfReady, readyToFinalize } from '../services/teamService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
 import { clientMessage } from '../utils/errors.js';
 import { isValidEmail } from '../utils/validators.js';
+import { getEventXpMapSafe, xpForTitle, invalidateXpCaches } from '../services/xpService.js';
 import { getPauseInfo, isEventPaused } from '../services/registrationPauseService.js';
 
 const MAX_MEMBERS = 10;
@@ -332,6 +333,7 @@ export const deleteRegistration = async (req, res) => {
     try {
         const { id } = req.params;
         const reg = await Registration.findByIdAndDelete(id);
+        invalidateXpCaches();
         if (!reg) {
             return res.status(404).json({ message: 'Registration record not found' });
         }
@@ -409,12 +411,15 @@ export const getMyRegistrations = async (req, res) => {
             .sort({ createdAt: -1 });
 
         const pause = await getPauseInfo();
+        const xpMap = await getEventXpMapSafe();
         const result = regs.map(r => {
             const paused = isEventPaused(pause, r.eventTitle);
             const isLeader = r.leaderUID.toLowerCase() === uid.toLowerCase();
             const mine = isLeader ? null : r.members.find(m => (m.uid || '').toLowerCase() === uid.toLowerCase());
             return {
                 registrationId: r._id,
+                // XP this registration is worth once the admin verifies it (250 for single-player events, else 200); recomputed on every call
+                xpAward: xpForTitle(xpMap, r.eventTitle),
                 eventTitle: r.eventTitle,
                 categoryTitle: r.categoryTitle,
                 teamName: r.teamName,
@@ -528,6 +533,7 @@ export const updateRegistrationStatus = async (req, res) => {
         if (unstopRefId !== undefined) reg.unstopRefId = String(unstopRefId).slice(0, 200);
 
         await reg.save();
+        invalidateXpCaches();
         return res.json({ message: 'Registration updated successfully', registration: reg });
     } catch (err) {
         return res.status(500).json({ message: clientMessage(err) });
@@ -831,7 +837,7 @@ export const adminCreateRegistration = async (req, res) => {
         const title = req.body?.eventTitle;
         if (typeof title !== 'string' || !title.trim()) return adminCreateRegistrationImpl(req, res);
         return await withEventLock(eventKey(title), () => adminCreateRegistrationImpl(req, res));
-    } catch (err) { return res.status(500).json({ message: 'Server error' }); }
+    } catch (err) { return res.status(500).json({ message: 'Server error' }); } finally { invalidateXpCaches(); }
 };
 export const adminUpdateRegistration = async (req, res) => {
     try {
@@ -839,5 +845,5 @@ export const adminUpdateRegistration = async (req, res) => {
         const reg = (typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id)) ? await Registration.findById(id).select('eventTitle').lean() : null;
         if (!reg) return adminUpdateRegistrationImpl(req, res); // answers 400/404 itself
         return await withEventLock(eventKey(reg.eventTitle), () => adminUpdateRegistrationImpl(req, res));
-    } catch (err) { return res.status(500).json({ message: 'Server error' }); }
+    } catch (err) { return res.status(500).json({ message: 'Server error' }); } finally { invalidateXpCaches(); }
 };

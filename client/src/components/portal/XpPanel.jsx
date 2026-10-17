@@ -1,9 +1,9 @@
-import { verifiedCount, countsForXp, xpStats, XP_PER_REGISTRATION, MAX_LEVEL } from '../../utils/xp';
+import { sumXp, countsForXp, xpStats, XP_TEAM_EVENT, XP_SINGLE_EVENT, MAX_LEVEL } from '../../utils/xp';
 
 // Player XP / level card for the profile page. XP is earned when the admin verifies a registration.
 export default function XpPanel({ registrations, onOpenLeaderboard, accent = '#00D9FF' }) {
     const regs = Array.isArray(registrations) ? registrations : [];
-    const s = xpStats(verifiedCount(regs));
+    const s = xpStats(sumXp(regs));
     // Registrations the player is on that the admin has not verified yet: each one will add XP once verified.
     const waiting = regs.filter(r => r && r.status !== 'VERIFIED' && r.status !== 'CANCELLED' && r.myStatus !== 'PENDING' && r.myStatus !== 'REJECTED' && !countsForXp(r)).length;
     return (
@@ -27,7 +27,7 @@ export default function XpPanel({ registrations, onOpenLeaderboard, accent = '#0
                 {s.nextLevelXp === null ? 'MAX LEVEL REACHED' : `${s.xpToNext} XP TO LEVEL ${s.level + 1}`}
             </div>
             <p className="mt-2 text-[10px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)', margin: '8px 0 0' }}>
-                You earn <strong style={{ color: '#fff' }}>{XP_PER_REGISTRATION} XP</strong> each time the admin verifies one of your registrations.
+                You earn <strong style={{ color: '#fff' }}>{XP_TEAM_EVENT} XP</strong> ({XP_SINGLE_EVENT} XP in single-player events) each time the admin verifies one of your registrations.
                 {waiting > 0 && <> <strong style={{ color: '#F59E0B' }}>{waiting}</strong> registration{waiting === 1 ? ' is' : 's are'} waiting for verification.</>}
             </p>
             <button
