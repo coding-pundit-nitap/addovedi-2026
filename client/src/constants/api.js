@@ -10,3 +10,7 @@ const getApiBase = () => {
 };
 
 export const API_BASE = getApiBase();
+
+// Cloudflare Turnstile site key (public, safe to ship in the bundle).
+// Set VITE_TURNSTILE_SITE_KEY in Vercel's project environment variables.
+export const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';

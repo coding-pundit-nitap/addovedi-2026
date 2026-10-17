@@ -1,11 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { refreshMyAccount } from './utils/account';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HeroCanvas from "./components/hero/HeroCanvas";
 import AppRoutes from "./routes/AppRoutes";
 import { useStore } from "./store/useStore";
+import { ADMIN_PATH } from "./constants/routes";
 import { AnimatePresence, motion } from "framer-motion";
 import CommonSidebar from "./components/common/CommonSidebar";
 import AuthModal from "./components/portal/PortalPage";
+import ScrollToTop from "./components/common/ScrollToTop";
+import FirstLoadScreen from "./components/common/FirstLoadScreen";
+import InviteBar from "./components/common/InviteBar";
+import { useEventsVisible } from "./utils/useRegistrationOpen";
 
 
 export default function App() {
@@ -14,21 +20,68 @@ export default function App() {
     const portalFlash = useStore(s => s.portalFlash);
     const isEventPage = useStore(s => s.isEventPage);
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
+    const { visible: eventsVisible } = useEventsVisible();
+    // Events switched off in Admin: /event* is a plain "coming soon" page, like /crew, with no 3D lobby or fly-in.
+    const eventsGated = location.pathname.startsWith('/event') && !eventsVisible;
+    const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
-    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
+    // Sessions saved before login tokens existed have no token, so every protected action (profile update,
+    // registration, invites) would fail with a confusing error. Treat them as logged out so the player signs in once.
+    useEffect(() => {
+        try {
+            const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+            if (u && !u.token) localStorage.removeItem('addovedi_user');
+        } catch { localStorage.removeItem('addovedi_user'); }
+    }, []);
+
+    // Keep the signed-in player's cached account details fresh (an admin may have corrected them): on load, when the tab
+    // comes back into view, and every 2 minutes while it is visible. One tiny read-only request each time.
+    useEffect(() => {
+        refreshMyAccount();
+        const onVisible = () => { if (!document.hidden) refreshMyAccount(); };
+        document.addEventListener('visibilitychange', onVisible);
+        const id = setInterval(() => { if (!document.hidden) refreshMyAccount(); }, 120000);
+        return () => { document.removeEventListener('visibilitychange', onVisible); clearInterval(id); };
+    }, []);
+
+    // A player on an admin-issued temporary password can't do anything until they set their own,
+    // so bring up their profile (which shows the change-password form) instead of leaving them guessing.
+    useEffect(() => {
+        if (location.pathname === ADMIN_PATH) return;
+        try {
+            const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+            if (u?.mustChangePassword) setAuthModalOpen(true);
+        } catch { /* not logged in */ }
+    }, [location.pathname, setAuthModalOpen]);
+
+    // First-visit loading screen: once per browser session.
+    const [showLoader, setShowLoader] = useState(() => {
+        try { return !sessionStorage.getItem('addovedi_loaded'); } catch { return false; }
+    });
+    useEffect(() => {
+        if (!showLoader) useStore.getState().setAppReady(true);
+    }, [showLoader]);
+
+    const isStandalonePage = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated;
+
+    // The 3D scene is created the first time a non-standalone page (Home / Arena) is shown, then kept alive
+    // and just paused + hidden behind pages like /crew. Unmounting it made every trip back to Home rebuild
+    // the whole scene and replay the 6s intro, which froze the page and made the HOME link feel broken.
+    const [heroMounted, setHeroMounted] = useState(!isStandalonePage);
+    useEffect(() => { if (!isStandalonePage) setHeroMounted(true); }, [isStandalonePage]);
 
     // 1. Sync URL path modifications to global Zustand store states on load / refresh
     useEffect(() => {
         const isEvent = location.pathname.startsWith('/event');
         const isHome = location.pathname === '/home' || location.pathname === '/';
-        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin';
+        const isStandalone = location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated;
 
         if (location.pathname === '/') {
             navigate('/home', { replace: true });
             return;
         }
 
-        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances, /connect or /admin
+        // Bypass store-sync for standalone pages like /timeline, /crew, /alliances, /connect or the admin portal
         if (isStandalone) return;
 
         // Set store parameters
@@ -38,12 +91,12 @@ export default function App() {
         } else if (isHome) {
             useStore.getState().setIsEntered(false);
         }
-    }, [location.pathname, navigate]);
+    }, [location.pathname, navigate, eventsGated]);
 
     // 2. Listen to state changes from inside the Canvas (Zustand) and update browser routing history
     useEffect(() => {
         // Don't redirect away from standalone pages
-        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/connect' || location.pathname === '/admin') return;
+        if (location.pathname === '/timeline' || location.pathname === '/crew' || location.pathname === '/alliances' || location.pathname === '/about' || location.pathname === ADMIN_PATH || location.pathname === '/merch' || location.pathname === '/how-to-register' || eventsGated) return;
         if (isEventPage && !location.pathname.startsWith('/event')) {
             navigate('/event');
         } else if (!isEventPage && location.pathname !== '/home' && location.pathname !== '/') {
@@ -54,7 +107,7 @@ export default function App() {
     return (
         <section className="relative h-[100dvh] w-full overflow-hidden bg-[#020617]">
             {/* Common background 3D Canvas — hidden on standalone pages like /timeline or /crew */}
-            {!isStandalonePage && <HeroCanvas />}
+            {heroMounted && <HeroCanvas paused={isStandalonePage} />}
 
             {/* Black Portal Flash (barrel entry blackout) */}
             <AnimatePresence>
@@ -73,6 +126,10 @@ export default function App() {
             {/* Route overlays (HTML templates) */}
             <AppRoutes />
             <CommonSidebar />
+            <ScrollToTop />
+            <InviteBar />
+
+            {showLoader && <FirstLoadScreen onDone={() => setShowLoader(false)} />}
 
             {/* Auth / Register Modal Popup */}
             <AnimatePresence>

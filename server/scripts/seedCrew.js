@@ -1,0 +1,51 @@
+// Adds the 2026 student heads (client/src/data/crew2026.json) and faculty coordinators (faculty2026.json) to the Crew collection.
+// Safe by default: upserts by name+category, never deletes (keeps admin-uploaded avatars/bios).
+// Pass --replace to first wipe the whole Crew collection (removes the old placeholder crew).
+// Run: node scripts/seedCrew.js [--replace]   (from server/, against whichever DB MONGODB_URI points at)
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import Crew from '../models/Crew.js';
+
+dotenv.config();
+
+const readData = (f) => JSON.parse(fs.readFileSync(new URL(`../../client/src/data/${f}`, import.meta.url), 'utf8'));
+const sections = readData('crew2026.json');
+const faculty = readData('faculty2026.json');
+
+await mongoose.connect(process.env.MONGODB_URI);
+if (process.argv.includes('--replace')) {
+    const { deletedCount } = await Crew.deleteMany({});
+    console.log(`Removed ${deletedCount} existing crew docs.`);
+}
+// Ascending createdAt keeps section/member order (the crew list sorts by createdAt).
+let t = Date.now();
+let added = 0;
+let photos = 0;
+for (const sec of sections) {
+    for (const { name, role, avatar } of sec.members) {
+        // Photo path (files in client/public/crew). Only filled in when the member has no photo yet, so a photo
+        // uploaded through Admin is never overwritten.
+        if (avatar) {
+            const r = await Crew.updateOne({ name, category: sec.title, $or: [{ avatar: { $exists: false } }, { avatar: '' }, { avatar: null }] }, { $set: { avatar } });
+            photos += r.modifiedCount;
+        }
+        const res = await Crew.updateOne(
+            { name, category: sec.title },
+            { $setOnInsert: { name, role, category: sec.title, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
+            { upsert: true }
+        );
+        if (res.upsertedCount) added++;
+    }
+}
+// Faculty: featured (main coordinator) sorts first on the page.
+for (const f of faculty) {
+    const res = await Crew.updateOne(
+        { name: f.name, type: 'FACULTY' },
+        { $setOnInsert: { name: f.name, role: f.role, type: 'FACULTY', category: 'FACULTY', featured: !!f.main, statText: 'MISSIONS CODE', statVal: 0, createdAt: new Date(t++) } },
+        { upsert: true }
+    );
+    if (res.upsertedCount) added++;
+}
+console.log(`Added ${added} crew members, set ${photos} photo(s).`);
+await mongoose.disconnect();

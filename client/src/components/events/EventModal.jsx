@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EVENT_RULES, GENERAL_RULES, slugify, EVENT_COORDINATORS } from '../../data/events';
+import { EVENT_RULES, GENERAL_RULES, RULEBOOK_PDFS, slugify, EVENT_COORDINATORS } from '../../data/events';
 import RegistrationForm from './RegistrationForm';
+import { xpForEvent } from '../../utils/xp';
 
 function EventDetailsModal({
     activeEvent,
@@ -21,11 +22,17 @@ function EventDetailsModal({
     members,
     setMembers,
     handleRegisterSubmit,
-    isRegistered
+    handleCancelRegistration,
+    handleRespondInvite,
+    handleTeamAction,
+    isRegistered,
+    existingReg
 }) {
     const location = useLocation();
     const [activeTab, setActiveTab] = useState('register'); // Default to register
     const isMobileModal = window.innerWidth < 768;
+    // Prize set per event in Admin > Timeline Scheduling (timeline.prize); the static fallback's 'Trophies' is only a placeholder.
+    const prizePool = activeEvent?.timeline?.prize || (activeEvent?.prize && activeEvent.prize !== 'Trophies' ? activeEvent.prize : '') || 'TBA';
 
     const btnThemeStyles = {
         '--btn-color-light': activeEvent?.color ? '#ffffff' : '#67e8f9',
@@ -36,13 +43,19 @@ function EventDetailsModal({
         '--glow-color-15': activeEvent?.color ? `${activeEvent.color}26` : 'rgba(0,217,255,0.15)',
     };
 
+    // Only reset the active tab when the user actually navigates to a
+    // different event — not on every re-render of this one. EventsPage
+    // polls the DB every few seconds and rebuilds activeEvent as a new
+    // object each time even when nothing changed, which used to make this
+    // effect fire constantly and snap the user back to "register" mid-click.
     useEffect(() => {
         if (location.state?.initialTab) {
             setActiveTab(location.state.initialTab);
         } else {
             setActiveTab('register');
         }
-    }, [location.state, activeEvent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.state?.initialTab, activeEvent?.title]);
 
     const TAB_STYLE = (tab) => ({
         color: activeTab === tab ? '#ffffff' : 'rgba(255,255,255,0.35)',
@@ -67,6 +80,8 @@ function EventDetailsModal({
 
 
     const handleDownloadPDF = () => {
+        const rulebook = RULEBOOK_PDFS[slugify(activeEvent.title)];
+        if (rulebook) { window.open(rulebook, '_blank', 'noopener'); return; } // official designed rule book
         const rules = EVENT_RULES[slugify(activeEvent.title)] || GENERAL_RULES;
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
@@ -152,9 +167,9 @@ function EventDetailsModal({
                 <div class="container">
                     <h1>${activeEvent.title}</h1>
                     <div class="meta">
-                        <div>XP BOUNTY: ${activeEvent.xp || 'N/A'}</div>
+                        <div>XP BOUNTY: ${xpForEvent(activeEvent)} XP</div>
                         <div>DIFFICULTY: ${activeEvent.difficulty || 'N/A'}</div>
-                        <div>STATUS: REGISTRATION OPEN</div>
+                        <div>STATUS: REGISTRATION ${activeEvent.registrationClosed ? 'CLOSED' : 'OPEN'}</div>
                     </div>
                     <ul>
                         ${rules.map((rule, idx) => `
@@ -165,7 +180,7 @@ function EventDetailsModal({
                         `).join('')}
                     </ul>
                     <div class="footer">
-                        ADDOVEDI 2026 // SYSTEM SECURE RULES TRANSMISSION
+                        ADDOVEDI 2026 · SYSTEM SECURE RULES TRANSMISSION
                     </div>
                 </div>
                 <script>
@@ -225,12 +240,13 @@ function EventDetailsModal({
                     paddingRight: isMobileModal ? '0' : '24px',
                     paddingBottom: isMobileModal ? '12px' : '0',
                     height: isMobileModal ? 'auto' : '100%',
-                    overflow: 'hidden',
+                    overflowY: isMobileModal ? 'hidden' : 'auto',
+                    overflowX: 'hidden',
                     flexShrink: 0
-                }}>
+                }} className="cyber-rules-scrollbar">
                     <div>
                         <div style={{ fontSize: '8px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '4px' }}>
-                            {'// MISSION_DATA › SECTOR_'}{activeEvent.categoryTitle?.toUpperCase().replace(/\s/g, '_')}
+                            {'MISSION_DATA › SECTOR_'}{activeEvent.categoryTitle?.toUpperCase().replace(/\s/g, '_')}
                         </div>
                         <h2 style={{ fontSize: isMobileModal ? '18px' : '26px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: `0 0 15px ${activeEvent.color}50`, lineHeight: 1.1 }}>
                             {activeEvent.title}
@@ -251,9 +267,9 @@ function EventDetailsModal({
 
                         {/* Event Heads Contact - Desktop Only */}
                         {!isMobileModal && (
-                            <div style={{ marginTop: '16px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '12px' }}>
+                            <div style={{ marginTop: '10px', borderTop: `1px solid ${activeEvent.color}20`, paddingTop: '8px' }}>
                                 <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', color: activeEvent.color, fontWeight: 900, marginBottom: '6px' }}>
-                                    {'// DIRECT_COMMS'}
+                                    {'DIRECT_COMMS'}
                                 </div>
                                 {coordinators.map((c, i) => (
                                     <div key={i} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontFamily: "'Rajdhani', sans-serif" }}>
@@ -272,24 +288,28 @@ function EventDetailsModal({
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: isMobileModal ? '1fr 1fr' : '1fr',
-                        gap: isMobileModal ? '3px' : '6px',
+                        gap: isMobileModal ? '3px' : '4px',
                         marginTop: isMobileModal ? '4px' : 'auto'
                     }}>
-                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ FEE ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900 }}>FREE</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{(activeEvent.fee || '').trim() || 'FREE'}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: `${activeEvent.color}10`, border: `1px solid ${activeEvent.color}30`, padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>[ PRIZE POOL ]</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.color, fontWeight: 900, textAlign: 'right' }}>{prizePool}</span>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ BOUNTY ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#fff', fontWeight: 900 }}>{activeEvent.xp}</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#fff', fontWeight: 900 }}>{xpForEvent(activeEvent)} XP</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ DIFFICULTY ]</span>
                             <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#ff1f4f', fontWeight: 900 }}>{activeEvent.difficulty}</span>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: isMobileModal ? '2px 6px' : '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: isMobileModal ? '7px' : '8px', fontFamily: "'Orbitron', sans-serif", color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>[ STATUS ]</span>
-                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: '#28c840', fontWeight: 900 }}>OPEN</span>
+                            <span style={{ fontSize: isMobileModal ? '9px' : '13px', fontFamily: "'Orbitron', sans-serif", color: activeEvent.registrationClosed ? '#ff1f4f' : '#28c840', fontWeight: 900 }}>{activeEvent.registrationClosed ? 'CLOSED' : 'OPEN'}</span>
                         </div>
                     </div>
 
@@ -299,6 +319,10 @@ function EventDetailsModal({
                             onClick={onClose}
                             style={{
                                 marginTop: '10px',
+                                position: 'sticky',
+                                bottom: 0,
+                                zIndex: 2,
+                                backgroundColor: 'rgba(2,5,12,0.96)',
                                 background: 'transparent',
                                 border: '1px solid #ff1f4f50',
                                 color: '#ff1f4f',
@@ -346,7 +370,7 @@ function EventDetailsModal({
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5f57', boxShadow: '0 0 6px #ff5f57' }} />
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#febc2e', boxShadow: '0 0 6px #febc2e' }} />
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#28c840', boxShadow: '0 0 6px #28c840' }} />
-                            <span style={{ marginLeft: '8px', opacity: 0.7, fontSize: isMobileModal ? '7px' : '9px' }}>ADDOVEDI_OS // TERMINAL</span>
+                            <span style={{ marginLeft: '8px', opacity: 0.7, fontSize: isMobileModal ? '7px' : '9px' }}>ADDOVEDI_OS · TERMINAL</span>
                         </div>
                         {!isMobileModal && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 900 }}>
@@ -366,16 +390,19 @@ function EventDetailsModal({
                     {/* ── Tab: Overview ── */}
                     {activeTab === 'overview' && (
                         <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', scrollBehavior: 'smooth', display: 'flex', flexDirection: 'column', gap: isMobileModal ? '12px' : '20px', fontFamily: "'Rajdhani', sans-serif" }} className="cyber-rules-scrollbar">
-                            <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: isMobileModal ? '11px' : '13px' }}>
-                                <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>// ESTIMATED TIMELINE</div>
-                                {['10:00 AM — PRE-FLIGHT CHECKS', '12:30 PM — MAIN ENGAGEMENT', '04:30 PM — EVALUATION'].map((t, i) => (
-                                    <div key={i} style={{ color: 'rgba(255,255,255,0.7)', display: 'flex', gap: '10px', fontSize: isMobileModal ? '11px' : '13px', lineHeight: 1.6 }}>
-                                        <span style={{ color: activeEvent.color }}>{'>'}</span>{t}
-                                    </div>
-                                ))}
-                            </div>
+                            {activeEvent.overview ? (
+                                <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px' }}>
+                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '10px' }}>◈ ABOUT THIS EVENT</div>
+                                    <div style={{ color: 'rgba(255,255,255,0.78)', fontSize: isMobileModal ? '12px' : '14px', lineHeight: 1.75, whiteSpace: 'pre-line' }}>{activeEvent.overview}</div>
+                                </div>
+                            ) : (
+                                <div style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${activeEvent.color}20`, padding: isMobileModal ? '14px' : '20px' }}>
+                                    <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, marginBottom: '8px' }}>◈ ABOUT THIS EVENT</div>
+                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobileModal ? '12px' : '14px', lineHeight: 1.75 }}>Details coming soon.</div>
+                                </div>
+                            )}
                             <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '10px', fontSize: '10px' }}>
-                                {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', activeEvent.xp, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
+                                {[['DIVISION', activeEvent.categoryTitle, '#fff'], ['XP BOUNTY', `${xpForEvent(activeEvent)} XP`, activeEvent.color], ['DIFFICULTY', activeEvent.difficulty, '#ff1f4f']].map(([k, v, c]) => (
                                     <div key={k} style={{ flex: 1, padding: isMobileModal ? '12px' : '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: isMobileModal ? 'row' : 'column', justifycontent: isMobileModal ? 'space-between' : 'flex-start', alignItems: isMobileModal ? 'center' : 'flex-start', gap: '8px' }}>
                                         <div style={{ color: 'rgba(255,255,255,0.4)', fontFamily: "'Orbitron', sans-serif", fontSize: '9px', letterSpacing: '0.15em' }}>{k}</div>
                                         <div style={{ color: c, fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: isMobileModal ? '12px' : '14px' }}>{v}</div>
@@ -416,7 +443,7 @@ function EventDetailsModal({
                                         e.currentTarget.style.boxShadow = `0 0 10px ${activeEvent.color}25`;
                                     }}
                                 >
-                                    DOWNLOAD RULES PDF ⭳
+                                    {RULEBOOK_PDFS[slugify(activeEvent.title)] ? 'DOWNLOAD RULE BOOK PDF ⭳' : 'DOWNLOAD RULES PDF ⭳'}
                                 </button>
                             </div>
                             <div style={{ overflowY: 'visible', maxHeight: 'none', paddingRight: '8px' }}>
@@ -454,7 +481,11 @@ function EventDetailsModal({
                             members={members}
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
+                            handleCancelRegistration={handleCancelRegistration}
+                            handleRespondInvite={handleRespondInvite}
+                            handleTeamAction={handleTeamAction}
                             isRegistered={isRegistered}
+                            existingReg={existingReg}
                             isMobileModal={isMobileModal}
                             btnThemeStyles={btnThemeStyles}
                         />
@@ -501,7 +532,11 @@ export default function EventModal({
     members,
     setMembers,
     handleRegisterSubmit,
-    isRegistered
+    handleCancelRegistration,
+    handleRespondInvite,
+    handleTeamAction,
+    isRegistered,
+    existingReg
 }) {
     return (
         <AnimatePresence>
@@ -589,7 +624,11 @@ export default function EventModal({
                             members={members}
                             setMembers={setMembers}
                             handleRegisterSubmit={handleRegisterSubmit}
+                            handleCancelRegistration={handleCancelRegistration}
+                            handleRespondInvite={handleRespondInvite}
+                            handleTeamAction={handleTeamAction}
                             isRegistered={isRegistered}
+                            existingReg={existingReg}
                         />
                     </motion.div>
                 </motion.div>

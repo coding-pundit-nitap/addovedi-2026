@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const SocialLinkSchema = new mongoose.Schema({
-    platform: { type: String, required: true },
-    url: { type: String, required: true }
+    platform: { type: String, required: false, default: '' },
+    url: { type: String, required: false, default: '' }
 });
 
 const CrewSchema = new mongoose.Schema({
@@ -17,6 +17,11 @@ const CrewSchema = new mongoose.Schema({
     avatar: {
         type: String,
         required: false
+    },
+    type: {
+        type: String,
+        enum: ['STUDENT', 'FACULTY'],
+        default: 'STUDENT'
     },
     category: {
         type: String,
@@ -48,6 +53,10 @@ const CrewSchema = new mongoose.Schema({
         required: false,
         default: ''
     },
+    // Shown on the crew card (tap-to-call)
+    // Name of the head this person reports to (drawn under them as a team tree on the Crew page)
+    reportsTo: { type: String, maxlength: 100, trim: true, default: '' },
+    phone: { type: String, maxlength: 20, trim: true, default: '' },
     links: [SocialLinkSchema]
 }, { timestamps: true });
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useEventsVisible } from '../../utils/useRegistrationOpen';
 import { useStore } from '../../store/useStore';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
 
 export default function HeroOverlay() {
     const navigate = useNavigate();
@@ -34,7 +36,7 @@ export default function HeroOverlay() {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        const targetDate = new Date('2026-09-12T00:00:00');
+        const targetDate = new Date('2026-10-28T17:00:00'); // Day Zero kicks off at 5PM
         const updateCountdown = () => {
             const difference = targetDate.getTime() - new Date().getTime();
             if (difference <= 0) {
@@ -57,7 +59,11 @@ export default function HeroOverlay() {
     const setShowNavbar = useStore(s => s.setShowNavbar);
     const setAuthModalOpen = useStore(s => s.setAuthModalOpen);
 
+    const { visible: eventsVisible } = useEventsVisible();
+
     const handleEnterArena = () => {
+        // Events switched off in Admin: skip the fly-in and go straight to the "coming soon" page.
+        if (!eventsVisible) { navigate('/event'); return; }
         // Hide UI overlays so the cinematic fly-in is unobstructed
         setShowButton(false);
         setShowLogo(false);
@@ -365,49 +371,19 @@ export default function HeroOverlay() {
 
 
                             {/* ── Left: Brand Logo ── */}
-                            <div className="flex items-center gap-3 font-mono relative z-10">
-                                <div className="relative" style={{ animation: 'glow-pulse 2.8s ease-in-out infinite' }}>
-                                    <svg className="w-11 h-11 text-[#00D9FF]" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-                                        <circle cx="50" cy="50" r="42" strokeWidth="1.5" strokeDasharray="5 3" />
-                                        <circle cx="50" cy="50" r="32" strokeWidth="1" />
-                                        <circle cx="50" cy="50" r="24" strokeWidth="1.5" strokeDasharray="10 5" />
-                                        <circle cx="50" cy="50" r="14" strokeWidth="1.2" />
-                                        <path d="M 50 14 L 50 24 M 50 76 L 50 86 M 14 50 L 24 50 M 76 50 L 86 50" strokeWidth="1.5" />
-                                        <circle cx="50" cy="50" r="4.5" fill="#00D9FF" />
-                                    </svg>
-                                    <div className="absolute inset-0 bg-[#00D9FF]/10 rounded-full blur-lg" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-baseline gap-1.5 leading-none">
-                                        <span
-                                            style={{
-                                                fontFamily: "'Orbitron', monospace",
-                                                fontWeight: 900,
-                                                fontSize: '1.15rem',
-                                                letterSpacing: '0.25em',
-                                                background: 'linear-gradient(90deg, #00D9FF 0%, #a8f0ff 50%, #00D9FF 100%)',
-                                                WebkitBackgroundClip: 'text',
-                                                WebkitTextFillColor: 'transparent',
-                                                filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.7))',
-                                            }}
-                                        >ADDOVEDI</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-[3px] leading-none">
-                                        <span
-                                            className="text-xs font-black tracking-widest"
-                                            style={{
-                                                background: 'linear-gradient(90deg, #FF2EA6, #ff85cc)',
-                                                WebkitBackgroundClip: 'text',
-                                                WebkitTextFillColor: 'transparent',
-                                                filter: 'drop-shadow(0 0 6px rgba(255,46,166,0.6))',
-                                            }}
-                                        >2026</span>
-                                    </div>
-                                    <div className="w-24 h-[1px] my-[3px]" style={{ background: 'linear-gradient(90deg, #00D9FF40, transparent)' }} />
-                                    <div className="flex items-center gap-1.5 leading-none">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#00D9FF] animate-pulse" style={{ boxShadow: '0 0 6px #00D9FF' }} />
-                                        <span className="text-[7.5px] text-[#00D9FF] tracking-widest uppercase font-bold" style={{ textShadow: '0 0 8px rgba(0,217,255,0.7)' }}>SYSTEM ONLINE</span>
-                                    </div>
+                            <div
+                                onClick={() => setIsFooterOpen(false)}
+                                className="flex flex-col items-start gap-1.5 font-mono relative z-10 shrink-0 cursor-pointer"
+                            >
+                                <img
+                                    src={addovediLogo}
+                                    alt="Addovedi 2026"
+                                    className="h-9 w-auto"
+                                    style={{ filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))', animation: 'glow-pulse 2.8s ease-in-out infinite' }}
+                                />
+                                <div className="flex items-center gap-1.5 leading-none">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#00D9FF] animate-pulse" style={{ boxShadow: '0 0 6px #00D9FF' }} />
+                                    <span className="text-[7.5px] text-[#00D9FF] tracking-widest uppercase font-bold" style={{ textShadow: '0 0 8px rgba(0,217,255,0.7)' }}>SYSTEM ONLINE</span>
                                 </div>
                             </div>
 
@@ -419,15 +395,17 @@ export default function HeroOverlay() {
                                     { label: 'TIMELINE', active: false },
                                     { label: 'ALLIANCES', active: false },
                                     { label: 'CREW', active: false },
-                                    { label: 'CONNECT HUB', active: isFooterOpen },
+                                    { label: 'ABOUT', active: false },
+                                    { label: 'MERCH', active: false },
+                                    { label: 'GUIDE', active: false },
                                 ].map(({ label, active }) => (
                                     <a
                                         key={label}
                                         href="#"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            if (label === 'CONNECT HUB') {
-                                                navigate('/connect');
+                                            if (label === 'ABOUT') {
+                                                navigate('/about');
                                             } else if (label === 'HOME') {
                                                 setIsFooterOpen(false);
                                             } else if (label === 'ARENA') {
@@ -438,6 +416,10 @@ export default function HeroOverlay() {
                                                 navigate('/alliances');
                                             } else if (label === 'CREW') {
                                                 navigate('/crew');
+                                            } else if (label === 'MERCH') {
+                                                navigate('/merch');
+                                            } else if (label === 'GUIDE') {
+                                                navigate('/how-to-register');
                                             }
                                         }}
                                         className={`nav-link-item${active ? ' nav-link-active' : ''}`}
@@ -889,18 +871,26 @@ export default function HeroOverlay() {
                                     <p style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, margin: 0 }}>
                                         Yupia, Papum Pare, Arunachal Pradesh – 791112
                                     </p>
+                                    <a
+                                        href="https://maps.app.goo.gl/fj7xSiyD9mhyo4Jy5"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.15em', color: '#00D9FF', textDecoration: 'none' }}
+                                    >
+                                        VIEW ON MAP →
+                                    </a>
                                 </div>
 
                                 {/* Col 2: Contact Info */}
                                 <div className="flex flex-col gap-4">
                                     <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.35em', color: 'rgba(0,217,255,0.6)', textTransform: 'uppercase', margin: 0 }}>📡 CONTACT HUB</h3>
                                     {[
-                                        { label: 'GENERAL INQUIRIES', value: '+91 98765 43210', icon: (
+                                        { label: 'GENERAL INQUIRIES', value: '9506177693', icon: (
                                             <svg className="w-4 h-4 text-[#00D9FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
                                         ) },
-                                        { label: 'EVENT COORDINATION', value: '+91 91234 56789', icon: (
+                                        { label: 'EVENT COORDINATION', value: '+91 98590 40208', icon: (
                                             <svg className="w-4 h-4 text-[#00D9FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
@@ -933,33 +923,30 @@ export default function HeroOverlay() {
                                     <h3 style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.6rem', letterSpacing: '0.35em', color: 'rgba(0,217,255,0.6)', textTransform: 'uppercase', margin: 0 }}>⚡ CONNECT TRANSMISSION</h3>
                                     <div className="grid grid-cols-2 gap-3">
                                         {[
-                                            { label: 'INSTAGRAM', handle: '@addovedi_nitap', color: '#FF2EA6', icon: (
+                                            { label: 'INSTAGRAM', handle: '@addovedi', url: 'https://www.instagram.com/addovedi/', color: '#FF2EA6', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                                                     <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zM17.5 6.5h.01" />
                                                 </svg>
                                             ) },
-                                            { label: 'YOUTUBE', handle: 'Addovedi Official', color: '#facc15', icon: (
+                                            { label: 'YOUTUBE', handle: 'Addovedi', url: 'https://www.youtube.com/@addovedi', color: '#facc15', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 00-1.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z" />
                                                     <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" />
                                                 </svg>
                                             ) },
-                                            { label: 'FACEBOOK', handle: 'Addovedi NITAP', color: '#4ade80', icon: (
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                                                </svg>
-                                            ) },
-                                            { label: 'LINKEDIN', handle: 'NITAP Addovedi', color: '#00D9FF', icon: (
+                                            { label: 'LINKEDIN', handle: 'Addovedi NITAP', url: 'https://www.linkedin.com/in/addovedi-nitap/', color: '#00D9FF', icon: (
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
                                                     <circle cx="4" cy="4" r="2" />
                                                 </svg>
                                             ) },
-                                        ].map(({ label, handle, color, icon }) => (
+                                        ].map(({ label, handle, url, color, icon }) => (
                                             <a
                                                 key={label}
-                                                href="#"
+                                                href={url}
+                                                target="_blank"
+                                                rel="noreferrer"
                                                 className="flex flex-col p-2 rounded border border-transparent hover:border-[#00D9FF]/20 hover:bg-[#00D9FF]/5 transition-all text-left"
                                                 style={{ textDecoration: 'none' }}
                                             >
@@ -975,7 +962,7 @@ export default function HeroOverlay() {
                                     {/* Event countdown badge */}
                                     <div className="mt-auto pt-2" style={{ borderTop: '1px solid rgba(0,217,255,0.1)' }}>
                                         <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.62rem', color: 'rgba(0,217,255,0.5)', letterSpacing: '0.3em', marginBottom: '2px' }}>EVENT TIMELINE</div>
-                                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.88rem', fontWeight: 800, color: '#FF2EA6', textShadow: '0 0 12px rgba(255,46,166,0.6)' }}>SEP 12 – 14, 2026</div>
+                                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.88rem', fontWeight: 800, color: '#FF2EA6', textShadow: '0 0 12px rgba(255,46,166,0.6)' }}>OCT 28 – 30, 2026</div>
                                     </div>
                                 </div>
                             </div>

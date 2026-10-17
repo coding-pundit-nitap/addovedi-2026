@@ -17,748 +17,889 @@ export const GENERAL_RULES = [
 ];
 
 // NESTED MASTER DATA HIERARCHY
-// Categories -> Events -> rules, coordinators, and timeline details.
+// Categories -> Events -> overview, rules, coordinators, and timeline details.
+// Source: EVENT DETAILS.docx (Addovedi 2026). Rules, coordinators and schedule are added later
+// from Admin. Mirrors server/scripts/data/events2026.json (used by seedEvents.js).
 export const CATEGORIES_WITH_EVENTS = [
     {
-        title: 'ROBOTICS & RC',
-        subtitle: 'AUTONOMOUS MOTORS',
-        desc: 'Race high-speed RC cars and program precise line followers.',
-        color: '#00d9ff',
-        xp: '8,000 XP',
-        difficulty: 'ELITE',
-        iconType: 'robot',
-        modelType: 'mecha',
-        shortName: 'Robotics',
-        iconChar: '🤖',
-        id: '01',
-        events: [
+        "title": "ROBOTICS PROTOCOL",
+        "subtitle": "AUTONOMOUS MECHA DYNAMICS",
+        "desc": "Design, build and drive your own robots in head-to-head robotics challenges open to every branch.",
+        "color": "#00d9ff",
+        "iconType": "robot",
+        "modelType": "mecha",
+        "shortName": "Robotics",
+        "iconChar": "🤖",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "01",
+        "events": [
             {
-                title: 'LINE RUNNER',
-                subtitle: 'INFRARED ACCELERATION',
-                desc: 'Design line followers that lock onto grid courses in record time.',
-                xp: '2,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                    { name: 'Shreya Nair', phone: '+91 96789 01234' }
-                ],
-                rules: [
-                    'Bot must trace the line strictly on arena floor.',
-                    'Calibration time is limited to 5 minutes prior to run.',
-                    'Bonus checkpoints award additional scores.',
-                    'Leaving the trace line triggers a restart penalty.',
-                    'Bots must be fully autonomous; wireless transceivers must be disabled.',
-                    'The track width will be exactly 30mm black line on white surface.',
-                    'Maximum bot size is limited to 15x15 cm.',
-                    'No sticky materials or adhesives allowed on the wheels.',
-                    'The track will feature sharp turns, acute angles, and a grid intersection.',
-                    'Each bot gets a maximum of 2 official timed attempts.',
-                    'Fastest complete loop run determines the winner.'
-                ],
-                iconType: 'line',
-                timeline: {
-                    day: 1,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Lab Alpha',
-                    mode: 'Team (2)',
-                    registered: 60,
-                    prize: '₹10,000',
-                    status: 'LIVE'
-                }
+                "title": "ROBO SOCCER",
+                "subtitle": "Where Robotics Meets the Spirit of Football!",
+                "desc": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.",
+                "overview": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.\n\nParticipants will put their engineering skills to the test by developing a robust and efficient robot capable of maneuvering across the arena, controlling the ball, defending the goal, and attacking the opponent. Every match demands a perfect combination of mechanical design, electronics, control systems, teamwork, and strategy.\n\nGet ready to enter the arena, control your machine, defend your territory, and fight for victory!",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "minTeam": 2,
+                "maxTeam": 4,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "timeline": { "mode": "Team of 2-4", "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 6", "prize": "₹22,000" },
+                "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
+                "rules": [
+                "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
+                "Registration fee is ₹50 per member. Prizes worth ₹22,000.",
+                "The robot must be wired or wireless remote-controlled by the team. Autonomous robots are not allowed unless announced.",
+                "Maximum robot size 30 cm x 30 cm x 30 cm and maximum weight 5 kg.",
+                "Maximum operating voltage 12 V. Batteries must be sealed and safe. Pyrotechnic, liquid-based or hazardous parts are strictly prohibited.",
+                "Every robot goes through technical inspection before its first match. Each team must bring a spare battery and basic tools; components are not provided.",
+                "Round 1 is a qualifying group stage with round-robin matches. Round 2 is knockout, then semifinals and the final.",
+                "Each match is 5 minutes. A tie goes to a 2-minute golden-goal period, then a penalty shoot-out or a rematch.",
+                "Only one team member may operate the robot during a match. Other members must stay outside the arena.",
+                "A goal counts only when the whole ball crosses the goal line. A robot must not hold, lift or trap the ball for more than 5 seconds.",
+                "Intentionally damaging, flipping or trapping the opponent's robot is a foul. Repeated fouls lead to a warning, a goal penalty and then disqualification.",
+                "A robot immobilised for more than 10 seconds is out of play and the referee may restart the match. A team not ready within 3 minutes of being called forfeits.",
+                "Jammers, signal interference or any unfair electronic or mechanical method lead to immediate disqualification.",
+                "The decisions of the referees and the organizing committee are final and binding. The organizers may modify or clarify the rules, and any change will be announced."
+]
             },
             {
-                title: 'DRONE PILOT',
-                subtitle: 'AERIAL ACCELERATOR',
-                desc: 'Fly precision micro drones through complex vertical ring gates.',
-                xp: '3,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
-                ],
-                rules: [
-                    'Fly drone through 3D obstacle ring course.',
-                    'Manual piloting strictly required, no GPS lock.',
-                    'Time begins on takeoff and ends on landing pad touch.',
-                    'Crashing or ring skips add penalty seconds.',
-                    'Drones must fit within a 250mm diagonal wheel-base class.',
-                    'First-person view (FPV) goggles or line-of-sight flying is allowed.',
-                    'All prop guards must be securely mounted and inspected.',
-                    'Battery size limit is capped at 4S LiPo batteries.',
-                    'Skips on consecutive obstacle gates will lead to disqualification.',
-                    'Pilots must use standard analog or digital video links on authorized bands.',
-                    'In case of tie, pilot with fewer crash restarts wins.'
-                ],
-                iconType: 'drone',
-                timeline: {
-                    day: 2,
-                    time: '08:00',
-                    end: '10:00',
-                    venue: 'Rooftop A',
-                    mode: 'Team (2)',
-                    registered: 44,
-                    prize: '₹20,000',
-                    status: 'COMPLETED'
-                }
-            },
-            {
-                title: 'ROBO WARS',
-                subtitle: 'COMBAT ARENA',
-                desc: 'Destroy opponents in a steel-caged combat arena showdown.',
-                xp: '4,000 XP',
-                difficulty: 'ELITE',
-                heads: [
-                    { name: 'Akash Yadav', phone: '+91 94567 89012' },
-                    { name: 'Mohit Jain', phone: '+91 95678 90123' }
-                ],
-                rules: [
-                    'Robots must fit within standard 30x30x30 cm boundaries.',
-                    'Weight class: strictly under 5.0 kg.',
-                    'Combat duration: 3 minutes per round.',
-                    'No projectile or liquid weapons allowed.',
-                    'Pneumatic and hydraulic systems are capped at 10 Bar pressure.',
-                    'Remote control must operate on standard 2.4GHz interference-free bands.',
-                    'All robots must have an accessible master kill switch.',
-                    'Arena walls must not be intentionally damaged by weapon systems.',
-                    'Decisions are based on aggression, damage, and control if time expires.',
-                    'Battery packs must be securely shielded from direct kinetic impacts.',
-                    'Violation of safety checks during inspection leads to immediate disqualification.'
-                ],
-                iconType: 'robot',
-                timeline: {
-                    day: 3,
-                    time: '09:00',
-                    end: '11:00',
-                    venue: 'Lab Alpha',
-                    mode: 'Team (4)',
-                    registered: 32,
-                    prize: '₹15,000'
-                }
+                "title": "DUNE DOMINATOR",
+                "subtitle": "Conquer the Terrain. Command the Machine",
+                "desc": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.",
+                "overview": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.\n\nTeams must engineer their rover to overcome every challenge with speed, precision, and reliability. From wheel and suspension design to motor control and overall stability, every engineering decision can make the difference between getting stuck and conquering the course.\n\nPrepare your machine, take control, and dominate the dunes!",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "minTeam": 2,
+                "maxTeam": 4,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "timeline": { "mode": "Team of 2-4", "day": 3, "time": "15:30", "end": "17:30", "venue": "Central Library, Classroom 6", "prize": "₹20,000" },
+                "heads": [{"name": "Vaibhav Gupta", "phone": "+91 95061 77693"}],
+                "rules": [
+                "Team size is 2 to 4 members (team leader included). Teams may be inter-college and inter-branch.",
+                "Registration fee is ₹50 per member. Prizes worth ₹20,000.",
+                "Round 1 (Elimination): carry 500 g of sand in the sand carrier with the lid fixed, cross the complete arena and clear every obstacle. Performance decides qualification for Round 2.",
+                "Round 2 (Final): carry 750 g of sand with the top open and cross the entire arena, losing as little sand and time as possible. Extra obstacles may be revealed on the spot. Final ranking comes from this round.",
+                "The arena layout and obstacles are revealed on the event day. The two rounds may use different arenas, with tunnels, bridges, banked sections and surprise obstacles.",
+                "Only self-powered rovers with a maximum battery voltage of 24 V are allowed. The rover must be controlled manually at all times through a wireless system. Autonomous or pre-programmed operation is strictly prohibited.",
+                "Maximum rover weight 2 kg (excluding sand). Maximum dimensions 40 cm x 30 cm x 30 cm (L x B x H). No motor speed restriction. PVC or plywood may be used for the structure.",
+                "Sand carrier: a 10 cm x 10 cm x 5 cm box of wood sheet at least 3 mm thick, mounted on the upper side of the rover, with a separate removable lid.",
+                "Wheels or continuous tracks, any number. No spikes, claws, screws, sharp protrusions or arena-damaging features. No active traction mechanisms that change geometry during a run. Wheels or tracks must be non-metallic.",
+                "Passive suspension is permitted. Active or electronically controlled suspension is not allowed, and suspension must not change the rover's geometry during a run.",
+                "The rover starts from the designated start point when the timer begins and must cross all obstacles. A maximum of 5 hand touches are allowed if it gets stuck or goes off track.",
+                "Penalty points are deducted for entering the Penalty Zone or touching the arena boundaries.",
+                "Judging: sand retention, time efficiency, stability and control, and operational discipline. Scoring weights and penalty values are announced on the event day and apply equally to all teams.",
+                "No changes, disassembly or modifications to the rover after the competition starts until results are declared. Intentional damage to the arena or other rovers, cheating or tampering leads to disqualification.",
+                "The decisions of the judges and event managers are final and binding. The organizers may modify the rules, arena specifications or judging criteria, and any change will be announced."
+]
             }
         ]
     },
     {
-        title: 'CODING QUEST',
-        subtitle: 'ALGORITHMIC WARFARE',
-        desc: 'Join high-speed hackathons and optimize code structures.',
-        color: '#ff1f4f',
-        xp: '5,000 XP',
-        difficulty: 'HARD',
-        iconType: 'code',
-        modelType: 'coding',
-        shortName: 'Coding',
-        iconChar: '💻',
-        id: '02',
-        events: [
+        "title": "FUN ARENA",
+        "subtitle": "COMMON EVENTS",
+        "desc": "Puzzles, clues and adventure for everyone who just wants to enjoy the fest.",
+        "color": "#ffb800",
+        "iconType": "brain",
+        "modelType": "clock",
+        "shortName": "Fun",
+        "iconChar": "🧩",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "02",
+        "events": [
             {
-                title: 'BUG HUNT',
-                subtitle: 'DIAGNOSTICS & DEBUGGING',
-                desc: 'Scan code segments and patch hidden compiler bugs under pressure.',
-                xp: '1,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                    { name: 'Karan Patel', phone: '+91 87654 32109' }
-                ],
-                rules: [
-                    'Each team will get 10 bugged code segments to patch.',
-                    'Languages supported: C, C++, Java, and Python.',
-                    'Time limit: 60 minutes.',
-                    'Patched codes must pass all hidden unit test cases.',
-                    'No external compilers or IDEs are permitted; must use the sandbox terminal.',
-                    'Internet access is restricted to official documentation pages.',
-                    'Submission can be done multiple times, but only the last one counts.',
-                    'Sharing solutions or collaboration between different teams will result in instant disqualification.',
-                    'Pre-written code snippets or external libraries cannot be imported.',
-                    'Final scores will be compiled automatically based on execution speed and memory limits.',
-                    'Decisions of the evaluation panel are absolute and final.'
-                ],
-                iconType: 'bug',
-                timeline: {
-                    day: 1,
-                    time: '09:30',
-                    end: '11:00',
-                    venue: 'Lab Beta',
-                    mode: 'Solo',
-                    registered: 96,
-                    prize: '₹10,000'
-                }
-            },
-            {
-                title: 'BYTE CODE',
-                subtitle: 'ALGORITHMS & SPEED',
-                desc: 'Crack algorithmic constraints and design time-optimal data models.',
-                xp: '2,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Priya Nair', phone: '+91 76543 21098' },
-                    { name: 'Siddharth Roy', phone: '+91 65432 10987' }
-                ],
-                rules: [
-                    'Standard algorithmic competitive programming contest.',
-                    'Individual participation only.',
-                    'Penalties apply for incorrect submissions.',
-                    'Rankings determined by score and completion speed.',
-                    'The platform supports Python 3.x, C++17, and Java 17.',
-                    'Plagiarism checks will be conducted post-event on all submissions.',
-                    'In case of identical submission times, the participant with fewer penalties ranks higher.',
-                    'No external communication devices or messaging platforms are allowed during the run.',
-                    'System resources are capped at 512MB RAM per sandbox compiler execution.',
-                    'All challenges will have subtask scoring enabled.',
-                    'Unusual network patterns will trigger automated session lockout.'
-                ],
-                iconType: 'code',
-                timeline: {
-                    day: 1,
-                    time: '12:00',
-                    end: '14:00',
-                    venue: 'Lab Beta',
-                    mode: 'Solo',
-                    registered: 112,
-                    prize: '₹12,000'
-                }
-            },
-            {
-                title: 'WEB CRAFT',
-                subtitle: 'DASHBOARD INTERFACES',
-                desc: 'Design beautiful, responsive game visual overlay terminals.',
-                xp: '3,000 XP',
-                difficulty: 'ELITE',
-                heads: [
-                    { name: 'Vaibhav Singh', phone: '+91 98765 43210' },
-                    { name: 'Neha Gupta', phone: '+91 54321 09876' }
-                ],
-                rules: [
-                    'Develop a responsive front-end landing page from wireframes.',
-                    'Allowed stacks: Vanilla React, TailwindCSS, or plain HTML/CSS.',
-                    'Design components must be clean and responsive.',
-                    'Submit the repository link before time-limit.',
-                    'External assets must be hosted on public CDNs or included locally.',
-                    'Layouts will be tested across Chrome, Firefox, and Safari viewports.',
-                    'Use of UI component libraries like shadcn or Material UI is prohibited.',
-                    'Codebase must be documented with brief component-level instructions.',
-                    'Vite should be used as the build tool for React submissions.',
-                    'Design fidelity to the provided Figma wireframe counts for 40% of marks.',
-                    'No AI code generation tools are permitted during active building phases.'
-                ],
-                iconType: 'web',
-                timeline: {
-                    day: 2,
-                    time: '09:00',
-                    end: '13:00',
-                    venue: 'Lab Beta',
-                    mode: 'Team (4)',
-                    registered: 80,
-                    prize: '₹25,000'
-                }
+                "title": "TREASURE HUNT",
+                "subtitle": "The Hunt Begins. Can You Find What Others Cannot?",
+                "desc": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.",
+                "overview": "Treasure Hunt is the campus-wide clue-solving adventure of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 race across the arena, decode riddles and puzzles, reach hidden checkpoints and follow the trail to the final treasure.\n\nEach solved clue leads to the next location. The team that completes the trail correctly, in the right order and in the shortest time, wins the hunt. It tests logical reasoning, observation, teamwork, navigation, technical knowledge and speed.\n\nRegistration is free. A briefing before the hunt explains the hunt area, boundaries and time limit, and an elimination round may be held before the main hunt.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "minTeam": 3,
+                "maxTeam": 3,
+                "timeline": { "mode": "Team of 3", "prize": "Exciting prizes" },
+                "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Tapan Boruah", "phone": "+91 98590 40208"}],
+                "rules": [
+                "Treasure Hunt is a team event. Each team has exactly 3 members, who may be from different branches, years or institutions. A participant may be in only one team, and one member is nominated as team leader (the point of contact). Registration is free.",
+                "Every participant must carry a valid student ID card. Team composition cannot be changed after registration without permission from the coordinators.",
+                "Teams must report at the announced venue and time with all members present. A late team may start without extra time, at the coordinators' discretion. A briefing before the hunt explains the hunt area, boundaries, out-of-bounds places and the time limit.",
+                "The hunt is a trail of clues: solve a clue, reach the checkpoint, get the next clue, and finish at the final treasure. Clues can be riddles, ciphers, pictures, puzzles, technical questions or physical tasks. The number of rounds and checkpoints is announced by the organisers, and an elimination round may be held first.",
+                "Clues must be solved in the given order and checkpoints cannot be skipped. All members must be together at every checkpoint and report to the volunteer there. Teams may get clues in a different order. Never share clues, answers or locations with other teams.",
+                "Clues must not be removed, hidden, damaged or moved. Hints, if available, go only to the team leader and may carry a time or point penalty, as announced at the briefing.",
+                "Ranking: 1) number of checkpoints validly completed, 2) total time taken including penalties, 3) fewer hints used. Ties are broken by fewer hints, then fewer penalties, then the earlier last checkpoint, and if still tied the organisers may hold a short tie-breaker challenge.",
+                "Safety: no running in crowded areas, corridors, stairways or near roads. Stay within the announced boundaries, do not enter labs, offices or hostels unless a clue leads there with permission, do not climb walls, trees or roofs, do not use vehicles, and keep your phones reachable. Report any injury to the nearest coordinator immediately.",
+                "Fair play: do not follow, track or copy other teams, take help from anyone outside the team, or tamper with or mislead other teams. Using the internet or apps is allowed only when announced for a clue. Do not pressure volunteers for answers.",
+                "Penalties (announced at the briefing) apply for reaching a checkpoint without all members, entering out-of-bounds areas, taking a hint, ignoring instructions or minor misconduct. Disqualification applies for removing or damaging clues, unfair means, skipping checkpoints or false answers, damaging campus property, unsafe behaviour, misconduct, or repeated violations.",
+                "The official time recorded by the coordinators is used for all timing decisions. The organisers may modify or clarify the rules with an announcement before implementation. The decision of the coordinators / organising committee is final and binding."
+                ]
             }
         ]
     },
     {
-        title: 'ELECTRICAL GUILD',
-        subtitle: 'CIRCUIT DEBUGGING',
-        desc: 'Master breadboard wiring, logic gates, and analog designs.',
-        color: '#ff9d00',
-        xp: '6,500 XP',
-        difficulty: 'MEDIUM',
-        iconType: 'bolt',
-        modelType: 'electrical',
-        shortName: 'Electrical',
-        iconChar: '⚡',
-        id: '03',
-        events: [
+        "title": "GAMING NEXUS",
+        "subtitle": "ESPORTS SHOWDOWN",
+        "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends, Tekken and Real Cricket.",
+        "color": "#9b5cff",
+        "iconType": "gamepad",
+        "modelType": "controller",
+        "shortName": "Gaming",
+        "iconChar": "🎮",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "03",
+        "events": [
             {
-                title: 'LOGIC QUEST',
-                subtitle: 'TRUTH TABLES & CIRCUITS',
-                desc: 'Build gate systems and resolve high-frequency signals.',
-                xp: '2,000 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Karan Patel', phone: '+91 87654 32109' },
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                ],
-                rules: [
-                    'Solve 15 core digital logic design problems.',
-                    'Use of simulators is allowed for validation.',
-                    'Submit schematic diagrams alongside truth tables.',
-                    'Ties broken by overall logic minimization efficiency.',
-                    'Allowed simulators: Logisim-evolution, Digital, or Multisim.',
-                    'All truth tables must be completed in standard SOP form.',
-                    'Gates must conform to standard IEEE schematic symbols.',
-                    'Late submissions face a penalty of 10% score reduction per 5 minutes.',
-                    'Group discussions are strictly disallowed during problem solving.',
-                    'Hardware description language (Verilog/VHDL) code must compile without warnings.',
-                    'Only standard library components can be used in schematic designs.'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 1,
-                    time: '10:30',
-                    end: '12:00',
-                    venue: 'Sigma Hall',
-                    mode: 'Solo',
-                    registered: 80,
-                    prize: '₹8,000'
-                }
+                "title": "BGMI",
+                "subtitle": "DROP IN. GEAR UP. SURVIVE. CONQUER",
+                "desc": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.",
+                "overview": "The BGMI Tournament is the Battlegrounds Mobile India competition of Addovedi 2026, NIT Arunachal Pradesh. BGMI has been gaining popularity in Northeast India and across the country, and this tournament brings teams together to compete through survival skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stages are managed and scheduled online by the event committee, and the final matches are played physically at the Institute campus. Teams have 5 members. If more than 60 teams register, only the top 60 are shortlisted. Registration is free.\n\nRound 1 — Qualifiers: 60 teams play over 3 days, 3 matches a day (9 matches). The top 24 teams qualify for the semifinals.\nRound 2 — Semifinals: the 24 qualified teams play over 3 days, 4 matches a day (12 matches). The top 16 teams qualify for the finals.\nRound 3 — Finals: the 16 qualified teams play over 3 days, 4 matches a day (12 matches). The final standings after all matches decide the winners and prize positions.\n\nThe overall prize pool is ₹22,000 plus goodies, shared among the 16 finalist teams. The event runs under serious supervision.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "minTeam": 4,
+                "maxTeam": 5,
+                "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Nandu Giba Tamin", "phone": "+91 76300 64979"}, {"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
+                "timeline": { "mode": "Team of 4-5", "day": 2, "time": "11:00", "end": "16:00", "label": "QUALIFIERS · DAY 1 OF 2", "venue": "TEL Centre", "prize": "₹22,000 + goodies", "sessions": [{ "day": 3, "time": "11:00", "end": "16:00", "venue": "TEL Centre", "label": "FINALS · DAY 2 OF 2" }] },
+                "rules": [
+                "Each team may have a maximum of 5 members (a team has 5 players). A team may register only once; if it registers more than once, only the first submission is considered.",
+                "Registration is free. There is no entry fee. The prize pool is ₹22,000 plus goodies, shared among the 16 teams that qualify for the finals. The organisers will announce the exact prize distribution.",
+                "Registration is online in advance. If more than 60 teams register, only the top 60 teams are shortlisted to compete.",
+                "In the early stages, teams are managed and scheduled by the event committee through the online competition format. The final matches are played physically at the Institute campus.",
+                "Round 1 (Qualifiers): 60 teams play over 3 days with 3 matches per day (9 matches). The top 24 teams qualify for the semifinals, and the rest are eliminated.",
+                "Round 2 (Semifinals): the 24 qualified teams play over 3 days with 4 matches per day (12 matches). The top 16 teams qualify for the finals, and the rest are eliminated.",
+                "Round 3 (Finals): the 16 qualified teams play over 3 days with 4 matches per day (12 matches). The final standings after all matches decide the winners and the prize positions.",
+                "Player ID rule: a player ID cannot be reused by another player at any point in the tournament, otherwise the team is disqualified. Use the registered Player ID throughout the tournament.",
+                "A minimum of 3 players must be present in the qualifiers and 4 players in the finals, otherwise the team is disqualified. The event is conducted under serious supervision.",
+                "Follow the official match schedule and instructions issued by the event committee.",
+                "For the physical finals, qualified players must report at the Institute campus as instructed by the organisers.",
+                "Carry a valid student ID card from your institution. Teams bring their own materials and supplies; the organisers do not provide materials.",
+                "All submitted documents and designs are checked for plagiarism. If plagiarism is found, the whole team is disqualified.",
+                "Keep the spirit of healthy competition. Do not damage other teams, their devices or equipment. Maintain proper and respectful behaviour, especially during the finals at the Institute. The organisers may disqualify any team for misconduct.",
+                "In case of disputes or discrepancies, the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+]
             },
             {
-                title: 'MAZE RUNNER',
-                subtitle: 'AUTONOMOUS PCB BOARDS',
-                desc: 'Program microcontrollers to solve breadboard electrical mazes.',
-                xp: '3,000 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Simran Kaur', phone: '+91 92345 67890' },
-                    { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
+                "title": "FIFA SHOWDOWN",
+                "subtitle": "KICK OFF. COMPETE. CONQUER",
+                "desc": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.",
+                "overview": "The FC 26 Tournament is a competitive 1v1 gaming event of Addovedi 2026, played on EA SPORTS FC 26 on PlayStation 5 at the National Institute of Technology, Jote. It brings students together for a fun, competitive and fair gaming experience, with sportsmanship and fair play expected from the first kick-off to the final.\n\nIt is a pure single-elimination knockout. There is no group stage, league stage or points table. The winner of each match advances and the loser is eliminated. Depending on the number of players, rounds may include the Round of 32, Round of 16, quarterfinals, semifinals and final, and some players may get a bye. Each player represents themselves.\n\nEach match is played over 10 minutes per half. If the score is level after full time, extra time is played, and a penalty shootout follows if it is still level. Controllers must be standard and unmodified, and results are confirmed with the organiser after every match.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "₹100 per player",
+                "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Tage Jarbo", "phone": "+91 87876 90625"}],
+                "timeline": { "mode": "Solo", "day": 2, "time": "16:00", "end": "17:00", "venue": "TEL Centre", "prize": "₹15,000 including goodies" },
+                "rules": [
+                "FC 26 is a 1v1 event: each entry is one player who represents themselves. A player may register only once, and substitutions are not allowed.",
+                "Registration fee is ₹100 per player. Prizes: ₹15,000 including goodies, given to the top finishers. The exact distribution is announced by the organisers.",
+                "The game is EA SPORTS FC 26 on PlayStation 5, on the latest official patch. The venue is the National Institute of Technology, Jote.",
+                "The tournament is single-elimination (knockout), one match per round. The winner advances and the loser is eliminated. Some players may get a bye, decided by random draw or seeding by the organisers.",
+                "Match duration is 10 minutes per half. If the score is level after full time, extra time is played. If it is still level, the match goes to a penalty shootout. The organisers may adjust these settings and will inform all players.",
+                "Players register online before the deadline and check in at the venue at the announced time with a valid student ID. The bracket and schedule are prepared by the organisers and shared with all players.",
+                "Be ready when your name is called. A player who does not report when called loses the match by walkover.",
+                "Controllers must be standard and unmodified. Turbo, macro or modded controllers are not allowed.",
+                "Both players must check the settings before kick-off. Settings cannot be changed once the match starts.",
+                "Pausing without the organiser's permission is not allowed, and repeated pausing may lead to a penalty. Intentionally quitting or leaving a match counts as a loss.",
+                "If a disconnect or technical issue happens, tell the organiser immediately. The organiser decides whether to resume or replay.",
+                "After the match, both players confirm the result with the organiser or coordinator before leaving the station.",
+                "Cheating or deliberately exploiting glitches is not allowed. Do not distract, provoke or interfere with your opponent. Playing on behalf of another player or receiving outside help during a match is not allowed.",
+                "Respect opponents, organisers, volunteers and spectators. No abusive, threatening, discriminatory or offensive behaviour, and no toxic behaviour. No intentional damage to consoles, controllers or equipment, and no unauthorised software or hardware.",
+                "Disqualification applies for cheating, exploiting glitches, match manipulation, repeated misconduct, ignoring organiser instructions, abusive or threatening behaviour, unauthorised equipment or software, or any serious rule violation.",
+                "Organisers have the final authority in all disputes and may decide situations not covered by the rule book. They may change schedules for technical or logistical reasons, and will inform registered participants of rule changes."
+]
+            },
+            {
+                "title": "MOBILE LEGENDS: BANG BANG",
+                "subtitle": "CHOOSE YOUR HERO. MASTER YOUR STRATEGY. CONQUER THE ARENA",
+                "desc": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.",
+                "overview": "The MLBB Tournament is the Mobile Legends: Bang Bang competition of Addovedi 2026, NIT Arunachal Pradesh. MLBB has been growing fast in Northeast India and across the country, and this tournament brings teams together to compete through gameplay skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stage is managed and scheduled online by the event committee, and the final match is played physically at the Institute campus, giving players and spectators a real esports experience. Teams have 5 members. If more than 40 teams register, only the top 40 are shortlisted.\n\nRound 1 — League / Group Stage: the 40 selected teams are split into 4 groups of 10 and play round-robin matches. The group winners advance.\nRound 2 — Knockout / Quarterfinals: elimination matches decide the semifinalists.\nRound 3 — Semifinals: the four qualified teams compete, and the winners go to the final.\nRound 4 — Final: the two semifinal winners play the final at the Institute campus for 1st and 2nd place.\n\nFaculty coordinators and student volunteers supervise and referee every match, and the same rulebook applies to all teams.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "minTeam": 5,
+                "maxTeam": 5,
+                "fee": "₹100 per team",
+                "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Nabam Rana", "phone": "+91 81319 03629"}],
+                "timeline": { "mode": "Team of 5", "day": 3, "time": "16:00", "end": "17:30", "venue": "TEL Centre", "prize": "₹10,000 cash + exclusive hoodies" },
+                "rules": [
+                "Each team has 5 members. A team may register only once; if it registers more than once, only the first submission is considered.",
+                "Registration fee is ₹100 per team. Prizes: ₹10,000 cash prize plus exclusive hoodies.",
+                "Registration is online in advance. If more than 40 teams register, only the top 40 teams are shortlisted to compete.",
+                "Round 1 is a league stage: 40 teams in 4 groups of 10, round-robin matches inside each group. The group winners advance to the knockout stage.",
+                "Round 2 is the knockout or quarterfinal stage, with elimination matches to decide the semifinalists.",
+                "Round 3 is the semifinals with the four qualified teams. The winners go to the final and the losing teams are eliminated.",
+                "Round 4 is the final between the two semifinal winners, played physically at the Institute campus, to decide 1st and 2nd place.",
+                "In the early stage, teams are managed and scheduled by the event committee through the online competition format. The final match is on campus.",
+                "Player ID rule: a player ID cannot be reused by another player at any point in the tournament, otherwise the team is disqualified. Use the registered Player ID throughout the tournament.",
+                "Follow the official match schedule and instructions issued by the event committee.",
+                "For the physical final, qualified players must report at the Institute campus as instructed by the organisers.",
+                "Carry a valid student ID card from your institution. Teams bring their own materials and supplies; the organisers do not provide materials.",
+                "All submitted documents and designs are checked for plagiarism. If plagiarism is found, the whole team is disqualified.",
+                "Keep the spirit of healthy competition. Do not damage other teams, their devices or equipment. Maintain proper and respectful behaviour, especially during the final at the Institute.",
+                "Faculty coordinators and student volunteers supervise and referee every match, and the same rulebook applies to every team. The organisers may disqualify any team for misconduct.",
+                "In case of disputes or discrepancies, the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+]
+            },
+            {
+                "title": "TEKKEN SHOWDOWN",
+                "subtitle": "FIGHT. COMBO. CONQUER",
+                "desc": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.",
+                "overview": "The Tekken 7 Tournament is the one-on-one fighting game competition of Addovedi 2026, NIT Arunachal Pradesh. Tekken 7 is one of the most widely played titles in the global fighting game community, and this tournament lets players show their execution, reads, match-up knowledge and composure under pressure. Every game is a head-to-head test of skill, with no one to rely on but yourself.\n\nThe tournament is individual (1 vs 1) and runs offline at the Institute campus over 2 days. Registration is free and happens online in advance. The expected number of players is about 10 to 15. If more than 15 register, only the top 15 are shortlisted.\n\nDay 1 — Qualifiers: all registered players compete in a pool round-robin or bracket (finalised by the organisers). Every match is a best-of-3 set, and only 2 players qualify for the final.\nDay 2 — Final: the 2 qualified players meet in a best-of-5 set (first to win 3 games). The result decides the winner, the runner-up and the prize positions.\n\nEach game is 3 rounds (first to win 2 rounds) with a 60-second round timer, random stage, handicap and items off, and all characters allowed, including DLC characters. Random Select is not allowed. The game is Tekken 7 on the latest official patch.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Harsh Sharma", "phone": "+91 77620 67934"}],
+                "timeline": { "mode": "Solo", "day": 2, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "₹7,000+ including goodies" },
+                "rules": [
+                "Tekken 7 is an individual 1v1 event. Each entry is one player who represents themselves, and substitutions are not allowed. A player may register only once, and only the first registration counts.",
+                "Registration is free. There is no entry fee. The prize pool is ₹7,000+ including goodies, for the 1st and 2nd place winners. The organisers will announce the exact distribution.",
+                "Online registration is done in advance. The expected number of players is about 10 to 15, and if more than 15 register, only the top 15 are shortlisted. All player counts are estimates and are finalised once registrations close.",
+                "All matches are offline at the Institute campus, managed and scheduled by the event committee, over 2 days.",
+                "Day 1 (qualifiers): all registered players compete in a pool round-robin or bracket, decided by the organisers based on the number of players. Every match is a best-of-3 set. Only 2 players qualify for the final and the rest are eliminated.",
+                "Day 2 (final): the 2 qualified players meet in a best-of-5 set (first to win 3 games). The result decides the winner, the runner-up and the prize positions.",
+                "Each game is 3 rounds (first to win 2 rounds), with a 60-second round timer. The stage is random, and the organisers may disable stages that interfere with play. Handicap and items are off. Rage Arts and Rage Drives are allowed.",
+                "The game is Tekken 7 on the latest official patch. All characters, including DLC characters, are allowed. Random Select is not allowed. The organisers may adjust these settings and will inform all players.",
+                "Players choose their character before each game. The winner of a game keeps the same character for the next game of the set, and the loser may switch. Mirror matches are allowed, and at the start of a new set both players may choose freely.",
+                "Be ready when your match is called. A player who fails to appear within 10 minutes of the call loses the set by walkover (2-0). A player who misses two scheduled matches is disqualified.",
+                "After each set, both players must confirm the result with the judge or coordinator before leaving the match station.",
+                "Pausing a game without a judge's permission loses that game. A player who quits or deliberately disconnects forfeits the game, and repeated offences forfeit the set. Report any equipment or technical problem to the judge immediately, before the next game begins. An affected game may be replayed once at the judge's discretion.",
+                "Bring your own controllers and headphones unless stated otherwise. The organisers do not provide personal equipment. Carry a valid student ID card.",
+                "Collusion, intentionally losing games, playing on behalf of another player, and receiving outside help or coaching during a game are prohibited and lead to disqualification. Abusive language, excessive taunting or disrespect leads to a warning and may lead to disqualification.",
+                "Qualified players must report at the Institute campus at the scheduled time as instructed by the organisers, and follow the official match schedule and instructions. Players and spectators must behave properly during all matches.",
+                "The event is conducted under serious supervision. The organisers may disqualify any player for misconduct. In case of disputes or discrepancies, the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+]
+            },
+            {
+                "title": "REAL CRICKET 24",
+                "subtitle": "PLAY THE GAME. OWN THE PITCH.",
+                "desc": "Step onto the virtual pitch and prove your skill in a one-on-one cricket showdown. Real Cricket 24 is a knockout tournament where timing, strategy and nerve decide who lifts the trophy.",
+                "overview": "Real Cricket 24 is the cricket gaming event of Addovedi 2026, NIT Arunachal Pradesh. Players compete one-on-one in a knockout tournament, where skill, strategy, quick reflexes and sportsmanship decide who takes the arena.\n\nPlayers are matched against each other, and the winners advance round by round through the qualifiers, knockouts and semi-final until the final. The game mode, settings, match length and best-of format are announced by the organisers, and matches are played on the equipment provided at the venue.\n\nRegistration is free.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gamepad",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/I7lzduH?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [
+                    {
+                        "name": "Vaibhav Gupta",
+                        "phone": "+91 95061 77693"
+                    }
                 ],
-                rules: [
-                    'Configure microcontrollers to navigate a dynamic physical grid.',
-                    'Sensors must detect wall proximity within 2cm tolerances.',
-                    'Max 3 trial runs allowed per robot build.',
-                    'Fastest escape time secures the win.',
-                    'Microcontroller must be programmed on-board, no wireless control allowed.',
-                    'Chassis size must not exceed 20x20 cm footprint.',
-                    'Power source is limited to a maximum of 12V DC.',
-                    'The maze configuration will be altered slightly before each official run.',
-                    'Manual intervention during an active run results in run cancellation.',
-                    'Infrared or Ultrasonic sensor calibration must be done in the designated pit area.',
-                    'Ties will be broken by the robot weight (lighter robot wins).'
-                ],
-                iconType: 'bolt',
-                timeline: {
-                    day: 2,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Sigma Hall',
-                    mode: 'Solo',
-                    registered: 45,
-                    prize: '₹12,000'
-                }
+                "timeline": { "mode": "Solo", "day": 3, "time": "09:00", "end": "10:30", "venue": "TEL Centre", "prize": "Exciting prizes" },
+                "rules": [
+                    "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
+                    "Every player must carry a valid student ID card and give valid, accurate registration details. Details cannot be changed after the entry list is finalised without permission from the coordinators.",
+                    "Players report at the announced venue and time and check in with the coordinators. A player who is not present when their match is called may be disqualified or given a walkover after a short waiting time. The match schedule and brackets are shared on the day or in the official WhatsApp group.",
+                    "Format: Qualifiers, Knockouts, Semi-final, Final. Only winners advance. The number of rounds, match length and best-of format are announced by the organisers, brackets may be random or seeded, and the format may change depending on the number of entries (announced before play begins).",
+                    "Matches are played only on the game, mode, map and settings fixed by the organisers, using only the equipment and accounts provided or approved by the organisers. Players must not leave the match area during a game without the referee's permission.",
+                    "Players may bring their own controller or headset only if the organisers allow it, and it may be inspected. Do not change system settings, install software or tamper with the setup. Report any technical problem to the referee before the match begins, as problems raised after play has started may not be accepted.",
+                    "Disconnections, crashes or technical faults are handled by the referee, who may pause, replay or resume the match. Short pauses are allowed only under the conditions announced by the organisers. The referee's record of the result is final, and both sides must confirm the result with the referee after every match.",
+                    "If a match ends level, the referee decides it with an extra round, then sudden death, then a referee decision. The final's winner is the champion.",
+                    "Fair play: no cheating (hacks, mods, scripts, macros, bug exploits, unauthorised software or hardware), no match-fixing or colluding with an opponent, no distracting or interfering with an opponent's screen or controls, and no outside help or coaching during a match unless announced. Abusive, offensive or discriminatory behaviour is not tolerated.",
+                    "Penalties (warning, point deduction or forfeit) apply for late arrival, interfering with an opponent or the setup, unapproved equipment or settings, ignoring instructions, or unsporting conduct. Disqualification applies for cheating, match-fixing, damaging equipment or the venue, abusive behaviour, false registration details or playing under another person's name, and repeated violations.",
+                    "Spectators must stay quiet and remain outside the match area. The organisers may modify or clarify the rules with an announcement before implementation. The decision of the referees / organising committee is final and binding."
+                ]
             }
         ]
     },
     {
-        title: 'GAMING ARENA',
-        subtitle: 'ESPORTS SHOWDOWN',
-        desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.',
-        color: '#9b5cff',
-        xp: '6,000 XP',
-        difficulty: 'HARD',
-        iconType: 'gamepad',
-        modelType: 'controller',
-        shortName: 'Gaming',
-        iconChar: '🎮',
-        id: '04',
-        events: [
+        "title": "CYBER CODE",
+        "subtitle": "ALGORITHMIC WARFARE",
+        "desc": "Hackathons, competitive coding and AI-assisted web design for builders and problem solvers.",
+        "color": "#ff1f4f",
+        "iconType": "code",
+        "modelType": "coding",
+        "shortName": "Coding",
+        "iconChar": "💻",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "04",
+        "events": [
             {
-                title: 'BGMI CRUCIBLE',
-                subtitle: 'SURVIVAL BR',
-                desc: 'Drop in teams, clear hostile drops, and survive the gaming circle.',
-                xp: '2,500 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Sneha Raj', phone: '+91 77777 66666' },
-                    { name: 'Pooja Sharma', phone: '+91 66666 55555' }
-                ],
-                rules: [
-                    'Standard squad-based battle royale matches.',
-                    'Points calculated by placing position and kill points.',
-                    'Tablet/phone controllers only, no emulators.',
-                    'Device logs may be audited post-match.',
-                    'Matches will be hosted on Erangel, Miramar, and Sanhok maps.',
-                    'Use of triggers, trigger buttons, or custom cooling attachments is prohibited.',
-                    'Any disconnects due to personal internet issues will not trigger a match restart.',
-                    'Stream sniping or screen sharing is strictly forbidden.',
-                    'Teams must consist of exactly 4 players plus 1 optional sub.',
-                    'Tie-breakers will favor the team with higher total placement points.',
-                    'Decisions of the match marshals are final and non-negotiable.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 1,
-                    time: '10:00',
-                    end: '12:00',
-                    venue: 'Arena Omega',
-                    mode: 'Squad (4)',
-                    registered: 64,
-                    prize: '₹20,000'
-                }
+                "title": "HACKATHON",
+                "subtitle": "IDEATE. INNOVATE. BUILD. CONQUER",
+                "desc": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.",
+                "overview": "The ADDOVEDI 2026 Hackathon is a 24-hour continuous software development and innovation competition organised by Coding Pundit, Department of Computer Science and Engineering, NIT Arunachal Pradesh. It tests creativity, problem-solving, technical knowledge, teamwork and the ability to build a practical solution in limited time. Ideate. Innovate. Build. Conquer.\n\nThe competition moves from idea validation, to prototype development, and finally to a complete solution presentation. The evaluation gets more rigorous at every stage, so winning teams need both innovation and good software engineering.\n\nRound 1 — Innovation and Idea Pitch: held only if more than 20 teams register. The top 15 teams qualify. If 20 or fewer teams register, the event starts directly at Round 2.\nRound 2 — Prototype Development: teams build a working MVP for the released problem statement, with periodic progress evaluations. A screening round (5-minute presentation + 3-minute demo and Q&A) picks the top 8 finalists.\nRound 3 — Final Demonstration: finalists present the complete solution to the judges, followed by Q&A from faculty.\n\nJudging is out of 100: problem and solution (25), UI/UX and product (25), technical implementation (25) and presentation and Q&A (25). Build a solution, not just a project.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "web",
+                "minTeam": 2,
+                "maxTeam": 4,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
+                "heads": [{"name": "Divyanshu Gupta", "phone": "+91 96954 31255"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
+                "timeline": { "mode": "Team of 2-4", "day": 1, "time": "17:00", "end": "17:00", "endDay": 2, "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM", "venue": "Central Library, Classroom 7", "prize": "₹30,000+ (including goodies)" },
+                "rules": [
+                "Teams must have a minimum of 2 and a maximum of 4 members. Each participant may join only one team. Team details must be final at verification.",
+                "Only the top 25 teams can participate, selected first come, first served by registration time.",
+                "Registration fee is ₹50 per member. Prizes worth ₹30,000+ (including goodies).",
+                "The hackathon is a 24-hour continuous event with three stages: Idea Pitch, Prototype Development and Final Demonstration. Date, venue and clock times are announced by the organisers.",
+                "Round 1 (Idea Pitch) is held only if more than 20 teams register. The top 15 teams qualify for development. With 20 or fewer teams, the competition starts directly with Round 2.",
+                "In Round 1, pitch a real-world problem, an innovative and feasible solution, your tech stack and approach, and the expected impact, usability and scalability. You will answer the judges' questions.",
+                "Your solution must directly solve the problem statement released by the organisers. A focused, working MVP beats a large, half-finished one. Extra features earn credit only if they truly improve the solution and work.",
+                "Any language, framework, database, API or methodology is allowed. Deployment is optional. Localhost demos are fully acceptable, but a live deployment lets judges test directly.",
+                "All AI tools are allowed, but they earn no extra marks. Your team is responsible for every line you submit and must be able to explain the important parts in Q&A. Never use any tool to fake functionality, falsify evidence or manipulate judging.",
+                "Open-source libraries, frameworks, APIs, SDKs and cloud services are allowed under their licences. Credit significant external resources in your README.",
+                "Keep a public GitHub repository from the start of the hackathon until the results. Commit regularly with clear messages. Repositories created or filled with code just before the event may be investigated.",
+                "The repository as it stands at the freeze time is your final version. Changes after the freeze may be ignored. The freeze time is strict.",
+                "Submit: the public repository URL, project name and team details, a short description, major features, tech stack, deployment URL (if any), steps to run or demo, and anything else the organisers request.",
+                "After development, a screening round (5-minute presentation + 3-minute demo and Q&A) decides the top 8 finalists. It considers problem-solution fit, a working MVP, UI and product quality, and repository quality, architecture and implementation.",
+                "Round 3 is the final demonstration: a 5-minute presentation plus Q&A with faculty on architecture, database design, APIs, security, technology choices, limitations and future improvements. Time limits are strict and every member should be ready to answer.",
+                "Judging is out of 100: problem and solution 25, UI/UX and product 25, technical implementation 25, presentation and Q&A 25. More code, files or features do not mean more marks.",
+                "Tie-break: higher Problem and Solution score, then Technical Implementation, then UI/UX and Product, then Presentation and Q&A, then the judging panel's decision based on the submitted work.",
+                "Plagiarism, collusion, copying another team's work, sharing substantial code with competing teams, and faking Git history, functionality or test results are not allowed.",
+                "Do not attack, disrupt or access another team's app, data, credentials or infrastructure, or the organiser and judging systems. Report any vulnerability you find to the organisers. No malicious code aimed at the evaluation environment.",
+                "Disqualification may result from plagiarism, cheating, misrepresentation, unauthorised access, malicious activity, manipulating judging, serious rule violations or submitting after the deadline without permission.",
+                "Arrive on time; late arrivals may lose build time. Follow all instructions from organisers, volunteers and judges. The organisers may clarify or adjust operational rules and will announce material changes. The organisers' decision is final."
+]
             },
             {
-                title: 'FIFA PRO',
-                subtitle: '1V1 ESPORTS',
-                desc: 'Compete in high-frequency bracket matches on console screens.',
-                xp: '2,000 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Amit Joshi', phone: '+91 55555 44444' },
-                    { name: 'Rohit Verma', phone: '+91 44444 33333' }
-                ],
-                rules: [
-                    'Standard 1v1 console matches (PlayStation 5).',
-                    'Match duration: 6 minutes per half.',
-                    'Custom tactical formations are allowed.',
-                    'In case of draw, matches go to extra time and penalties.',
-                    'All matches will be played in Kick-Off mode using standard teams.',
-                    'Wireless controller configurations must be checked before kickoff.',
-                    'Pausing is only allowed when the ball is out of play.',
-                    'Intentional time-wasting in defense will lead to warnings.',
-                    'Peripherals must be connected via USB cable to prevent sync lag.',
-                    'Tactical defending mode must be turned ON.',
-                    'Legacy defending settings are strictly disallowed.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 1,
-                    time: '16:00',
-                    end: '18:00',
-                    venue: 'Arena Omega',
-                    mode: 'Solo',
-                    registered: 88,
-                    prize: '₹15,000'
-                }
+                "title": "CODATHON",
+                "subtitle": "THINK. CODE. SOLVE. CONQUER",
+                "desc": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.",
+                "overview": "CODATHON is the programming and Computer Science competition of Addovedi 2026, organised by Coding Pundit, Department of Computer Science and Engineering. It runs as one continuous session in two stages: a 20-question Computer Science fundamentals assessment, followed immediately by a coding challenge. Think. Code. Solve. Conquer.\n\nIt is an individual event, and participants bring their own laptop. Ranking is based on the combined performance across both stages. The event tests CS fundamentals, logical reasoning, problem solving, programming and optimisation.\n\nStage 1 — CS Fundamentals Assessment: 20 objective questions covering programming fundamentals, data structures and algorithms, operating systems, DBMS, computer networks, OOP, software engineering, aptitude and logical reasoning, and basic development concepts.\nStage 2 — Coding Challenge: starts right after Stage 1 with problems of increasing difficulty. Topics may include arrays, strings, searching and sorting, recursion, hashing, stacks and queues, trees and graphs, dynamic programming, greedy algorithms and mathematical and implementation problems.\n\nCoding solutions are evaluated automatically against test cases, checking correctness, algorithmic approach and time and space complexity. Stage weights, durations and the coding platform will be announced by the organisers.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "code",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Riya Yadav", "phone": "+91 89575 08842"}, {"name": "Vinay Pal", "phone": "+91 88403 37686"}],
+                "timeline": { "mode": "Solo", "day": 3, "time": "14:00", "end": "16:00", "venue": "Central Library, Classroom 1", "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "CODATHON is an individual event. A participant may register only once; if someone registers more than once, only the first registration is considered.",
+                "Registration fee is ₹50 per participant. Prizes worth ₹13,000+ (including goodies), shared among the winners. The position-wise distribution will be announced by the organisers.",
+                "Provide valid and accurate registration details and carry a valid ID card. Report according to the schedule announced by the organisers.",
+                "Bring your own laptop with a charger. The organisers do not provide laptops. Coding is done on your own laptop on the platform announced by the organisers.",
+                "The event is one continuous session with no scheduled break. All participants start Stage 1 (a 20-question MCQ assessment) at the same time, then move straight into Stage 2 (the coding challenge). Both stages count towards the final score.",
+                "Stage 1 covers programming fundamentals, DSA, operating systems, DBMS, computer networks, OOP, software engineering, aptitude and logical reasoning, and basic development concepts.",
+                "Stage 2 has coding problems of increasing difficulty, such as arrays, strings, searching and sorting, recursion, hashing, stacks and queues, trees and graphs, dynamic programming and greedy algorithms.",
+                "Each stage has a fixed time limit announced before it begins. Problems and instructions are released at the start of each stage. Submissions after the time limit are not evaluated unless the coordinators announce otherwise.",
+                "Coding solutions are evaluated automatically against test cases. Scoring considers correctness, algorithmic approach, time and space complexity and test cases passed. Stage weights and marking are announced by the organisers.",
+                "Final ranking is by the combined total score. Ties are broken by the Stage 2 score, then the Stage 1 score, then the earlier Stage 2 finish, then the organisers' decision.",
+                "Do not discuss questions or solutions with anyone during the session. Do not use mobile phones, smartwatches, notes, books or unauthorised devices unless the organisers allow them.",
+                "Do not use AI tools, code-generation tools or online solution sources unless the organisers explicitly permit them. Permitted resources, device policy and internet access will be announced.",
+                "Do not interfere with the evaluation system, other participants' laptops, files or accounts, or the network. Report any technical problem to a coordinator immediately.",
+                "Disqualification applies for plagiarism, copying or sharing questions, answers or code, using unauthorised help or pre-written solutions, attacking or accessing other systems or the judging platform, manipulating the evaluation or exploiting platform errors, continuing after time is called, or other misconduct.",
+                "Official start and submission times recorded by the coordinators are used for all timing decisions. Follow the coordinators' instructions throughout the event.",
+                "The decisions of the judges and organising committee on scoring, ranking and disqualification are final and binding. The organisers may modify or clarify the rules and will announce changes before they take effect."
+]
             },
             {
-                title: 'VALORANT',
-                subtitle: '5V5 SEARCH & DESTROY',
-                desc: 'Coordinate agent tactics on stage screens for gaming domination.',
-                xp: '3,000 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Aman Verma', phone: '+91 99999 88888' },
-                    { name: 'Rahul Das', phone: '+91 88888 77777' }
-                ],
-                rules: [
-                    'Standard 5v5 Tactical Shooter double-elimination tournament.',
-                    'Tournament rules: strictly competitive settings.',
-                    'No external macros, exploits, or cheating allowed.',
-                    'Map pools will be decided prior to matches.',
-                    'All matches will be played on Mumbai servers.',
-                    'Teams must check-in at least 15 minutes before scheduled match.',
-                    'Tactical timeouts are limited to two 60-second pauses per map.',
-                    'Use of in-game chat for toxic behavior will lead to warnings or match loss.',
-                    'Players must bring their own gaming peripherals (mouse/keyboard/headset).',
-                    'Coaches are only allowed to talk during tactical timeouts.',
-                    'Substitute players must be registered before the tournament begins.'
-                ],
-                iconType: 'gamepad',
-                timeline: {
-                    day: 2,
-                    time: '10:00',
-                    end: '13:00',
-                    venue: 'Arena Omega',
-                    mode: 'Squad (5)',
-                    registered: 50,
-                    prize: '₹25,000'
-                }
+                "title": "PROMPT & PIXEL",
+                "subtitle": "PROMPT. DESIGN. BUILD",
+                "desc": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.",
+                "overview": "PROMPT & PIXEL is the AI-assisted web design and landing page development competition of Addovedi 2026, organised by Coding Pundit. It tests creativity, UI/UX design skills, frontend development ability, prompt engineering skills and the effective use of AI tools. Prompt. Design. Build.\n\nAt the start, every participant gets a common theme or problem statement and must conceptualise, design and develop a responsive landing page within the allotted time. The competition is individual and conducted offline at the designated venue.\n\nStage 1 — Theme announcement and planning: understand the theme and audience, plan the layout and user experience, choose the visual style, colours and typography, and plan how you will use AI tools.\nStage 2 — Landing page development: build the page using AI chatbots and coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets.\nStage 3 — Final submission and judging: submit your project. There is no presentation round, and the judges evaluate submissions directly.\n\nJudging is out of 100: creativity and originality (25), UI/UX and visual design (25), functionality and frontend (20), AI usage and prompt engineering (15) and responsiveness (15).",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "web",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Anshu Kumar Gupta", "phone": "+91 98629 58644"}],
+                "timeline": { "mode": "Solo", "day": 3, "time": "10:00", "end": "12:00", "venue": "Central Library, Classroom 1", "prize": "₹8,000 + goodies" },
+                "rules": [
+                "The competition is individual. Team participation is not allowed. It is conducted offline at the designated venue.",
+                "Registration fee is ₹50 per participant, paid through Unstop. Prizes worth ₹8,000 plus goodies for the winners.",
+                "After registering, join the official WhatsApp group, follow its announcements and instructions, and report to the venue at the specified time. Only registered participants can take part.",
+                "A common theme or problem statement is announced at the start. Understand the theme and target audience, plan the layout and experience, and decide the visual style, colours and typography.",
+                "The landing page must be built within the allotted competition time, and should be responsive and visually attractive, with clear information hierarchy, interactive elements, smooth animations and transitions, intuitive navigation and consistent branding and typography.",
+                "AI chatbots, coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets may be used. AI tools are allowed and encouraged, subject to the AI rules announced by the organisers.",
+                "The permitted AI tools and models, and whether free or premium versions are used, are announced at the start of the event. Do not assume any particular model, platform or premium subscription will be needed unless the organisers say so.",
+                "You must create your solution during the competition. Previously completed websites or complete pre-built solutions must not be submitted. Open-source libraries and assets may be used as permitted by the organisers.",
+                "There is no presentation or pitching round. Submit your completed project through the method announced at the venue. You may need to give participant details, the project files and source code, the AI tools and models used, 1 to 2 important prompts and a short description of the solution.",
+                "Make sure your submission is functional, accessible and ready for evaluation. Late submissions will not be considered.",
+                "Judges check each landing page for functionality, on desktop and mobile views, and consider AI usage and the submitted prompts. Each participant gets a score out of 100.",
+                "Judging criteria (100 marks): creativity and originality 25, UI/UX and visual design 25, functionality and frontend 20, AI usage and prompt engineering 15, responsiveness 15.",
+                "Bring your own laptop and any accessories you need, unless the organisers say otherwise. Make sure your development environment and tools are ready before the competition begins.",
+                "Follow all instructions from the organisers during the event. Copying or substantially reproducing another participant's work leads to disqualification. The judges' decision is final and binding."
+]
             }
         ]
     },
     {
-        title: 'CREATIVE & DESIGN',
-        subtitle: 'STRUCTURE & CLAY',
-        desc: 'Build structural bridges, throw pottery, and exhibit fine arts.',
-        color: '#1fff76',
-        xp: '4,500 XP',
-        difficulty: 'EASY',
-        iconType: 'clay',
-        modelType: 'civil',
-        shortName: 'Creative',
-        iconChar: '🎨',
-        id: '05',
-        events: [
+        "title": "SILICON SPECTRUM",
+        "subtitle": "SIGNAL & MICROELECTRONICS",
+        "desc": "Autonomous robots, digital design and circuit challenges from the electronics department.",
+        "color": "#a78bfa",
+        "iconType": "bolt",
+        "modelType": "portal",
+        "shortName": "ECE",
+        "iconChar": "📡",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "05",
+        "events": [
             {
-                title: 'POTTERY ART',
-                subtitle: 'CLAY VISIONS',
-                desc: 'Sculpt customized pots on motorized spinning potter wheels.',
-                xp: '1,000 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
-                    { name: 'Meera Patel', phone: '+91 77890 12345' }
-                ],
-                rules: [
-                    'Create clay pottery models based on theme given.',
-                    'Time allocated: 90 minutes.',
-                    'Clays and wheels provided at workstation.',
-                    'Judged on aesthetics, symmetry, and finish.',
-                    'Maximum height of the model must be under 30 cm.',
-                    'Only tools provided by the coordinators are allowed.',
-                    'Participants can choose between hand-building or wheel-throwing.',
-                    'Cracked structures during drying will lose points on structural integrity.',
-                    'No external paints or coloring agents can be used.',
-                    'Originality and interpretation of the theme carries 40% weight.',
-                    'Coordinators will bake the pieces for final inspection.'
-                ],
-                iconType: 'clay',
-                timeline: {
-                    day: 1,
-                    time: '15:00',
-                    end: '17:00',
-                    venue: 'Studio Gamma',
-                    mode: 'Solo',
-                    registered: 40,
-                    prize: '₹5,000'
-                }
+                "title": "LINE FOLLOWER",
+                "subtitle": "SENSE. FOLLOW. RACE. CONQUER",
+                "desc": "LINE FOLLOWER is an exciting robotics challenge where teams design and build an autonomous robot capable of accurately detecting and following a predefined track.",
+                "overview": "Line Follower is a two-round Robotics and Embedded Systems competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' circuit-building skills, sensor calibration, control logic and their ability to make a robot autonomously track a path within a fixed set of hardware specifications. Sense. Follow. Race. Conquer.\n\nTeams of one to three design, assemble and fine-tune a line-following robot built strictly from the components provided by the ECE Society, so the contest is a fair test of skill rather than hardware budget. The competition emphasises reliable sensing, motor control, circuit assembly and autonomous path tracking.\n\nRound 1 — Qualifying Round: a simple printed track. Teams only need to complete it according to the guidelines. There is no time limit, and successful completion is the only qualifying criterion.\nRound 2 — Best of Two (Competitive Round): qualified teams run a more challenging track with two attempts. The better of the two timings decides the final ranking. If the robot loses the line, it restarts from the last checkpoint.\n\nThe track is a printed black line, 20 mm wide, on a white background.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "robot",
+                "minTeam": 1,
+                "maxTeam": 3,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Bishal Barman", "phone": "+91 81019 10731"}],
+                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "13:30", "end": "14:30", "venue": "Central Library, Classroom 2", "prize": "₹20,000 (including goodies)" },
+                "rules": [
+                "Each team may have 1 to 3 members. The robot is built and run by the team.",
+                "Registration fee is ₹50 per member. Prizes worth ₹20,000 (including goodies).",
+                "Build the robot only from the components listed and provided by the ECE Society. No extra or more powerful components may be used. This applies to motors, sensors, controllers, batteries and other relevant hardware.",
+                "The hardware rule exists to give every team a level playing field, so the contest tests design skill rather than budget. Teams must stay within the supplied hardware specification throughout the competition.",
+                "The event uses two printed line-follower tracks. The track is a black line, 20 mm wide, on a white background. The qualifying track is relatively simple and checks the basic performance and reliability of the robots. The competitive track is more challenging and is used for timed ranking.",
+                "Round 1 is the qualifying round on the simple track. Teams only need to complete the track according to the given guidelines. There is no time limit, and successful completion is the only qualifying criterion.",
+                "Round 2 is a best-of-two competitive round. Qualified teams run the more challenging track and get two attempts. The better of the two timings is used for the final ranking.",
+                "If the robot loses the line at any point in Round 2, it must restart from the last checkpoint, not from the beginning.",
+                "Participants may not touch, move or manually guide the robot once the run has started.",
+                "Final ranking: Round 1 decides qualification through successful completion. Round 2 decides the final ranking using the best timing from the two competitive attempts.",
+                "If there is a technical problem with the official track or timing system, the judges may allow a re-run. Technical issues caused by a team's own robot generally do not qualify for a re-run.",
+                "Any cheating, intentional interference or violation of the competition rules may lead to immediate disqualification.",
+                "The decision of the judges and organising committee on timing, qualification, penalties and disqualification is final and binding.",
+                "The organisers may modify or clarify the rules for the smooth and fair conduct of the competition. Any change will be announced to all participants before implementation."
+]
             },
             {
-                title: 'TRUSS BUILD',
-                subtitle: 'BALSA WOOD BRIDGES',
-                desc: 'Glue together truss bridges and load test them to the absolute break limit.',
-                xp: '1,800 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                    { name: 'Ritika Sharma', phone: '+91 99012 34567' }
-                ],
-                rules: [
-                    'Design bridge structures using wood sticks and glues.',
-                    'Dimensions must conform to blueprints.',
-                    'Bridge is loaded weights until structural failure occurs.',
-                    'Winner chosen by highest load-to-weight ratio.',
-                    'Materials provided: 100 popsicle sticks and standard wood glue.',
-                    'Span of the bridge must be exactly 400mm.',
-                    'Bridges must allow a load hanger to be attached at the center.',
-                    'Glue can only be used at joints, coating sticks is not allowed.',
-                    'Maximum weight of the completed structure must not exceed 150g.',
-                    'Bridges will dry in a designated curing chamber for 12 hours.',
-                    'All dimensions will be verified using go/no-go gauges prior to loading.'
-                ],
-                iconType: 'bridge',
-                timeline: {
-                    day: 2,
-                    time: '11:00',
-                    end: '13:00',
-                    venue: 'Open Court',
-                    mode: 'Team (3)',
-                    registered: 36,
-                    prize: '₹8,000'
-                }
+                "title": "VERILOG",
+                "subtitle": "DESIGN. SIMULATE. INNOVATE",
+                "desc": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.",
+                "overview": "Verilog is a two-round digital design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of digital logic fundamentals and their ability to model, simulate and verify digital circuits using the Verilog Hardware Description Language. Design. Simulate. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, competitive design under time pressure in Round 2. Participation is individual, and both rounds are conducted on participants' own laptops using Icarus Verilog or Vivado, used offline.\n\nRound 1 — Qualifying Round: covers the fundamentals of Verilog and logic design and tests conceptual understanding of digital logic. It is the filter for Round 2.\nRound 2 — Competitive Round: qualified participants attempt advanced Verilog design problems on a best-time basis. The correctness of the functional simulation and the speed of completion decide the ranking.\n\nThe format, duration and evaluation of Round 1, and the number of qualifiers, are announced by the organisers. The nature and number of Round 2 problems are disclosed at the time of the round.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "code",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "₹50 per person",
+                "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Krish Prasad", "phone": "+91 87309 56612"}],
+                "timeline": { "mode": "Solo", "day": 2, "time": "11:30", "end": "13:30", "venue": "Central Library, Classroom 2", "prize": "Up to ₹8,000 + goodies" },
+                "rules": [
+                "Participation is individual. Each participant may register only once. If someone registers more than once, only the first registration is considered.",
+                "Open to undergraduate students of recognised institutions. Carry a valid student ID card of your institution and produce it on demand.",
+                "Registration fee is ₹50 per individual participant. Prizes worth up to ₹8,000 plus goodies (includes the 1st and 2nd prize). Registration is complete only when confirmed by the organisers, who may limit the number of participants.",
+                "Round 1 is a qualifying round on Verilog fundamentals and logic design. The format, duration and evaluation method are announced by the organisers, and so is the number of participants who qualify for Round 2.",
+                "Round 2 is a competitive round with advanced Verilog design problems. The nature and number of problems are disclosed at the time of the round.",
+                "Round 2 is judged on a best-time basis: correct functional simulation together with speed of completion decides the ranking. The organisers may apply extra criteria, announced before the round begins.",
+                "Both rounds are conducted on your own laptop. Permitted software is Icarus Verilog and Vivado, used offline. At least one of them must be installed and working beforehand. The organisers do not provide computers.",
+                "Laptops must be fully charged and you should bring your own charger. The organisers are not responsible for hardware, software or battery failure. Do not install or use any other software, extension or tool unless the organisers permit it.",
+                "You are solely responsible for your laptop and set-up. Report any issue to the coordinators at the venue immediately.",
+                "Report at the venue at the announced time. Late entry may be refused.",
+                "Internet access, mobile phones, storage devices, notes and any other aids are not permitted during the rounds unless the organisers specifically allow them.",
+                "Artificial intelligence tools, code generators and any external help are strictly prohibited.",
+                "All work must be your own. Copying, sharing solutions or any plagiarism leads to disqualification. Do not interfere with other participants' laptops, files or work.",
+                "Follow the instructions of the coordinators and judges at all times and maintain discipline. Misconduct, unfair means or breaking the rules may lead to a penalty or disqualification at the judges' discretion.",
+                "Tie-break: ties in Round 1 are resolved by performance in that round. A tie after Round 2 is resolved by Round 2 performance, then Round 1 performance. If it still persists, the organisers and judges decide the criteria.",
+                "Prizes go only to participants who followed all the rules. Certificates are provided as decided by the organisers. In any dispute or discrepancy, the decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
+]
             },
             {
-                title: 'PROPEL',
-                subtitle: 'PNEUMATIC PROPULSION',
-                desc: 'Assemble model rockets and launch them high using air-pressure pumps.',
-                xp: '1,200 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                    { name: 'Kiran Verma', phone: '+91 91111 22208' }
-                ],
-                rules: [
-                    'Build model aircraft using balsa wood / composite material.',
-                    'Maximum wingspan: 1.2 meters.',
-                    'Evaluation based on flight duration and glider ratio.',
-                    'Structural integrity inspection prior to takeoff.',
-                    'Aircraft must be unpowered (pure glider) or rubber-band powered.',
-                    'Use of ready-made foam planes or commercial kits is prohibited.',
-                    'Launch must be done manually from the designated platform.',
-                    'Maximum takeoff weight must be under 800 grams.',
-                    'Aircraft must demonstrate stable flight for at least 5 seconds to score.',
-                    'Repairing models between rounds is allowed within 10 minutes.',
-                    'Judges base extra points on structural innovation and aerodynamic efficiency.'
-                ],
-                iconType: 'rocket',
-                timeline: {
-                    day: 3,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Open Court',
-                    mode: 'Solo',
-                    registered: 50,
-                    prize: '₹6,000'
-                }
+                "title": "CIRCUIT DESIGNING",
+                "subtitle": "DESIGN . CONNECT . INNOVATE",
+                "desc": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.",
+                "overview": "Circuit Designing is a two-round analog electronics and circuit design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of analog electronics and circuit analysis, and their ability to design, simulate, analyse and defend circuits using LTspice. Design. Connect. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, time-bound circuit design and simulation with a viva in Round 2. Teams of up to two bring their own laptops with LTspice installed.\n\nRound 1 — Analog Electronics Quiz (25 marks): 25 MCQs in 30 minutes covering circuit analysis, semiconductor fundamentals, diode circuits and basic analog electronics. There is no negative marking, and 5 star-marked questions are used only for tie-breaking.\nRound 2 — Circuit Design with Viva (75 marks): participants get a circuit design problem with specified requirements and must design and simulate it in LTspice within the allotted time, then demonstrate and explain the circuit. Topics may include RC, RL and RLC circuits, low-pass and high-pass filters, diode circuits, rectifiers, clippers, clampers and other basic analog circuits.\n\nThe final score is out of 100, the combined score of both rounds.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bolt",
+                "minTeam": 1,
+                "maxTeam": 2,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Anirudh Mishra", "phone": "+91 91404 63181"}],
+                "timeline": { "mode": "Team of 1-2", "day": 3, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 2", "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Open to undergraduate students from recognised institutions. Each team may have a maximum of 2 participants. Each participant may register only once, and duplicate registrations are disregarded.",
+                "Registration fee is ₹50 per member. Registration is on Unstop. Prizes worth ₹13,000+ (including goodies).",
+                "Carry a valid student ID card issued by your institution and produce it on demand.",
+                "Round 1 is the Analog Electronics Quiz: 25 MCQs (20 regular and 5 star-marked) in 30 minutes for 25 marks, with no negative marking. Topics: circuit analysis, semiconductor fundamentals, diode circuits and basic analog electronics.",
+                "The 5 star-marked questions in Round 1 are used only for tie-breaking.",
+                "Round 2 is a competitive LTspice circuit design round for 75 marks, including circuit design and a viva. You get a circuit design problem with specified requirements and must design and simulate it within the allotted time.",
+                "Round 2 circuits may cover RC, RL and RLC circuits, low-pass and high-pass filters, diode circuits, rectifiers, clippers, clampers and other basic analog circuits. You may be asked to demonstrate and explain your circuit.",
+                "The judges and organising committee decide the detailed evaluation criteria and mark distribution for Round 2 based on the problem and competition requirements.",
+                "The only permitted software is LTspice. Bring your own laptop with LTspice installed and working beforehand. The organisers do not provide computers. Do not install or use any other software, extension or tool unless permitted.",
+                "Laptops must be fully charged and you should bring your own charger. The organisers are not responsible for hardware, software or battery failure.",
+                "Report at the venue at the announced time. Late entry may be refused.",
+                "Internet access, mobile phones, storage devices, notes and any other aids are not permitted during the rounds unless the organisers specifically allow them. AI tools, code generators and any external help are strictly prohibited.",
+                "All work must be your own. Copying, sharing solutions or any plagiarism leads to disqualification. Do not interfere with other participants' laptops, files or work.",
+                "Follow the instructions of the coordinators and judges at all times. Misconduct, unfair means or breaking the rules may lead to a penalty or disqualification at the judges' discretion.",
+                "Tie-break (after the final score out of 100): first, more correct star-marked answers in Round 1; second, the higher Round 2 score; finally, an additional tie-breaker by the organising committee if needed.",
+                "Final score is the combined score of Round 1 and Round 2. Prizes go only to participants who followed all the rules, and certificates are provided as decided by the organisers. The decisions of the judges and organising committee are final and binding. The organisers may modify the rules and will inform registered participants."
+]
             }
         ]
     },
     {
-        title: 'AI & DATA SCIENCE',
-        subtitle: 'NEURAL CONSTRUCTS',
-        desc: 'Train reinforcement agents and design deep learning models.',
-        color: '#2b5cff',
-        xp: '7,000 XP',
-        difficulty: 'HARD',
-        iconType: 'brain',
-        modelType: 'ai',
-        shortName: 'AI',
-        iconChar: '🧠',
-        id: '06',
-        events: [
+        "title": "VOLTAGE GRID",
+        "subtitle": "POWER & TRANSFORMER SYSTEMS",
+        "desc": "Circuit debugging, energy solutions and electronics knowledge put to the test.",
+        "color": "#ff9d00",
+        "iconType": "bolt",
+        "modelType": "electrical",
+        "shortName": "Electrical",
+        "iconChar": "⚡",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "06",
+        "events": [
             {
-                title: 'MACHINE INTELLIGENCE',
-                subtitle: 'NEURAL NETWORKS & TELEMETRY',
-                desc: 'Solve deep learning model matrices and run predictive simulations.',
-                xp: '3,500 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Priya Nair', phone: '+91 91111 22215' },
-                    { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                ],
-                rules: [
-                    'Train and deploy machine learning models to solve real-world datasets.',
-                    'Execution outputs must use optimized algorithms.'
-                ],
-                iconType: 'brain',
-                timeline: {
-                    day: 1,
-                    time: '14:00',
-                    end: '16:00',
-                    venue: 'Hub Delta',
-                    mode: 'Team (3)',
-                    registered: 72,
-                    prize: '₹18,000'
-                }
+                "title": "CIRCUIT DEBUGGING",
+                "subtitle": "UNDERSTAND. SIMULATE. BUILD. DEBUG",
+                "desc": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.",
+                "overview": "Circuit Debugging is a three-round technical event of Addovedi 2026 that tests participants' knowledge, analytical ability, simulation skills, circuit construction, measurement and practical troubleshooting. Observe. Measure. Diagnose. Repair. Verify.\n\nThe event follows a progressive structure: Round 1 is Understand, Round 2 is Simulate and Analyse, and Round 3 is Debug and Repair. Participants move from theoretical circuit analysis to computer-based simulation and finally to real-world hardware debugging.\n\nRound 1 — Circuit IQ (30 marks): a 20-question MCQ screening round of 20 minutes on circuit theory, Ohm's and Kirchhoff's laws, resistors, capacitors, diodes, transistors and basic fault identification.\nRound 2 — Simulation Challenge (30 marks): qualified teams read a problem statement, build the circuit in LTspice, run the simulation and show the required voltage, current or waveform results.\nRound 3 — Hardware Debugging (40 marks): the final round gives teams a pre-assembled breadboard circuit with intentionally introduced faults. Teams must measure, find the faulty component or connection, explain the cause, repair it and show the circuit working.\n\nThe final ranking is the combined score across all three rounds, out of 100.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bug",
+                "minTeam": 1,
+                "maxTeam": 2,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Neeraj Bhandari", "phone": "+91 76670 58211"}],
+                "timeline": { "mode": "Team of 1-2", "day": 2, "time": "09:00", "end": "11:00", "venue": "Central Library, Classroom 3", "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team can have a maximum of 2 participants, and both are expected to take part actively throughout. No team member may be replaced after the event begins unless the organisers permit it in exceptional circumstances.",
+                "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies).",
+                "The event has three rounds: Round 1 Circuit IQ (MCQ, 30 marks), Round 2 Simulation Challenge (LTspice, 30 marks) and Round 3 Hardware Debugging (breadboard, 40 marks). The total is 100 marks, and the final ranking is the combined score across all rounds, subject to the qualification criteria.",
+                "Round 1: 20 MCQs in 20 minutes, 1.5 marks each (30 marks). There is no negative marking unless the organisers announce otherwise. Topics include circuit theory, Ohm's and Kirchhoff's laws, series and parallel circuits, resistors, capacitors, diodes, transistors, symbols, basic fault identification and numerical questions.",
+                "The number of teams qualifying for Round 2 depends on how many teams take part. The qualification criteria are announced before the event begins.",
+                "Round 2: each qualified team gets a problem statement. Read it, construct the circuit in LTspice, run the right simulation, obtain the required voltage, current or waveforms and submit or demonstrate the results to the coordinators within the time limit.",
+                "Every team must bring its own laptop with LTspice installed and tested beforehand. The organisers are not responsible for delays caused by software installation, downloads, updates or laptop issues during the round.",
+                "Round 3: teams get a pre-assembled breadboard circuit with one or more intentionally introduced faults. Understand the expected behaviour, analyse the symptoms given by the organisers, troubleshoot systematically with the permitted instruments, find the faulty component or connection, explain the cause, correct it and show the circuit working again.",
+                "Diagnose the fault before replacing components. Random replacement of components may not be treated as a valid debugging approach.",
+                "The organisers provide the components, breadboards, measuring instruments and other equipment for the physical rounds. Use them carefully and responsibly, and do not intentionally damage or misuse any equipment.",
+                "Report to the venue before the prescribed reporting time and carry a valid college or institute ID card.",
+                "Do not interfere with another team's circuit, equipment or workstation. Follow the instructions of the coordinators and volunteers, and stop working immediately when time expires.",
+                "Teams may be asked to explain their calculations, circuit design, simulation or troubleshooting procedure. The organisers may inspect LTspice files, calculations, circuit connections and simulation results.",
+                "Any attempt to gain an unfair advantage or unauthorised help may lead to disqualification. Deliberate misconduct, cheating, equipment damage or interference with another team may lead to immediate disqualification.",
+                "The organisers may change the sequence, timing or qualification criteria if operations require it, and will tell participants before the concerned round. The decisions of the judging panel and event coordinators on evaluation, scoring and qualification are final."
+]
             },
             {
-                title: 'NEURAL HACK',
-                subtitle: 'TRANSFORMER TUNING',
-                desc: 'Optimize custom transformers and train computer vision parameters.',
-                xp: '2,800 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Siddharth Roy', phone: '+91 91111 22218' },
-                    { name: 'Neha Gupta', phone: '+91 91111 22205' }
-                ],
-                rules: [
-                    'Transformer tuning configurations must run locally in provided test kernels.',
-                    'Only standard libraries are preloaded.'
-                ],
-                iconType: 'brain',
-                timeline: {
-                    day: 2,
-                    time: '10:30',
-                    end: '12:30',
-                    venue: 'Hub Delta',
-                    mode: 'Solo',
-                    registered: 60,
-                    prize: 'Certificate'
-                }
+                "title": "ENERGIX",
+                "subtitle": "THINK. SIMULATE. DEBUG. INNOVATE.",
+                "desc": "ENERGIX is a three-round MATLAB and Simulink competition that tests circuit simulation skills and the ability to troubleshoot and improve electrical circuit models, from a quiz to simulation to circuit debugging.",
+                "overview": "ENERGIX is a technical competition of Addovedi 2026 that evaluates participants' knowledge of MATLAB and Simulink, their circuit simulation skills, and their ability to troubleshoot and improve electrical circuit models. Think. Simulate. Debug. Innovate.\n\nThe event has three rounds that move from fundamental theoretical knowledge to practical simulation and circuit debugging, for a total of 100 marks.\n\nRound 1 — Quiz Round (30 marks): questions on MATLAB fundamentals, commands and syntax, variables, operators and basic programming, and an introduction to Simulink blocks and their applications.\nRound 2 — Simulation Round (30 marks): each team receives a circuit problem statement with input parameters and a target output, builds or configures the model in MATLAB/Simulink and submits the final model and output waveform.\nRound 3 — Debug and Improve a Circuit (40 marks): teams get a Simulink circuit model with deliberately introduced faults, find and correct the errors, improve the circuit, run the simulation to the specified output and explain their debugging approach to the judges.\n\nFinal rankings come from the combined marks of all three rounds. Teams bring their own laptop with MATLAB and Simulink installed and tested.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bolt",
+                "minTeam": 2,
+                "maxTeam": 3,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Prakash Tamang", "phone": "+91 98628 46350"}, {"name": "Roshni Yadav", "phone": "+91 98628 46350"}],
+                "timeline": { "mode": "Team of 2-3", "day": 2, "time": "15:00", "end": "17:00", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
+                "rules": [
+                "Each team must have a minimum of 2 and a maximum of 3 members, and all members are expected to contribute to the assigned tasks throughout the competition. Register your team according to the organisers' instructions.",
+                "Registration fee is ₹50 per member. Prizes worth ₹17,000+ (including goodies).",
+                "The competition has three rounds with a total of 100 marks: Round 1 Quiz Round (30), Round 2 Simulation Round (30) and Round 3 Debug and Improve a Circuit Round (40).",
+                "Round 1 covers MATLAB fundamentals, commands and syntax, variables, operators and basic programming concepts, and an introduction to Simulink blocks and their applications. Complete the quiz within the time limit specified by the organisers.",
+                "Using unauthorised materials or external help, or communicating with other teams, during the quiz is prohibited.",
+                "Round 2: each team receives a circuit problem statement with specified input parameters and a target output, which may involve an electronics circuit. Construct or configure the circuit model in MATLAB/Simulink and submit the final simulation model and output waveform to the organisers.",
+                "Every team must bring a laptop with MATLAB and Simulink installed and tested before the event. Installing MATLAB R2025a is strongly encouraged to avoid compatibility issues. Teams are responsible for making sure their software works before the competition begins.",
+                "All circuit parameters and target output requirements needed for Round 2 are given in the problem statement. The simulation must be completed within the announced time limit.",
+                "Round 2 marks are based on the simulation process, parameter optimisation, output accuracy, waveform verification and submission of the completed model.",
+                "Round 3: each team receives a Simulink circuit model with deliberately introduced faults. Analyse it, identify the errors, correct them, improve the circuit, run the simulation successfully to the specified output and submit the corrected model and output waveform. Be ready to explain your debugging approach and corrections to the judges.",
+                "Work only on the circuit model provided by the organisers, and identify and correct the faults independently without unauthorised help. The final model must run successfully and meet the specified output.",
+                "Round 3 marks are based on fault identification, accuracy of corrections, output performance, waveform verification and technical explanation.",
+                "Follow the organisers' instructions, complete each round within the allotted time and maintain discipline and fair play. Copying another team's work, sharing solutions during a round or using unauthorised assistance is prohibited.",
+                "Submit your work in the format and manner specified by the organisers. The organisers may clarify the rules and resolve unforeseen issues to keep the event fair and orderly.",
+                "Final rankings are decided by the total marks across all three rounds (maximum 100). In a tie, the team with the lowest time across the rounds gets preference. The judges' decisions on technical evaluation and final rankings are final."
+]
+            },
+            {
+                "title": "ELECTROMIND",
+                "subtitle": "KNOW IT. IDENTIFY IT. MEASURE IT. BUILD IT. SOLVE IT",
+                "desc": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.",
+                "overview": "ELECTROMIND is a three-round technical competition of Addovedi 2026 designed to test and develop students' technical knowledge, component identification skills, measurement ability, practical understanding, problem-solving skills and basic circuit design capabilities. Know it. Identify it. Measure it. Build it. Solve it.\n\nRound 1 — Electromind Quiz: a multiple-choice quiz on the fundamentals of electrical and electronics engineering, covering basic and practical concepts.\nRound 2 — Identify & Measure: an individual practical round with real components and devices. Each team member takes a turn to identify the component, state its applications and perform the assigned measurements, including reading values from printed markings and verifying them with instruments.\nRound 3 — Build the Solution: each team gets a simple real-world problem statement and a set of components. Teams understand the problem, select components, design the circuit, calculate, build it, measure the output and demonstrate the working solution.\n\nProblem statements include an automatic street light, a temperature-controlled fan, an adjustable 3–7 V power supply, an automatic emergency light, a water level indicator with alarm, an adjustable timer light, overvoltage protection, a two-level battery indicator, DC motor speed control and a rain detection alarm.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "minTeam": 1,
+                "maxTeam": 3,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Saurav Kumar", "phone": "+91 97987 27650"}],
+                "timeline": { "mode": "Team of 1-3", "day": 3, "time": "13:30", "end": "15:30", "venue": "Central Library, Classroom 3", "prize": "₹17,000+ (including goodies)" },
+                "rules": [
+                "A team may register only once. If a team registers more than once, only the first submission is considered. Each team may have a maximum of 3 members.",
+                "Only undergraduate students from any field are eligible. Students of all colleges and institutes can participate. Carry a valid student ID card.",
+                "Registration fee is ₹50 per member. Prizes worth ₹17,000+ (including goodies).",
+                "Round 1 is the Electromind Quiz, a set of MCQs on the fundamentals of electrical and electronics engineering. Teams qualify for Round 2 based on top performance, group participation (maximum 3 members) and the time limit.",
+                "Round 2 is Identify & Measure. It is an individual practical round: the members of each team take part one by one and independently identify real electrical and electronic components or devices, state their applications and perform the assigned measurements.",
+                "You may be asked to read component values from printed markings and verify them with measuring instruments.",
+                "Round 2 is judged on time, accuracy, identification and application. The team score is the sum of all individual participants' scores (Participant 1 + Participant 2 + Participant 3).",
+                "Round 3 is Build the Solution. Teams receive a simple real-world problem statement and a set of components, then select components, design the circuit, calculate, build it, measure the output and demonstrate the working solution.",
+                "In Round 3 you must decide which components you need and collect them from the coordinators at the start of the round, in a single go. Once your turn is over, no additional components are provided, and no extra component is given if one gets damaged.",
+                "Each team selects only one problem statement. Statements are allotted first come, first served based on the registration portal timeline.",
+                "Round 3 problem statements: 1) automatic street light with adjustable sensitivity, 2) temperature-controlled fan, 3) adjustable 3–7 V DC power supply from a 9 V battery, 4) automatic emergency light, 5) water level indicator with high-level alarm, 6) adjustable timer-based light (about 5–30 seconds), 7) overvoltage warning and load protection, 8) two-level battery voltage indicator, 9) DC motor speed control with protection, 10) rain or water detection alarm.",
+                "Smartphones, calculators, the internet and AI are prohibited. If anyone is found using them, the whole team is disqualified without any warning.",
+                "In case of disputes or discrepancies, the decision of the organisers and judges is final and binding.",
+                "The organisers may modify any or all rules. Any change will be communicated to registered participants."
+]
             }
         ]
     },
     {
-        title: 'WORKSHOP LAB',
-        subtitle: 'KINETIC HARDWARE',
-        desc: 'Operate industrial metalworks and build hardware machinery.',
-        color: '#ffea00',
-        xp: '5,500 XP',
-        difficulty: 'MEDIUM',
-        iconType: 'gear',
-        modelType: 'steampunk_clock',
-        shortName: 'Workshop',
-        iconChar: '⚙️',
-        id: '07',
-        events: [
+        "title": "MECHANICAL MATRIX",
+        "subtitle": "KINETIC THERMODYNAMICS",
+        "desc": "CAD design, hydraulics and rocketry for hands-on mechanical minds.",
+        "color": "#ffea00",
+        "iconType": "gear",
+        "modelType": "ai",
+        "shortName": "Mechanical",
+        "iconChar": "⚙️",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "07",
+        "events": [
             {
-                title: 'KINETIC METALWORKS',
-                subtitle: 'HARDWARE MACHINERY',
-                desc: 'Cut and construct architectural rigs using industrial lathe tools.',
-                xp: '2,600 XP',
-                difficulty: 'HARD',
-                heads: [
-                    { name: 'Rohan Mehta', phone: '+91 91111 22213' },
-                    { name: 'Aisha Khan', phone: '+91 91111 22212' }
-                ],
-                rules: [
-                    'Industrial metalworks and hardware assembly under time limits.',
-                    'Safety protocols must be worn at all times.'
-                ],
-                iconType: 'gear',
-                timeline: {
-                    day: 2,
-                    time: '13:00',
-                    end: '15:00',
-                    venue: 'Workshop Bay',
-                    mode: 'Team (2)',
-                    registered: 28,
-                    prize: '₹10,000'
-                }
+                "title": "SOLID SIEGE",
+                "subtitle": "IMAGINE. DESIGN. CREATE",
+                "desc": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.",
+                "overview": "Solid Siege is the SolidWorks CAD competition of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. Across three progressively harder rounds — 2D sketching, 3D part modelling and assembly design — participants race the clock to turn engineering drawings into accurate, clean SolidWorks models.\n\nA design problem with exact dimensions and required features is released at the start of each round. Model it exactly as specified within the time limit to qualify for the next round.\n\nRound 1 — 2D Mechanical Bracket (2 points): dimensional accuracy, correct geometry and a clean, well-constrained sketch.\nRound 2 — 3D Stepped Support (3 points): dimensional accuracy, correct features and a clean model tree.\nRound 3 — Wheel–Shaft Assembly (5 points): correct components, proper mates and overall assembly accuracy.\n\nRound scores build from 2 to 3 to 5 points, for a maximum of 10. Recorded time decides any tie.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gear",
+                "minTeam": 1,
+                "maxTeam": 1,
+                "fee": "FREE",
+                "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Nikhil Raj", "phone": "+91 95087 15131"}],
+                "timeline": { "mode": "Solo", "day": 3, "time": "09:00", "end": "12:00", "venue": "Central Library, Classroom 4", "prize": "₹10,00,000+" },
+                "rules": [
+                "Solid Siege is a progressive, three-round SolidWorks challenge. All participants begin with Round 1, and only those who qualify a round within its allotted time advance to the next.",
+                "Round 1 is 2D Mechanical Bracket (2 points), Round 2 is 3D Stepped Support (3 points) and Round 3 is Wheel–Shaft Assembly (5 points). The maximum score is 10.",
+                "Exact dimensions and required features are provided at the start of each round. Model exactly as specified.",
+                "Each round has a fixed time limit announced before the round begins. Submissions after the time limit are not accepted unless the coordinator announces otherwise.",
+                "Submit files in the format and location announced by the coordinators.",
+                "Evaluation may consider dimensional accuracy, feature correctness, constraints, modelling quality and completion. The judges may finalise the detailed checklist before the event.",
+                "Marks: Round 1 is geometry and dimensions (1.0) plus constraints and a clean sketch (1.0). Round 2 is geometry and dimensions (1.5), features and model tree (1.0) and finish (0.5). Round 3 is components (1.5), mates (1.5), assembly accuracy (1.5) and finish (0.5).",
+                "Final ranking is based on total score. Ties are broken by recorded time, comparing the Round 3 time first, then Round 2, then Round 1. The faster participant gets priority at the first round where the times differ.",
+                "Disqualification applies for unauthorised external help, pre-made models or files, any other unfair means, interfering with other participants, their systems or their files, or misconduct during the event.",
+                "Participants must carry a valid student ID card from their institution, provide valid and accurate registration details, and report according to the schedule announced by the organisers.",
+                "A participant may register only once. In case of multiple registrations, only the first is considered.",
+                "Official start and submission times recorded by the coordinators are used for all timing decisions.",
+                "Participants must maintain proper conduct, follow the coordinators' instructions throughout the event and must not interfere with other participants, their systems or their files.",
+                "The decision of the judges and organising committee on qualification, scoring and disqualification is final and binding. The organisers may modify or clarify the rules, and any change will be announced before implementation.",
+                "Registration is free. Prize pool: ₹10,00,000+. The position-wise distribution will be announced by the organisers."
+]
             },
             {
-                title: 'CAD BLUEPRINTS',
-                subtitle: 'SOLID MODELLING',
-                desc: 'Render complex 3D hardware schematics and mechanical parts.',
-                xp: '2,200 XP',
-                difficulty: 'MEDIUM',
-                heads: [
-                    { name: 'Divya Menon', phone: '+91 77665 54433' },
-                    { name: 'Tanya Singh', phone: '+91 91111 22210' }
-                ],
-                rules: [
-                    'Render complex 3D hardware schematics and mechanical parts.',
-                    'Use standard constraint constraints.'
-                ],
-                iconType: 'gear',
-                timeline: {
-                    day: 3,
-                    time: '11:00',
-                    end: '13:00',
-                    venue: 'Workshop Bay',
-                    mode: 'Solo',
-                    registered: 40,
-                    prize: '₹8,000'
-                }
+                "title": "HYDRAULIC WARZONE",
+                "subtitle": "POWER. PRECISION. CONTROL",
+                "desc": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.",
+                "overview": "Hydraulic Warzone is the hydraulic arm challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. It is a hands-on mechanical engineering competition in which teams of three design, build and operate a manually controlled hydraulic robotic arm.\n\nTeams build the arm from the permitted materials (plywood, thermocol, syringes, tubing and adhesives) and operate it to complete practical challenges in the arena. Every movement comes from pairs of fluid-filled syringes connected by tubing, so the event tests hydraulic systems, mechanical linkages, structural design, precision, stability, problem-solving and teamwork.\n\nEvery arm first goes through a testing round. Qualified teams then take on the main challenge: tasks such as pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The exact arena layout and tasks are announced by the organisers before the competition.\n\nScoring is out of 100: successful task completion (40), accuracy and precision (25), hydraulic arm control (15), time efficiency (10) and stability and structural performance (10).",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "gear",
+                "minTeam": 3,
+                "maxTeam": 3,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Rokkala Nirmal", "phone": "+91 90002 61037"}],
+                "timeline": { "mode": "Team of 3", "day": 2, "time": "10:00", "end": "11:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Team composition cannot be changed after registration without the organisers' permission.",
+                "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with valid and accurate details.",
+                "Component kits are given to the first 8 teams that complete both registration and payment, on a first come, first served basis. Later teams may still take part but without an organiser-provided kit. The organisers will announce when all 8 kits are allotted.",
+                "The kit contains plywood, large thermocol, 10 mL and 20 mL syringes, hydraulic tubing, Fevicol, super glue and a paper cutter. It is meant only for building the hydraulic arm.",
+                "Build the arm primarily from the materials provided. All arm movement must come from the syringe-based hydraulic mechanism, and the arm must be operated manually.",
+                "Syringes must be securely mounted, tubes properly connected and the system must not have significant leakage. You may design the base, structure, linkages and gripper freely within the permitted materials.",
+                "Prohibited unless the organisers explicitly permit: electric or servo motors, batteries, electronic controllers, automated control systems, external powered actuators, pneumatic systems, high-pressure hydraulic systems, any motorised mechanism, or anything that gives an unfair advantage.",
+                "Every arm goes through a testing round that checks hydraulic movement, lifting, gripping, joint movement, structural stability and leakage. Unsafe or non-functional arms may be rejected or stopped until fixed. Only teams that pass proceed to the main challenge.",
+                "Main challenge tasks may include pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The arena layout, objects, task order and task-specific scoring are announced before the competition.",
+                "The time limit is announced before the competition. The timer starts on the judges' signal. Stop immediately when time expires. Tasks completed after the limit are not counted. Judges may stop an attempt at any time for safety.",
+                "Scoring is out of 100: successful task completion 40, accuracy and precision 25, hydraulic arm control 15, time efficiency 10, and stability and structural performance 10.",
+                "Penalties (severity decided by the judges): touching objects directly or moving the arm manually instead of hydraulically leads to task cancellation or score deduction. Moving or modifying the arena, using unauthorised help, continuing after time or misconduct lead to deductions, stoppage or disqualification.",
+                "Safety: follow the safety officials, keep hands away from moving joints, check tubes and syringes before operating, report leaks or damage at once, apply no excessive force, no sharp modifications, and handle the paper cutter with care. Unsafe attempts will be stopped.",
+                "Tie-break: more tasks completed, then higher accuracy and precision score, then better time efficiency, then an additional tie-breaking task if the organisers decide.",
+                "Disqualification applies for prohibited components, motorised or electronic assistance, damaging the arena or equipment, interfering with or tampering with another team, cheating, repeated safety violations, misconduct, or anything that compromises fairness or safety.",
+                "Report on schedule and attend any mandatory briefing. Keep the area clean, stay out of restricted areas and do not interfere with other teams' builds or testing. Organisers may inspect any arm at any stage.",
+                "The organisers may modify the arena or task set-up and will announce changes before the relevant round. Decisions of the judges and safety officials on task validity, penalties, safety and rankings are final and binding."
+]
+            },
+            {
+                "title": "SKY FORGE",
+                "subtitle": "DESIGN FOR THE SKY. BUILD FOR HEIGHT. LAUNCH FOR GLORY.",
+                "desc": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.",
+                "overview": "SKYFORGE is the pneumatic rocket aviation challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. In this two-round, hands-on competition, teams of three learn the fundamentals of aerospace engineering by designing, building and launching a lightweight model rocket.\n\nEvery rocket is launched with the same standardised syringe-based pneumatic propulsion system provided by the organisers. The goal is the maximum valid flight height, reached within all safety, dimensional, structural and competition requirements.\n\nRound 1 is rocket design and construction, followed by a technical inspection. Round 2 is the launch and maximum height challenge. Teams decide the body shape, nose cone, fin number, shape and placement, weight distribution and centre of gravity, so success depends on stability, low drag, structural strength and lightweight construction.\n\nScoring is out of 100: maximum valid flight height (70), rocket stability and flight performance (15), structural integrity (10) and rule compliance and safety (5).",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "rocket",
+                "minTeam": 3,
+                "maxTeam": 3,
+                "fee": "₹50 per member",
+                "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+                "heads": [{"name": "Thirumalai Nathan", "phone": "+91 63743 70906"}],
+                "timeline": { "mode": "Team of 3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 4", "prize": "₹13,000+ (including goodies)" },
+                "rules": [
+                "Each team must have exactly 3 members, and each participant may be in only one team. There is no limit on the number of teams. Any change in team composition needs the organisers' approval.",
+                "Registration fee is ₹50 per member. Prizes worth ₹13,000+ (including goodies). All team members must complete registration with accurate details.",
+                "Construction kits are given to the first 8 teams that complete both registration and payment, on a first come, first served basis. Later teams may still take part but without a kit. The organisers will announce when all 8 kits are allocated.",
+                "The kit contains small thermocol, MDF board, 10 mL and 20 mL syringes, Fevicol, super glue, saline tubing, nails, wire and basic construction materials. The organisers also provide the standard syringe-based pneumatic launcher used by every team.",
+                "Round 1 is design and construction. Build the rocket only from the permitted materials. You decide the body shape, nose cone, number, shape and placement of fins, weight distribution, centre of gravity and overall geometry within the limits announced by the organisers.",
+                "Dimensional and weight limits, if any, are announced by the organisers. No numerical limits apply unless officially announced. Organisers may inspect rockets at any stage of construction.",
+                "Every rocket goes through technical inspection: dimensions, weight, structural integrity, attachment to the launcher, rule compliance, design safety, stability and absence of prohibited mechanisms. Only rockets that pass qualify for Round 2.",
+                "Round 2 is the launch and maximum height challenge. Every team launches from the designated area with the same standard pneumatic launcher, under the coordinators' supervision. The highest valid altitude wins.",
+                "The altitude measurement method is announced before the launch round, and the official measurement result is final. The number of attempts per team is announced before Round 2. If several are allowed, the best valid altitude counts.",
+                "A launch is valid when the rocket is properly attached to the launcher, launched only on the official signal, from the designated area, with no unauthorised help, no prohibited propulsion and no interference, and the rocket meets all dimension, weight and safety requirements.",
+                "Scoring is out of 100: maximum valid flight height 70, rocket stability and flight performance 15, structural integrity 10, rule compliance and safety 5. Appearance and creativity carry no marks.",
+                "Prohibited: combustion engines, fuel, fire-based propulsion, explosives, chemical propellants, compressed gas cylinders, motorised or electric propulsion, pyrotechnics, any pressurised system other than the official launcher, and anything that gives an unfair launch advantage.",
+                "Safety: follow the organisers, stay behind the safety boundary during launch, do not approach the launch area until it is declared safe, and only officials may operate the launcher. No dangerous, sharp, explosive or burning payloads. Never aim a rocket at people, buildings or restricted areas.",
+                "A damaged rocket must be inspected before another attempt. Unsafe rockets may be rejected, and the organisers may stop any unsafe activity immediately. Decisions of the safety officials are final.",
+                "Penalties (severity decided by the judges): unauthorised propulsion or prohibited materials lead to an invalid attempt or disqualification. Launching before the signal makes the attempt invalid with no re-launch. Entering restricted areas, interfering with another team, manipulating measurement, unauthorised help or breaking safety rules lead to deductions, invalid attempts or disqualification.",
+                "Tie-break on equal altitude: higher stability score, then higher structural integrity score, then better compliance and safety score, then an additional launch if the organisers decide.",
+                "Disqualification applies for prohibited propulsion or dangerous materials, deliberately breaking safety rules, tampering with the launcher or the measurement, cheating, interfering with another team, deliberate damage to equipment, repeated disobedience or anything that compromises safety or fairness.",
+                "Report on schedule and attend any briefing. Keep construction and launch areas clean, do not enter restricted areas and do not interfere with other teams' rockets. The organisers may modify the launch area or procedure for safety and will announce changes before the relevant round.",
+                "The decisions of the judges and organisers on validity, penalties, measurement and final rankings are final and binding. Any situation not covered is decided by the organising committee and judging panel, and any rule change is announced before it takes effect."
+]
             }
         ]
     },
-    // Special timeline-only category to represent extra system-wide events
     {
-        title: 'CULTURAL & OTHER',
-        timelineOnly: true,
-        events: [
+        "title": "URBAN BLUEPRINT",
+        "subtitle": "STRUCTURAL ARCHITECTURE",
+        "desc": "Problem solving and structural challenges, from bridges and towers to logic puzzles.",
+        "color": "#1fff76",
+        "iconType": "bridge",
+        "modelType": "civil",
+        "shortName": "Civil",
+        "iconChar": "🏗️",
+        "xp": "5,000 XP",
+        "difficulty": "MEDIUM",
+        "id": "08",
+        "events": [
             {
-                title: 'MUSIC NIGHT',
-                subtitle: 'CULTURAL SHOW',
-                desc: 'Open-stage music performances — any genre, any instrument, any vibe.',
-                category: 'Cultural',
-                color: '#ff2cfb',
-                xp: '0 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Nikhil Bose', phone: '+91 92345 67890' },
-                    { name: 'Rohit Verma', phone: '+91 44444 33333' }
+                "title": "BRAINWAVE BONANZA",
+                "subtitle": "THINK FAST. THINK SHARP. FORGE THE ANSWER.",
+                "desc": "A team-based problem-solving competition of logic, aptitude and technical puzzles under time pressure. Brainwave Bonanza runs through a Screening Quiz, a Puzzle Gauntlet and a live buzzer-style final.",
+                "overview": "Brainwave Bonanza is the logic and aptitude competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 solve logic, aptitude and technical problems under strict time limits, testing logical reasoning, analytical thinking, technical aptitude and quick decisions under pressure.\n\nThere are three rounds worth 100 points: the Screening Quiz (20), the Puzzle Gauntlet (50) and the live buzzer-style final, Rapid Forge (30). Teams are ranked on accuracy, speed and quality of reasoning.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹25,000 including goodies.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "brain",
+                "minTeam": 1,
+                "maxTeam": 3,
+                "heads": [{"name": "Saloni Nand", "phone": "+91 70858 33096"}],
+                "rules": [
+                    "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including goodies.",
+                    "A team may register only once (only the first entry counts). Undergraduate and graduate students from any field can participate, and every participant must carry a valid student ID card. The same members must play all rounds and substitution is not allowed once the event begins.",
+                    "Scoring (100 points): Round 1 Screening Quiz 20, Round 2 Puzzle Gauntlet 50, Final Round Rapid Forge 30. Teams are ranked on accuracy, speed and quality of reasoning.",
+                    "Round 1, Screening Quiz (20 points): a written or online quiz of aptitude, logical reasoning and basic technical questions. The duration and number of questions are announced at the start. Ties are broken by the time taken to submit, and only the top teams, as decided by the organisers, qualify for Round 2.",
+                    "Round 2, Puzzle Gauntlet (50 points): teams solve puzzles and problem statements of increasing difficulty within the time limit. Each problem has pre-announced marks and partial marks may be given for partially correct reasoning. Show your working where asked, as answers without working may not get full marks.",
+                    "Final Round, Rapid Forge (30 points): a live head-to-head buzzer-style round among the finalist teams. Correct answers earn points and wrong answers may carry negative marking as announced. The team with the highest total score across all rounds wins, and ties are broken by a tie-breaker question.",
+                    "No mobile phones, smartwatches, calculators (unless a round allows them), internet, notes or AI tools. Teams must not communicate with other teams or take outside help during a round, and must follow the quiz master and invigilators at all times.",
+                    "The organisers' answer key is final. A team may challenge a question in writing to the judges right after the round, and the judges' decision is final. Misprinted or ambiguous questions may be cancelled or rescored.",
+                    "Report to the venue at least 15 minutes before the start. Teams arriving after a round has started may not get extra time. The timer is controlled by the organisers and runs continuously, and answer sheets must be submitted as soon as time is called.",
+                    "Cheating or using prohibited devices means immediate disqualification and no prizes. Plagiarism disqualifies the whole team. Do not damage other teams' materials or equipment.",
+                    "Follow all instructions from organisers, volunteers and judges, and arrive on time. Judges may disqualify any team for misconduct. The decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
                 ],
-                iconType: 'music',
-                timeline: {
-                    day: 2,
-                    time: '17:00',
-                    end: '20:00',
-                    venue: 'Main Stage',
-                    mode: 'Solo',
-                    registered: 55,
-                    prize: '₹12,000'
-                }
+                "fee": "₹50 per member",
+                "timeline": { "mode": "Team of 1-3", "day": 3, "time": "10:30", "end": "12:30", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹25,000 with goodies)" },
+                "unstopUrl": "https://unstop.com/o/OlHyjMC?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             },
             {
-                title: 'CLOSING GALA',
-                subtitle: 'AWARDS NIGHT',
-                desc: 'Prize distribution, performances, and the grand finale of Addovedi 2026.',
-                category: 'Cultural',
-                color: '#ff2cfb',
-                xp: '0 XP',
-                difficulty: 'EASY',
-                heads: [
-                    { name: 'Aman Verma', phone: '+91 99999 88888' },
-                    { name: 'Sneha Raj', phone: '+91 77777 66666' }
+                "title": "THE SEISMIC ARENA",
+                "subtitle": "BUILD TALL. BUILD SMART. SURVIVE THE SHAKE.",
+                "desc": "Design and build a tower model that withstands inspection, a shake-and-water stability test and a strength test. The Seismic Arena tests stability, stiffness, bracing, damping and centre of mass.",
+                "overview": "The Seismic Arena is a structural engineering challenge of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 design and build a tower model that must survive physical evaluation and structural testing, putting stability, stiffness, bracing, damping and centre of mass to the test.\n\nThe tower is built from popsicle sticks and toothpicks on a thermocol base, at least 30 cm tall. It faces three rounds: a visual Looks Test, a Stability Test with a water-filled container on top while the tower is moved, and a Strength Test under incremental external load.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bridge",
+                "minTeam": 1,
+                "maxTeam": 3,
+                "heads": [
+                    {
+                        "name": "Chochong Tsering",
+                        "phone": "+91 92336 02960"
+                    },
+                    {
+                        "name": "Kaling Yapi",
+                        "phone": "+91 93628 13564"
+                    }
                 ],
-                iconType: 'music',
-                timeline: {
-                    day: 3,
-                    time: '18:00',
-                    end: '21:00',
-                    venue: 'Main Stage',
-                    mode: 'Open',
-                    registered: 500,
-                    prize: 'Trophies'
-                }
+                "rules": [
+                    "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
+                    "A team may register only once (only the first entry counts). Only undergraduate and graduate students from recognized academic institutions can participate, and every participant must carry a valid student ID card.",
+                    "Build a tower model that passes a visual inspection, a stability test with a water-filled container on top, and a strength test under external load at the top platform.",
+                    "Only 5 materials are allowed: popsicle sticks, Fevi Quick, toothpicks, thermocol and Fevicol. The main frame must be built strictly with popsicle sticks and toothpicks only, bonded with the permitted adhesives. Thermocol is allowed for the base plate only.",
+                    "Specification: a tower-type structure that can carry a payload / container on the top platform, minimum height 30 cm from the base to the top platform. The base must be made of thermocol, with any base dimensions the team wants.",
+                    "Teams must bring their own permitted materials and supplies. Organisers will not provide tools or building materials at the venue.",
+                    "Round 1, Design and Presentation (Looks Test): judges inspect every structure and award marks for structural concept, quality of construction, effective bracing, joint neatness and aesthetic presentation.",
+                    "Round 2, Stability Test (Water on Top): a water-filled container is placed at the top of the structure and the tower is subjected to motion. Judges evaluate overall balance, damping and how much water is dispersed.",
+                    "Round 3, Strength Test (External Load): incremental external load is applied at the top platform to assess load-bearing capacity and the ultimate failure limit.",
+                    "Submit the structure at the registration desk before the deadline on event day, where each model is tagged with a team ID. Each team gets a continuous 5-minute window at the testing station for setup and testing.",
+                    "All designs are checked for originality. Plagiarism or fraudulent construction methods mean immediate disqualification. Never touch or tamper with another team's structure or testing equipment.",
+                    "Follow all instructions from organisers, volunteers and judges, and arrive on time (late arrivals may lose build or round time). Judges may disqualify any team for misconduct. The decision of the organising panel and judges is final and binding, and the organisers may modify rules and will inform registered teams."
+                ],
+                "fee": "₹50 per member",
+                "timeline": { "mode": "Team of 1-3", "day": 2, "time": "14:00", "end": "15:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with goodies)" },
+                "unstopUrl": "https://unstop.com/o/BlgenMs?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
+            },
+            {
+                "title": "EDGE OF COLLAPSE",
+                "subtitle": "DESIGN LIGHT. BUILD STRONG. HOLD THE LOAD.",
+                "desc": "Build a lightweight three-hinged bridge model that carries the maximum possible load. Edge of Collapse tests structural behaviour, load paths, truss geometry, joint quality and material efficiency.",
+                "overview": "Edge of Collapse is a structural design and fabrication competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 to 4 build a lightweight bridge model that must carry the maximum possible load, testing their understanding of structural behaviour, load paths, truss geometry, joint quality and material efficiency.\n\nTeams build a three-hinged bridge from popsicle sticks and white glue that spans a fixed gap and supports a progressively increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio.\n\nThe event has three rounds: Design and Inspection, Knowledge of the Bridge, and the Load Test. Registration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
+                "xp": "1,500 XP",
+                "difficulty": "MEDIUM",
+                "iconType": "bridge",
+                "minTeam": 3,
+                "maxTeam": 4,
+                "heads": [
+                    {
+                        "name": "Dikenno Pul",
+                        "phone": "+91 69091 25886"
+                    },
+                    {
+                        "name": "Mission Doley",
+                        "phone": ""
+                    }
+                ],
+                "rules": [
+                    "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
+                    "Build a three-hinged bridge model that spans a fixed gap and carries a gradually increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio (maximum load held divided by the bridge's weight) that follows all size and material rules.",
+                    "Allowed materials: standard wooden ice-cream (popsicle) sticks, trimmed to length only (no cutting of the cross-section), and water-based white adhesive (PVA / white glue). Cotton thread is allowed only for decorative binding and must not carry load. Quick-set, epoxy and hot-melt adhesives are not allowed.",
+                    "Strictly prohibited: metal, plastic, cardboard, bamboo, and any pre-made construction kit or pre-fabricated part.",
+                    "Size: overall length 50 cm, deck 45 cm, clear span between supports 45 cm during testing. The bridge must be three-hinged, rest on the supports without anchoring, nails or clamps, and have a continuous deck at least 5 cm wide with free space at mid-span so a 4 cm x 4 cm test block can pass along the deck.",
+                    "Round 1, Design and Inspection: every bridge is measured by the judges. Judges assess neatness of construction, joint quality and originality of the structural design. A bridge that does not meet the specifications is disqualified directly.",
+                    "Round 2, Knowledge of the Bridge: teams are questioned on the bridge they built, and the judges assess the team's practical knowledge of their own bridge.",
+                    "Round 3, Load Test: each team gets one official load test. The bridge sits on two supports and load is added gradually in equal increments through a loading block at the centre. The test ends when the bridge fractures, a joint separates or the mid-span deflection exceeds the judges' limit. The maximum load held is the team's load capacity. A bridge that fails to span the gap, or collapses under the loading block's own weight, fails Round 3.",
+                    "Ranking: Efficiency Ratio = maximum load held / self-weight of the bridge, and a higher ratio ranks higher. In a tie the lighter bridge wins, and if still tied, the bridge with lower deflection at the common load wins.",
+                    "Bridges may be built in advance and the finished model must be brought to the venue. Each team may submit only one bridge, at the registration desk before the deadline on the day of the event. No modification, repair or addition is allowed once the bridge is weighed and submitted, and the adhesive must be fully cured (wet or tacky bridges are not accepted).",
+                    "Each team gets 5 minutes at the testing station, including placement and loading, and the timer runs continuously once the team is called. Stay behind the safety line during load testing. Damage to testing equipment through misuse may lead to disqualification.",
+                    "Violating any bridge rule (prohibited materials, exceeding size or weight limits) means immediate disqualification and no prizes. Do not damage other teams' models or equipment. Judges may disqualify any team for misconduct, and the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+                ],
+                "fee": "₹50 per member",
+                "timeline": { "mode": "Team of 3-4", "day": 2, "time": "11:00", "end": "13:00", "venue": "Central Library, Classroom 5", "prize": "₹8,000 cash (worth ₹17,000 with goodies)" },
+                "unstopUrl": "https://unstop.com/o/5PvlMNO?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
             }
         ]
     }
 ];
 
 // Helper mapping for Category SVG Icons in Lobby Console Cards
-function getSvgIcon(type, color) {
+export function getSvgIcon(type, color) {
     switch (type) {
         case 'robot':
             return (
@@ -897,6 +1038,148 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
     }
 });
 
+// Merges categories fetched from the DB (via GET /api/events) into the shape
+// the UI expects (adds the non-persisted icon renderer + shortName/iconChar/id
+// display metadata). Falls back to the static CARD_DATA when the DB has none
+// yet. This is what makes admin-created/edited categories actually show up on
+// the public site instead of being silently discarded.
+export function mergeCategoriesFromDb(dbCategories) {
+    if (!Array.isArray(dbCategories) || dbCategories.length === 0) return CARD_DATA;
+    return dbCategories.map(cat => {
+        const meta = getCategoryMeta(cat.title);
+        return {
+            title: cat.title,
+            subtitle: cat.subtitle,
+            desc: cat.desc,
+            color: cat.color,
+            xp: cat.xp,
+            difficulty: cat.difficulty,
+            icon: (color) => getSvgIcon(cat.iconType, color),
+            modelType: cat.modelType || 'coding',
+            shortName: meta.shortName,
+            iconChar: meta.iconChar,
+            id: meta.id
+        };
+    });
+}
+
+// Buckets DB sub-events under the (DB-aware) category list, carrying through
+// iconType/modelType which earlier sync logic dropped.
+export function mergeSubEventsFromDb(categoriesList, dbSubEvents) {
+    const mapped = {};
+    categoriesList.forEach(c => { mapped[c.title] = []; });
+
+    (dbSubEvents || []).forEach(s => {
+        const matchedCat = categoriesList.find(c =>
+            c.title.toLowerCase() === (s.categoryTitle || '').toLowerCase() ||
+            slugify(c.title) === slugify(s.categoryTitle || '')
+        );
+        const catKey = matchedCat ? matchedCat.title : s.categoryTitle;
+        if (!mapped[catKey]) mapped[catKey] = [];
+        mapped[catKey].push({
+            title: s.title,
+            subtitle: s.subtitle,
+            desc: s.desc,
+            overview: s.overview || '',
+            minTeam: s.minTeam ?? 1,
+            maxTeam: s.maxTeam ?? 5,
+            fee: s.fee || '',
+            registrationClosed: s.registrationClosed === true,
+            categoryTitle: matchedCat ? matchedCat.title : s.categoryTitle,
+            color: s.color,
+            xp: s.xp,
+            difficulty: s.difficulty,
+            heads: s.heads || [],
+            icon: (color) => getSvgIcon(s.iconType, color),
+            modelType: s.modelType || (matchedCat ? matchedCat.modelType : 'coding'),
+            unstopUrl: s.unstopUrl || 'https://unstop.com',
+            timeline: s.timeline || null
+        });
+    });
+
+    return mapped;
+}
+
+// Day Zero starts the evening of Oct 28 (from 5PM); Day 1 and Day 2 are the
+// full following days. Single source of truth for both the ISO dates (status
+// computation) and the display labels (DAYS below) so they can't drift apart.
+const DAY_META = [
+    { slot: 'SLOT 00', label: 'DAY ZERO', date: 'Oct 28', isoDate: '2026-10-28', color: '#00E5FF' },
+    { slot: 'SLOT 01', label: 'DAY 1', date: 'Oct 29', isoDate: '2026-10-29', color: '#7A5CFF' },
+    { slot: 'SLOT 02', label: 'DAY 2', date: 'Oct 30', isoDate: '2026-10-30', color: '#FF2CFB' }
+];
+const TIMELINE_DAY_DATES = DAY_META.map(d => d.isoDate);
+
+// `endDay` (optional) is the day bucket a slot finishes on when that differs
+// from the day it starts, e.g. the 24h Hackathon.
+function computeEventStatus(day, time, end, endDay) {
+    if (!day || !time) return 'UPCOMING';
+    const start = new Date(`${TIMELINE_DAY_DATES[day - 1]}T${time}:00`);
+    if (Number.isNaN(start.getTime())) return 'UPCOMING';
+    const now = new Date();
+    if (end) {
+        const finish = new Date(`${TIMELINE_DAY_DATES[(endDay || day) - 1]}T${end}:00`);
+        if (!Number.isNaN(finish.getTime()) && now > finish) return 'COMPLETED';
+    }
+    return now >= start ? 'LIVE' : 'UPCOMING';
+}
+
+// Display form of a slot's end time: "17:00 (Oct 29)" when it finishes on a later day.
+function slotEndLabel(slot) {
+    if (!slot.end) return '';
+    return slot.endDay && slot.endDay !== slot.day && DAY_META[slot.endDay - 1] ? `${slot.end} (${DAY_META[slot.endDay - 1].date})` : slot.end;
+}
+
+// Every scheduled slot of an event: the primary one on `timeline` plus any
+// admin-added `timeline.sessions` (later rounds / other days).
+function timelineSlots(t) {
+    if (!t) return [];
+    const slots = [];
+    if (t.day >= 1 && t.day <= 3 && t.time) slots.push({ day: t.day, time: t.time, end: t.end || '', endDay: t.endDay || null, venue: t.venue, label: t.label });
+    (t.sessions || []).forEach(x => {
+        if (x && x.day >= 1 && x.day <= 3 && x.time) slots.push({ day: x.day, time: x.time, end: x.end || '', endDay: x.endDay || null, venue: x.venue || t.venue, label: x.label });
+    });
+    return slots;
+}
+
+// Builds the Timeline page's day-by-day schedule from live (DB-merged)
+// categories/sub-events, mirroring the static DAYS below but recomputed
+// from whatever an admin has actually scheduled. A sub-event with no
+// timeline.day set is left off the schedule entirely — that's the
+// "timing not decided yet" state, not an error.
+export function buildTimelineDays(categoriesList, subEventsMap) {
+    const days = DAY_META.map(d => ({ ...d, events: [] }));
+
+    (categoriesList || []).forEach(cat => {
+        const events = (subEventsMap && subEventsMap[cat.title]) || [];
+        events.forEach(ev => {
+            const t = ev.timeline;
+            timelineSlots(t).forEach(slot => {
+                days[slot.day - 1].events.push({
+                    id: slugify(ev.title),
+                    title: ev.title,
+                    subtitle: slot.label || ev.subtitle,
+                    category: cat.shortName || cat.title,
+                    categorySlug: slugify(cat.title),
+                    time: slot.time,
+                    end: slotEndLabel(slot),
+                    endDay: slot.endDay,
+                    venue: slot.venue || 'Main Arena',
+                    mode: t.mode || 'Solo',
+                    registered: 0,
+                    prize: t.prize || 'Trophies',
+                    status: computeEventStatus(slot.day, slot.time, slot.end, slot.endDay),
+                    desc: ev.desc,
+                    heads: ev.heads || []
+                });
+            });
+        });
+    });
+
+    days.forEach(day => day.events.sort((a, b) => a.time.localeCompare(b.time)));
+    return days;
+}
+
 export const SUB_EVENTS = {};
 CATEGORIES_WITH_EVENTS.forEach(cat => {
     if (!cat.timelineOnly) {
@@ -904,11 +1187,17 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
             title: ev.title,
             subtitle: ev.subtitle,
             desc: ev.desc,
+            overview: ev.overview || '',
+            minTeam: ev.minTeam ?? 1,
+            maxTeam: ev.maxTeam ?? 5,
+            fee: ev.fee || '',
+            categoryTitle: cat.title,
             color: ev.color || cat.color,
             xp: ev.xp,
             difficulty: ev.difficulty,
             heads: ev.heads,
             icon: (color) => getSvgIcon(ev.iconType || cat.iconType, color),
+            unstopUrl: ev.unstopUrl || `https://unstop.com/o/addovedi-2026-${slugify(ev.title)}`,
             venue: ev.timeline?.venue || 'Main Arena',
             mode: ev.timeline?.mode || 'Solo',
             registered: ev.timeline?.registered || 0,
@@ -926,6 +1215,33 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
     });
 });
 
+// Hosted rule-book PDFs (client/public/rulebooks), keyed by event slug
+export const RULEBOOK_PDFS = {
+    'robo-soccer': '/rulebooks/Addovedi-2026-robo-soccer-rulebook.pdf',
+    'dune-dominator': '/rulebooks/Addovedi-2026-dune-dominator-rulebook.pdf',
+    'solid-siege': '/rulebooks/Addovedi-2026-solid-siege-rulebook.pdf',
+    'hydraulic-warzone': '/rulebooks/Addovedi-2026-hydraulic-warzone-rulebook.pdf',
+    'sky-forge': '/rulebooks/Addovedi-2026-sky-forge-rulebook.pdf',
+    'circuit-debugging': '/rulebooks/Addovedi-2026-circuit-debugging-rulebook.pdf',
+    'circuit-designing': '/rulebooks/Addovedi-2026-circuit-designing-rulebook.pdf',
+    'line-follower': '/rulebooks/Addovedi-2026-line-follower-rulebook.pdf',
+    'hackathon': '/rulebooks/Addovedi-2026-hackathon-rulebook.pdf',
+    'bgmi': '/rulebooks/Addovedi-2026-bgmi-rulebook.pdf',
+    'fifa-showdown': '/rulebooks/Addovedi-2026-fifa-showdown-rulebook.pdf',
+    'prompt-pixel': '/rulebooks/Addovedi-2026-prompt-pixel-rulebook.pdf',
+    'codathon': '/rulebooks/Addovedi-2026-codathon-rulebook.pdf',
+    'treasure-hunt': '/rulebooks/Addovedi-2026-treasure-hunt-rulebook.pdf',
+    'real-cricket-24': '/rulebooks/Addovedi-2026-real-cricket-24-rulebook.pdf',
+    'edge-of-collapse': '/rulebooks/Addovedi-2026-edge-of-collapse-rulebook.pdf',
+    'the-seismic-arena': '/rulebooks/Addovedi-2026-the-seismic-arena-rulebook.pdf',
+    'brainwave-bonanza': '/rulebooks/Addovedi-2026-brainwave-bonanza-rulebook.pdf',
+    'tekken-showdown': '/rulebooks/Addovedi-2026-tekken-showdown-rulebook.pdf',
+    'mobile-legends-bang-bang': '/rulebooks/Addovedi-2026-mobile-legends-bang-bang-rulebook.pdf',
+    'electromind': '/rulebooks/Addovedi-2026-electromind-rulebook.pdf',
+    'energix': '/rulebooks/Addovedi-2026-energix-rulebook.pdf',
+    'verilog': '/rulebooks/Addovedi-2026-verilog-rulebook.pdf',
+};
+
 export const EVENT_RULES = {};
 CATEGORIES_WITH_EVENTS.forEach(cat => {
     cat.events.forEach(ev => {
@@ -935,31 +1251,28 @@ CATEGORIES_WITH_EVENTS.forEach(cat => {
     });
 });
 
-export const DAYS = [
-    { slot: 'SLOT 01', label: 'DAY 1', date: 'Sep 12', color: '#00E5FF', events: [] },
-    { slot: 'SLOT 02', label: 'DAY 2', date: 'Sep 13', color: '#7A5CFF', events: [] },
-    { slot: 'SLOT 03', label: 'DAY 3', date: 'Sep 14', color: '#FF2CFB', events: [] }
-];
+export const DAYS = DAY_META.map(d => ({ ...d, events: [] }));
 
 CATEGORIES_WITH_EVENTS.forEach(cat => {
     cat.events.forEach(ev => {
-        if (ev.timeline && ev.timeline.day >= 1 && ev.timeline.day <= 3) {
-            DAYS[ev.timeline.day - 1].events.push({
+        timelineSlots(ev.timeline).forEach(slot => {
+            DAYS[slot.day - 1].events.push({
                 id: slugify(ev.title),
                 title: ev.title,
-                subtitle: ev.subtitle,
+                subtitle: slot.label || ev.subtitle,
                 category: ev.category || cat.shortName || cat.title.replace(' & RC', '').replace(' & CS', '').replace('QUEST', '').replace('GUILD', '').replace('ARENA', '').replace(' & DESIGN', '').replace(' & DATA SCIENCE', '').trim(),
                 categorySlug: slugify(cat.title),
-                time: ev.timeline.time,
-                end: ev.timeline.end,
-                venue: ev.timeline.venue || 'Main Arena',
+                time: slot.time,
+                end: slotEndLabel(slot),
+                endDay: slot.endDay,
+                venue: slot.venue || 'Main Arena',
                 mode: ev.timeline.mode || 'Solo',
                 registered: ev.timeline.registered || 0,
                 prize: ev.timeline.prize || 'Trophies',
-                status: ev.timeline.status || 'UPCOMING',
+                status: ev.timeline.status || computeEventStatus(slot.day, slot.time, slot.end, slot.endDay),
                 desc: ev.desc
             });
-        }
+        });
     });
 });
 

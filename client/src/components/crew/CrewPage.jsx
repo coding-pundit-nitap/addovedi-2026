@@ -17,13 +17,44 @@ import CommonLoader from '../common/CommonLoader';
 import ScrollIndicator from '../common/ScrollIndicator';
 
 import { FACULTY_CREW, STUDENT_SECTIONS } from '../../data/crew';
+import { useCrewVisible } from '../../utils/useRegistrationOpen';
 import BgCanvas from './BgCanvas';
 import CrewCard from './CrewCard';
+
+// How often the public page re-polls the database for admin-portal crew
+// edits while open. Not true real-time (that would need a WebSocket), but
+// close enough that changes show up within a few seconds without a reload.
 
 
 /* ════════════════════════════════════════════
    STATISTICS COUNT UP STRIP
    ════════════════════════════════════════════ */
+// Splits a section into the hierarchy shown on the page:
+//   chief: the CHIEF stands alone on the first row
+//   grid:  everyone else, in rank order (ASST. CHIEF, EVENT HEAD, ...), wrapped in the normal card grid
+//   teams: a head with people reporting to them (`reportsTo` = the head's name) is drawn as a small tree
+const ROLE_RANK = { 'CHIEF': 0, 'ASST. CHIEF': 1, 'EVENT HEAD': 2 };
+const roleRank = (m) => ROLE_RANK[String(m.role || '').trim().toUpperCase()] ?? 3;
+const nameKey = (n) => String(n || '').trim().toLowerCase();
+
+function layoutSection(members) {
+    const byName = new Map(members.map(m => [nameKey(m.name), m]));
+    const children = members.filter(m => m.reportsTo && byName.has(nameKey(m.reportsTo)) && nameKey(m.reportsTo) !== nameKey(m.name));
+    const childSet = new Set(children);
+    const teams = [];
+    members.forEach(m => {
+        const kids = children.filter(c => nameKey(c.reportsTo) === nameKey(m.name));
+        if (kids.length) teams.push({ parent: m, children: kids });
+    });
+    const parentSet = new Set(teams.map(t => t.parent));
+    const rest = members.filter(m => !childSet.has(m) && !parentSet.has(m));
+    const chief = rest.filter(m => roleRank(m) === 0);
+    const grid = rest.filter(m => roleRank(m) !== 0);
+    // Rank order only matters in the leadership section (the one with a CHIEF); other sections keep their order.
+    if (chief.length) grid.sort((a, b) => roleRank(a) - roleRank(b));
+    return { chief, grid, teams };
+}
+
 function StatStrip({ finalMembers, finalMission }) {
     const [members, setMembers] = useState(0);
     const [mission, setMission] = useState(0);
@@ -83,12 +114,19 @@ function StatStrip({ finalMembers, finalMission }) {
 /* ════════════════════════════════════════════
    MAIN CREW PAGE
    ════════════════════════════════════════════ */
-export default function CrewPage() {
+function CrewPageContent() {
     const [booted, setBooted] = useState(false);
+    // The list shows only after the first fetch has answered (or 2.5s have passed), so people never see the built-in
+    // fallback names get swapped for the real ones a moment later.
+    const [crewLoaded, setCrewLoaded] = useState(true);
+    const ready = booted && crewLoaded;
+    useEffect(() => { const t = setTimeout(() => setCrewLoaded(true), 2500); return () => clearTimeout(t); }, []);
     const [activeTab, setActiveTab] = useState('STUDENT'); // 'FACULTY' | 'STUDENT'
     const [visibleSections, setVisibleSections] = useState(1);
     const [visibleFacultyRows, setVisibleFacultyRows] = useState(1);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const studentSections = STUDENT_SECTIONS;
+    const facultyList = FACULTY_CREW;
 
     // Track window resize
     useEffect(() => {
@@ -97,24 +135,26 @@ export default function CrewPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Crew is static (data/crew2026.json + data/faculty2026.json): no database fetch, no polling.
+
     // Split Faculty list into rows of 4 (desktop) or 2 (mobile)
     const cols = isMobile ? 2 : 4;
     const facultyRows = useMemo(() => {
         const rows = [];
-        for (let i = 0; i < FACULTY_CREW.length; i += cols) {
-            rows.push(FACULTY_CREW.slice(i, i + cols));
+        for (let i = 0; i < facultyList.length; i += cols) {
+            rows.push(facultyList.slice(i, i + cols));
         }
         return rows;
-    }, [cols]);
+    }, [cols, facultyList]);
 
     // Student total operatives count
     const totalStudentCount = useMemo(() => {
-        return STUDENT_SECTIONS.reduce((acc, curr) => acc + curr.members.length, 0);
-    }, []);
+        return studentSections.reduce((acc, curr) => acc + curr.members.length, 0);
+    }, [studentSections]);
 
     // Card entry animation for Faculty rows
     useEffect(() => {
-        if (!booted || activeTab !== 'FACULTY') return;
+        if (!ready || activeTab !== 'FACULTY') return;
         setVisibleFacultyRows(1);
         const interval = setInterval(() => {
             setVisibleFacultyRows(prev => {
@@ -126,15 +166,15 @@ export default function CrewPage() {
             });
         }, 220);
         return () => clearInterval(interval);
-    }, [facultyRows.length, booted, activeTab]);
+    }, [facultyRows.length, ready, activeTab]);
 
     // Card entry animation for Student sections
     useEffect(() => {
-        if (!booted || activeTab !== 'STUDENT') return;
+        if (!ready || activeTab !== 'STUDENT') return;
         setVisibleSections(1);
         const interval = setInterval(() => {
             setVisibleSections(prev => {
-                if (prev >= STUDENT_SECTIONS.length) {
+                if (prev >= studentSections.length) {
                     clearInterval(interval);
                     return prev;
                 }
@@ -142,7 +182,7 @@ export default function CrewPage() {
             });
         }, 150); // reveals next section every 150ms
         return () => clearInterval(interval);
-    }, [booted, activeTab]);
+    }, [ready, activeTab, studentSections.length]);
 
     const pageRef = useRef(null);
 
@@ -224,9 +264,10 @@ export default function CrewPage() {
                     animation: imgGlitch 0.2s steps(2) infinite;
                 }
                 @keyframes imgGlitch {
-                    0% { transform: skewX(-5deg) scale(1.05); filter: hue-rotate(40deg); }
-                    50% { transform: skewX(5deg) scale(1.03); filter: hue-rotate(-40deg); }
-                    100% { transform: skewX(0deg) scale(1.05); filter: none; }
+                    /* Colour shift removed: hue-rotate tinted every photo yellow/green while hovering */
+                    0% { transform: skewX(-5deg) scale(1.05); }
+                    50% { transform: skewX(5deg) scale(1.03); }
+                    100% { transform: skewX(0deg) scale(1.05); }
                 }
 
                 /* Staggered Row reveal anim */
@@ -276,9 +317,9 @@ export default function CrewPage() {
                 animation: 'orbit-reverse 30s ease-in-out infinite'
             }} />
 
-            {!booted && <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />}
+            <CommonLoader onDone={() => setBooted(true)} pageName="Crew" />
 
-            <div style={{ opacity: booted ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: booted ? 'auto' : 'none' }}>
+            <div style={{ opacity: ready ? 1 : 0, transition: 'opacity 0.5s ease', pointerEvents: ready ? 'auto' : 'none' }}>
                 {/* Navbar */}
                 <div style={{ position:'relative', zIndex:20 }}>
                     <CommonNav />
@@ -322,7 +363,7 @@ export default function CrewPage() {
 
                     {/* Animated Statistics Counter Strip */}
                     <StatStrip 
-                        finalMembers={activeTab === 'FACULTY' ? FACULTY_CREW.length : totalStudentCount} 
+                        finalMembers={activeTab === 'FACULTY' ? facultyList.length : totalStudentCount} 
                         finalMission={1} 
                     />
 
@@ -388,7 +429,7 @@ export default function CrewPage() {
                             gap: isMobile ? '32px 16px' : '28px',
                             width: '100%'
                         }}>
-                            {FACULTY_CREW.map((member) => (
+                            {facultyList.map((member) => (
                                 <div 
                                     key={member.id}
                                     style={{
@@ -408,7 +449,7 @@ export default function CrewPage() {
                     ) : (
                         /* Section Headings + Centered Cards for Student Squadron */
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            {STUDENT_SECTIONS.slice(0, visibleSections).map((section) => (
+                            {studentSections.slice(0, visibleSections).map((section) => (
                                 <div key={section.title} className="row-reveal" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                                     {/* Futuristic Cyber Section Header Centered */}
                                     <div style={{
@@ -442,32 +483,55 @@ export default function CrewPage() {
                                         <span style={{ color: `${section.color}40`, fontSize: '10px' }}>&gt;</span>
                                     </div>
 
-                                    {/* Cards Grid Centered */}
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        gap: isMobile ? '32px 16px' : '28px',
-                                        width: '100%',
-                                        marginBottom: '24px'
-                                    }}>
-                                        {section.members.map((member) => (
-                                            <div 
-                                                key={member.id}
-                                                style={{
-                                                    width: isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)',
-                                                    minWidth: isMobile ? '140px' : '240px',
-                                                    maxWidth: '280px'
-                                                }}
-                                            >
-                                                <CrewCard
-                                                    member={member}
-                                                    isFeatured={false}
-                                                    isMobile={isMobile}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {(() => {
+                                        const { chief, grid, teams } = layoutSection(section.members);
+                                        const cardW = isMobile ? 'calc(50% - 8px)' : 'calc(25% - 21px)';
+                                        const cardStyle = { width: cardW, minWidth: isMobile ? '140px' : '240px', maxWidth: '280px' };
+                                        const rowStyle = { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: isMobile ? '32px 16px' : '28px', width: '100%', marginBottom: '24px' };
+                                        const line = `${section.color}70`;
+                                        return (
+                                            <>
+                                                {chief.length > 0 && (
+                                                    <div style={rowStyle}>
+                                                        {chief.map(m => (
+                                                            <div key={m.id} style={{ ...cardStyle, width: isMobile ? 'calc(50% - 8px)' : '280px' }}>
+                                                                <CrewCard member={m} isFeatured isMobile={isMobile} />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {grid.length > 0 && (
+                                                    <div style={rowStyle}>
+                                                        {grid.map(m => (
+                                                            <div key={m.id} style={cardStyle}>
+                                                                <CrewCard member={m} isFeatured={false} isMobile={isMobile} />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {teams.map(({ parent, children }) => (
+                                                    <div key={parent.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '24px' }}>
+                                                        <div style={{ ...cardStyle, width: isMobile ? 'calc(50% - 8px)' : '280px' }}>
+                                                            <CrewCard member={parent} isFeatured={false} isMobile={isMobile} />
+                                                        </div>
+                                                        {/* tree connector: stem down from the head, bar across, a stub into each report */}
+                                                        <div style={{ width: 2, height: 22, background: line }} />
+                                                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                                            {children.map((c, idx) => (
+                                                                <div key={c.id} style={{ position: 'relative', paddingTop: 22, paddingLeft: isMobile ? 8 : 14, paddingRight: isMobile ? 8 : 14, width: isMobile ? '50%' : 'auto', boxSizing: 'border-box' }}>
+                                                                    <div style={{ position: 'absolute', top: 0, left: idx === 0 ? '50%' : 0, right: idx === children.length - 1 ? '50%' : 0, height: 2, background: line, display: children.length > 1 ? 'block' : 'none' }} />
+                                                                    <div style={{ position: 'absolute', top: 0, left: 'calc(50% - 1px)', width: 2, height: 22, background: line }} />
+                                                                    <div style={{ width: isMobile ? '100%' : 250 }}>
+                                                                        <CrewCard member={c} isFeatured={false} isMobile={isMobile} />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>
@@ -484,9 +548,30 @@ export default function CrewPage() {
                         fontSize: 'clamp(6.5px, 1.1vw, 8px)',
                         color: 'rgba(0, 229, 255, 0.25)'
                     }}>
-                        <div>ALL OPERATIVES DEPLOYED // STATUS NOMINAL</div>
+                        <div>ALL OPERATIVES DEPLOYED · STATUS NOMINAL</div>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// The crew list stays hidden behind "launching soon" until an admin switches it on.
+export default function CrewPage() {
+    const { visible, loaded } = useCrewVisible();
+    // Until the switch has been read, show only the loader's own dark colour: no "launching soon" flash that then
+    // turns into the real page.
+    if (!loaded) return <div style={{ position: 'fixed', inset: 0, background: '#06080F', zIndex: 100 }} />;
+    if (visible) return <CrewPageContent />;
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: '#010307', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
+            <CommonNav />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 14, padding: 24 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: '2px solid #00E5FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E5FF', fontSize: 26, boxShadow: '0 0 22px rgba(0,229,255,0.4)' }}>⏳</div>
+                <h1 style={{ fontFamily: "'Orbitron', monospace", fontSize: 'clamp(20px, 4vw, 34px)', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: '0 0 18px rgba(0,229,255,0.5)' }}>CREW LAUNCHING SOON</h1>
+                <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.55)', maxWidth: 380, lineHeight: 1.7, margin: 0 }}>
+                    The team behind Addovedi 2026 will be revealed here very soon. Check back shortly.
+                </p>
             </div>
         </div>
     );

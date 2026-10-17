@@ -1,4 +1,13 @@
+import { MEMBER_STATUS_META, memberMeta } from '../../utils/registrations';
+import GuideLink from '../guide/GuideLink';
+import WhatsAppJoin from './WhatsAppJoin';
+import { isUnstopOnlyCategory } from '../../utils/unstopOnly';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../../store/useStore';
+import { API_BASE } from '../../constants/api';
+import useRegistrationOpen from '../../utils/useRegistrationOpen';
+import { DAYS } from '../../data/events';
 
 export default function RegistrationForm({
     activeEvent,
@@ -14,11 +23,56 @@ export default function RegistrationForm({
     members,
     setMembers,
     handleRegisterSubmit,
+    handleCancelRegistration,
+    handleRespondInvite,
+    handleTeamAction,
     isRegistered,
+    existingReg,
     isMobileModal,
     btnThemeStyles
 }) {
     const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+    const { open: registrationOpen, mode: registrationMode, known: registrationKnown } = useRegistrationOpen();
+    const [inviteUid, setInviteUid] = useState('');
+    const [inviteStatus, setInviteStatus] = useState(undefined); // undefined | 'checking' | 'valid' | 'invalid' | 'busy'
+    const checkInviteUid = async (uid) => {
+        const trimmed = (uid || '').trim();
+        if (!trimmed) { setInviteStatus(undefined); return; }
+        setInviteStatus('checking');
+        try {
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}?event=${encodeURIComponent(activeEvent?.title || '')}&exclude=${encodeURIComponent(existingReg?.registrationId || '')}`, {
+                headers: { Authorization: `Bearer ${loggedInUser?.token || ''}` }
+            });
+            const data = await res.json();
+            setInviteStatus(!data.exists ? 'invalid' : (data.busy ? 'busy' : 'valid'));
+        } catch { setInviteStatus(undefined); }
+    };
+    const [teamBusy, setTeamBusy] = useState(false);
+    const runTeamAction = async (path, body) => { setTeamBusy(true); try { return handleTeamAction ? await handleTeamAction(path, body) : false; } finally { setTeamBusy(false); } };
+    const [isCancelling, setIsCancelling] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+    // Tracks each team member's Addovedi-ID verification: undefined (not yet
+    // checked), 'checking', 'valid', or 'invalid'. Keyed by member index.
+    const [memberUidStatus, setMemberUidStatus] = useState({});
+
+    const checkMemberUid = async (index, uid) => {
+        const trimmed = (uid || '').trim();
+        if (!trimmed) {
+            setMemberUidStatus(prev => ({ ...prev, [index]: undefined }));
+            return;
+        }
+        setMemberUidStatus(prev => ({ ...prev, [index]: 'checking' }));
+        try {
+            const res = await fetch(`${API_BASE}/participants/check-uid/${encodeURIComponent(trimmed)}?event=${encodeURIComponent(activeEvent?.title || '')}`, {
+                headers: { Authorization: `Bearer ${loggedInUser?.token || ''}` }
+            });
+            const data = await res.json();
+            setMemberUidStatus(prev => ({ ...prev, [index]: !data.exists ? 'invalid' : (data.busy ? 'busy' : 'valid') }));
+        } catch (err) {
+            setMemberUidStatus(prev => ({ ...prev, [index]: 'invalid' }));
+        }
+    };
 
     const inputClass = `w-full bg-[#02050c]/85 border text-white placeholder-white/30 ${isMobileModal ? 'px-3 py-1.5' : 'px-4 py-2.5'} focus:outline-none transition-all duration-300 rounded-none tracking-wider`;
     const inputStyle = {
@@ -41,6 +95,64 @@ export default function RegistrationForm({
         e.target.style.borderColor = `${activeEvent.color}30`; 
         e.target.style.boxShadow = 'none'; 
     };
+
+    // Closed for THIS event (admin switch). Gaming Nexus / Fun Arena skip the Addovedi flow below, so for them the main
+    // registration switch is applied here too. People who already have a registration for the event still see its status.
+    const alreadyIn = Boolean(existingReg) || isRegistered;
+    const eventClosed = activeEvent?.registrationClosed === true;
+    const unstopOnly = isUnstopOnlyCategory(activeCategory?.title || activeEvent?.categoryTitle);
+    // While this event (or the main switch) is closed the server refuses new invites. A team that is already registered keeps
+    // everything it has and simply carries on from the same point once registration is open again.
+    const inviteBlocked = eventClosed || (registrationKnown && !registrationOpen);
+    if (!alreadyIn && (eventClosed || (unstopOnly && registrationKnown && !registrationOpen))) {
+        const soon = registrationKnown && !registrationOpen && registrationMode !== 'closed';
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '36px 12px' : '56px 30px', minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>{soon ? '⏳' : '🔒'}</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>
+                    {soon ? 'REGISTRATION STARTING SOON' : 'REGISTRATION CLOSED'}
+                </h3>
+                <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.65)', maxWidth: 380, lineHeight: 1.6, margin: 0 }}>
+                    {soon
+                        ? <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> haven't opened yet. Check back soon.</>
+                        : <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> are now closed.</>}
+                </p>
+            </div>
+        );
+    }
+
+    // Gaming Nexus and Fun Arena: registration happens only on Unstop (no login, profile, team form or verification).
+    if (unstopOnly) {
+        const url = activeEvent.unstopUrl;
+        const hasLink = /^https:\/\/unstop\.com\//.test(url || '');
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 10px 32px' : '32px 30px 40px', fontFamily: "'Rajdhani', sans-serif", minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>↗</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.1em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>REGISTER ON UNSTOP</h3>
+                <p style={{ fontSize: isMobileModal ? '12px' : '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 400, margin: 0 }}>
+                    Registration for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> is done directly on Unstop. You don't need an Addovedi profile or any verification here.
+                </p>
+                {activeEvent.fee && (
+                    <div style={{ border: `1px solid ${activeEvent.color}60`, background: `${activeEvent.color}10`, padding: '8px 18px', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
+                        FEE · <strong style={{ color: '#fff' }}>{activeEvent.fee}</strong>
+                    </div>
+                )}
+                {hasLink ? (
+                    <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: 'block', padding: '14px 28px', background: activeEvent.color, color: '#02050c', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", fontSize: '12px', letterSpacing: '0.1em', textDecoration: 'none', boxShadow: `0 0 20px ${activeEvent.color}80`, maxWidth: '100%' }}
+                    >
+                        REGISTER ON UNSTOP ↗
+                    </a>
+                ) : (
+                    <div style={{ padding: '12px 22px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)', fontSize: '13px' }}>The Unstop registration link will be added soon.</div>
+                )}
+                <div style={{ width: '100%', maxWidth: 400 }}><WhatsAppJoin eventTitle={activeEvent.title} /></div>
+            </div>
+        );
+    }
 
     if (!loggedInUser) {
         return (
@@ -92,7 +204,7 @@ export default function RegistrationForm({
                         />
                         <span className="event-reg-fill" />
                         <span className="relative z-10 flex items-center gap-1 font-bold text-xs" style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff' }}>
-                            <span>SIGN IN // REGISTER PLAYER</span>
+                            <span>SIGN IN · REGISTER PLAYER</span>
                             <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none" style={{ color: '#00D9FF' }}>▶</span>
                         </span>
                     </button>
@@ -160,44 +272,359 @@ export default function RegistrationForm({
         );
     }
 
-    // Check if this event is already registered in localStorage
-    const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-    const isCurrentEventRegistered = storedRegs.some(r => r.title === activeEvent.title);
+    // existingReg comes from the server (the real registration record, as
+    // leader or as a team member) via props — no more reading a local cache.
+    const isCurrentEventRegistered = Boolean(existingReg) || isRegistered;
+    const isVerified = existingReg?.status === 'VERIFIED';
 
-    if (isCurrentEventRegistered || isRegistered) {
+    // Profile must be complete before enlisting (existing registrations stay viewable/cancellable).
+    const PROFILE_FIELDS = ['gender', 'dob', 'college', 'department', 'year', 'state', 'city', 'emergencyContact'];
+    const profileIncomplete = PROFILE_FIELDS.some(f => !String(loggedInUser[f] || '').trim());
+    if (profileIncomplete && !isCurrentEventRegistered) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif", height: '100%' }}>
-                <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-2 animate-bounce"
-                    style={{
-                        background: `${activeEvent.color}15`,
-                        color: activeEvent.color,
-                        border: `2px solid ${activeEvent.color}`,
-                        boxShadow: `0 0 20px ${activeEvent.color}40`,
-                    }}
-                >
-                    ✓
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '40px 10px' : '60px 40px', fontFamily: "'Rajdhani', sans-serif" }}>
+                <div>
+                    <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '14px' : '18px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>COMPLETE YOUR PROFILE</h3>
+                    <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', maxWidth: '380px', lineHeight: 1.6 }}>
+                        Finish your Player HQ profile (gender, date of birth, college, department, year, state, city and emergency contact) to register for events.
+                    </p>
                 </div>
-                <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
-                    MISSION_SECURED
+                <button
+                    onClick={() => { onClose(); useStore.getState().setAuthModalOpen(true); }}
+                    className="py-3 px-8 text-xs font-bold border-0 cursor-pointer"
+                    style={{ fontFamily: "'Orbitron', monospace", letterSpacing: '0.12em', color: '#fff', background: 'linear-gradient(135deg, #0891b2, #00D9FF)' }}
+                >
+                    OPEN PLAYER HQ ▶
+                </button>
+                <GuideLink step={10} label="Not sure how? See the step-by-step guide" />
+            </div>
+        );
+    }
+
+    const addovediId = loggedInUser.addovediId || loggedInUser.uniqueId || 'ADV26-REC1';
+
+    // If registration is already saved on website
+    // Registration is switched on from Admin; until then show "starting soon".
+    // People who already have a registration still see its status below.
+    if (!registrationOpen && !isCurrentEventRegistered) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '36px 12px' : '56px 30px' }}>
+                <div style={{ width: 62, height: 62, borderRadius: '50%', border: `2px solid ${activeEvent.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeEvent.color, fontSize: 26, boxShadow: `0 0 22px ${activeEvent.color}55` }}>{registrationMode === 'closed' ? '🔒' : '⏳'}</div>
+                <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? '16px' : '22px', fontWeight: 900, letterSpacing: '0.12em', color: '#fff', margin: 0, textShadow: `0 0 14px ${activeEvent.color}66` }}>
+                    {registrationMode === 'closed' ? 'REGISTRATION CLOSED' : 'REGISTRATION STARTING SOON'}
                 </h3>
-                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: '400px', margin: 0 }}>
-                    Your registration details have been synchronized with the database. Check your player profile dashboard to view mission enlists.
+                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.65)', maxWidth: 380, lineHeight: 1.6, margin: 0 }}>
+                    {registrationMode === 'closed'
+                        ? <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> are now closed.</>
+                        : <>Registrations for <strong style={{ color: activeEvent.color }}>{activeEvent.title}</strong> haven't opened yet. Create your Addovedi ID in the meantime and check back soon.</>}
                 </p>
             </div>
         );
     }
 
-    return (
-        <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
-            <div style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.25em', fontWeight: 900, color: activeEvent.color, opacity: 0.8 }}>
-                {'// INITIATE_REGISTRATION_PROTOCOL'}
+    if (isCurrentEventRegistered) {
+        const isMember = existingReg && existingReg.isLeader === false;
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isMobileModal ? '24px 10px 32px' : '32px 30px 40px', fontFamily: "'Rajdhani', sans-serif", minHeight: '100%', boxSizing: 'border-box', flexShrink: 0 }}>
+                <div
+                    className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-1 ${isVerified ? '' : 'animate-pulse'}`}
+                    style={{
+                        background: `${isVerified ? '#1FFF76' : activeEvent.color}15`,
+                        color: isVerified ? '#1FFF76' : activeEvent.color,
+                        border: `2px solid ${isVerified ? '#1FFF76' : activeEvent.color}`,
+                        boxShadow: `0 0 20px ${isVerified ? '#1FFF76' : activeEvent.color}40`,
+                    }}
+                >
+                    {isVerified ? '✓' : '⏳'}
+                </div>
+                <h3 style={{ fontSize: isMobileModal ? '16px' : '22px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#fff', margin: 0, textShadow: '0 0 10px rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
+                    {isVerified ? "YOU'RE_ALL_SET" : (existingReg?.teamId ? (isMember ? 'TEAM_READY' : 'TEAM_READY · PAY ON UNSTOP') : 'ASSEMBLING_TEAM')}
+                </h3>
+                <p style={{ fontSize: isMobileModal ? '11px' : '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
+                    Team <strong>"{existingReg?.teamName || teamName || 'Your Team'}"</strong> logged on Addovedi database.<br />
+                    {isMember && existingReg?.leaderName ? <>You're registered as a team member (led by <strong>{existingReg.leaderName}</strong>).<br /></> : null}
+                    {isVerified
+                        ? 'Your registration is verified. There is nothing more to do on Unstop. Here is everything you need for the event.'
+                        : (existingReg?.teamId
+                            ? (isMember ? `Your team leader${existingReg?.leaderName ? ' (' + existingReg.leaderName + ')' : ''} completes registration on Unstop and pays for the team. You do not need to do anything on Unstop.` : 'Complete registration on Unstop using the Team ID and Addovedi ID below. Admin verifies it after payment.')
+                            : 'Your team is not final yet. Every invited teammate must accept before you can register on Unstop.')}
+                </p>
+                {!isVerified && <GuideLink step={existingReg?.teamId ? 18 : 14} label="What happens next?" />}
+
+                {existingReg?.teamId && (
+                    <div style={{ width: '100%', maxWidth: '340px', border: `1px solid ${activeEvent.color}80`, background: `${activeEvent.color}10`, padding: '10px 12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '10px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.5)', fontFamily: "'Orbitron', sans-serif" }}>TEAM ID</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '0.08em', color: activeEvent.color, fontFamily: "'Orbitron', sans-serif" }}>{existingReg.teamId}</div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>Leader Addovedi ID: <strong style={{ color: '#fff' }}>{existingReg.leaderUID || addovediId}</strong></div>
+                    </div>
+                )}
+
+                {existingReg?.isLeader && Array.isArray(existingReg.members) && existingReg.members.length > 0 && (
+                    <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                        <div style={{ fontSize: '10px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.45)', fontFamily: "'Orbitron', sans-serif" }}>TEAMMATES</div>
+                        {existingReg.members.map(m => {
+                            const meta = memberMeta(m);
+                            const canEdit = !existingReg.teamId && !isVerified;
+                            const until = m.canReinviteAt ? new Date(m.canReinviteAt) : null;
+                            const waiting = until && until > new Date();
+                            const left = 3 - (m.inviteCount || 1);
+                            return (
+                                <div key={m.uid} style={{ padding: '6px 10px', border: `1px solid ${meta.color}40`, background: `${meta.color}0d` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ fontSize: '12px', color: '#fff', fontWeight: 600 }}>{m.name || m.uid} <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px' }}>{m.uid}</span></span>
+                                        <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: meta.color }}>{meta.label}</span>
+                                    </div>
+                                    {canEdit && m.status === 'PENDING' && (
+                                        <button type="button" disabled={teamBusy} onClick={() => runTeamAction('uninvite', { uid: m.uid })} style={{ marginTop: 4, background: 'transparent', border: 'none', color: '#f87171', fontSize: '10px', cursor: 'pointer', padding: 0 }}>Withdraw invite</button>
+                                    )}
+                                    {canEdit && m.status === 'REJECTED' && (
+                                        <div style={{ marginTop: 4, fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
+                                            {m.expired ? 'Did not respond in 24 hours. ' : 'Declined this invite. '}
+                                            {left <= 0 ? 'Invite limit reached for this player.' : waiting
+                                                ? `You can invite them again after ${until.toLocaleTimeString()}.`
+                                                : inviteBlocked ? 'You can invite them again when registration re-opens.' : <button type="button" disabled={teamBusy} onClick={() => runTeamAction('invite', { uid: m.uid })} style={{ background: 'transparent', border: `1px solid ${activeEvent.color}`, color: activeEvent.color, fontSize: '10px', cursor: 'pointer', padding: '2px 8px' }}>INVITE AGAIN ({left} left)</button>}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                        {existingReg.members.some(m => m.status === 'REJECTED') && !isVerified && (
+                            <p style={{ fontSize: '10px', color: '#f87171', margin: 0, lineHeight: 1.4 }}>A teammate declined or didn't accept in time. Invite them again, invite someone else, or continue with fewer players.</p>
+                        )}
+                    </div>
+                )}
+
+                {existingReg?.isLeader && !existingReg.teamId && !isVerified && (
+                    <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+                        {inviteBlocked && (
+                            <p style={{ fontSize: '11px', color: '#FBBF24', margin: 0, lineHeight: 1.5 }}>Registration is closed right now, so new invites are paused. Your team and the invites already sent are saved, and you can carry on from here when registration opens again. Teammates can still accept the invites they have.</p>
+                        )}
+                        {!inviteBlocked && (existingReg.members || []).filter(m => m.status !== 'REJECTED').length + 1 < (existingReg.teamSize || 1) && (
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                <input value={inviteUid} onChange={e => { setInviteUid(e.target.value); setInviteStatus(undefined); }} onBlur={() => checkInviteUid(inviteUid)} placeholder="ADDOVEDI ID TO INVITE" className={inputClass} style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                                <button type="button" disabled={teamBusy || !inviteUid.trim() || inviteStatus === 'busy' || inviteStatus === 'invalid'} onClick={async () => { if (await runTeamAction('invite', { uid: inviteUid })) { setInviteUid(''); setInviteStatus(undefined); } }} style={{ padding: '0 14px', background: activeEvent.color, color: '#02050c', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '11px' }}>INVITE</button>
+                            </div>
+                        )}
+                        {inviteStatus === 'busy' && <span style={{ fontSize: '10px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Already in a team for this event: choose someone else</span>}
+                        {inviteStatus === 'invalid' && <span style={{ fontSize: '10px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Addovedi ID not found</span>}
+                        {(existingReg.members || []).some(m => m.status === 'REJECTED') && !(existingReg.members || []).some(m => m.status === 'PENDING') && (
+                            <button type="button" disabled={teamBusy} onClick={() => { if (window.confirm('Continue with only the players who accepted? The team will be locked and you will get a Team ID.')) runTeamAction('finalize', {}); }} style={{ padding: '8px', background: 'transparent', border: `1px solid ${activeEvent.color}80`, color: '#fff', fontSize: '11px', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif" }}>CONTINUE WITH ACCEPTED PLAYERS</button>
+                        )}
+                    </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '340px', marginTop: '10px' }}>
+                    {existingReg?.teamId && !isVerified && existingReg?.isLeader !== false && (<button
+                        type="button"
+                        onClick={() => window.open(activeEvent.unstopUrl || 'https://unstop.com', '_blank')}
+                        style={{
+                            padding: '12px',
+                            background: activeEvent.color,
+                            color: '#02050c',
+                            fontWeight: 900,
+                            fontFamily: "'Orbitron', sans-serif",
+                            fontSize: '12px',
+                            letterSpacing: '0.1em',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: `0 0 20px ${activeEvent.color}80`
+                        }}
+                    >
+                        OPEN UNSTOP · ENTER TEAM ID + ADDOVEDI ID ↗
+                    </button>)}
+
+                    {isVerified && (() => {
+                        const tl = activeEvent.timeline || {};
+                        const when = [DAYS[(tl.day || 0) - 1] ? `${DAYS[tl.day - 1].label} · ${DAYS[tl.day - 1].date}` : '', tl.time ? `${tl.time}${tl.end ? ' – ' + tl.end : ''}` : ''].filter(Boolean).join(' · ');
+                        const venue = tl.venue || activeEvent.venue || '';
+                        const coords = (activeEvent.heads || []).filter(h => h?.name);
+                        const rows = [
+                            ['EVENT', activeEvent.title],
+                            ['TEAM', existingReg.teamName || teamName || ''],
+                            ['TEAM ID', existingReg.teamId || ''],
+                            ['WHEN', when],
+                            ['WHERE', venue],
+                        ].filter(([, v]) => v);
+                        return (
+                            <div style={{ border: '1px solid #1FFF7660', background: '#1FFF7610', padding: '12px 14px', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '10px', letterSpacing: '0.18em', color: '#1FFF76', fontWeight: 900 }}>✓ REGISTRATION CONFIRMED</div>
+                                {rows.map(([k, v]) => (
+                                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: '12px' }}>
+                                        <span style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Orbitron', sans-serif", fontSize: '9px', letterSpacing: '0.1em' }}>{k}</span>
+                                        <span style={{ color: '#fff', textAlign: 'right', fontWeight: 700 }}>{v}</span>
+                                    </div>
+                                ))}
+                                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, marginTop: '4px' }}>
+                                    Carry your college ID card and report on time. Schedule updates and announcements will appear on the Timeline page and in your event group.
+                                </div>
+                                {existingReg.myStatus !== 'PENDING' && existingReg.myStatus !== 'REJECTED' && <WhatsAppJoin eventTitle={activeEvent.title} compact />}
+                                {coords.length > 0 && (
+                                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+                                        Questions? {coords.map((h, i) => (<span key={i}>{i > 0 ? ' · ' : ''}<strong style={{ color: '#fff' }}>{h.name}</strong>{h.phone ? ` ${h.phone}` : ''}</span>))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+
+                    {isMember ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                            {existingReg.myStatus === 'PENDING' ? (
+                                <>
+                                    <p style={{ fontSize: '12px', color: '#F59E0B', margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
+                                        {existingReg.leaderName} added you to this team. Do you want to join?{existingReg.inviteExpiresAt ? ` Respond before ${new Date(existingReg.inviteExpiresAt).toLocaleString()} or the invite expires.` : (existingReg.invitePaused ? ' Registration is closed right now, so your invite is on hold and will not expire. You can accept or decline whenever you like.' : '')}
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                                        <button type="button" onClick={() => handleRespondInvite && handleRespondInvite(true)} style={{ flex: 1, padding: '10px', background: 'rgba(31,255,118,0.15)', border: '1px solid #1FFF76', color: '#1FFF76', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.08em', cursor: 'pointer' }}>ACCEPT ✓</button>
+                                        <button type="button" onClick={() => handleRespondInvite && handleRespondInvite(false)} style={{ flex: 1, padding: '10px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.5)', color: '#f87171', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: '11px', letterSpacing: '0.08em', cursor: 'pointer' }}>DECLINE ✕</button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p style={{ fontSize: '11px', color: '#1FFF76', margin: 0, fontWeight: 700 }}>You joined this team. Acceptance is final.</p>
+
+                                </>
+                            )}
+                            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.5 }}>
+                                Only the team leader ({existingReg.leaderName}) can cancel the whole registration.
+                            </p>
+                        </div>
+                    ) : isVerified ? (
+                        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', margin: 0, lineHeight: 1.5, textAlign: 'center' }}>
+                            This registration is verified and locked. It can no longer be cancelled. Contact the organisers if something is wrong.
+                        </p>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled={isCancelling}
+                            onClick={() => setShowCancelConfirm(true)}
+                            style={{
+                                padding: '10px',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.5)',
+                                color: '#f87171',
+                                fontWeight: 700,
+                                fontFamily: "'Orbitron', sans-serif",
+                                fontSize: '11px',
+                                letterSpacing: '0.08em',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {isCancelling ? 'CANCELING...' : 'CANCEL REGISTRATION ✕'}
+                        </button>
+                    )}
+                    {showCancelConfirm && createPortal(
+                        <div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Confirm cancelling the registration"
+                            onClick={() => setShowCancelConfirm(false)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setShowCancelConfirm(false); }}
+                            style={{ position: 'fixed', inset: 0, zIndex: 100000, background: 'rgba(0,0,0,0.78)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+                        >
+                            <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, background: '#080b14', border: `1px solid ${activeEvent.color}80`, boxShadow: `0 0 40px ${activeEvent.color}33`, padding: isMobileModal ? 18 : 26, textAlign: 'center', fontFamily: "'Rajdhani', sans-serif" }}>
+                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: isMobileModal ? 14 : 16, fontWeight: 900, letterSpacing: '0.1em', color: '#fff', marginBottom: 12 }}>CANCEL REGISTRATION?</div>
+                                {existingReg?.teamId ? (
+                                    <p style={{ fontSize: isMobileModal ? 14 : 16, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, margin: '0 0 6px' }}>
+                                        If you have <strong style={{ color: '#FBBF24' }}>already registered or paid on Unstop</strong>, please <strong style={{ color: '#FBBF24' }}>don't cancel</strong>. The admin will verify your registration soon.
+                                    </p>
+                                ) : (
+                                    <p style={{ fontSize: isMobileModal ? 14 : 16, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, margin: '0 0 6px' }}>
+                                        Cancel this registration for the whole team? Any invites you sent will be withdrawn.
+                                    </p>
+                                )}
+                                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', margin: '0 0 18px' }}>Cancelling removes your whole team from this event.</p>
+                                <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between' }}>
+                                    <button
+                                        type="button"
+                                        disabled={isCancelling}
+                                        onClick={async () => {
+                                            setShowCancelConfirm(false);
+                                            setIsCancelling(true);
+                                            if (handleCancelRegistration) await handleCancelRegistration();
+                                            setIsCancelling(false);
+                                        }}
+                                        style={{ flex: 1, padding: '12px 8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.6)', color: '#f87171', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: 11, letterSpacing: '0.08em', cursor: 'pointer' }}
+                                    >
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        type="button"
+                                        autoFocus
+                                        onClick={() => setShowCancelConfirm(false)}
+                                        style={{ flex: 1, padding: '12px 8px', background: activeEvent.color, border: 'none', color: '#02050c', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", fontSize: 11, letterSpacing: '0.08em', cursor: 'pointer' }}
+                                    >
+                                        BACK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>,
+                        document.body
+                    )}
+                </div>
             </div>
+        );
+    }
+
+    // Handler when user submits initial team form to open Unstop
+    const handleInitiateUnstop = (e) => {
+        e.preventDefault();
+        if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
+
+        // Every team member's Addovedi ID must have been verified to exist
+        // before the team can proceed.
+        if ((members || []).some(m => !(m?.uid || '').trim())) {
+            alert('Every team member needs an Addovedi ID. Fill in the blank teammate ID(s) or reduce the team size.');
+            return;
+        }
+        if ((members || []).some((m, idx) => memberUidStatus[idx] === 'busy')) {
+            alert('One or more teammates are already in a team for this event. Replace them with other players before continuing.');
+            return;
+        }
+        const allVerified = (members || []).every((m, idx) => memberUidStatus[idx] === 'valid');
+        if (!allVerified) {
+            alert('Please wait for all team member Addovedi IDs to be verified (or fix any that show as not found) before proceeding.');
+            return;
+        }
+
+        // Create the team now; Unstop only opens up once every teammate has accepted (Team ID issued).
+        handleRegisterSubmit(e, '');
+    };
+
+    return (
+        <form onSubmit={handleInitiateUnstop} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'Rajdhani', sans-serif", height: isMobileModal ? 'auto' : '100%', overflow: isMobileModal ? 'visible' : 'hidden' }}>
+            {/* ADDOVEDI ID & UNSTOP PARTNERSHIP CARD */}
+            <div style={{
+                background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(5, 12, 24, 0.95) 100%)',
+                border: `1px solid ${activeEvent.color}50`,
+                padding: '10px 14px',
+                borderRadius: '2px',
+                boxShadow: `0 0 15px ${activeEvent.color}15`
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <div style={{ fontSize: '9px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: activeEvent.color }}>
+                            ADDOVEDI ID · OFFICIAL ACCESS TOKEN
+                        </div>
+                        <div style={{ fontSize: isMobileModal ? '15px' : '18px', fontFamily: "'Orbitron', sans-serif", fontWeight: 900, color: '#ffffff', letterSpacing: '0.15em', marginTop: '2px', textShadow: `0 0 10px ${activeEvent.color}80` }}>
+                            {addovediId}
+                        </div>
+                    </div>
+                    <span style={{ fontSize: '9px', background: `${activeEvent.color}20`, border: `1px solid ${activeEvent.color}50`, color: '#fff', padding: '4px 8px', borderRadius: '2px', fontWeight: 900, fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.08em' }}>
+                        UNSTOP PARTNERED
+                    </span>
+                </div>
+                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', lineHeight: 1.3 }}>
+                    Provide this Addovedi ID during registration on <strong>Unstop</strong>. Submitting registers your team and sends invites to your teammates. Once all of them accept, you get a Team ID and can complete registration on the official Unstop portal.
+                </div>
+                <div style={{ marginTop: '6px' }}><GuideLink step={12} label="How to fill this form" /></div>
+            </div>
+
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }} className="cyber-rules-scrollbar">
                 <div style={{ display: 'flex', flexDirection: isMobileModal ? 'column' : 'row', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 2 }}>
                         <label htmlFor="teamName" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME // CALLSIGN
+                            <span style={{ color: activeEvent.color }}>▸</span> TEAM NAME · CALLSIGN
                         </label>
                         <div style={{ position: 'relative' }}>
                             <input id="teamName" type="text" required placeholder="ENTER TEAM NAME..." value={teamName} onChange={(e) => setTeamName(e.target.value)}
@@ -207,12 +634,12 @@ export default function RegistrationForm({
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                         <label htmlFor="teamSize" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE
+                            <span style={{ color: activeEvent.color }}>▸</span> TEAM SIZE{(activeEvent.minTeam ?? 1) === (activeEvent.maxTeam ?? 5) ? ` (FIXED: ${activeEvent.minTeam ?? 1})` : ` (${activeEvent.minTeam ?? 1}-${activeEvent.maxTeam ?? 5})`}
                         </label>
-                        <select id="teamSize" value={teamSize} onChange={(e) => setTeamSize(Number(e.target.value))}
+                        <select id="teamSize" value={teamSize} disabled={(activeEvent.minTeam ?? 1) === (activeEvent.maxTeam ?? 5)} onChange={(e) => setTeamSize(Number(e.target.value))}
                             className={inputClass} style={{ ...inputStyle, background: '#02050c', color: '#fff', cursor: 'pointer' }} onFocus={onFocus} onBlur={onBlur}
                         >
-                            {[1, 2, 3, 4, 5].map(n => (
+                            {Array.from({ length: Math.max(1, (activeEvent.maxTeam ?? 5) - (activeEvent.minTeam ?? 1) + 1) }, (_, i) => (activeEvent.minTeam ?? 1) + i).map(n => (
                                 <option key={n} value={n} style={{ background: '#02050c', color: '#fff' }}>{n} {n === 1 ? 'MEMBER' : 'MEMBERS'}</option>
                             ))}
                         </select>
@@ -232,14 +659,14 @@ export default function RegistrationForm({
                                 />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER UNIQUE ID // G-ID</label>
-                                <input id="leaderUID" type="text" required disabled value={leaderUID}
-                                    className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                                <label htmlFor="leaderUID" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>ADDOVEDI ID · G-ID</label>
+                                <input id="leaderUID" type="text" required disabled value={addovediId || leaderUID}
+                                    className={inputClass} style={{ ...inputStyle, opacity: 0.8, color: activeEvent.color, fontWeight: 800, cursor: 'not-allowed' }}
                                 />
                             </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE // COMMS</label>
+                            <label htmlFor="leaderPhone" style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>LEADER PHONE · COMMS</label>
                             <input id="leaderPhone" type="tel" required disabled value={leaderPhone}
                                 className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }}
                             />
@@ -274,23 +701,36 @@ export default function RegistrationForm({
                                     />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                    <label htmlFor={`member${i}-uid`} style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>MEMBER {i + 2} UNIQUE ID // G-ID</label>
+                                    <label htmlFor={`member${i}-uid`} style={{ fontSize: '10px', fontFamily: "'Orbitron', sans-serif", letterSpacing: '0.15em', fontWeight: 900, color: 'rgba(255,255,255,0.6)' }}>MEMBER {i + 2} ADDOVEDI ID</label>
                                     <input
                                         id={`member${i}-uid`}
                                         type="text"
                                         required
-                                        placeholder={`ENTER MEMBER ${i + 2} G-ID...`}
+                                        placeholder={`ADV26-XXXX...`}
                                         value={member.uid || ''}
                                         onChange={(e) => {
                                             const updated = [...members];
                                             updated[i] = { ...updated[i], uid: e.target.value };
                                             setMembers(updated);
+                                            setMemberUidStatus(prev => ({ ...prev, [i]: undefined }));
                                         }}
                                         className={inputClass}
                                         style={inputStyle}
                                         onFocus={onFocus}
-                                        onBlur={onBlur}
+                                        onBlur={(e) => { onBlur(e); checkMemberUid(i, member.uid); }}
                                     />
+                                    {memberUidStatus[i] === 'checking' && (
+                                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>Verifying...</span>
+                                    )}
+                                    {memberUidStatus[i] === 'valid' && (
+                                        <span style={{ fontSize: '9px', color: '#1FFF76', fontFamily: 'monospace' }}>✓ ID verified</span>
+                                    )}
+                                    {memberUidStatus[i] === 'busy' && (
+                                        <span style={{ fontSize: '9px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Already in a team for this event: choose someone else</span>
+                                    )}
+                                    {memberUidStatus[i] === 'invalid' && (
+                                        <span style={{ fontSize: '9px', color: '#ff1f4f', fontFamily: 'monospace' }}>✕ Addovedi ID not found — member must sign up first</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -318,8 +758,7 @@ export default function RegistrationForm({
                     />
                     <span className="event-reg-fill" />
                     <span className="relative z-10 flex items-center justify-center gap-1.5 font-bold" style={{ textShadow: `0 0 10px ${activeEvent.color}` }}>
-                        CONFIRM ENLISTMENT
-                        <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold leading-none">▶</span>
+                        REGISTER TEAM & SEND INVITES ▶
                     </span>
                 </button>
             </div>

@@ -1,0 +1,821 @@
+[
+ {
+  "title": "ROBOTICS PROTOCOL",
+  "subtitle": "AUTONOMOUS MECHA DYNAMICS",
+  "desc": "Design, build and drive your own robots in head-to-head robotics challenges open to every branch.",
+  "color": "#00d9ff",
+  "iconType": "robot",
+  "modelType": "mecha",
+  "shortName": "Robotics",
+  "iconChar": "🤖",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "ROBO SOCCER",
+    "subtitle": "Where Robotics Meets the Spirit of Football!",
+    "desc": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.",
+    "overview": "Robo Soccer is an exciting robotics competition where teams design, build, and control their own robots to compete in a fast-paced football match. The objective is simple—use your robot's speed, strength, precision, and strategy to outplay the opponent and score the maximum number of goals.\n\nParticipants will put their engineering skills to the test by developing a robust and efficient robot capable of maneuvering across the arena, controlling the ball, defending the goal, and attacking the opponent. Every match demands a perfect combination of mechanical design, electronics, control systems, teamwork, and strategy.\n\nGet ready to enter the arena, control your machine, defend your territory, and fight for victory!",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "robot",
+    "heads": [
+     {
+      "name": "Tapan Boruah",
+      "phone": "+91 98590 40208"
+     }
+    ],
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/iHveMJo?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹22,000",
+     "day": 2,
+     "time": "15:00",
+     "venue": "Central Library, Classroom 6",
+     "end": "17:00",
+     "mode": "Team of 2-4"
+    }
+   },
+   {
+    "title": "DUNE DOMINATOR",
+    "subtitle": "Conquer the Terrain. Command the Machine",
+    "desc": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.",
+    "overview": "Dune Dominator is an exciting off-road robotics challenge where teams design and build a powerful rover capable of conquering a challenging sandy terrain with carry sand on it. The competition tests the robot's mechanical strength, mobility, stability, control, and endurance as it navigates through obstacles, slopes, uneven surfaces, and difficult terrain.\n\nTeams must engineer their rover to overcome every challenge with speed, precision, and reliability. From wheel and suspension design to motor control and overall stability, every engineering decision can make the difference between getting stuck and conquering the course.\n\nPrepare your machine, take control, and dominate the dunes!",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "robot",
+    "heads": [
+     {
+      "name": "Vaibhav Gupta",
+      "phone": "+91 95061 77693"
+     }
+    ],
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/sf0WoXF?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹20,000",
+     "day": 3,
+     "time": "15:30",
+     "venue": "Central Library, Classroom 6",
+     "end": "17:30",
+     "mode": "Team of 2-4"
+    }
+   }
+  ]
+ },
+ {
+  "title": "FUN ARENA",
+  "subtitle": "COMMON EVENTS",
+  "desc": "Puzzles, clues and adventure for everyone who just wants to enjoy the fest.",
+  "color": "#ffb800",
+  "iconType": "brain",
+  "modelType": "clock",
+  "shortName": "Fun",
+  "iconChar": "🧩",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "TREASURE HUNT",
+    "subtitle": "The Hunt Begins. Can You Find What Others Cannot?",
+    "desc": "Step into a world of mystery, puzzles, hidden clues, and unexpected challenges. Treasure Hunt is an exciting adventure where teams must race against time to solve a series of clues and uncover the final treasure.",
+    "overview": "Treasure Hunt is the campus-wide clue-solving adventure of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 race across the arena, decode riddles and puzzles, reach hidden checkpoints and follow the trail to the final treasure.\n\nEach solved clue leads to the next location. The team that completes the trail correctly, in the right order and in the shortest time, wins the hunt. It tests logical reasoning, observation, teamwork, navigation, technical knowledge and speed.\n\nRegistration is free. A briefing before the hunt explains the hunt area, boundaries and time limit, and an elimination round may be held before the main hunt.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "brain",
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/WJORj1u?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "heads": [
+     {
+      "name": "Tapan Boruah",
+      "phone": "+91 98590 40208"
+     }
+    ],
+    "timeline": {
+     "prize": "Exciting prizes",
+     "mode": "Team of 3"
+    }
+   }
+  ]
+ },
+ {
+  "title": "GAMING NEXUS",
+  "subtitle": "ESPORTS SHOWDOWN",
+  "desc": "Squad up or go solo in the arena: BGMI, FIFA, Mobile Legends, Tekken and Real Cricket.",
+  "color": "#9b5cff",
+  "iconType": "gamepad",
+  "modelType": "controller",
+  "shortName": "Gaming",
+  "iconChar": "🎮",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "BGMI",
+    "subtitle": "DROP IN. GEAR UP. SURVIVE. CONQUER",
+    "desc": "Enter the battleground and fight for ultimate glory! Battle Royale brings the thrill and intensity of BGMI to ADDOVEDI, where squads will compete against each other in a high-stakes test of strategy, coordination, skill, and survival.",
+    "overview": "The BGMI Tournament is the Battlegrounds Mobile India competition of Addovedi 2026, NIT Arunachal Pradesh. BGMI has been gaining popularity in Northeast India and across the country, and this tournament brings teams together to compete through survival skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stages are managed and scheduled online by the event committee, and the final matches are played physically at the Institute campus. Teams have 5 members. If more than 60 teams register, only the top 60 are shortlisted. Registration is free.\n\nRound 1 — Qualifiers: 60 teams play over 3 days, 3 matches a day (9 matches). The top 24 teams qualify for the semifinals.\nRound 2 — Semifinals: the 24 qualified teams play over 3 days, 4 matches a day (12 matches). The top 16 teams qualify for the finals.\nRound 3 — Finals: the 16 qualified teams play over 3 days, 4 matches a day (12 matches). The final standings after all matches decide the winners and prize positions.\n\nThe overall prize pool is ₹22,000 plus goodies, shared among the 16 finalist teams. The event runs under serious supervision.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "heads": [
+     {
+      "name": "Nandu Giba Tamin",
+      "phone": "+91 76300 64979"
+     },
+     {
+      "name": "Harsh Sharma",
+      "phone": "+91 77620 67934"
+     }
+    ],
+    "minTeam": 4,
+    "maxTeam": 5,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/mHji4qK?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹22,000 + goodies",
+     "day": 2,
+     "time": "11:00",
+     "venue": "TEL Centre",
+     "end": "16:00",
+     "label": "QUALIFIERS · DAY 1 OF 2",
+     "sessions": [
+      {
+       "day": 3,
+       "time": "11:00",
+       "end": "16:00",
+       "venue": "TEL Centre",
+       "label": "FINALS · DAY 2 OF 2"
+      }
+     ],
+     "mode": "Team of 4-5"
+    }
+   },
+   {
+    "title": "FIFA SHOWDOWN",
+    "subtitle": "KICK OFF. COMPETE. CONQUER",
+    "desc": "Get ready to experience the thrill of football in the digital arena! FIFA Showdown brings together football fans and gaming enthusiasts for an intense battle of skill, strategy, and precision.",
+    "overview": "The FC 26 Tournament is a competitive 1v1 gaming event of Addovedi 2026, played on EA SPORTS FC 26 on PlayStation 5 at the National Institute of Technology, Jote. It brings students together for a fun, competitive and fair gaming experience, with sportsmanship and fair play expected from the first kick-off to the final.\n\nIt is a pure single-elimination knockout. There is no group stage, league stage or points table. The winner of each match advances and the loser is eliminated. Depending on the number of players, rounds may include the Round of 32, Round of 16, quarterfinals, semifinals and final, and some players may get a bye. Each player represents themselves.\n\nEach match is played over 10 minutes per half. If the score is level after full time, extra time is played, and a penalty shootout follows if it is still level. Controllers must be standard and unmodified, and results are confirmed with the organiser after every match.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "heads": [
+     {
+      "name": "Tage Jarbo",
+      "phone": "+91 87876 90625"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "₹100 per player",
+    "unstopUrl": "https://unstop.com/o/Q3oXNFk?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹15,000 including goodies",
+     "day": 2,
+     "time": "16:00",
+     "venue": "TEL Centre",
+     "end": "17:00",
+     "mode": "Solo"
+    }
+   },
+   {
+    "title": "MOBILE LEGENDS: BANG BANG",
+    "subtitle": "CHOOSE YOUR HERO. MASTER YOUR STRATEGY. CONQUER THE ARENA",
+    "desc": "Enter the ultimate battlefield in an intense 5v5 multiplayer battle arena where teamwork, strategy, and quick decision-making determine victory. Assemble your squad, choose your heroes, and work together to destroy the enemy base while defending your own.",
+    "overview": "The MLBB Tournament is the Mobile Legends: Bang Bang competition of Addovedi 2026, NIT Arunachal Pradesh. MLBB has been growing fast in Northeast India and across the country, and this tournament brings teams together to compete through gameplay skill, coordination, tactical decision-making and the ability to adapt during matches.\n\nThe early stage is managed and scheduled online by the event committee, and the final match is played physically at the Institute campus, giving players and spectators a real esports experience. Teams have 5 members. If more than 40 teams register, only the top 40 are shortlisted.\n\nRound 1 — League / Group Stage: the 40 selected teams are split into 4 groups of 10 and play round-robin matches. The group winners advance.\nRound 2 — Knockout / Quarterfinals: elimination matches decide the semifinalists.\nRound 3 — Semifinals: the four qualified teams compete, and the winners go to the final.\nRound 4 — Final: the two semifinal winners play the final at the Institute campus for 1st and 2nd place.\n\nFaculty coordinators and student volunteers supervise and referee every match, and the same rulebook applies to all teams.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "heads": [
+     {
+      "name": "Nabam Rana",
+      "phone": "+91 81319 03629"
+     }
+    ],
+    "minTeam": 5,
+    "maxTeam": 5,
+    "fee": "₹100 per team",
+    "unstopUrl": "https://unstop.com/o/0FVcKkA?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹10,000 cash + exclusive hoodies",
+     "day": 3,
+     "time": "16:00",
+     "venue": "TEL Centre",
+     "end": "17:30",
+     "mode": "Team of 5"
+    }
+   },
+   {
+    "title": "TEKKEN SHOWDOWN",
+    "subtitle": "FIGHT. COMBO. CONQUER",
+    "desc": "Step into the arena and unleash your fighting skills in an intense battle of reflexes, timing, and strategy. Tekken Showdown brings players face-to-face in thrilling one-on-one matches where every combo, counter, and perfectly timed move can decide the outcome.",
+    "overview": "The Tekken 7 Tournament is the one-on-one fighting game competition of Addovedi 2026, NIT Arunachal Pradesh. Tekken 7 is one of the most widely played titles in the global fighting game community, and this tournament lets players show their execution, reads, match-up knowledge and composure under pressure. Every game is a head-to-head test of skill, with no one to rely on but yourself.\n\nThe tournament is individual (1 vs 1) and runs offline at the Institute campus over 2 days. Registration is free and happens online in advance. The expected number of players is about 10 to 15. If more than 15 register, only the top 15 are shortlisted.\n\nDay 1 — Qualifiers: all registered players compete in a pool round-robin or bracket (finalised by the organisers). Every match is a best-of-3 set, and only 2 players qualify for the final.\nDay 2 — Final: the 2 qualified players meet in a best-of-5 set (first to win 3 games). The result decides the winner, the runner-up and the prize positions.\n\nEach game is 3 rounds (first to win 2 rounds) with a 60-second round timer, random stage, handicap and items off, and all characters allowed, including DLC characters. Random Select is not allowed. The game is Tekken 7 on the latest official patch.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "heads": [
+     {
+      "name": "Harsh Sharma",
+      "phone": "+91 77620 67934"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/XzNnrhi?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹7,000+ including goodies",
+     "day": 2,
+     "time": "09:00",
+     "venue": "TEL Centre",
+     "end": "10:30",
+     "mode": "Solo"
+    }
+   },
+   {
+    "title": "REAL CRICKET 24",
+    "subtitle": "PLAY THE GAME. OWN THE PITCH.",
+    "desc": "Step onto the virtual pitch and prove your skill in a one-on-one cricket showdown. Real Cricket 24 is a knockout tournament where timing, strategy and nerve decide who lifts the trophy.",
+    "overview": "Real Cricket 24 is the cricket gaming event of Addovedi 2026, NIT Arunachal Pradesh. Players compete one-on-one in a knockout tournament, where skill, strategy, quick reflexes and sportsmanship decide who takes the arena.\n\nPlayers are matched against each other, and the winners advance round by round through the qualifiers, knockouts and semi-final until the final. The game mode, settings, match length and best-of format are announced by the organisers, and matches are played on the equipment provided at the venue.\n\nRegistration is free.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gamepad",
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/I7lzduH?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "heads": [
+     {
+      "name": "Vaibhav Gupta",
+      "phone": "+91 95061 77693"
+     }
+    ],
+    "timeline": {
+     "prize": "Exciting prizes",
+     "day": 3,
+     "time": "09:00",
+     "venue": "TEL Centre",
+     "end": "10:30",
+     "mode": "Solo"
+    },
+    "rules": [
+     "Real Cricket 24 is played as a knockout tournament. Players register before the deadline announced by the organisers (walk-ins only if the coordinators allow). It is an individual 1v1 event: a player may register only once, and only the first registration counts. Registration is free.",
+     "Every player must carry a valid student ID card and give valid, accurate registration details. Details cannot be changed after the entry list is finalised without permission from the coordinators.",
+     "Players report at the announced venue and time and check in with the coordinators. A player who is not present when their match is called may be disqualified or given a walkover after a short waiting time. The match schedule and brackets are shared on the day or in the official WhatsApp group.",
+     "Format: Qualifiers, Knockouts, Semi-final, Final. Only winners advance. The number of rounds, match length and best-of format are announced by the organisers, brackets may be random or seeded, and the format may change depending on the number of entries (announced before play begins).",
+     "Matches are played only on the game, mode, map and settings fixed by the organisers, using only the equipment and accounts provided or approved by the organisers. Players must not leave the match area during a game without the referee's permission.",
+     "Players may bring their own controller or headset only if the organisers allow it, and it may be inspected. Do not change system settings, install software or tamper with the setup. Report any technical problem to the referee before the match begins, as problems raised after play has started may not be accepted.",
+     "Disconnections, crashes or technical faults are handled by the referee, who may pause, replay or resume the match. Short pauses are allowed only under the conditions announced by the organisers. The referee's record of the result is final, and both sides must confirm the result with the referee after every match.",
+     "If a match ends level, the referee decides it with an extra round, then sudden death, then a referee decision. The final's winner is the champion.",
+     "Fair play: no cheating (hacks, mods, scripts, macros, bug exploits, unauthorised software or hardware), no match-fixing or colluding with an opponent, no distracting or interfering with an opponent's screen or controls, and no outside help or coaching during a match unless announced. Abusive, offensive or discriminatory behaviour is not tolerated.",
+     "Penalties (warning, point deduction or forfeit) apply for late arrival, interfering with an opponent or the setup, unapproved equipment or settings, ignoring instructions, or unsporting conduct. Disqualification applies for cheating, match-fixing, damaging equipment or the venue, abusive behaviour, false registration details or playing under another person's name, and repeated violations.",
+     "Spectators must stay quiet and remain outside the match area. The organisers may modify or clarify the rules with an announcement before implementation. The decision of the referees / organising committee is final and binding."
+    ]
+   }
+  ]
+ },
+ {
+  "title": "CYBER CODE",
+  "subtitle": "ALGORITHMIC WARFARE",
+  "desc": "Hackathons, competitive coding and AI-assisted web design for builders and problem solvers.",
+  "color": "#ff1f4f",
+  "iconType": "code",
+  "modelType": "coding",
+  "shortName": "Coding",
+  "iconChar": "💻",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "HACKATHON",
+    "subtitle": "IDEATE. INNOVATE. BUILD. CONQUER",
+    "desc": "Enter the innovation arena and transform your ideas into impactful digital solutions. This Hackathon brings together creative minds, designers, and developers to solve real-world challenges through website development and technology.",
+    "overview": "The ADDOVEDI 2026 Hackathon is a 24-hour continuous software development and innovation competition organised by Coding Pundit, Department of Computer Science and Engineering, NIT Arunachal Pradesh. It tests creativity, problem-solving, technical knowledge, teamwork and the ability to build a practical solution in limited time. Ideate. Innovate. Build. Conquer.\n\nThe competition moves from idea validation, to prototype development, and finally to a complete solution presentation. The evaluation gets more rigorous at every stage, so winning teams need both innovation and good software engineering.\n\nRound 1 — Innovation and Idea Pitch: held only if more than 20 teams register. The top 15 teams qualify. If 20 or fewer teams register, the event starts directly at Round 2.\nRound 2 — Prototype Development: teams build a working MVP for the released problem statement, with periodic progress evaluations. A screening round (5-minute presentation + 3-minute demo and Q&A) picks the top 8 finalists.\nRound 3 — Final Demonstration: finalists present the complete solution to the judges, followed by Q&A from faculty.\n\nJudging is out of 100: problem and solution (25), UI/UX and product (25), technical implementation (25) and presentation and Q&A (25). Build a solution, not just a project.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "web",
+    "heads": [
+     {
+      "name": "Divyanshu Gupta",
+      "phone": "+91 96954 31255"
+     },
+     {
+      "name": "Vinay Pal",
+      "phone": "+91 88403 37686"
+     }
+    ],
+    "minTeam": 2,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/ofTL8Xt?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Online_coding_challenge",
+    "timeline": {
+     "prize": "₹30,000+ (including goodies)",
+     "day": 1,
+     "time": "17:00",
+     "venue": "Central Library, Classroom 7",
+     "end": "17:00",
+     "endDay": 2,
+     "label": "24-HOUR RUN · ENDS 29 OCT 5:00 PM",
+     "mode": "Team of 2-4"
+    }
+   },
+   {
+    "title": "CODATHON",
+    "subtitle": "THINK. CODE. SOLVE. CONQUER",
+    "desc": "Step into the coding arena and put your programming skills to the ultimate test! CODATHON is an exciting competitive coding challenge where participants race against time to solve complex problems using logic, algorithms, and creativity.",
+    "overview": "CODATHON is the programming and Computer Science competition of Addovedi 2026, organised by Coding Pundit, Department of Computer Science and Engineering. It runs as one continuous session in two stages: a 20-question Computer Science fundamentals assessment, followed immediately by a coding challenge. Think. Code. Solve. Conquer.\n\nIt is an individual event, and participants bring their own laptop. Ranking is based on the combined performance across both stages. The event tests CS fundamentals, logical reasoning, problem solving, programming and optimisation.\n\nStage 1 — CS Fundamentals Assessment: 20 objective questions covering programming fundamentals, data structures and algorithms, operating systems, DBMS, computer networks, OOP, software engineering, aptitude and logical reasoning, and basic development concepts.\nStage 2 — Coding Challenge: starts right after Stage 1 with problems of increasing difficulty. Topics may include arrays, strings, searching and sorting, recursion, hashing, stacks and queues, trees and graphs, dynamic programming, greedy algorithms and mathematical and implementation problems.\n\nCoding solutions are evaluated automatically against test cases, checking correctness, algorithmic approach and time and space complexity. Stage weights, durations and the coding platform will be announced by the organisers.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "code",
+    "heads": [
+     {
+      "name": "Riya Yadav",
+      "phone": "+91 89575 08842"
+     },
+     {
+      "name": "Vinay Pal",
+      "phone": "+91 88403 37686"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "unstopUrl": "https://unstop.com/o/F85ZTWj?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)",
+     "day": 3,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 1",
+     "end": "16:00",
+     "mode": "Solo"
+    }
+   },
+   {
+    "title": "PROMPT & PIXEL",
+    "subtitle": "PROMPT. DESIGN. BUILD",
+    "desc": "PROMPT & PIXEL is an AI-assisted Web Design and Landing Page Development Competition that challenges participants to transform creative ideas into visually engaging digital experiences.",
+    "overview": "PROMPT & PIXEL is the AI-assisted web design and landing page development competition of Addovedi 2026, organised by Coding Pundit. It tests creativity, UI/UX design skills, frontend development ability, prompt engineering skills and the effective use of AI tools. Prompt. Design. Build.\n\nAt the start, every participant gets a common theme or problem statement and must conceptualise, design and develop a responsive landing page within the allotted time. The competition is individual and conducted offline at the designated venue.\n\nStage 1 — Theme announcement and planning: understand the theme and audience, plan the layout and user experience, choose the visual style, colours and typography, and plan how you will use AI tools.\nStage 2 — Landing page development: build the page using AI chatbots and coding assistants, AI website or UI generation tools, frontend frameworks, animation libraries, design tools and open-source libraries and assets.\nStage 3 — Final submission and judging: submit your project. There is no presentation round, and the judges evaluate submissions directly.\n\nJudging is out of 100: creativity and originality (25), UI/UX and visual design (25), functionality and frontend (20), AI usage and prompt engineering (15) and responsiveness (15).",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "web",
+    "heads": [
+     {
+      "name": "Anshu Kumar Gupta",
+      "phone": "+91 98629 58644"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "unstopUrl": "https://unstop.com/o/Fla9wGQ?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹8,000 + goodies",
+     "day": 3,
+     "time": "10:00",
+     "venue": "Central Library, Classroom 1",
+     "end": "12:00",
+     "mode": "Solo"
+    }
+   }
+  ]
+ },
+ {
+  "title": "SILICON SPECTRUM",
+  "subtitle": "SIGNAL & MICROELECTRONICS",
+  "desc": "Autonomous robots, digital design and circuit challenges from the electronics department.",
+  "color": "#a78bfa",
+  "iconType": "bolt",
+  "modelType": "portal",
+  "shortName": "ECE",
+  "iconChar": "📡",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "LINE FOLLOWER",
+    "subtitle": "SENSE. FOLLOW. RACE. CONQUER",
+    "desc": "LINE FOLLOWER is an exciting robotics challenge where teams design and build an autonomous robot capable of accurately detecting and following a predefined track.",
+    "overview": "Line Follower is a two-round Robotics and Embedded Systems competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' circuit-building skills, sensor calibration, control logic and their ability to make a robot autonomously track a path within a fixed set of hardware specifications. Sense. Follow. Race. Conquer.\n\nTeams of one to three design, assemble and fine-tune a line-following robot built strictly from the components provided by the ECE Society, so the contest is a fair test of skill rather than hardware budget. The competition emphasises reliable sensing, motor control, circuit assembly and autonomous path tracking.\n\nRound 1 — Qualifying Round: a simple printed track. Teams only need to complete it according to the guidelines. There is no time limit, and successful completion is the only qualifying criterion.\nRound 2 — Best of Two (Competitive Round): qualified teams run a more challenging track with two attempts. The better of the two timings decides the final ranking. If the robot loses the line, it restarts from the last checkpoint.\n\nThe track is a printed black line, 20 mm wide, on a white background.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "robot",
+    "heads": [
+     {
+      "name": "Bishal Barman",
+      "phone": "+91 81019 10731"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/6Hh9qOl?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹20,000 (including goodies)",
+     "day": 2,
+     "time": "13:30",
+     "venue": "Central Library, Classroom 2",
+     "end": "14:30",
+     "mode": "Team of 1-3"
+    }
+   },
+   {
+    "title": "VERILOG",
+    "subtitle": "DESIGN. SIMULATE. INNOVATE",
+    "desc": "VERILOG is a digital design challenge that puts participants' knowledge of hardware description, logical thinking, and problem-solving skills to the test. Participants will design and implement digital circuits and systems using Verilog based on the given problem statements.",
+    "overview": "Verilog is a two-round digital design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of digital logic fundamentals and their ability to model, simulate and verify digital circuits using the Verilog Hardware Description Language. Design. Simulate. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, competitive design under time pressure in Round 2. Participation is individual, and both rounds are conducted on participants' own laptops using Icarus Verilog or Vivado, used offline.\n\nRound 1 — Qualifying Round: covers the fundamentals of Verilog and logic design and tests conceptual understanding of digital logic. It is the filter for Round 2.\nRound 2 — Competitive Round: qualified participants attempt advanced Verilog design problems on a best-time basis. The correctness of the functional simulation and the speed of completion decide the ranking.\n\nThe format, duration and evaluation of Round 1, and the number of qualifiers, are announced by the organisers. The nature and number of Round 2 problems are disclosed at the time of the round.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "code",
+    "heads": [
+     {
+      "name": "Krish Prasad",
+      "phone": "+91 87309 56612"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "₹50 per person",
+    "unstopUrl": "https://unstop.com/o/XYnNqHg?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "Up to ₹8,000 + goodies",
+     "day": 2,
+     "time": "11:30",
+     "venue": "Central Library, Classroom 2",
+     "end": "13:30",
+     "mode": "Solo"
+    }
+   },
+   {
+    "title": "CIRCUIT DESIGNING",
+    "subtitle": "DESIGN . CONNECT . INNOVATE",
+    "desc": "Circuit Design Challenge is a technical competition where participants put their electronics knowledge, creativity, and problem-solving skills to the test by designing and implementing functional electronic circuits based on given challenges.",
+    "overview": "Circuit Designing is a two-round analog electronics and circuit design competition of Addovedi 2026, organised by the ECE Society, NIT Arunachal Pradesh. It tests participants' understanding of analog electronics and circuit analysis, and their ability to design, simulate, analyse and defend circuits using LTspice. Design. Connect. Innovate.\n\nThe competition moves from conceptual fundamentals in Round 1 to applied, time-bound circuit design and simulation with a viva in Round 2. Teams of up to two bring their own laptops with LTspice installed.\n\nRound 1 — Analog Electronics Quiz (25 marks): 25 MCQs in 30 minutes covering circuit analysis, semiconductor fundamentals, diode circuits and basic analog electronics. There is no negative marking, and 5 star-marked questions are used only for tie-breaking.\nRound 2 — Circuit Design with Viva (75 marks): participants get a circuit design problem with specified requirements and must design and simulate it in LTspice within the allotted time, then demonstrate and explain the circuit. Topics may include RC, RL and RLC circuits, low-pass and high-pass filters, diode circuits, rectifiers, clippers, clampers and other basic analog circuits.\n\nThe final score is out of 100, the combined score of both rounds.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "bolt",
+    "heads": [
+     {
+      "name": "Anirudh Mishra",
+      "phone": "+91 91404 63181"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 2,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/cxtDOWy?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)",
+     "day": 3,
+     "time": "11:00",
+     "venue": "Central Library, Classroom 2",
+     "end": "13:00",
+     "mode": "Team of 1-2"
+    }
+   }
+  ]
+ },
+ {
+  "title": "VOLTAGE GRID",
+  "subtitle": "POWER & TRANSFORMER SYSTEMS",
+  "desc": "Circuit debugging, energy solutions and electronics knowledge put to the test.",
+  "color": "#ff9d00",
+  "iconType": "bolt",
+  "modelType": "electrical",
+  "shortName": "Electrical",
+  "iconChar": "⚡",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "CIRCUIT DEBUGGING",
+    "subtitle": "UNDERSTAND. SIMULATE. BUILD. DEBUG",
+    "desc": "Circuit Debugging is a three-round, team-based technical challenge that tests participants' knowledge of electrical and electronic circuits through theory, simulation, practical circuit construction, and fault diagnosis.",
+    "overview": "Circuit Debugging is a three-round technical event of Addovedi 2026 that tests participants' knowledge, analytical ability, simulation skills, circuit construction, measurement and practical troubleshooting. Observe. Measure. Diagnose. Repair. Verify.\n\nThe event follows a progressive structure: Round 1 is Understand, Round 2 is Simulate and Analyse, and Round 3 is Debug and Repair. Participants move from theoretical circuit analysis to computer-based simulation and finally to real-world hardware debugging.\n\nRound 1 — Circuit IQ (30 marks): a 20-question MCQ screening round of 20 minutes on circuit theory, Ohm's and Kirchhoff's laws, resistors, capacitors, diodes, transistors and basic fault identification.\nRound 2 — Simulation Challenge (30 marks): qualified teams read a problem statement, build the circuit in LTspice, run the simulation and show the required voltage, current or waveform results.\nRound 3 — Hardware Debugging (40 marks): the final round gives teams a pre-assembled breadboard circuit with intentionally introduced faults. Teams must measure, find the faulty component or connection, explain the cause, repair it and show the circuit working.\n\nThe final ranking is the combined score across all three rounds, out of 100.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "bug",
+    "heads": [
+     {
+      "name": "Neeraj Bhandari",
+      "phone": "+91 76670 58211"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 2,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/uWLqM6D?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "09:00",
+     "venue": "Central Library, Classroom 3",
+     "end": "11:00",
+     "mode": "Team of 1-2"
+    }
+   },
+   {
+    "title": "ENERGIX",
+    "subtitle": "THINK. SIMULATE. DEBUG. INNOVATE.",
+    "desc": "ENERGIX is a three-round MATLAB and Simulink competition that tests circuit simulation skills and the ability to troubleshoot and improve electrical circuit models, from a quiz to simulation to circuit debugging.",
+    "overview": "ENERGIX is a technical competition of Addovedi 2026 that evaluates participants' knowledge of MATLAB and Simulink, their circuit simulation skills, and their ability to troubleshoot and improve electrical circuit models. Think. Simulate. Debug. Innovate.\n\nThe event has three rounds that move from fundamental theoretical knowledge to practical simulation and circuit debugging, for a total of 100 marks.\n\nRound 1 — Quiz Round (30 marks): questions on MATLAB fundamentals, commands and syntax, variables, operators and basic programming, and an introduction to Simulink blocks and their applications.\nRound 2 — Simulation Round (30 marks): each team receives a circuit problem statement with input parameters and a target output, builds or configures the model in MATLAB/Simulink and submits the final model and output waveform.\nRound 3 — Debug and Improve a Circuit (40 marks): teams get a Simulink circuit model with deliberately introduced faults, find and correct the errors, improve the circuit, run the simulation to the specified output and explain their debugging approach to the judges.\n\nFinal rankings come from the combined marks of all three rounds. Teams bring their own laptop with MATLAB and Simulink installed and tested.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "bolt",
+    "heads": [
+     {
+      "name": "Prakash Tamang",
+      "phone": "+91 98628 46350"
+     },
+     {
+      "name": "Roshni Yadav",
+      "phone": "+91 98628 46350"
+     }
+    ],
+    "minTeam": 2,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/y6lBYhC?utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹17,000+ (including goodies)",
+     "day": 2,
+     "time": "15:00",
+     "venue": "Central Library, Classroom 3",
+     "end": "17:00",
+     "mode": "Team of 2-3"
+    }
+   },
+   {
+    "title": "ELECTROMIND",
+    "subtitle": "KNOW IT. IDENTIFY IT. MEASURE IT. BUILD IT. SOLVE IT",
+    "desc": "ELECTROMIND is a multi-round technical competition designed to test participants' knowledge and practical understanding of electronics and electrical engineering.",
+    "overview": "ELECTROMIND is a three-round technical competition of Addovedi 2026 designed to test and develop students' technical knowledge, component identification skills, measurement ability, practical understanding, problem-solving skills and basic circuit design capabilities. Know it. Identify it. Measure it. Build it. Solve it.\n\nRound 1 — Electromind Quiz: a multiple-choice quiz on the fundamentals of electrical and electronics engineering, covering basic and practical concepts.\nRound 2 — Identify & Measure: an individual practical round with real components and devices. Each team member takes a turn to identify the component, state its applications and perform the assigned measurements, including reading values from printed markings and verifying them with instruments.\nRound 3 — Build the Solution: each team gets a simple real-world problem statement and a set of components. Teams understand the problem, select components, design the circuit, calculate, build it, measure the output and demonstrate the working solution.\n\nProblem statements include an automatic street light, a temperature-controlled fan, an adjustable 3–7 V power supply, an automatic emergency light, a water level indicator with alarm, an adjustable timer light, overvoltage protection, a two-level battery indicator, DC motor speed control and a rain detection alarm.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "brain",
+    "heads": [
+     {
+      "name": "Saurav Kumar",
+      "phone": "+91 97987 27650"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/fKsjwTz?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹17,000+ (including goodies)",
+     "day": 3,
+     "time": "13:30",
+     "venue": "Central Library, Classroom 3",
+     "end": "15:30",
+     "mode": "Team of 1-3"
+    }
+   }
+  ]
+ },
+ {
+  "title": "MECHANICAL MATRIX",
+  "subtitle": "KINETIC THERMODYNAMICS",
+  "desc": "CAD design, hydraulics and rocketry for hands-on mechanical minds.",
+  "color": "#ffea00",
+  "iconType": "gear",
+  "modelType": "ai",
+  "shortName": "Mechanical",
+  "iconChar": "⚙️",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "SOLID SIEGE",
+    "subtitle": "IMAGINE. DESIGN. CREATE",
+    "desc": "CAD Design Challenge is a technical competition that tests participants' creativity, design skills, and engineering knowledge through computer-aided design.",
+    "overview": "Solid Siege is the SolidWorks CAD competition of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. Across three progressively harder rounds — 2D sketching, 3D part modelling and assembly design — participants race the clock to turn engineering drawings into accurate, clean SolidWorks models.\n\nA design problem with exact dimensions and required features is released at the start of each round. Model it exactly as specified within the time limit to qualify for the next round.\n\nRound 1 — 2D Mechanical Bracket (2 points): dimensional accuracy, correct geometry and a clean, well-constrained sketch.\nRound 2 — 3D Stepped Support (3 points): dimensional accuracy, correct features and a clean model tree.\nRound 3 — Wheel–Shaft Assembly (5 points): correct components, proper mates and overall assembly accuracy.\n\nRound scores build from 2 to 3 to 5 points, for a maximum of 10. Recorded time decides any tie.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gear",
+    "heads": [
+     {
+      "name": "Nikhil Raj",
+      "phone": "+91 95087 15131"
+     }
+    ],
+    "minTeam": 1,
+    "maxTeam": 1,
+    "fee": "FREE",
+    "unstopUrl": "https://unstop.com/o/Xsm2yk6?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹10,00,000+",
+     "day": 3,
+     "time": "09:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "12:00",
+     "mode": "Solo"
+    }
+   },
+   {
+    "title": "HYDRAULIC WARZONE",
+    "subtitle": "POWER. PRECISION. CONTROL",
+    "desc": "Hydraulic Warzone is an exciting engineering challenge where participants design and build a functional hydraulic arm capable of performing specific tasks with strength and precision.",
+    "overview": "Hydraulic Warzone is the hydraulic arm challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. It is a hands-on mechanical engineering competition in which teams of three design, build and operate a manually controlled hydraulic robotic arm.\n\nTeams build the arm from the permitted materials (plywood, thermocol, syringes, tubing and adhesives) and operate it to complete practical challenges in the arena. Every movement comes from pairs of fluid-filled syringes connected by tubing, so the event tests hydraulic systems, mechanical linkages, structural design, precision, stability, problem-solving and teamwork.\n\nEvery arm first goes through a testing round. Qualified teams then take on the main challenge: tasks such as pick and place, object transfer, stacking, an obstacle or restricted-zone challenge and a precision task. The exact arena layout and tasks are announced by the organisers before the competition.\n\nScoring is out of 100: successful task completion (40), accuracy and precision (25), hydraulic arm control (15), time efficiency (10) and stability and structural performance (10).",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "gear",
+    "heads": [
+     {
+      "name": "Rokkala Nirmal",
+      "phone": "+91 90002 61037"
+     }
+    ],
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/yd4xOlN?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "10:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "11:00",
+     "mode": "Team of 3"
+    }
+   },
+   {
+    "title": "SKY FORGE",
+    "subtitle": "DESIGN FOR THE SKY. BUILD FOR HEIGHT. LAUNCH FOR GLORY.",
+    "desc": "SKYFORGE is a hands-on pneumatic rocket competition that introduces participants to the fundamentals of aerospace engineering through the design, construction, and launch of lightweight model rockets.",
+    "overview": "SKYFORGE is the pneumatic rocket aviation challenge of Addovedi 2026, organised by the Mechanical Engineering Student's Society (MESS), NIT Arunachal Pradesh. In this two-round, hands-on competition, teams of three learn the fundamentals of aerospace engineering by designing, building and launching a lightweight model rocket.\n\nEvery rocket is launched with the same standardised syringe-based pneumatic propulsion system provided by the organisers. The goal is the maximum valid flight height, reached within all safety, dimensional, structural and competition requirements.\n\nRound 1 is rocket design and construction, followed by a technical inspection. Round 2 is the launch and maximum height challenge. Teams decide the body shape, nose cone, fin number, shape and placement, weight distribution and centre of gravity, so success depends on stability, low drag, structural strength and lightweight construction.\n\nScoring is out of 100: maximum valid flight height (70), rocket stability and flight performance (15), structural integrity (10) and rule compliance and safety (5).",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "rocket",
+    "heads": [
+     {
+      "name": "Thirumalai Nathan",
+      "phone": "+91 63743 70906"
+     }
+    ],
+    "minTeam": 3,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "unstopUrl": "https://unstop.com/o/UWex250?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions",
+    "timeline": {
+     "prize": "₹13,000+ (including goodies)",
+     "day": 2,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 4",
+     "end": "15:00",
+     "mode": "Team of 3"
+    }
+   }
+  ]
+ },
+ {
+  "title": "URBAN BLUEPRINT",
+  "subtitle": "STRUCTURAL ARCHITECTURE",
+  "desc": "Problem solving and structural challenges, from bridges and towers to logic puzzles.",
+  "color": "#1fff76",
+  "iconType": "bridge",
+  "modelType": "civil",
+  "shortName": "Civil",
+  "iconChar": "🏗️",
+  "xp": "5,000 XP",
+  "difficulty": "MEDIUM",
+  "events": [
+   {
+    "title": "BRAINWAVE BONANZA",
+    "subtitle": "THINK FAST. THINK SHARP. FORGE THE ANSWER.",
+    "desc": "A team-based problem-solving competition of logic, aptitude and technical puzzles under time pressure. Brainwave Bonanza runs through a Screening Quiz, a Puzzle Gauntlet and a live buzzer-style final.",
+    "overview": "Brainwave Bonanza is the logic and aptitude competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 solve logic, aptitude and technical problems under strict time limits, testing logical reasoning, analytical thinking, technical aptitude and quick decisions under pressure.\n\nThere are three rounds worth 100 points: the Screening Quiz (20), the Puzzle Gauntlet (50) and the live buzzer-style final, Rapid Forge (30). Teams are ranked on accuracy, speed and quality of reasoning.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹25,000 including goodies.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "brain",
+    "minTeam": 1,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "heads": [
+     {
+      "name": "Saloni Nand",
+      "phone": "+91 70858 33096"
+     }
+    ],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹25,000 with goodies)",
+     "day": 3,
+     "time": "10:30",
+     "venue": "Central Library, Classroom 5",
+     "end": "12:30",
+     "mode": "Team of 1-3"
+    },
+    "rules": [
+     "Brainwave Bonanza is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹25,000 including goodies.",
+     "A team may register only once (only the first entry counts). Undergraduate and graduate students from any field can participate, and every participant must carry a valid student ID card. The same members must play all rounds and substitution is not allowed once the event begins.",
+     "Scoring (100 points): Round 1 Screening Quiz 20, Round 2 Puzzle Gauntlet 50, Final Round Rapid Forge 30. Teams are ranked on accuracy, speed and quality of reasoning.",
+     "Round 1, Screening Quiz (20 points): a written or online quiz of aptitude, logical reasoning and basic technical questions. The duration and number of questions are announced at the start. Ties are broken by the time taken to submit, and only the top teams, as decided by the organisers, qualify for Round 2.",
+     "Round 2, Puzzle Gauntlet (50 points): teams solve puzzles and problem statements of increasing difficulty within the time limit. Each problem has pre-announced marks and partial marks may be given for partially correct reasoning. Show your working where asked, as answers without working may not get full marks.",
+     "Final Round, Rapid Forge (30 points): a live head-to-head buzzer-style round among the finalist teams. Correct answers earn points and wrong answers may carry negative marking as announced. The team with the highest total score across all rounds wins, and ties are broken by a tie-breaker question.",
+     "No mobile phones, smartwatches, calculators (unless a round allows them), internet, notes or AI tools. Teams must not communicate with other teams or take outside help during a round, and must follow the quiz master and invigilators at all times.",
+     "The organisers' answer key is final. A team may challenge a question in writing to the judges right after the round, and the judges' decision is final. Misprinted or ambiguous questions may be cancelled or rescored.",
+     "Report to the venue at least 15 minutes before the start. Teams arriving after a round has started may not get extra time. The timer is controlled by the organisers and runs continuously, and answer sheets must be submitted as soon as time is called.",
+     "Cheating or using prohibited devices means immediate disqualification and no prizes. Plagiarism disqualifies the whole team. Do not damage other teams' materials or equipment.",
+     "Follow all instructions from organisers, volunteers and judges, and arrive on time. Judges may disqualify any team for misconduct. The decision of the organisers and judges is final and binding, and the organisers may modify the rules and will inform registered participants."
+    ],
+    "unstopUrl": "https://unstop.com/o/OlHyjMC?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
+   },
+   {
+    "title": "THE SEISMIC ARENA",
+    "subtitle": "BUILD TALL. BUILD SMART. SURVIVE THE SHAKE.",
+    "desc": "Design and build a tower model that withstands inspection, a shake-and-water stability test and a strength test. The Seismic Arena tests stability, stiffness, bracing, damping and centre of mass.",
+    "overview": "The Seismic Arena is a structural engineering challenge of Addovedi 2026, NIT Arunachal Pradesh. Teams of up to 3 design and build a tower model that must survive physical evaluation and structural testing, putting stability, stiffness, bracing, damping and centre of mass to the test.\n\nThe tower is built from popsicle sticks and toothpicks on a thermocol base, at least 30 cm tall. It faces three rounds: a visual Looks Test, a Stability Test with a water-filled container on top while the tower is moved, and a Strength Test under incremental external load.\n\nRegistration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "bridge",
+    "minTeam": 1,
+    "maxTeam": 3,
+    "fee": "₹50 per member",
+    "heads": [
+     {
+      "name": "Chochong Tsering",
+      "phone": "+91 92336 02960"
+     },
+     {
+      "name": "Kaling Yapi",
+      "phone": "+91 93628 13564"
+     }
+    ],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹17,000 with goodies)",
+     "day": 2,
+     "time": "14:00",
+     "venue": "Central Library, Classroom 5",
+     "end": "15:00",
+     "mode": "Team of 1-3"
+    },
+    "rules": [
+     "The Seismic Arena is a team event for up to 3 members (1 to 3). Registration fee is ₹50 per member (₹50 for 1, ₹100 for 2, ₹150 for 3). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
+     "A team may register only once (only the first entry counts). Only undergraduate and graduate students from recognized academic institutions can participate, and every participant must carry a valid student ID card.",
+     "Build a tower model that passes a visual inspection, a stability test with a water-filled container on top, and a strength test under external load at the top platform.",
+     "Only 5 materials are allowed: popsicle sticks, Fevi Quick, toothpicks, thermocol and Fevicol. The main frame must be built strictly with popsicle sticks and toothpicks only, bonded with the permitted adhesives. Thermocol is allowed for the base plate only.",
+     "Specification: a tower-type structure that can carry a payload / container on the top platform, minimum height 30 cm from the base to the top platform. The base must be made of thermocol, with any base dimensions the team wants.",
+     "Teams must bring their own permitted materials and supplies. Organisers will not provide tools or building materials at the venue.",
+     "Round 1, Design and Presentation (Looks Test): judges inspect every structure and award marks for structural concept, quality of construction, effective bracing, joint neatness and aesthetic presentation.",
+     "Round 2, Stability Test (Water on Top): a water-filled container is placed at the top of the structure and the tower is subjected to motion. Judges evaluate overall balance, damping and how much water is dispersed.",
+     "Round 3, Strength Test (External Load): incremental external load is applied at the top platform to assess load-bearing capacity and the ultimate failure limit.",
+     "Submit the structure at the registration desk before the deadline on event day, where each model is tagged with a team ID. Each team gets a continuous 5-minute window at the testing station for setup and testing.",
+     "All designs are checked for originality. Plagiarism or fraudulent construction methods mean immediate disqualification. Never touch or tamper with another team's structure or testing equipment.",
+     "Follow all instructions from organisers, volunteers and judges, and arrive on time (late arrivals may lose build or round time). Judges may disqualify any team for misconduct. The decision of the organising panel and judges is final and binding, and the organisers may modify rules and will inform registered teams."
+    ],
+    "unstopUrl": "https://unstop.com/o/BlgenMs?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
+   },
+   {
+    "title": "EDGE OF COLLAPSE",
+    "subtitle": "DESIGN LIGHT. BUILD STRONG. HOLD THE LOAD.",
+    "desc": "Build a lightweight three-hinged bridge model that carries the maximum possible load. Edge of Collapse tests structural behaviour, load paths, truss geometry, joint quality and material efficiency.",
+    "overview": "Edge of Collapse is a structural design and fabrication competition of Addovedi 2026, NIT Arunachal Pradesh. Teams of 3 to 4 build a lightweight bridge model that must carry the maximum possible load, testing their understanding of structural behaviour, load paths, truss geometry, joint quality and material efficiency.\n\nTeams build a three-hinged bridge from popsicle sticks and white glue that spans a fixed gap and supports a progressively increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio.\n\nThe event has three rounds: Design and Inspection, Knowledge of the Bridge, and the Load Test. Registration is ₹50 per member. Prize pool: ₹8,000 cash, with total prizes worth ₹17,000 including goodies.",
+    "xp": "1,500 XP",
+    "difficulty": "MEDIUM",
+    "iconType": "bridge",
+    "minTeam": 3,
+    "maxTeam": 4,
+    "fee": "₹50 per member",
+    "heads": [
+     {
+      "name": "Dikenno Pul",
+      "phone": "+91 69091 25886"
+     },
+     {
+      "name": "Mission Doley",
+      "phone": ""
+     }
+    ],
+    "timeline": {
+     "prize": "₹8,000 cash (worth ₹17,000 with goodies)",
+     "day": 2,
+     "time": "11:00",
+     "venue": "Central Library, Classroom 5",
+     "end": "13:00",
+     "mode": "Team of 3-4"
+    },
+    "rules": [
+     "Edge of Collapse is a team event for 3 to 4 members. Registration fee is ₹50 per member (₹150 for a team of 3, ₹200 for a team of 4). Prize pool: ₹8,000 cash, with a total prize worth ₹17,000 including goodies.",
+     "Build a three-hinged bridge model that spans a fixed gap and carries a gradually increasing load at mid-span. The winner is the bridge with the highest load-to-self-weight ratio (maximum load held divided by the bridge's weight) that follows all size and material rules.",
+     "Allowed materials: standard wooden ice-cream (popsicle) sticks, trimmed to length only (no cutting of the cross-section), and water-based white adhesive (PVA / white glue). Cotton thread is allowed only for decorative binding and must not carry load. Quick-set, epoxy and hot-melt adhesives are not allowed.",
+     "Strictly prohibited: metal, plastic, cardboard, bamboo, and any pre-made construction kit or pre-fabricated part.",
+     "Size: overall length 50 cm, deck 45 cm, clear span between supports 45 cm during testing. The bridge must be three-hinged, rest on the supports without anchoring, nails or clamps, and have a continuous deck at least 5 cm wide with free space at mid-span so a 4 cm x 4 cm test block can pass along the deck.",
+     "Round 1, Design and Inspection: every bridge is measured by the judges. Judges assess neatness of construction, joint quality and originality of the structural design. A bridge that does not meet the specifications is disqualified directly.",
+     "Round 2, Knowledge of the Bridge: teams are questioned on the bridge they built, and the judges assess the team's practical knowledge of their own bridge.",
+     "Round 3, Load Test: each team gets one official load test. The bridge sits on two supports and load is added gradually in equal increments through a loading block at the centre. The test ends when the bridge fractures, a joint separates or the mid-span deflection exceeds the judges' limit. The maximum load held is the team's load capacity. A bridge that fails to span the gap, or collapses under the loading block's own weight, fails Round 3.",
+     "Ranking: Efficiency Ratio = maximum load held / self-weight of the bridge, and a higher ratio ranks higher. In a tie the lighter bridge wins, and if still tied, the bridge with lower deflection at the common load wins.",
+     "Bridges may be built in advance and the finished model must be brought to the venue. Each team may submit only one bridge, at the registration desk before the deadline on the day of the event. No modification, repair or addition is allowed once the bridge is weighed and submitted, and the adhesive must be fully cured (wet or tacky bridges are not accepted).",
+     "Each team gets 5 minutes at the testing station, including placement and loading, and the timer runs continuously once the team is called. Stay behind the safety line during load testing. Damage to testing equipment through misuse may lead to disqualification.",
+     "Violating any bridge rule (prohibited materials, exceeding size or weight limits) means immediate disqualification and no prizes. Do not damage other teams' models or equipment. Judges may disqualify any team for misconduct, and the decision of the organisers and judges is final and binding. The organisers may modify the rules and will inform registered participants."
+    ],
+    "unstopUrl": "https://unstop.com/o/5PvlMNO?lb=9FweNlVe&utm_medium=Share&utm_source=addovtec18719&utm_campaign=Competitions"
+   }
+  ]
+ }
+]

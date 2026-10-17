@@ -13,7 +13,7 @@
     "leva": "^0.10.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^7.18.4",
     "three": "^0.160.1",
     "zustand": "^5.0.14"
   },

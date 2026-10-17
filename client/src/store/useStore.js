@@ -17,6 +17,9 @@ export const useStore = create((set) => ({
     tunnelIntensity: 0,
     shakeIntensity: 0,
 
+    // False while the first-visit loading screen is up; the hero intro waits for it
+    appReady: false,
+
     // UI Timeline Flags
     showLogo: false,
     showNavbar: false,
@@ -36,7 +39,7 @@ export const useStore = create((set) => ({
     showSun: true,          // Determines if the sun is active in the scene
 
     // Active category card slug inside the event lobby console
-    activeCategorySlug: 'robotics-rc',
+    activeCategorySlug: 'robotics-protocol',
 
     // Mobile Sidebar Nav drawer state
     isSidebarOpen: false,
@@ -51,6 +54,7 @@ export const useStore = create((set) => ({
     setCameraSpeed: (v) => set({ cameraSpeed: v }),
     setTunnelIntensity: (v) => set({ tunnelIntensity: v }),
     setShakeIntensity: (v) => set({ shakeIntensity: v }),
+    setAppReady: (v) => set({ appReady: v }),
     setShowLogo: (v) => set({ showLogo: v }),
     setShowNavbar: (v) => set({ showNavbar: v }),
     setShowButton: (v) => set({ showButton: v }),

@@ -31,4 +31,7 @@ const auditLogSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Failed-login noise can't grow this collection forever: entries expire after 90 days.
+auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 3600 });
+
 export default mongoose.model('AuditLog', auditLogSchema);

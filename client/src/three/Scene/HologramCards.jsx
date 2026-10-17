@@ -7,6 +7,7 @@
  */
 
 import { useRef, useMemo, useState, useEffect, Suspense, forwardRef, useImperativeHandle } from 'react';
+import { clone as cloneScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -15,47 +16,12 @@ import { useStore } from '../../store/useStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../constants/api';
 
-import { CARD_DATA, SUB_EVENTS, slugify } from '../../data/events';
+import { CARD_DATA, SUB_EVENTS, slugify, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 export { CARD_DATA, SUB_EVENTS, slugify };
 
 export const CAROUSEL_RADIUS = 12.0;
 export const CAROUSEL_OFFSET_Z = 7.6;
 export const CAROUSEL_ANGLE_STEP = Math.PI * 2 / 12;
-
-function getSvgIcon(type, color) {
-    switch (type) {
-        case 'robot':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                    <circle cx="12" cy="5" r="2"></circle>
-                    <path d="M12 7v4M8 15h.01M16 15h.01"></path>
-                </svg>
-            );
-        case 'bolt':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-            );
-        case 'gamepad':
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                    <path d="M12 12h.01M16 10h.01M16 14h.01M6 12h4M8 10v4"></path>
-                </svg>
-            );
-        case 'code':
-        default:
-            return (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                    <line x1="14" y1="4" x2="10" y2="20"></line>
-                </svg>
-            );
-    }
-}
 
 export default function HologramCards() {
     const location = useLocation();
@@ -66,47 +32,25 @@ export default function HologramCards() {
     const isAuthModalOpen = useStore(state => state.isAuthModalOpen);
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
+    // Number of lobby cards (was hard-coded to 7, which stacked the 8th card on the active one)
+    const cardCountRef = useRef(CARD_DATA.length || 1);
+    cardCountRef.current = categoriesList.length || 1;
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
 
-    // Fetch dynamic events on mount
+    // Fetch dynamic categories & sub-events from the Admin Portal API, and
+    // keep polling so admin-created/edited categories and sub-events render
+    // in the 3D lobby within a few seconds instead of needing a page reload.
     useEffect(() => {
+        let cancelled = false;
         const fetchBackendEvents = async () => {
             try {
-                const res = await fetch(`${API_BASE}/events`);
-                if (res.ok) {
+                const res = await fetch(`${API_BASE}/events`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
                     const data = await res.json();
-                    if (data.categories && data.categories.length > 0) {
-                        const mappedCats = data.categories.map(c => ({
-                            title: c.title,
-                            subtitle: c.subtitle,
-                            desc: c.desc,
-                            color: c.color,
-                            xp: c.xp,
-                            difficulty: c.difficulty,
-                            icon: (color) => getSvgIcon(c.iconType, color),
-                            modelType: c.modelType || 'coding'
-                        }));
-                        setCategoriesList(mappedCats);
-
-                        const mappedSubs = {};
-                        data.categories.forEach(c => {
-                            mappedSubs[c.title] = [];
-                        });
-                        data.subEvents.forEach(s => {
-                            if (!mappedSubs[s.categoryTitle]) mappedSubs[s.categoryTitle] = [];
-                            mappedSubs[s.categoryTitle].push({
-                                title: s.title,
-                                subtitle: s.subtitle,
-                                desc: s.desc,
-                                color: s.color,
-                                xp: s.xp,
-                                difficulty: s.difficulty,
-                                heads: s.heads || [],
-                                icon: (color) => getSvgIcon(s.iconType, color),
-                                modelType: s.modelType
-                            });
-                        });
-                        setSubEventsData(mappedSubs);
+                    const mergedCategories = mergeCategoriesFromDb(data.categories);
+                    setCategoriesList(mergedCategories);
+                    if (data.subEvents && data.subEvents.length > 0) {
+                        setSubEventsData(mergeSubEventsFromDb(mergedCategories, data.subEvents));
                     }
                 }
             } catch (err) {
@@ -114,6 +58,8 @@ export default function HologramCards() {
             }
         };
         fetchBackendEvents();
+        const interval = setInterval(fetchBackendEvents, 15000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     const { categoryName, eventName } = useMemo(() => {
@@ -180,9 +126,9 @@ export default function HologramCards() {
             if (Math.abs(e.deltaX) > 10) {
                 isScrollLocked.current = true;
                 if (e.deltaX > 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
                 // Cooldown of 450ms for responsive swipe sweeps
                 setTimeout(() => {
@@ -195,9 +141,9 @@ export default function HologramCards() {
             if (Math.abs(e.deltaY) > 20) {
                 isScrollLocked.current = true;
                 if (e.deltaY > 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
                 setTimeout(() => {
                     isScrollLocked.current = false;
@@ -208,9 +154,9 @@ export default function HologramCards() {
         const handleKeyDown = (e) => {
             if (isTransitioning || selectedDivision) return;
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                setActiveRotationIndex(prev => (prev + 1) % 7);
+                setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
             }
         };
 
@@ -235,9 +181,9 @@ export default function HologramCards() {
             const deltaX = e.clientX - startX.current;
             if (Math.abs(deltaX) > 60) {
                 if (deltaX < 0) {
-                    setActiveRotationIndex(prev => (prev + 1) % 7);
+                    setActiveRotationIndex(prev => (prev + 1) % cardCountRef.current);
                 } else {
-                    setActiveRotationIndex(prev => (prev - 1 + 7) % 7);
+                    setActiveRotationIndex(prev => (prev - 1 + cardCountRef.current) % cardCountRef.current);
                 }
             }
         };
@@ -368,8 +314,9 @@ export default function HologramCards() {
             const angleStep = CAROUSEL_ANGLE_STEP;
 
             return categoriesList.map((card, i) => {
-                const diff = (i - activeRotationIndex) % 7;
-                const wrappedDiff = diff > 3 ? diff - 7 : (diff < -3 ? diff + 7 : diff);
+                const n = categoriesList.length || 1;
+                const diff = (((i - activeRotationIndex) % n) + n) % n;
+                const wrappedDiff = diff > n / 2 ? diff - n : diff;
                 const cardAngle = wrappedDiff * angleStep;
 
                 const x = Math.sin(cardAngle) * radius;
@@ -389,6 +336,12 @@ export default function HologramCards() {
         const subList = subEventsData[selectedDivision] || [];
         const count = subList.length;
 
+        // 4 or more events share one row. Cards are 3.3 wide, so spacing and size shrink together as the count grows:
+        // the outer cards stay inside the visible width (about +-6.5) and neighbours never overlap (4 events: full size,
+        // 5 events: ~65%, 6 events: ~52%).
+        const crowdedSpacing = count > 3 ? Math.min(3.9, 13.5 / count) : 4.5;
+        const cardScale = count > 3 ? Math.min(1, (crowdedSpacing - 0.5) / 3.3) : 1;
+
         return subList.map((item, idx) => {
             let x = 0;
             let z = -9.6;
@@ -402,18 +355,18 @@ export default function HologramCards() {
                 if (idx === 0) { x = -2.5; z = -9.6; rotY = 0.1; }
                 if (idx === 1) { x = 2.5; z = -9.6; rotY = -0.1; }
             } else if (count > 0) {
-                const spacing = count > 3 ? 10.0 / (count - 1) : 4.5;
-                x = (idx - (count - 1) / 2) * spacing;
+                x = (idx - (count - 1) / 2) * crowdedSpacing;
                 rotY = -x * 0.035;
             }
 
             return {
                 ...item,
                 pos: [x, 3.3, z],
-                rot: [0, rotY, 0]
+                rot: [0, rotY, 0],
+                cardScale
             };
         });
-    }, [selectedDivision, activeRotationIndex]);
+    }, [selectedDivision, activeRotationIndex, categoriesList]);
 
     const activeColor = useMemo(() => {
         if (selectedDivision) {
@@ -840,10 +793,6 @@ export default function HologramCards() {
                             }}
                         />
 
-                        {/* Futuristic design markers */}
-                        <span className="absolute top-[2px] right-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>SYS.RETURN</span>
-                        <span className="absolute bottom-[2px] left-2 text-[6px] tracking-normal" style={{ color: `${activeColor}aa` }}>LOBBY_V2</span>
-
                         ESC_RETURN_TO_DECK
                     </button>
                 </Html>
@@ -877,6 +826,31 @@ export default function HologramCards() {
 }
 
 // ── Background Holographic Weapon Showcase (Main Lobby) ─────────────────────
+
+// The GLTF cache hands every caller the SAME scene object. These showcases swap
+// materials, re-parent and measure that scene, so using it directly makes later
+// mounts (or other components using the same model) inherit a mutated copy, which
+// showed up as misplaced/mis-styled models until a hard refresh. Always work on a
+// private clone (SkeletonUtils keeps skinned-mesh bone bindings intact).
+function useClonedScene(source) {
+    const clone = useMemo(() => cloneScene(source), [source]);
+    useEffect(() => () => {
+        clone.traverse((o) => { if (o.isMesh && o.material) [].concat(o.material).forEach((m) => m.dispose?.()); });
+    }, [clone]);
+    return clone;
+}
+
+// The showcase spin/float is driven by time since the showcase MOUNTED, not by the canvas clock. The clock keeps running
+// behind the first-visit loading screen, so on a first visit it was already tens of seconds in when the lobby appeared
+// and the models showed up at an arbitrary, mid-spin angle (pointing at the camera) until a refresh reset the clock.
+function useShowcaseClock() {
+    const start = useRef(null);
+    return (clock) => {
+        if (start.current === null) start.current = clock.elapsedTime;
+        return clock.elapsedTime - start.current;
+    };
+}
+
 function WeaponShowcase({ activeColor }) {
     const showRef = useRef();
     const ring1Ref = useRef();
@@ -884,7 +858,8 @@ function WeaponShowcase({ activeColor }) {
     const isMobile = window.innerWidth < 768;
     const posY = isMobile ? 6.8 : 8.8;
 
-    const { scene } = useGLTF('/models/gun/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/gun/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const blueprintModel = useMemo(() => {
         const clone = scene.clone();
@@ -901,8 +876,9 @@ function WeaponShowcase({ activeColor }) {
         return clone;
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (showRef.current) {
             showRef.current.rotation.y = t * 0.12;
             showRef.current.position.y = posY + Math.sin(t * 0.5) * 0.2;
@@ -925,24 +901,6 @@ function WeaponShowcase({ activeColor }) {
                 <ringGeometry args={[2.5, 2.52, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, posY - 3.6, -14.5]}
-                style={{
-                    color: '#00d9ff',
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                DIAGNOSTICS: XEN_SLR_BLUEPRINT_HUD
-            </Html>
         </group>
     );
 }
@@ -959,7 +917,8 @@ function RobotShowcase({ activeColor }) {
     const handLRef = useRef();
     const handRRef = useRef();
 
-    const { scene } = useGLTF('/models/mecha/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/mecha/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the mecha model via Box3 so it always appears
     // regardless of its internal coordinate offsets
@@ -1013,8 +972,9 @@ function RobotShowcase({ activeColor }) {
         return { mechaModel: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (robotRef.current) {
             robotRef.current.rotation.y = t * 0.12; // Match weapon showcase rotation speed (0.12)
             robotRef.current.position.y = 5.2 + Math.sin(t * 0.5) * 0.2; // Raised to 5.2 and animated
@@ -1059,24 +1019,6 @@ function RobotShowcase({ activeColor }) {
                 <ringGeometry args={[4.2, 4.24, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                MECHA_UNIT: RC_AUTONOMOUS_MOTOR_HUD
-            </Html>
         </group>
     );
 }
@@ -1087,7 +1029,8 @@ function ControllerShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/controller/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/controller/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1122,8 +1065,9 @@ function ControllerShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (controllerRef.current) {
             controllerRef.current.rotation.y = t * 0.15; // Slow rotation
             controllerRef.current.rotation.x = Math.sin(t * 0.3) * 0.1; // Gentle sway tilt
@@ -1153,24 +1097,6 @@ function ControllerShowcase({ activeColor }) {
                 <ringGeometry args={[6.0, 6.05, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                GAMING_INPUT: DUALSENSE_HOLOGRAPHIC_HUD
-            </Html>
         </group>
     );
 }
@@ -1181,7 +1107,8 @@ function CodingShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/coding/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/coding/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1216,8 +1143,9 @@ function CodingShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (terminalRef.current) {
             terminalRef.current.rotation.y = t * 0.12; // Slow rotation
             terminalRef.current.rotation.x = Math.sin(t * 0.35) * 0.08; // Gentle sway tilt
@@ -1247,24 +1175,6 @@ function CodingShowcase({ activeColor }) {
                 <ringGeometry args={[4.6, 4.64, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                TERMINAL_UNIT: MILITARY_CONTROL_HUD
-            </Html>
         </group>
     );
 }
@@ -1275,7 +1185,8 @@ function CivilShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/civil/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/civil/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1321,8 +1232,9 @@ function CivilShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (cityRef.current) {
             cityRef.current.rotation.y = t * 0.08; // Very slow majestic spin
             cityRef.current.rotation.x = Math.sin(t * 0.25) * 0.03 + 0.12; // Tighter vertical tilt for a tall tower
@@ -1352,24 +1264,6 @@ function CivilShowcase({ activeColor }) {
                 <ringGeometry args={[6.2, 6.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                CIVIL_CORE: METROPOLIS_GRID_HUD
-            </Html>
         </group>
     );
 }
@@ -1380,7 +1274,8 @@ function ElectricalShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/electrical/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/electrical/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1415,8 +1310,9 @@ function ElectricalShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (transformerRef.current) {
             transformerRef.current.rotation.y = t * 0.12; // Slow rotation
             transformerRef.current.rotation.x = Math.sin(t * 0.3) * 0.06 + 0.15; // Gentle sway tilt
@@ -1446,24 +1342,6 @@ function ElectricalShowcase({ activeColor }) {
                 <ringGeometry args={[8.0, 8.05, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                ELECTRICAL_CORE: TRANSFORMER_GRID_HUD
-            </Html>
         </group>
     );
 }
@@ -1474,7 +1352,8 @@ function AiShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/ai/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/ai/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     // Auto-center + auto-scale the model via Box3
     const { model, scale: autoScale, offset } = useMemo(() => {
@@ -1509,8 +1388,9 @@ function AiShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (brainRef.current) {
             brainRef.current.rotation.y = t * 0.12; // Slow rotation
             brainRef.current.rotation.x = Math.sin(t * 0.3) * 0.05 + 0.1; // Gentle sway tilt
@@ -1540,24 +1420,6 @@ function AiShowcase({ activeColor }) {
                 <ringGeometry args={[7.2, 7.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-
-            <Html
-                transform
-                distanceFactor={7.5}
-                position={[0, 1.6, -14.5]}
-                style={{
-                    color: activeColor,
-                    fontFamily: 'monospace',
-                    fontSize: '10px',
-                    opacity: 0.4,
-                    letterSpacing: '2px',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    userSelect: 'none'
-                }}
-            >
-                AI_CORE: NEURAL_BRAIN_HUD
-            </Html>
         </group>
     );
 }
@@ -1568,7 +1430,8 @@ function ClockShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/steampunk_clock/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const { model, scale: autoScale, offset } = useMemo(() => {
         scene.matrixAutoUpdate = true;
@@ -1599,8 +1462,9 @@ function ClockShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (clockRef.current) {
             clockRef.current.rotation.y = t * 0.14;
             clockRef.current.rotation.x = Math.sin(t * 0.3) * 0.08 + 0.1;
@@ -1623,10 +1487,6 @@ function ClockShowcase({ activeColor }) {
                 <ringGeometry args={[6.5, 6.55, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
-                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
-                MECHANICAL_CORE: KINETIC_GEARS_HUD
-            </Html>
         </group>
     );
 }
@@ -1637,7 +1497,8 @@ function PortalShowcase({ activeColor }) {
     const ring1Ref = useRef();
     const ring2Ref = useRef();
 
-    const { scene } = useGLTF('/models/portal/scene.glb');
+    const { scene: rawScene } = useGLTF('/models/portal/scene.glb');
+    const scene = useClonedScene(rawScene);
 
     const { model, scale: autoScale, offset } = useMemo(() => {
         scene.matrixAutoUpdate = true;
@@ -1665,8 +1526,9 @@ function PortalShowcase({ activeColor }) {
         return { model: scene, scale: s, offset: center };
     }, [scene, activeColor]);
 
+    const showTime = useShowcaseClock();
     useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
+        const t = showTime(clock);
         if (portalRef.current) {
             portalRef.current.rotation.y = t * 0.10;
             portalRef.current.position.y = 4.8 + Math.sin(t * 0.45) * 0.22;
@@ -1688,10 +1550,6 @@ function PortalShowcase({ activeColor }) {
                 <ringGeometry args={[7.2, 7.25, 48]} />
                 <meshBasicMaterial color={activeColor} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
-            <Html transform distanceFactor={7.5} position={[0, 1.6, -14.5]}
-                style={{ color: activeColor, fontFamily: 'monospace', fontSize: '10px', opacity: 0.4, letterSpacing: '2px', textAlign: 'center', pointerEvents: 'none', userSelect: 'none' }}>
-                PORTAL_GATEWAY: ACTIVE
-            </Html>
         </group>
     );
 }
@@ -1889,9 +1747,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
             });
 
             gsap.to(cardRef.current.scale, {
-                x: 1.0,
-                y: 1.0,
-                z: 1.0,
+                x: data.cardScale || 1.0,
+                y: data.cardScale || 1.0,
+                z: data.cardScale || 1.0,
                 duration: 1.25,
                 delay: delay,
                 ease: 'back.out(1.1)'
@@ -1909,7 +1767,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 }
             });
         }
-    }, [data.pos, data.rot, index]);
+        // Primitives, not the pos/rot arrays: the 4s events poll rebuilds those arrays every tick,
+        // which replayed this blast-from-center animation on an idle page.
+    }, [data.pos[0], data.pos[1], data.pos[2], data.rot[0], data.rot[1], data.rot[2], index]);
 
     const currentAngle = useRef(null);
 
@@ -1954,7 +1814,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
             }
         }
 
-        const targetScale = (hovered && !isMobile) ? 1.03 : 1.0;
+        const targetScale = ((hovered && !isMobile) ? 1.03 : 1.0) * (data.cardScale || 1);
 
         const targetRotX = (hovered && !isMobile) ? 0.02 : 0;
         const targetRotY = (hovered && !isMobile) ? baseRotY - 0.02 : baseRotY;
@@ -1987,6 +1847,9 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
     // Opacity filters
     const finalOpacity = isActive ? (hovered ? 0.6 : 0.4) : (Math.abs(wrappedDiff) === 1 ? 0.12 : 0.03);
     const frameOpacity = isActive ? (hovered ? 1.0 : 0.6) : (Math.abs(wrappedDiff) === 1 ? 0.3 : 0.08);
+    // Only the centre card and its two direct neighbours carry readable text. The cards further round the ring line up
+    // behind them in perspective, so their text used to pile up into one unreadable stack on each side.
+    const showText = isActive || Math.abs(wrappedDiff) === 1;
 
     return (
         <group>
@@ -2053,6 +1916,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                 </mesh>
 
                 {/* 4. Text Content Overlay */}
+                {showText && (
                 <Html
                     transform
                     distanceFactor={isMobile ? 7.2 : 4.6}
@@ -2170,6 +2034,7 @@ const SingleCard = forwardRef(({ data, index, onLaunch, isTransitioning, selecte
                         )}
                     </div>
                 </Html>
+                )}
             </group>
         </group>
     );

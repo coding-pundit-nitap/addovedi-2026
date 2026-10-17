@@ -14,10 +14,12 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CommonNav from '../common/CommonNav';
 import CommonLoader from '../common/CommonLoader';
-import { DAYS, EVENT_COORDINATORS } from '../../data/events';
+import { DAYS as STATIC_DAYS, EVENT_COORDINATORS, mergeCategoriesFromDb, mergeSubEventsFromDb, buildTimelineDays } from '../../data/events';
+import { API_BASE } from '../../constants/api';
 import BgCanvas from './BgCanvas';
 import MissionNode, { CATEGORY_ICONS } from './MissionNode';
 import VerticalTimeline, { getEventStatus } from './VerticalTimeline';
@@ -101,7 +103,7 @@ function MobileNodeList({ events, selectedId, onSelect, revealed, dayColor, now2
                                 }}
                             >
                                 <div style={{ fontSize:'7px', color: catInfo.color, letterSpacing:'0.25em', marginBottom:'3px', opacity:0.65 }}>
-                                    {ev.time} // {ev.category.toUpperCase()}
+                                    {ev.time} · {ev.category.toUpperCase()}
                                 </div>
                                 <div style={{ fontSize:'11px', fontWeight:900, color:'#FFF', letterSpacing:'0.06em', marginBottom:'2px' }}>
                                     {catInfo.icon} {ev.title}
@@ -153,6 +155,37 @@ export default function TimelinePage() {
     const [scrollProgress, setScrollProgress] = useState(0);
     const timelineRef = useRef(null);
 
+    // Day-by-day schedule, admin-controlled: falls back to the static
+    // STATIC_DAYS until the live fetch resolves, then stays in sync with
+    // whatever admins have scheduled (polled, same pattern as EventsPage).
+    const [days, setDays] = useState(STATIC_DAYS);
+
+    useEffect(() => {
+        let cancelled = false;
+        const fetchSchedule = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/events`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
+                    const data = await res.json();
+                    // Preserve the static fallback schedule when the DB has no
+                    // sub-events yet (e.g. a fresh/local environment), same
+                    // convention as EventsPage's fetch — an empty DB isn't a
+                    // real "no events scheduled" state worth showing.
+                    if (data.subEvents && data.subEvents.length > 0) {
+                        const mergedCategories = mergeCategoriesFromDb(data.categories);
+                        const mergedSubEvents = mergeSubEventsFromDb(mergedCategories, data.subEvents);
+                        setDays(buildTimelineDays(mergedCategories, mergedSubEvents));
+                    }
+                }
+            } catch (err) {
+                console.log('Failed dynamic timeline fetch, utilizing fallback schedule');
+            }
+        };
+        fetchSchedule();
+        const interval = setInterval(fetchSchedule, 5000);
+        return () => { cancelled = true; clearInterval(interval); };
+    }, []);
+
     const now24 = useMemo(() => {
         const d = new Date();
         return d.getHours() * 60 + d.getMinutes();
@@ -193,7 +226,7 @@ export default function TimelinePage() {
         }, 350);
     }, [activeDay, transitioning]);
 
-    const day = DAYS[activeDay];
+    const day = days[activeDay];
 
     return (
         <div
@@ -292,7 +325,7 @@ export default function TimelinePage() {
             </div>
 
             <BgCanvas />
-            {!booted && <CommonLoader onDone={handleBoot} pageName="Timeline" />}
+            <CommonLoader onDone={handleBoot} pageName="Timeline" />
 
             <div style={{ position:'relative', zIndex:20 }}>
                 <CommonNav />
@@ -356,7 +389,7 @@ export default function TimelinePage() {
 
                 {/* ── Day Slot Selectors ── */}
                 <div style={{ display:'flex', gap:'clamp(10px,2vw,20px)', justifyContent:'center', flexWrap:'wrap' }}>
-                    {DAYS.map((d, i) => (
+                    {days.map((d, i) => (
                         <DaySlot key={d.slot} day={d} isActive={i === activeDay} onClick={() => switchDay(i)} revealed={contentVisible} />
                     ))}
                 </div>
@@ -424,14 +457,20 @@ export default function TimelinePage() {
                                     CHRONOLOGICAL SCHEDULE
                                 </div>
                             </div>
-                            <VerticalTimeline
-                                events={day.events}
-                                selectedId={selectedEv?.id}
-                                onSelect={setSelectedEv}
-                                revealed={contentVisible && !transitioning}
-                                dayColor={day.color}
-                                now24={now24}
-                            />
+                            {day.events.length === 0 ? (
+                                <div style={{ padding: '40px 10px', textAlign: 'center', fontFamily: "'Orbitron',monospace", fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.15em' }}>
+                                    SCHEDULE NOT FINALIZED YET — CHECK BACK SOON
+                                </div>
+                            ) : (
+                                <VerticalTimeline
+                                    events={day.events}
+                                    selectedId={selectedEv?.id}
+                                    onSelect={setSelectedEv}
+                                    revealed={contentVisible && !transitioning}
+                                    dayColor={day.color}
+                                    now24={now24}
+                                />
+                            )}
                         </div>
 
                         {/* Right HUD Panel */}
@@ -454,6 +493,11 @@ export default function TimelinePage() {
                             <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'9px', color: day.color, letterSpacing:'0.2em', marginBottom:'16px', textShadow:`0 0 8px ${day.color}` }}>
                                 {day.label} — MISSION ROUTE
                             </div>
+                            {day.events.length === 0 && (
+                                <div style={{ padding: '24px 10px', textAlign: 'center', fontFamily: "'Orbitron',monospace", fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>
+                                    SCHEDULE NOT FINALIZED YET
+                                </div>
+                            )}
                             <MobileNodeList
                                 events={day.events}
                                 selectedId={selectedEv?.id}
@@ -465,7 +509,7 @@ export default function TimelinePage() {
                         </div>
 
                         {/* Mobile detail panel (Modal Popup) */}
-                        <AnimatePresence>
+                        {createPortal(<AnimatePresence>
                             {selectedEv && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
@@ -475,11 +519,12 @@ export default function TimelinePage() {
                                     style={{
                                         position: 'fixed',
                                         inset: 0,
-                                        zIndex: 1000,
+                                        zIndex: 2000,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         padding: '16px',
+                                        overflowY: 'auto',
                                         background: 'rgba(0, 0, 0, 0.8)',
                                         backdropFilter: 'blur(8px)',
                                         WebkitBackdropFilter: 'blur(8px)',
@@ -494,6 +539,8 @@ export default function TimelinePage() {
                                         style={{
                                             width: '100%',
                                             maxWidth: '380px',
+                                            maxHeight: '100%',
+                                            overflowY: 'auto',
                                             position: 'relative'
                                         }}
                                     >
@@ -506,7 +553,7 @@ export default function TimelinePage() {
                                     </motion.div>
                                 </motion.div>
                             )}
-                        </AnimatePresence>
+                        </AnimatePresence>, document.body)}
                     </div>
                 )}
 

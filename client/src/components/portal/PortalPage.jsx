@@ -1,7 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import { API_BASE, TURNSTILE_SITE_KEY } from '../../constants/api';
+import TurnstileWidget from '../common/TurnstileWidget';
+import ChangePasswordPanel from './ChangePasswordPanel';
+import XpPanel from './XpPanel';
+import LeaderboardModal from './LeaderboardModal';
+import { sumXp, xpStats } from '../../utils/xp';
+import { fetchMyRegistrations, respondToTeamInvite, MEMBER_STATUS_META, memberMeta, INVITES_CHANGED_EVENT } from '../../utils/registrations';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const PHONE_REGEX = /^(\+91)?[6-9]\d{9}$/;
+const isValidEmail = (email) => typeof email === 'string' && EMAIL_REGEX.test(email.trim());
+const isValidPhone = (phone) => typeof phone === 'string' && PHONE_REGEX.test(phone.trim().replace(/[\s-]/g, ''));
+// Same rule the server enforces (a real date, age 10 to 80), but says WHY it is wrong. Returns '' when the date is fine.
+const dobProblem = (dob) => {
+    const v = String(dob || '').trim();
+    if (!v) return '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'Check the year: it must be 4 digits, like 2005.';
+    const d = new Date(`${v}T00:00:00Z`);
+    if (Number.isNaN(d.getTime())) return 'That date does not exist. Please check the day and month.';
+    const age = Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000));
+    if (age < 10 || age > 80) return age < 0 ? 'That date is in the future. Please enter your real date of birth.' : `That date of birth makes you ${age}. Please enter your real date of birth (age 10 to 80).`;
+    return '';
+};
 
 // Mock list of cyberpunk gamer avatars
 const GAMER_AVATARS = [
@@ -38,6 +61,10 @@ export default function AuthModal() {
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('login'); // 'login' | 'signup'
     const [isEditing, setIsEditing] = useState(false);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
+    // Mirrors isEditing for the 8s background sync below, which must not overwrite what the player is typing.
+    const isEditingRef = useRef(false);
+    useEffect(() => { isEditingRef.current = isEditing; }, [isEditing]);
     
     // Form Inputs
     const [authForm, setAuthForm] = useState({
@@ -60,28 +87,48 @@ export default function AuthModal() {
     });
     
     // Registered Events list
+    const [showForgot, setShowForgot] = useState(false);
+    const [savedMsg, setSavedMsg] = useState('');
     const [registeredEvents, setRegisteredEvents] = useState([]);
+    // Stay in sync when an invite is answered from the notification bar.
+    useEffect(() => {
+        const sync = async () => {
+            try {
+                const u = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+                if (u?.addovediId) setRegisteredEvents(await fetchMyRegistrations(u.addovediId));
+            } catch { /* not logged in */ }
+        };
+        window.addEventListener(INVITES_CHANGED_EVENT, sync);
+        return () => window.removeEventListener(INVITES_CHANGED_EVENT, sync);
+    }, []);
     
     // Loading/scanning simulators
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
+    // CAPTCHA (Cloudflare Turnstile) token captured for sign-up, to deter
+    // scripted bulk account creation. Reset after every submit attempt since
+    // a Turnstile token is single-use.
+    const [captchaToken, setCaptchaToken] = useState('');
+
     const isAuthModalOpen = useStore(s => s.isAuthModalOpen);
 
     useEffect(() => {
-        const syncUserAndRegs = () => {
+        const syncUserAndRegs = async () => {
             // Load logged in user from localStorage
             const storedUser = localStorage.getItem('addovedi_user');
+            let parsedUser = null;
             if (storedUser) {
-                const parsedUser = JSON.parse(storedUser);
+                parsedUser = JSON.parse(storedUser);
                 const safeUser = {
                     ...sanitizeUserForStorage(parsedUser),
                     isGlobalRegistered: true
                 };
                 setUser(safeUser);
-                
-                // Pre-populate globalForm with existing user data if available
-                setGlobalForm({
+
+                // Pre-populate globalForm with the saved profile, but NEVER while the edit form is open: this sync runs
+                // every 8 seconds and used to wipe whatever the player had typed but not yet saved.
+                if (!isEditingRef.current) setGlobalForm({
                     gender: parsedUser.gender || '',
                     dob: parsedUser.dob || '',
                     college: parsedUser.college || '',
@@ -95,15 +142,15 @@ export default function AuthModal() {
             } else {
                 setUser(null);
             }
-            
-            // Load registered events from localStorage
-            const storedRegs = localStorage.getItem('addovedi_registrations');
-            if (storedRegs) {
-                try {
-                    setRegisteredEvents(JSON.parse(storedRegs));
-                } catch {
-                    setRegisteredEvents([]);
-                }
+
+            // Registered events come from the server now (not localStorage),
+            // so a team member who never personally submitted a form still
+            // sees every event they're actually part of, with the real
+            // admin-verification status — not just whatever the team
+            // leader's own browser happened to cache locally.
+            if (parsedUser?.addovediId) {
+                const regs = await fetchMyRegistrations(parsedUser.addovediId);
+                setRegisteredEvents(regs);
             } else {
                 setRegisteredEvents([]);
             }
@@ -113,7 +160,11 @@ export default function AuthModal() {
 
         // Listen for storage events (e.g. registration completed in another tab or component)
         window.addEventListener('storage', syncUserAndRegs);
-        return () => window.removeEventListener('storage', syncUserAndRegs);
+        const interval = setInterval(() => { if (!document.hidden) syncUserAndRegs(); }, 30000);
+        return () => {
+            window.removeEventListener('storage', syncUserAndRegs);
+            clearInterval(interval);
+        };
     }, [isAuthModalOpen]);
 
     // Handle Input change for Auth Form
@@ -128,153 +179,197 @@ export default function AuthModal() {
     };
 
     // Handle User Log In
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg('');
-        
+
         if (!authForm.email || !authForm.password) {
             setErrorMsg('ALL FIELDS INITIATION MANDATORY.');
             return;
         }
-        
-        // Check if user exists in mock / local storage
-        const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-        const found = allUsers.find(u => u.email.toLowerCase() === authForm.email.toLowerCase() && u.password === authForm.password);
-        
+        if (!isValidEmail(authForm.email)) {
+            setErrorMsg('PLEASE ENTER A VALID EMAIL ADDRESS.');
+            return;
+        }
+
         setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            if (found) {
-                const safeFound = {
-                    ...sanitizeUserForStorage(found),
-                    isGlobalRegistered: true
-                };
-                setUser(safeFound);
-                localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
-                setCurrentUser(safeFound);
-                // Pre-populate globalForm with logged in user data
-                setGlobalForm({
-                    gender: found.gender || '',
-                    dob: found.dob || '',
-                    college: found.college || '',
-                    department: found.department || '',
-                    year: found.year || '',
-                    state: found.state || '',
-                    city: found.city || '',
-                    emergencyContact: found.emergencyContact || '',
-                    avatar: found.avatar || 'specter'
-                });
-                // Reload registrations
-                const storedRegs = localStorage.getItem('addovedi_registrations') || '[]';
-                setRegisteredEvents(JSON.parse(storedRegs));
-            } else {
-                setErrorMsg('CREDENTIAL VERIFICATION FAILURE. SYS_DENIED.');
+        try {
+            const res = await fetch(`${API_BASE}/participants/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: authForm.email, password: authForm.password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMsg((data.message || 'CREDENTIAL VERIFICATION FAILURE. SYS_DENIED.').toUpperCase());
+                return;
             }
-        }, 1200);
+
+            const safeFound = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
+            setUser(safeFound);
+            localStorage.setItem('addovedi_user', JSON.stringify(safeFound));
+            setCurrentUser(safeFound);
+            // Pre-populate globalForm with logged in user data
+            setGlobalForm({
+                gender: data.gender || '',
+                dob: data.dob || '',
+                college: data.college || '',
+                department: data.department || '',
+                year: data.year || '',
+                state: data.state || '',
+                city: data.city || '',
+                emergencyContact: data.emergencyContact || '',
+                avatar: data.avatar || 'specter'
+            });
+            // Load this account's real registrations from the server
+            if (data.addovediId) {
+                const regs = await fetchMyRegistrations(data.addovediId);
+                setRegisteredEvents(regs);
+            }
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Handle User Registration / Sign Up
-    const handleSignupSubmit = (e) => {
+    const handleSignupSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg('');
-        
+
         if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password) {
             setErrorMsg('ALL FIELDS REQUIRED FOR PROTOCOL ENLISTMENT.');
             return;
         }
-        
-        const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-        if (allUsers.some(u => u.email.toLowerCase() === authForm.email.toLowerCase())) {
-            setErrorMsg('EMAIL PROTOCOL ALREADY ENLISTED IN DATABASE.');
+        if (!isValidEmail(authForm.email)) {
+            setErrorMsg('PLEASE ENTER A VALID EMAIL ADDRESS.');
             return;
         }
-        
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            const seedCounter = parseInt(localStorage.getItem('addovedi_id_counter') || '142');
-            const newCounter = seedCounter + 1;
-            localStorage.setItem('addovedi_id_counter', newCounter.toString());
-            const generatedId = `ADV26-${newCounter.toString().padStart(4, '0')}`;
+        if (!isValidPhone(authForm.phone)) {
+            setErrorMsg('PLEASE ENTER A VALID 10-DIGIT MOBILE NUMBER.');
+            return;
+        }
+        if (authForm.password.length < 8) {
+            setErrorMsg('PASSWORD MUST BE AT LEAST 8 CHARACTERS.');
+            return;
+        }
+        if (TURNSTILE_SITE_KEY && !captchaToken) {
+            setErrorMsg('PLEASE COMPLETE THE SECURITY CHECK.');
+            return;
+        }
 
-            const newUser = {
-                name: authForm.name,
-                email: authForm.email,
-                phone: authForm.phone,
-                password: authForm.password,
-                college: 'NATIONAL INSTITUTE OF TECHNOLOGY',
-                department: 'COMPUTER SCIENCE & ENG.',
-                year: '3RD YEAR',
-                city: 'CAMPUS',
-                state: 'STATE HQ',
-                gender: 'RECRUIT',
-                dob: '2004-01-01',
-                emergencyContact: authForm.phone,
-                isGlobalRegistered: true,
-                addovediId: generatedId,
-                avatar: 'specter'
-            };
-            allUsers.push(newUser);
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
-            const safeNewUser = sanitizeUserForStorage(newUser);
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(`${API_BASE}/participants/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: authForm.name,
+                    email: authForm.email,
+                    phone: authForm.phone,
+                    password: authForm.password,
+                    turnstileToken: captchaToken
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setErrorMsg((data.message || 'SIGN-UP FAILED. PLEASE TRY AGAIN.').toUpperCase());
+                return;
+            }
+
+            const safeNewUser = { ...sanitizeUserForStorage(data), isGlobalRegistered: true };
             setUser(safeNewUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeNewUser));
             setCurrentUser(safeNewUser);
-        }, 1200);
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+            setCaptchaToken('');
+        }
+    };
+
+    // Open the edit form pre-filled with what is currently saved on the account (not whatever the form state held before).
+    const openProfileEdit = () => {
+        setGlobalForm({
+            gender: user?.gender || '',
+            dob: user?.dob || '',
+            college: user?.college || '',
+            department: user?.department || '',
+            year: user?.year || '',
+            state: user?.state || '',
+            city: user?.city || '',
+            emergencyContact: user?.emergencyContact || '',
+            avatar: user?.avatar || 'specter'
+        });
+        setErrorMsg('');
+        setSavedMsg('');
+        setIsEditing(true);
     };
 
     // Handle Global Profile form submit
-    const handleGlobalSubmit = (e) => {
+    const handleGlobalSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Simple validations
-        if (!globalForm.gender || !globalForm.dob || !globalForm.college || !globalForm.department || !globalForm.year || !globalForm.state || !globalForm.city || !globalForm.emergencyContact) {
-            setErrorMsg('ALL BLOCKS MANDATORY FOR UNIQUE SIGNATURE SIGN-OFF.');
+        const required = [['gender', 'GENDER'], ['dob', 'DATE OF BIRTH'], ['college', 'COLLEGE'], ['department', 'DEPARTMENT'], ['year', 'YEAR'], ['state', 'STATE'], ['city', 'CITY'], ['emergencyContact', 'EMERGENCY CONTACT']];
+        const missing = required.filter(([k]) => !String(globalForm[k] || '').trim()).map(([, label]) => label);
+        if (missing.length) {
+            setErrorMsg(`PLEASE FILL IN: ${missing.join(', ')}.`);
             return;
         }
-        
+        const dobIssue = dobProblem(globalForm.dob);
+        if (dobIssue) {
+            setErrorMsg(dobIssue.toUpperCase());
+            return;
+        }
+        if (!isValidPhone(globalForm.emergencyContact)) {
+            setErrorMsg('PLEASE ENTER A VALID EMERGENCY CONTACT NUMBER.');
+            return;
+        }
+        if (!user?._id || !user?.token) {
+            setErrorMsg('SESSION EXPIRED. PLEASE LOG IN AGAIN.');
+            return;
+        }
+
         setIsSubmitting(true);
-        
-        setTimeout(() => {
-            setIsSubmitting(false);
-            // Keep existing ID if editing, otherwise generate a new one
-            const generatedId = user?.addovediId || (() => {
-                const seedCounter = parseInt(localStorage.getItem('addovedi_id_counter') || '142');
-                const newCounter = seedCounter + 1;
-                localStorage.setItem('addovedi_id_counter', newCounter.toString());
-                const padId = newCounter.toString().padStart(4, '0');
-                return `ADV26-${padId}`;
-            })();
-            
-            const updatedUser = {
-                ...user,
-                ...globalForm,
-                isGlobalRegistered: true,
-                addovediId: generatedId
-            };
-            
-            // Save inside both current user and registered users array
-            const safeUpdatedUser = sanitizeUserForStorage(updatedUser);
+        try {
+            const res = await fetch(`${API_BASE}/participants/profile/${user._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                },
+                body: JSON.stringify(globalForm)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 401) {
+                // Token missing/expired/revoked (e.g. password was reset, or the account was removed): sign out cleanly.
+                handleLogout();
+                setErrorMsg('YOUR SESSION HAS EXPIRED. PLEASE LOG IN AGAIN, THEN UPDATE YOUR PROFILE.');
+                return;
+            }
+            if (!res.ok) {
+                setErrorMsg((data.message || 'PROFILE UPDATE FAILED.').toUpperCase());
+                return;
+            }
+
+            // The profile-update response is a fresh DB read with no `token`
+            // field (only login/signup mint one) — carry the existing token
+            // forward so it isn't lost from storage on the next request.
+            const safeUpdatedUser = { ...sanitizeUserForStorage(data), token: user.token, isGlobalRegistered: true };
             setUser(safeUpdatedUser);
             localStorage.setItem('addovedi_user', JSON.stringify(safeUpdatedUser));
             setCurrentUser(safeUpdatedUser);
-            
-            const allUsers = JSON.parse(localStorage.getItem('addovedi_registered_accounts') || '[]');
-            const idx = allUsers.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
-            if (idx !== -1) {
-                allUsers[idx] = {
-                    ...allUsers[idx],
-                    ...globalForm,
-                    isGlobalRegistered: true,
-                    addovediId: generatedId
-                };
-            } else {
-                allUsers.push(updatedUser);
-            }
-            localStorage.setItem('addovedi_registered_accounts', JSON.stringify(allUsers));
             setErrorMsg('');
+            setSavedMsg('PROFILE UPDATED.');
             setIsEditing(false);
-        }, 1500);
+        } catch (err) {
+            setErrorMsg('NETWORK ERROR. PLEASE TRY AGAIN.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Sign out / Log out
@@ -408,6 +503,58 @@ export default function AuthModal() {
                 .auth-modal-scrollbar::-webkit-scrollbar { width: 4px; }
                 .auth-modal-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .auth-modal-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 217, 255, 0.2); border-radius: 2px; }
+
+                /* "ENTER ARENA" CTA button — defined here (not just relied on
+                   from HeroOverlay/CommonSidebar) because this modal can be
+                   opened from any page; HeroOverlay only mounts on Home and
+                   CommonSidebar's styles unmount as soon as its sidebar
+                   closes (which happens right when this modal opens), so
+                   without its own copy the button loses position:relative/
+                   overflow:hidden and its fill div balloons to cover the
+                   whole panel on every page except Home. */
+                @keyframes border-flow {
+                    0%   { background-position: 0% 50%; }
+                    50%  { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                @keyframes cyan-pulse {
+                    0%, 100% { box-shadow: 0 0 14px rgba(0,217,255,0.35), 0 0 28px rgba(0,217,255,0.15); }
+                    50%       { box-shadow: 0 0 26px rgba(0,217,255,0.65), 0 0 50px rgba(0,217,255,0.3); }
+                }
+                .reg-btn-wrap {
+                    position: relative;
+                    display: inline-block;
+                }
+                .reg-btn {
+                    position: relative;
+                    font-family: 'Orbitron', monospace;
+                    font-size: 0.65rem;
+                    font-weight: 800;
+                    letter-spacing: 0.28em;
+                    text-transform: uppercase;
+                    color: #fff;
+                    padding: 11px 28px;
+                    overflow: hidden;
+                    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+                    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+                    animation: cyan-pulse 2.5s ease-in-out infinite;
+                }
+                .reg-btn:hover {
+                    transform: scale(1.05) translateY(-1px);
+                }
+                .reg-fill {
+                    position: absolute;
+                    inset: 1.5px;
+                    clip-path: polygon(7.5px 0, 100% 0, 100% calc(100% - 7.5px), calc(100% - 7.5px) 100%, 0 100%, 0 7.5px);
+                    background: linear-gradient(90deg, #0891b2 0%, #06b6d4 35%, #00D9FF 70%, #67e8f9 100%);
+                    transform-origin: left center;
+                    transform: scaleX(0);
+                    transition: transform 0.42s cubic-bezier(0.16,1,0.3,1);
+                    pointer-events: none;
+                }
+                .reg-btn:hover .reg-fill {
+                    transform: scaleX(1);
+                }
             ` }} />
 
             {/* Glowing background grid inside modal */}
@@ -487,7 +634,7 @@ export default function AuthModal() {
                                     letterSpacing: '0.3em',
                                     color: '#00D9FF',
                                     textShadow: '0 0 8px rgba(0, 217, 255, 0.6)'
-                                }} className="font-black">CORE_AUTH // INTERFACE</span>
+                                }} className="font-black">CORE_AUTH · INTERFACE</span>
                                 <h1 style={{
                                     fontFamily: "'Orbitron', monospace",
                                     fontSize: '1.45rem',
@@ -575,9 +722,20 @@ export default function AuthModal() {
                                     />
                                 </div>
 
+                                {activeTab === 'signup' && TURNSTILE_SITE_KEY && (
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] text-white/50 tracking-wider font-bold uppercase">Security Check</label>
+                                        <TurnstileWidget
+                                            onVerify={setCaptchaToken}
+                                            onExpire={() => setCaptchaToken('')}
+                                            onError={() => setCaptchaToken('')}
+                                        />
+                                    </div>
+                                )}
+
                                 {/* Error Log */}
                                 {errorMsg && (
-                                    <div 
+                                    <div
                                         className="border border-red-500/30 bg-red-950/20 text-red-400 p-2.5 text-[10px] tracking-wider font-semibold uppercase flex items-center gap-2 select-none"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
@@ -602,6 +760,28 @@ export default function AuthModal() {
                                         ) : activeTab === 'login' ? 'INITIALIZE LINK ▶' : 'COMMENCE ENLISTMENT ▶'}
                                     </span>
                                 </button>
+                                {activeTab === 'login' && (
+                                    <div className="flex flex-col gap-2" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowForgot(v => !v)}
+                                            className="self-start text-[11px] font-bold tracking-wider text-[#00D9FF] hover:text-white underline underline-offset-2 bg-transparent border-0 cursor-pointer p-0"
+                                        >
+                                            Forgot password?
+                                        </button>
+                                        {showForgot && (
+                                            <div className="text-[11px] leading-relaxed text-white/70 border border-[#F59E0B]/50 bg-[#F59E0B]/5 p-3">
+                                                <b className="text-[#F59E0B]">Contact us and we will reset it for you.</b><br />
+                                                Tell us your name and the email or phone you signed up with (and your Addovedi ID if you remember it).<br />
+                                                <span className="text-white/50">General Enquiry:</span> <a href="tel:9506177693" className="text-white hover:underline">9506177693</a><br />
+                                                <span className="text-white/50">Event Coordination:</span> <a href="tel:+919859040208" className="text-white hover:underline">+91 98590 40208</a><br />
+                                                <span className="text-white/50">Email:</span> <a href="mailto:addovedi@nitap.ac.in" className="text-white hover:underline">addovedi@nitap.ac.in</a><br />
+                                                <span className="text-white/50">Forgot your Addovedi ID? Log in with your email and password and it is on your profile. If you forgot both, we can look it up too.</span><br />
+                                                <span className="text-[#F59E0B]/80">Do not create a second account: you would lose your registrations.</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </form>
                         </motion.div>
                     ) : !user.isGlobalRegistered || isEditing ? (
@@ -622,7 +802,7 @@ export default function AuthModal() {
                             }}
                         >
                             <div className="absolute top-0 right-0 p-3 text-[9px] tracking-widest text-[#00D9FF]/40 font-mono">
-                                STEP_02 // SYSTEM_PROFILE_SYNC
+                                STEP_02 · SYSTEM_PROFILE_SYNC
                             </div>
 
                             {/* Header Section */}
@@ -633,7 +813,7 @@ export default function AuthModal() {
                                     letterSpacing: '0.3em',
                                     color: '#00D9FF',
                                     textShadow: '0 0 8px rgba(0, 217, 255, 0.6)'
-                                }} className="font-black">PROTOCOL_02 // REGISTRATION</span>
+                                }} className="font-black">PROTOCOL_02 · REGISTRATION</span>
                                 <h1 style={{
                                     fontFamily: "'Orbitron', monospace",
                                     fontSize: '1.3rem',
@@ -659,7 +839,7 @@ export default function AuthModal() {
                                             <option value="">SELECT DISPOSITION</option>
                                             <option value="Male">MALE</option>
                                             <option value="Female">FEMALE</option>
-                                            <option value="Other">OTHER // SECURE</option>
+                                            <option value="Other">OTHER · SECURE</option>
                                         </select>
                                     </div>
 
@@ -672,6 +852,9 @@ export default function AuthModal() {
                                             onChange={handleGlobalChange}
                                             className="hud-input px-3.5 py-2.5 text-xs rounded-none"
                                         />
+                                        {dobProblem(globalForm.dob) && (
+                                            <span role="alert" style={{ fontSize: '10px', color: '#ff6b6b', lineHeight: 1.4 }}>{dobProblem(globalForm.dob)}</span>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col gap-1">
@@ -707,10 +890,12 @@ export default function AuthModal() {
                                             className="hud-input px-3.5 py-2.5 text-xs rounded-none bg-[#020812]"
                                         >
                                             <option value="">SELECT YEAR</option>
-                                            <option value="1st Year">1ST YEAR // RECRUIT</option>
-                                            <option value="2nd Year">2ND YEAR // AGENT</option>
-                                            <option value="3rd Year">3RD YEAR // ELITE</option>
-                                            <option value="4th Year">4TH YEAR // COMMANDER</option>
+                                            <option value="1st Year">1ST YEAR · RECRUIT</option>
+                                            <option value="2nd Year">2ND YEAR · AGENT</option>
+                                            <option value="3rd Year">3RD YEAR · ELITE</option>
+                                            <option value="4th Year">4TH YEAR · COMMANDER</option>
+                                            <option value="M.Tech">M.TECH · SCHOLAR</option>
+                                            <option value="PhD">PHD · DOCTORATE</option>
                                         </select>
                                     </div>
 
@@ -833,16 +1018,15 @@ export default function AuthModal() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
                             transition={{ duration: 0.4 }}
-                            className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-auto items-stretch my-auto"
+                            className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto items-stretch my-auto"
                         >
                             {/* LEFT PANEL: Digital ID Card */}
-                            <div className="lg:col-span-5 flex flex-col items-center justify-center">
-                                <div 
-                                    className="w-full max-w-[340px] p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between"
+                            <div className="md:col-span-5 flex flex-col items-center justify-center">
+                                <div
+                                    className="w-full max-w-[340px] p-5 sm:p-6 relative overflow-hidden select-none border border-cyan-400/40 rounded-none shadow-[0_0_35px_rgba(0,217,255,0.15)] flex flex-col items-center justify-between md:min-h-[460px]"
                                     style={{
                                         background: 'linear-gradient(185deg, #020712 0%, #041021 100%)',
-                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)',
-                                        minHeight: '460px'
+                                        clipPath: 'polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px)'
                                     }}
                                 >
                                     <div className="scanner-line" />
@@ -860,7 +1044,7 @@ export default function AuthModal() {
                                     <div className="w-full flex items-center justify-between border-b border-[#00d9ff]/20 pb-3 relative z-10">
                                         <div className="flex flex-col">
                                             <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '10px', fontWeight: 900, color: '#00D9FF', letterSpacing: '0.15em', textShadow: '0 0 8px rgba(0,217,255,0.6)' }}>ADDOVEDI 2026</span>
-                                            <span style={{ fontSize: '7px', color: 'rgba(255,255,255,0.4)', tracking: '0.1em' }} className="font-mono">SYS_ID_CARD // DEMO</span>
+                                            <span style={{ fontSize: '7px', color: 'rgba(255,255,255,0.4)', tracking: '0.1em' }} className="font-mono">SYS_ID_CARD · DEMO</span>
                                         </div>
                                         <div 
                                             className="px-2 py-0.5 text-[7.5px] border font-black tracking-widest uppercase"
@@ -876,14 +1060,14 @@ export default function AuthModal() {
 
                                     <div className="relative mt-4 z-10">
                                         <div 
-                                            className="w-32 h-32 rounded-full flex items-center justify-center border-2 border-dashed relative animate-spin-slow"
+                                            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center border-2 border-dashed relative animate-spin-slow"
                                             style={{
                                                 borderColor: `${currentAvatarData.color}40`,
                                                 animationDuration: '15s'
                                             }}
                                         />
                                         <div 
-                                            className="w-28 h-28 rounded-full absolute top-2 left-2 flex items-center justify-center text-3xl font-black border-2"
+                                            className="w-20 h-20 sm:w-28 sm:h-28 rounded-full absolute top-2 left-2 flex items-center justify-center text-2xl sm:text-3xl font-black border-2"
                                             style={{
                                                 background: `radial-gradient(circle, ${currentAvatarData.color}25 0%, #030c17 100%)`,
                                                 color: currentAvatarData.color,
@@ -906,7 +1090,7 @@ export default function AuthModal() {
                                             {user.college}
                                         </span>
                                         <span style={{ fontSize: '9px', color: currentAvatarData.color, fontWeight: 700, letterSpacing: '0.08em', marginTop: '2px' }} className="uppercase">
-                                            {user.department} // {user.year}
+                                            {user.department} · {user.year}
                                         </span>
                                     </div>
 
@@ -937,7 +1121,7 @@ export default function AuthModal() {
                                     <div className="w-full flex items-center justify-between border-t border-[#00d9ff]/15 pt-4 mt-3 relative z-10 select-none">
                                         <div className="flex flex-col items-start font-mono gap-1 text-[7px] text-white/40">
                                             <span>ISSUED: ADDOVEDI_OS</span>
-                                            <span>LEVEL: OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}</span>
+                                            <span>LEVEL: OPERATIVE_{String(xpStats(sumXp(registeredEvents)).level).padStart(2, '0')}</span>
                                             <span>VERIFIER: SECURE_QR</span>
                                         </div>
 
@@ -975,33 +1159,45 @@ export default function AuthModal() {
                                     </div>
                                 </div>
 
+                                {savedMsg && (
+                                    <div className="w-full max-w-[330px] mt-3 px-3 py-2 border text-[10px] font-bold tracking-widest" style={{ color: '#1FFF76', borderColor: 'rgba(31,255,118,0.5)', background: 'rgba(31,255,118,0.08)' }}>
+                                        ✓ {savedMsg}
+                                    </div>
+                                )}
+                                <ChangePasswordPanel
+                                    user={user}
+                                    onChanged={(token) => {
+                                        const updated = { ...user, mustChangePassword: false, ...(token ? { token } : {}) };
+                                        setUser(updated);
+                                        localStorage.setItem('addovedi_user', JSON.stringify(updated));
+                                    }}
+                                />
                                 <div className="flex gap-3 w-full max-w-[330px] mt-4">
                                     <button
-                                        onClick={() => setIsEditing(true)}
+                                        onClick={openProfileEdit}
                                         className="flex-1 py-2 bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 text-[9px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
-                                        UPDATE_PROFILE // EDIT
+                                        UPDATE_PROFILE · EDIT
                                     </button>
                                     <button
                                         onClick={handleLogout}
                                         className="flex-1 py-2 bg-red-950/20 hover:bg-red-950/40 text-red-400 border border-red-500/30 text-[9px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                                         style={{ fontFamily: "'Orbitron', monospace" }}
                                     >
-                                        ABORT_CONNECTION // LOG OUT
+                                        ABORT_CONNECTION · LOG OUT
                                     </button>
                                 </div>
                             </div>
 
                             {/* RIGHT PANEL: Registered Events List */}
-                            <div 
-                                className="lg:col-span-7 p-6 relative flex flex-col justify-between"
+                            <div
+                                className="md:col-span-7 p-5 sm:p-6 relative flex flex-col justify-between md:min-h-[460px]"
                                 style={{
                                     background: 'rgba(2, 7, 16, 0.85)',
                                     border: '1.5px solid rgba(0, 217, 255, 0.4)',
                                     clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
-                                    backdropFilter: 'blur(20px)',
-                                    minHeight: '460px'
+                                    backdropFilter: 'blur(20px)'
                                 }}
                             >
                                 <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00D9FF]" />
@@ -1009,7 +1205,7 @@ export default function AuthModal() {
                                 <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#00D9FF]" />
                                 <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00D9FF]" />
 
-                                <div>
+                                <div className="flex-1 flex flex-col min-h-0">
                                     {/* Player info strip */}
                                     <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/5">
                                         <div
@@ -1033,12 +1229,14 @@ export default function AuthModal() {
                                                 className="text-[9px] font-black tracking-widest"
                                                 style={{ color: currentAvatarData.color, fontFamily: "'Orbitron', monospace" }}
                                             >
-                                                OPERATIVE_{String(Math.min(10, 1 + registeredEvents.length)).padStart(2, '0')}
+                                                OPERATIVE_{String(xpStats(sumXp(registeredEvents)).level).padStart(2, '0')}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
+                                    <XpPanel registrations={registeredEvents} onOpenLeaderboard={() => setShowLeaderboard(true)} />
+
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-[#00f0ff]/15 pb-4 mb-4 select-none">
                                         <div className="flex flex-col">
                                             <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '9px', fontWeight: 900, color: '#00D9FF', letterSpacing: '0.15em' }}>MISSION_ENLISTMENTS</span>
                                             <h2 style={{ fontFamily: "'Orbitron', monospace", fontSize: '1.18rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>REGISTERED EVENTS</h2>
@@ -1048,8 +1246,13 @@ export default function AuthModal() {
                                         </span>
                                     </div>
 
+                                    {registeredEvents.some(r => r.myStatus === 'PENDING') && (
+                                        <div className="mb-3 px-3 py-2 border text-[11px] font-bold tracking-wider" style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.08)' }}>
+                                            🔔 YOU HAVE {registeredEvents.filter(r => r.myStatus === 'PENDING').length} TEAM INVITE(S) WAITING. ACCEPT OR DECLINE BELOW.
+                                        </div>
+                                    )}
                                     {registeredEvents.length === 0 ? (
-                                        <div className="py-6 flex flex-col items-center justify-center text-center gap-3 select-none my-auto">
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 select-none py-6">
                                             <div className="w-12 h-12 rounded-full border border-dashed border-[#00D9FF]/40 flex items-center justify-center text-[#00D9FF] font-bold text-lg shadow-[0_0_15px_rgba(0,217,255,0.2)]">
                                                 ⚔
                                             </div>
@@ -1069,38 +1272,76 @@ export default function AuthModal() {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1 auth-modal-scrollbar">
-                                            {registeredEvents.map((reg, index) => (
-                                                <div 
-                                                    key={reg.id || index}
-                                                    className="p-3 border flex flex-col md:flex-row md:items-center justify-between gap-3 relative select-none"
-                                                    style={{
-                                                        background: 'rgba(255,255,255,0.01)',
-                                                        borderColor: 'rgba(0, 217, 255, 0.15)'
-                                                    }}
-                                                >
-                                                    <div className="flex items-start gap-3">
-                                                        <div 
-                                                            className="w-1.5 h-10 shrink-0" 
-                                                            style={{
-                                                                background: '#00D9FF'
-                                                            }}
-                                                        />
-                                                        <div className="flex flex-col">
-                                                            <span className="text-white font-black text-sm tracking-wider uppercase">{reg.title}</span>
-                                                            <span className="text-[10px] text-white/40 tracking-wider font-semibold uppercase">{reg.category} // {reg.venue || 'TBA'}</span>
+                                            {registeredEvents.map((reg, index) => {
+                                                const invitePending = reg.myStatus === 'PENDING';
+                                                const statusMeta = invitePending
+                                                    ? { label: 'TEAM_INVITE', color: '#F59E0B' }
+                                                    : reg.status === 'VERIFIED'
+                                                        ? { label: 'ADMIN_VERIFIED', color: '#1FFF76' }
+                                                        : { label: 'PENDING_VERIFICATION', color: '#ffea00' };
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="p-3 border flex flex-col md:flex-row md:items-center justify-between gap-3 relative select-none"
+                                                        style={{
+                                                            background: 'rgba(255,255,255,0.01)',
+                                                            borderColor: 'rgba(0, 217, 255, 0.15)'
+                                                        }}
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            <div
+                                                                className="w-1.5 h-10 shrink-0"
+                                                                style={{
+                                                                    background: statusMeta.color
+                                                                }}
+                                                            />
+                                                            <div className="flex flex-col">
+                                                                <span className="text-white font-black text-sm tracking-wider uppercase">{reg.eventTitle}</span>
+                                                                <span className="text-[10px] text-white/40 tracking-wider font-semibold uppercase">
+                                                                    {reg.categoryTitle}{reg.isLeader === false ? ` · MEMBER (LED BY ${reg.leaderName})` : ' · TEAM LEADER'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-col items-end justify-between font-mono gap-1">
+                                                            <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: statusMeta.color }}>
+                                                                {statusMeta.label}
+                                                            </span>
+                                                            <span className="text-[7.5px] text-white/30 uppercase">
+                                                                TEAM: {reg.teamName || 'SOLO'}{reg.teamId ? ` · ${reg.teamId}` : ' · FORMING'}
+                                                            </span>
+                                                            {invitePending && (
+                                                                <span className="flex gap-2 mt-1">
+                                                                    {[true, false].map(accept => (
+                                                                        <button
+                                                                            key={String(accept)}
+                                                                            type="button"
+                                                                            onClick={async () => {
+                                                                                const r = await respondToTeamInvite(reg.registrationId, accept);
+                                                                                if (!r.ok) alert(r.message);
+                                                                                setRegisteredEvents(await fetchMyRegistrations(user?.addovediId));
+                                                                            }}
+                                                                            className="px-2 py-1 text-[9px] font-black tracking-widest border cursor-pointer"
+                                                                            style={{ color: accept ? '#1FFF76' : '#f87171', borderColor: accept ? '#1FFF76' : 'rgba(239,68,68,0.5)', background: 'transparent' }}
+                                                                        >
+                                                                            {accept ? 'ACCEPT' : 'DECLINE'}
+                                                                        </button>
+                                                                    ))}
+                                                                </span>
+                                                            )}
+                                                            {reg.isLeader && Array.isArray(reg.members) && reg.members.length > 0 && (
+                                                                <span className="text-[8px] uppercase flex flex-wrap justify-end gap-x-2">
+                                                                    {reg.members.map(m => (
+                                                                        <span key={m.uid} style={{ color: memberMeta(m).color }}>
+                                                                            {m.name || m.uid}: {memberMeta(m).label}
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
-
-                                                    <div className="flex flex-col items-end justify-between font-mono gap-1">
-                                                        <span className="text-[9px] text-[#00D9FF] font-black tracking-widest uppercase">
-                                                            SLOT_VERIFIED
-                                                        </span>
-                                                        <span className="text-[7.5px] text-white/30 uppercase">
-                                                            TEAM: {reg.teamName || 'SOLO'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -1146,6 +1387,7 @@ export default function AuthModal() {
                     )}
                 </AnimatePresence>
             </div>
+            {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} />}
         </motion.div>
     );
 }

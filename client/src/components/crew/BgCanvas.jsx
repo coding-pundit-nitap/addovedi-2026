@@ -19,7 +19,6 @@ export default function BgCanvas() {
             color: Math.random() > 0.5 ? '#00e5ff' : '#ff2cfb'
         }));
 
-        let frame = 0;
         const tick = () => {
             ctx.clearRect(0, 0, W, H);
             
@@ -73,16 +72,6 @@ export default function BgCanvas() {
 
             ctx.globalAlpha = 1.0;
 
-            // Faint system diagnostic terminal feeds in background
-            if (frame % 150 === 0) {
-                const logs = ['NODE_SYS_ACTIVE', 'DATABASE_SYNCED', 'SECURE_CONN', 'MISSION_STATUS_NOMINAL', 'AUTH_LEVEL_3', 'HUD_INITIALIZED'];
-                ctx.globalAlpha = 0.04;
-                ctx.fillStyle = '#00E5FF';
-                ctx.font = '8px monospace';
-                ctx.fillText(logs[Math.floor(Math.random() * logs.length)], Math.random() * W, Math.random() * H);
-            }
-
-            frame++;
             requestAnimationFrame(tick);
         };
         const handle = requestAnimationFrame(tick);

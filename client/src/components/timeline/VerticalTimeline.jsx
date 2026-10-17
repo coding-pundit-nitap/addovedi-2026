@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CATEGORY_ICONS } from './MissionNode';
+import MotionCard from '../common/MotionCard';
 
 const parseTimeToMinutes = (timeStr) => {
     if (!timeStr) return 0;
@@ -11,7 +12,16 @@ export function getEventStatus(ev) {
     return ev.status || 'UPCOMING';
 }
 
-function TimelineCard({ ev, catInfo, isSelected, isHovered, statusText, statusColor, onClick, onMouseEnter, onMouseLeave }) {
+// TRIAL: pointer tilt + glare + gentle float on the timeline cards (each entry already staggers in by itself, so no extra reveal).
+function TimelineCard(props) {
+    return (
+        <MotionCard reveal={false} radius={12} maxTilt={5} style={{ width: '100%', maxWidth: '320px' }}>
+            <TimelineCardInner {...props} />
+        </MotionCard>
+    );
+}
+
+function TimelineCardInner({ ev, catInfo, isSelected, isHovered, statusText, statusColor, onClick, onMouseEnter, onMouseLeave }) {
     return (
         <div
             onClick={onClick}
@@ -44,7 +54,7 @@ function TimelineCard({ ev, catInfo, isSelected, isHovered, statusText, statusCo
                         letterSpacing: '0.12em',
                         fontWeight: 700
                     }}>
-                        {ev.time} – {ev.end}
+                        {ev.end ? `${ev.time} – ${ev.end}` : `${ev.time} onwards`}
                     </span>
                     
                     {/* Live status badge */}

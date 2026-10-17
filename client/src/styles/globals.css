@@ -116,3 +116,13 @@ body {
     text-shadow: 0 0 10px #00D9FF !important;
     box-shadow: inset 4px 0 12px rgba(0, 217, 255, 0.05);
 }
+
+/* iOS Safari zooms the page in when an input's text is under 16px and often leaves it zoomed after the keyboard closes.
+   On touch devices keep every text field at 16px so the page never zooms while filling a form. Beats inline sizes. */
+@media (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}

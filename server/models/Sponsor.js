@@ -8,7 +8,7 @@ const SponsorSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true,
-        default: 'GOLD' // 'TITLE' | 'GOLD' | 'SILVER' | 'MEDIA' | 'BEVERAGE'
+        default: 'GOLD' // 'PLATINUM' | 'GOLD' | 'SILVER' | 'TECHNICAL' | 'EVENT' | 'TRAVEL' | 'MEDIA' | 'BARTER'
     },
     sub: {
         type: String,
@@ -32,6 +32,10 @@ const SponsorSchema = new mongoose.Schema({
         type: [String],
         required: true,
         default: []
+    },
+    pending: {
+        type: Boolean,
+        default: false // true = partnership not fully finalized; shown as "Joining soon"
     },
     url: {
         type: String,

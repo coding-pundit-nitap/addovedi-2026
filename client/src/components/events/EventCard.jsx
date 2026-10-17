@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { slugify } from '../../data/events';
+import { xpForEvent } from '../../utils/xp';
 
 export default function EventCard({ subEvent, idx, activeCategory, categoryName }) {
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function EventCard({ subEvent, idx, activeCategory, categoryName 
                             }}
                         >
                             <span className="opacity-45">REWARD:</span>
-                            <span style={{ color: activeCategory.color }} className="font-bold">{subEvent.xp}</span>
+                            <span style={{ color: activeCategory.color }} className="font-bold">{xpForEvent(subEvent)} XP</span>
                         </div>
 
                         <button

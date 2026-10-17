@@ -15,7 +15,7 @@ const checkWebGL = () => {
     }
 };
 
-export default function HeroCanvas() {
+export default function HeroCanvas({ paused = false }) {
     const isSidebarOpen = useStore(s => s.isSidebarOpen);
     const [hasWebGL, setHasWebGL] = useState(checkWebGL);
 
@@ -49,8 +49,8 @@ export default function HeroCanvas() {
     }
 
     return (
-        <div className={`absolute inset-0 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <MainCanvas />
+        <div style={paused ? { display: 'none' } : undefined} className={`absolute inset-0 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <MainCanvas paused={paused} />
         </div>
     );
 }

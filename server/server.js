@@ -1,8 +1,15 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import { expireStaleInvites } from './controllers/registrationController.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import { trustProxySetting } from './config/trustProxy.js';
 import apiRouter from './routes/index.js';
+import helmet from 'helmet';
+import { apiLimiter, publicReadLimiter } from './middleware/rateLimiters.js';
+import { publicCache, invalidatePublicCache } from './utils/publicCache.js';
+import { sanitizeInput } from './middleware/sanitize.js';
 
 // Models for Seeding
 import Admin from './models/Admin.js';
@@ -10,61 +17,150 @@ import Category from './models/Category.js';
 import SubEvent from './models/SubEvent.js';
 import Crew from './models/Crew.js';
 import Sponsor from './models/Sponsor.js';
-import { hashPassword } from './utils/hash.js';
+import { hashPasswordAsync } from './utils/hash.js';
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+// See config/trustProxy.js: works out the visitor's real IP behind Render/Cloudflare or the college nginx, which every
+// rate limiter and the audit log depend on.
+app.set('trust proxy', trustProxySetting());
+
+// Only the known frontend origins may call this API. Falls back to local
+// dev origins when ALLOWED_ORIGINS isn't set (e.g. local development).
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+// Same-site requests are always fine: when the page and the API are served from the
+// same host (e.g. behind the bundled nginx), the browser's Origin matches the Host
+// the request was addressed to. A cross-site page can't forge that match.
+const hostnameOf = (value) => String(value || '').split(',')[0].trim().replace(/:\d+$/, '').toLowerCase();
+const isSameSite = (req, origin) => {
+    try {
+        const originHost = new URL(origin).hostname.toLowerCase();
+        return [req.headers['x-forwarded-host'], req.headers.host].some(h => h && hostnameOf(h) === originHost);
+    } catch {
+        return false;
+    }
+};
+
+app.use(cors((req, callback) => {
+    const origin = req.headers.origin;
+    // Allow non-browser tools / same-origin requests with no Origin header.
+    if (!origin || allowedOrigins.includes(origin) || isSameSite(req, origin)) {
+        return callback(null, { origin: true });
+    }
+    console.warn(`[CORS] Blocked origin "${origin}" (Host: ${req.headers.host}). Add it to ALLOWED_ORIGINS if it is a legitimate frontend.`);
+    return callback(new Error('Not allowed by CORS'));
+}));
+// Security headers (nosniff, frameguard, HSTS, ...). This is a JSON API, so a strict CSP is fine;
+// cross-origin resource policy stays open because the separate frontend origin fetches it.
+app.disable('x-powered-by');
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+// Small body cap: no endpoint accepts anything near this (images go through multer, not JSON).
+app.use(express.json({ limit: '50kb' }));
+app.use(sanitizeInput);
+
+// One line per API request that is NOT a cached public poll (those run every few seconds per visitor and would drown the
+// log): method, path (no query string), status, duration, caller IP and, if logged in, nothing else. No bodies, headers or tokens.
+app.use('/api', (req, res, next) => {
+    const started = Date.now();
+    res.on('finish', () => {
+        const isPoll = req.method === 'GET' && res.statusCode < 400 && /^\/api\/(events|crew|alliances|status-settings|settings\/\w+|registrations\/my\/[^/]+)\/?$/.test(req.originalUrl.split('?')[0]);
+        if (isPoll) return;
+        console.log(`[REQ] ${req.method} ${req.originalUrl.split('?')[0]} ${res.statusCode} ${Date.now() - started}ms ip=${req.ip}`);
+    });
+    next();
+});
+app.use('/api', publicReadLimiter);
+app.use('/api', apiLimiter);
+app.use('/api', invalidatePublicCache);
+app.use(['/api/events', '/api/crew', '/api/alliances', '/api/status-settings', '/api/settings'], publicCache);
 
 // Mount API router
 app.use('/api', apiRouter);
 
 // Basic health check route
 app.get('/api/status', (req, res) => {
+    // readyState 1 = connected. Reporting "ok" while the database is down would hide an outage from Render's health checks.
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({ status: 'degraded', message: 'Database unavailable' });
+    }
     res.json({ status: 'ok', message: 'Addovedi Techfest Command Server is active' });
+});
+
+// Unknown API routes answer JSON, not Express's default HTML page (which names the framework and echoes the path).
+app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
+
+// Centralized error handler: never leak stack traces / internals to clients.
+app.use((err, req, res, next) => {
+    if (err && err.message === 'Not allowed by CORS') {
+        return res.status(403).json({ message: 'Origin not allowed' });
+    }
+    if (err && (err.name === 'MulterError' || /unsupported file type/i.test(err.message || ''))) {
+        return res.status(400).json({ message: err.message });
+    }
+    if (err && err.type === 'entity.parse.failed') {
+        return res.status(400).json({ message: 'Malformed request body' });
+    }
+    if (err && err.type === 'entity.too.large') {
+        return res.status(413).json({ message: 'Request body too large' });
+    }
+    console.error('[UNHANDLED ERROR]', err);
+    return res.status(err.status || 500).json({ message: 'Internal server error' });
 });
 
 // Database seeding function
 const seedDatabase = async () => {
+    // The built-in sample categories / events / crew / sponsors are placeholders for local development. On production they
+    // are never inserted automatically (an empty or wrongly-pointed database would otherwise go live showing fake sponsors
+    // like NVIDIA and sample events). Set SEED_DEMO_DATA=true to force it. The admin account seed below is unaffected.
+    const seedDemo = process.env.NODE_ENV !== 'production' || process.env.SEED_DEMO_DATA === 'true';
     try {
-        // 1. Seed Admin Account if empty
-        const adminCount = await Admin.countDocuments();
-        if (adminCount === 0) {
-            const initialPass = process.env.ADMIN_INITIAL_PASSWORD || 'Addovedi_Secure_Admin_2026!#';
-            const hashed = hashPassword(initialPass);
-            const admin = new Admin({ username: 'admin', password: hashed });
-            await admin.save();
-            console.log(`[SEED] Admin account initialized. Set ADMIN_INITIAL_PASSWORD in .env for custom credentials.`);
+        let admin = await Admin.findOne({ username: 'admin' });
+        if (!admin) {
+            const initialPass = process.env.ADMIN_INITIAL_PASSWORD;
+            if (!initialPass) {
+                console.warn('[SEED WARNING] ADMIN_INITIAL_PASSWORD not set in environment. Skipping initial admin creation.');
+            } else {
+                const hashed = await hashPasswordAsync(initialPass);
+                admin = new Admin({ username: 'admin', password: hashed });
+                await admin.save();
+                console.log(`[SEED] Initial Admin account created from environment configuration.`);
+            }
         }
 
-        // 2. Seed default categories if empty
+        // 2. Seed default categories ONLY on a truly empty database.
+        // Previously this also fired whenever catCount dropped below 7 (e.g. an
+        // admin deleted a category), which wiped out all admin-made edits back
+        // to these hardcoded defaults on every server restart. That was the
+        // root cause of "admin portal changes don't stick" — seeding must never
+        // run again once real data exists.
         const catCount = await Category.countDocuments();
-        if (catCount < 7) {
-            await Category.deleteMany({});
+        if (catCount === 0 && seedDemo) {
             const defaultCats = [
-                { title: 'ROBOTICS & RC', subtitle: 'AUTONOMOUS MOTORS', desc: 'Race high-speed RC cars and program precise line followers.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
-                { title: 'CODING QUEST', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons and optimize code structures.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
-                { title: 'ELECTRICAL GUILD', subtitle: 'CIRCUIT DEBUGGING', desc: 'Master breadboard wiring, logic gates, and analog designs.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt', modelType: 'electrical' },
-                { title: 'GAMING ARENA', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA college tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad', modelType: 'controller' },
-                { title: 'CREATIVE & DESIGN', subtitle: 'STRUCTURE & CLAY', desc: 'Build structural bridges, throw pottery, and exhibit fine arts.', color: '#1fff76', xp: '4,500 XP', difficulty: 'EASY', iconType: 'brush', modelType: 'civil' },
-                { title: 'AI & DATA SCIENCE', subtitle: 'NEURAL CONSTRUCTS', desc: 'Train reinforcement agents and design deep learning models.', color: '#2b5cff', xp: '7,000 XP', difficulty: 'HARD', iconType: 'cpu', modelType: 'ai' },
-                { title: 'WORKSHOP LAB', subtitle: 'KINETIC HARDWARE', desc: 'Operate industrial metalworks and build hardware machinery.', color: '#ffea00', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'tool', modelType: 'coding' }
+                { title: 'ROBOTICS PROTOCOL', subtitle: 'AUTONOMOUS MECHA DYNAMICS', desc: 'Race high-speed RC cars, program autonomous line followers, and battle in combat arenas.', color: '#00d9ff', xp: '8,000 XP', difficulty: 'ELITE', iconType: 'robot', modelType: 'mecha' },
+                { title: 'CYBER CODE', subtitle: 'ALGORITHMIC WARFARE', desc: 'Join high-speed hackathons, crack algorithmic constraints, and build overlay terminals.', color: '#ff1f4f', xp: '5,000 XP', difficulty: 'HARD', iconType: 'code', modelType: 'coding' },
+                { title: 'SILICON SPECTRUM', subtitle: 'SIGNAL & MICROELECTRONICS', desc: 'Design VLSI chips, decode signal frequencies, and architect micro-embedded systems.', color: '#a78bfa', xp: '6,000 XP', difficulty: 'HARD', iconType: 'bolt', modelType: 'portal' },
+                { title: 'GAMING NEXUS', subtitle: 'ESPORTS SHOWDOWN', desc: 'Compete in Valorant, BGMI, and FIFA pro college esports tournaments.', color: '#9b5cff', xp: '6,000 XP', difficulty: 'HARD', iconType: 'gamepad', modelType: 'controller' },
+                { title: 'URBAN BLUEPRINT', subtitle: 'STRUCTURAL ARCHITECTURE', desc: 'Build load-resistant truss bridges, throw ceramic pottery, and design eco-skyscrapers.', color: '#1fff76', xp: '5,500 XP', difficulty: 'MEDIUM', iconType: 'bridge', modelType: 'civil' },
+                { title: 'MECHANICAL MATRIX', subtitle: 'KINETIC THERMODYNAMICS', desc: 'Operate industrial metalworks, design CAD 3D parts, and optimize thermodynamic rigs.', color: '#ffea00', xp: '7,000 XP', difficulty: 'HARD', iconType: 'gear', modelType: 'ai' },
+                { title: 'VOLTAGE GRID', subtitle: 'POWER & TRANSFORMER SYSTEMS', desc: 'Master transformer grid wiring, truth tables, and autonomous PCB electrical mazes.', color: '#ff9d00', xp: '6,500 XP', difficulty: 'MEDIUM', iconType: 'bolt', modelType: 'electrical' }
             ];
             await Category.insertMany(defaultCats);
             console.log(`[SEED] Seeded 7 default categories`);
         }
 
-        // 3. Seed default sub-events if empty
+        // 3. Seed default sub-events ONLY on a truly empty database (see note above).
         const subCount = await SubEvent.countDocuments();
-        const uniqueCategories = await SubEvent.distinct('categoryTitle');
-        if (subCount === 0 || uniqueCategories.length < 7) {
-            await SubEvent.deleteMany({});
+        if (subCount === 0 && seedDemo) {
             const defaultSubs = [
-                // 1. CODING QUEST
+                // 1. CYBER CODE
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'BUG HUNT',
                     subtitle: 'DIAGNOSTICS & DEBUGGING',
                     desc: 'Scan code segments and patch hidden compiler bugs under pressure.',
@@ -79,7 +175,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'BYTE CODE',
                     subtitle: 'ALGORITHMS & SPEED',
                     desc: 'Crack algorithmic constraints and design time-optimal data models.',
@@ -94,7 +190,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CODING QUEST',
+                    categoryTitle: 'CYBER CODE',
                     title: 'WEB CRAFT',
                     subtitle: 'DASHBOARD INTERFACES',
                     desc: 'Design beautiful, responsive game visual overlay terminals.',
@@ -108,9 +204,9 @@ const seedDatabase = async () => {
                         { name: 'Neha Gupta', phone: '+91 54321 09876' }
                     ]
                 },
-                // 2. ELECTRICAL GUILD
+                // 2. VOLTAGE GRID
                 {
-                    categoryTitle: 'ELECTRICAL GUILD',
+                    categoryTitle: 'VOLTAGE GRID',
                     title: 'LOGIC QUEST',
                     subtitle: 'TRUTH TABLES & CIRCUITS',
                     desc: 'Build gate systems and resolve high-frequency signals.',
@@ -125,7 +221,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ELECTRICAL GUILD',
+                    categoryTitle: 'VOLTAGE GRID',
                     title: 'MAZE RUNNER',
                     subtitle: 'AUTONOMOUS PCB BOARDS',
                     desc: 'Program microcontrollers to solve breadboard electrical mazes.',
@@ -139,9 +235,9 @@ const seedDatabase = async () => {
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
                     ]
                 },
-                // 3. ROBOTICS & RC
+                // 3. ROBOTICS PROTOCOL
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'ROBO WARS',
                     subtitle: 'COMBAT ARENA',
                     desc: 'Destroy opponents in a steel-caged combat arena showdown.',
@@ -156,7 +252,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'LINE RUNNER',
                     subtitle: 'INFRARED ACCELERATION',
                     desc: 'Design line followers that lock onto grid courses in record time.',
@@ -171,7 +267,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'ROBOTICS & RC',
+                    categoryTitle: 'ROBOTICS PROTOCOL',
                     title: 'DRONE PILOT',
                     subtitle: 'AERIAL ACCELERATOR',
                     desc: 'Fly precision micro drones through complex vertical ring gates.',
@@ -185,31 +281,16 @@ const seedDatabase = async () => {
                         { name: 'Gaurav Sharma', phone: '+91 93456 78901' }
                     ]
                 },
-                // 4. CREATIVE & DESIGN
+                // 4. URBAN BLUEPRINT
                 {
-                    categoryTitle: 'CREATIVE & DESIGN',
-                    title: 'PROPEL',
-                    subtitle: 'PNEUMATIC PROPULSION',
-                    desc: 'Assemble model rockets and launch them high using air-pressure pumps.',
-                    color: '#1fff76',
-                    xp: '1,200 XP',
-                    difficulty: 'EASY',
-                    iconType: 'brush',
-                    modelType: 'civil',
-                    heads: [
-                        { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
-                        { name: 'Kiran Verma', phone: '+91 98901 23456' }
-                    ]
-                },
-                {
-                    categoryTitle: 'CREATIVE & DESIGN',
+                    categoryTitle: 'URBAN BLUEPRINT',
                     title: 'TRUSS BUILD',
                     subtitle: 'BALSA WOOD BRIDGES',
                     desc: 'Glue together truss bridges and load test them to the absolute break limit.',
                     color: '#1fff76',
                     xp: '1,800 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'brush',
+                    iconType: 'bridge',
                     modelType: 'civil',
                     heads: [
                         { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
@@ -217,23 +298,38 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'CREATIVE & DESIGN',
+                    categoryTitle: 'URBAN BLUEPRINT',
                     title: 'POTTERY ART',
                     subtitle: 'CLAY VISIONS',
                     desc: 'Sculpt customized pots on motorized spinning potter wheels.',
                     color: '#1fff76',
                     xp: '1,000 XP',
                     difficulty: 'EASY',
-                    iconType: 'brush',
+                    iconType: 'clay',
                     modelType: 'civil',
                     heads: [
                         { name: 'Shruti Agarwal', phone: '+91 88901 23456' },
                         { name: 'Meera Patel', phone: '+91 77890 12345' }
                     ]
                 },
-                // 5. GAMING ARENA
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'URBAN BLUEPRINT',
+                    title: 'ECO SKYSCRAPER',
+                    subtitle: 'GREEN BUILDING DESIGN',
+                    desc: 'Architect green energy efficient skyscrapers with sustainable materials.',
+                    color: '#1fff76',
+                    xp: '2,400 XP',
+                    difficulty: 'MEDIUM',
+                    iconType: 'bridge',
+                    modelType: 'civil',
+                    heads: [
+                        { name: 'Harsh Kapoor', phone: '+91 97890 12345' },
+                        { name: 'Kiran Verma', phone: '+91 91111 22208' }
+                    ]
+                },
+                // 5. GAMING NEXUS
+                {
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'VALORANT',
                     subtitle: '5V5 SEARCH & DESTROY',
                     desc: 'Coordinate agent tactics on stage screens for gaming domination.',
@@ -241,14 +337,14 @@ const seedDatabase = async () => {
                     xp: '3,000 XP',
                     difficulty: 'HARD',
                     iconType: 'gamepad',
-                    modelType: 'gun',
+                    modelType: 'controller',
                     heads: [
                         { name: 'Aman Verma', phone: '+91 99999 88888' },
                         { name: 'Rahul Das', phone: '+91 88888 77777' }
                     ]
                 },
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'BGMI CRUCIBLE',
                     subtitle: 'SURVIVAL BR',
                     desc: 'Drop in teams, clear hostile drops, and survive the gaming circle.',
@@ -263,7 +359,7 @@ const seedDatabase = async () => {
                     ]
                 },
                 {
-                    categoryTitle: 'GAMING ARENA',
+                    categoryTitle: 'GAMING NEXUS',
                     title: 'FIFA PRO',
                     subtitle: '1V1 ESPORTS',
                     desc: 'Compete in high-frequency bracket matches on console screens.',
@@ -277,60 +373,63 @@ const seedDatabase = async () => {
                         { name: 'Rohit Verma', phone: '+91 44444 33333' }
                     ]
                 },
-                // 6. AI & DATA SCIENCE
+                // 6. SILICON SPECTRUM (ECE)
                 {
-                    categoryTitle: 'AI & DATA SCIENCE',
-                    title: 'MACHINE INTELLIGENCE',
-                    subtitle: 'NEURAL NETWORKS & TELEMETRY',
-                    desc: 'Solve deep learning model matrices and run predictive simulations.',
-                    color: '#2b5cff',
-                    xp: '3,500 XP',
-                    difficulty: 'HARD',
-                    iconType: 'cpu',
-                    modelType: 'ai',
-                    heads: [
-                        { name: 'Priya Nair', phone: '+91 91111 22215' },
-                        { name: 'Arjun Kumar', phone: '+91 91234 56789' }
-                    ]
-                },
-                {
-                    categoryTitle: 'AI & DATA SCIENCE',
-                    title: 'NEURAL HACK',
-                    subtitle: 'TRANSFORMER TUNING',
-                    desc: 'Optimize custom transformers and train computer vision parameters.',
-                    color: '#2b5cff',
-                    xp: '2,800 XP',
+                    categoryTitle: 'SILICON SPECTRUM',
+                    title: 'SILICON LOGIC',
+                    subtitle: 'CHIP ARCHITECTURE',
+                    desc: 'Synthesize digital logic circuits and design micro-processor layouts.',
+                    color: '#a78bfa',
+                    xp: '2,200 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'cpu',
+                    iconType: 'bolt',
+                    modelType: 'portal',
                     heads: [
-                        { name: 'Siddharth Roy', phone: '+91 65432 10987' },
-                        { name: 'Neha Gupta', phone: '+91 54321 09876' }
+                        { name: 'Arjun Kumar', phone: '+91 91234 56789' },
+                        { name: 'Pooja Sharma', phone: '+91 66666 55555' }
                     ]
                 },
-                // 7. WORKSHOP LAB
                 {
-                    categoryTitle: 'WORKSHOP LAB',
+                    categoryTitle: 'SILICON SPECTRUM',
+                    title: 'SIGNAL MATRIX',
+                    subtitle: 'DSP & COMMUNICATIONS',
+                    desc: 'Filter noisy frequency bands and modulate high-speed RF wireless signals.',
+                    color: '#a78bfa',
+                    xp: '2,800 XP',
+                    difficulty: 'HARD',
+                    iconType: 'bolt',
+                    modelType: 'portal',
+                    heads: [
+                        { name: 'Karan Patel', phone: '+91 87654 32109' },
+                        { name: 'Simran Kaur', phone: '+91 92345 67890' }
+                    ]
+                },
+                // 7. MECHANICAL MATRIX
+                {
+                    categoryTitle: 'MECHANICAL MATRIX',
                     title: 'KINETIC METALWORKS',
                     subtitle: 'HARDWARE MACHINERY',
                     desc: 'Cut and construct architectural rigs using industrial lathe tools.',
                     color: '#ffea00',
                     xp: '2,600 XP',
                     difficulty: 'HARD',
-                    iconType: 'tool',
+                    iconType: 'gear',
+                    modelType: 'ai',
                     heads: [
                         { name: 'Rohan Mehta', phone: '+91 99887 76655' },
                         { name: 'Aisha Khan', phone: '+91 88776 65544' }
                     ]
                 },
                 {
-                    categoryTitle: 'WORKSHOP LAB',
+                    categoryTitle: 'MECHANICAL MATRIX',
                     title: 'CAD BLUEPRINTS',
                     subtitle: 'SOLID MODELLING',
                     desc: 'Render complex 3D hardware schematics and mechanical parts.',
                     color: '#ffea00',
                     xp: '2,200 XP',
                     difficulty: 'MEDIUM',
-                    iconType: 'tool',
+                    iconType: 'gear',
+                    modelType: 'ai',
                     heads: [
                         { name: 'Neha Gupta', phone: '+91 54321 09876' },
                         { name: 'Amit Joshi', phone: '+91 55555 44444' }
@@ -341,10 +440,9 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded default sub-events (${defaultSubs.length} items across 7 categories)`);
         }
 
-        // 4. Seed default crew members if empty or outdated
+        // 4. Seed default crew members ONLY on a truly empty database (see note above).
         const crewCount = await Crew.countDocuments();
-        if (crewCount < 10) {
-            await Crew.deleteMany({});
+        if (crewCount === 0 && seedDemo) {
             const defaultCrew = [
                 // EXECUTIVE
                 { name: 'AMAN VERMA', role: 'PRESIDENT', category: 'CORE', statText: 'LEADERSHIP', statVal: 96, featured: true, featuredHeading: 'TECHFEST PRESIDENT', bio: 'Coordinated 3-day Techfest, Led 46-member team, Secured 12+ sponsors', links: [] },
@@ -393,10 +491,9 @@ const seedDatabase = async () => {
             console.log(`[SEED] Seeded default crew members`);
         }
 
-        // 5. Seed default sponsors if empty or outdated
+        // 5. Seed default sponsors ONLY on a truly empty database (see note above).
         const sponsorCount = await Sponsor.countDocuments();
-        if (sponsorCount < 10) {
-            await Sponsor.deleteMany({});
+        if (sponsorCount === 0 && seedDemo) {
             const defaultSponsors = [
                 { name: 'NVIDIA', category: 'TITLE', sub: 'Technology Partner', logo: 'NV', desc: 'Accelerating AI and real-time graphics pipelines.', support: ['AI Arena', 'Rendering Server', 'GPU Workshops'], url: '#' },
                 { name: 'AMD', category: 'TITLE', sub: 'Hardware Sponsor', logo: 'AMD', desc: 'Powering high-frequency compute processors in coding grids.', support: ['Coding Arena', 'Host Servers', 'Hackathons'], url: '#' },
@@ -429,11 +526,32 @@ const seedDatabase = async () => {
 const startServer = async () => {
     await connectDB();
     await seedDatabase();
+    expireStaleInvites(true).catch(() => {});
+    setInterval(() => expireStaleInvites(true).catch(() => {}), 10 * 60 * 1000);
 
     const PORT = process.env.PORT || 5001;
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`[SERVER] Addovedi API Server listening on port ${PORT}`);
     });
+    // Slow-client (slowloris-style) protection: don't let a connection hold a socket open forever.
+    server.headersTimeout = 20 * 1000;
+    server.requestTimeout = 30 * 1000;
+    server.keepAliveTimeout = 5 * 1000;
+    server.maxRequestsPerSocket = 1000;
+
+    // Let Render's redeploys drain in-flight requests instead of cutting registrations off mid-write.
+    const shutdown = (signal) => {
+        console.log(`[SERVER] ${signal} received, shutting down.`);
+        server.close(() => mongoose.connection.close(false).finally(() => process.exit(0)));
+        setTimeout(() => process.exit(0), 10000).unref();
+    };
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
 };
+
+// A stray rejected promise must be logged, not take the whole API down mid-fest (or hide silently).
+process.on('unhandledRejection', (reason) => console.error('[UNHANDLED REJECTION]', reason));
+// After an uncaught exception the process state is unknown: log it and exit so Render restarts a clean instance.
+process.on('uncaughtException', (err) => { console.error('[UNCAUGHT EXCEPTION]', err); process.exit(1); });
 
 startServer();

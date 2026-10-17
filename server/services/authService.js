@@ -1,21 +1,35 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
-import { verifyPassword, hashPassword } from '../utils/hash.js';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'addovedi_jwt_secret_token_key_2026';
+import { verifyPasswordAsync, hashPasswordAsync, needsRehash } from '../utils/hash.js';
 
 export const authenticateAdmin = async (username, password) => {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+        throw new Error('Server configuration error: JWT_SECRET environment variable is missing.');
+    }
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+        throw new Error('Invalid credentials');
+    }
+
+    // Same generic message for "no such user" and "wrong password" to avoid
+    // leaking which admin usernames exist.
     const admin = await Admin.findOne({ username });
     if (!admin) {
-        throw new Error('Admin account not found');
+        throw new Error('Invalid credentials');
     }
-    
-    const isValid = verifyPassword(password, admin.password);
+
+    const isValid = await verifyPasswordAsync(password, admin.password);
     if (!isValid) {
         throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: '12h' });
+    if (needsRehash(admin.password)) {
+        admin.password = await hashPasswordAsync(password);
+        await admin.save();
+    }
+
+    const token = jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '12h' });
     return { token, username: admin.username };
 };
 
@@ -25,12 +39,15 @@ export const changeAdminPassword = async (adminId, currentPassword, newPassword)
         throw new Error('Admin account not found');
     }
 
-    const isValid = verifyPassword(currentPassword, admin.password);
+    const isValid = await verifyPasswordAsync(currentPassword, admin.password);
     if (!isValid) {
         throw new Error('Current password is incorrect');
     }
 
-    admin.password = hashPassword(newPassword);
+    admin.password = await hashPasswordAsync(newPassword);
+    // Whole seconds, so the fresh token below (iat is whole seconds) is never older than this stamp.
+    admin.passwordChangedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
     await admin.save();
-    return true;
+    const JWT_SECRET = process.env.JWT_SECRET;
+    return jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '12h' });
 };

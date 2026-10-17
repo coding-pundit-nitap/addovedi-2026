@@ -1,12 +1,15 @@
 import * as eventService from '../services/eventService.js';
 import { recordAuditLog } from '../utils/auditLogger.js';
+import { clientMessage } from '../utils/errors.js';
+import { invalidatePauseInfo, restartPendingInviteClocks } from '../services/registrationPauseService.js';
+import { invalidateXpCaches } from '../services/xpService.js';
 
 export const getEvents = async (req, res) => {
     try {
         const data = await eventService.getEventsAndCategories();
         return res.json(data);
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
@@ -21,7 +24,7 @@ export const createCategory = async (req, res) => {
 
         return res.status(201).json(cat);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -37,7 +40,7 @@ export const updateCategory = async (req, res) => {
 
         return res.json(cat);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
@@ -52,13 +55,14 @@ export const deleteCategory = async (req, res) => {
 
         return res.json({ message: 'Category and all corresponding sub-events cascade deleted' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };
 
 export const createSubEvent = async (req, res) => {
     try {
         const sub = await eventService.createSubEvent(req.body);
+        invalidateXpCaches();
 
         await recordAuditLog(req, {
             action: 'CREATE_SUB_EVENT',
@@ -67,13 +71,14 @@ export const createSubEvent = async (req, res) => {
 
         return res.status(201).json(sub);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
 export const updateSubEvent = async (req, res) => {
     try {
         const sub = await eventService.updateSubEvent(req.params.id, req.body);
+        invalidateXpCaches();   // a team-size change moves XP for every registration of this event
         if (!sub) return res.status(404).json({ message: 'SubEvent not found' });
 
         await recordAuditLog(req, {
@@ -83,13 +88,14 @@ export const updateSubEvent = async (req, res) => {
 
         return res.json(sub);
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: clientMessage(err) });
     }
 };
 
 export const deleteSubEvent = async (req, res) => {
     try {
         await eventService.deleteSubEvent(req.params.id);
+        invalidateXpCaches();
 
         await recordAuditLog(req, {
             action: 'DELETE_SUB_EVENT',
@@ -98,6 +104,23 @@ export const deleteSubEvent = async (req, res) => {
 
         return res.json({ message: 'Sub-Event successfully deleted' });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: clientMessage(err) });
+    }
+};
+
+// Admin only: close / re-open registration for ONE event. Does not touch existing registrations, teams or any other field.
+export const setSubEventRegistration = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (typeof id !== 'string' || !/^[a-f0-9]{24}$/i.test(id)) return res.status(400).json({ message: 'Invalid event.' });
+        if (typeof req.body?.closed !== 'boolean') return res.status(400).json({ message: 'closed must be true or false.' });
+        const sub = await eventService.setSubEventRegistrationClosed(id, req.body.closed);
+        if (!sub) return res.status(404).json({ message: 'SubEvent not found' });
+        invalidatePauseInfo();
+        if (req.body.closed === false) await restartPendingInviteClocks({ eventTitle: sub.title });
+        await recordAuditLog(req, { action: req.body.closed ? 'EVENT_REGISTRATION_CLOSED' : 'EVENT_REGISTRATION_OPENED', details: { subEventId: id, title: sub.title } });
+        return res.json({ title: sub.title, registrationClosed: sub.registrationClosed === true });
+    } catch (err) {
+        return res.status(500).json({ message: clientMessage(err) });
     }
 };

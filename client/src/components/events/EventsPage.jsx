@@ -2,10 +2,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta } from '../../data/events';
+import { CARD_DATA, SUB_EVENTS, slugify, getCategoryMeta, mergeCategoriesFromDb, mergeSubEventsFromDb } from '../../data/events';
 import { API_BASE } from '../../constants/api';
+import { fetchMyRegistrations, respondToTeamInvite, teamAction } from '../../utils/registrations';
+import { sumXp, xpStats } from '../../utils/xp';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
+import addovediLogo from '../../assets/images/addovedi-logo-white.png';
+
+// How often the page re-checks the server for registration status changes
+// (e.g. an admin marking a registration VERIFIED) while a user has it open.
+const MY_REGISTRATIONS_POLL_MS = 30000;
 
 export default function EventsPage() {
     const setIsEntered = useStore(s => s.setIsEntered);
@@ -45,70 +52,56 @@ export default function EventsPage() {
     const currentUser = useStore(s => s.currentUser);
     const isMobile = window.innerWidth < 768;
 
-    // Read registered events from localStorage to compute level/XP
-    const [registeredCount, setRegisteredCount] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('addovedi_registrations') || '[]').length; }
-        catch { return 0; }
-    });
+    // The logged-in user's registrations, fetched from the server — the
+    // single source of truth for "am I registered" and "has admin verified
+    // it", for BOTH the team leader and any team member (a member never
+    // submits the form themselves, so this can't come from localStorage,
+    // which only ever reflected whatever the leader's own browser wrote).
+    const [myRegistrations, setMyRegistrations] = useState([]);
 
-    // Recount whenever registration data might change (storage event)
+    const refreshMyRegistrations = async () => {
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        if (!loggedInUser?.addovediId) {
+            setMyRegistrations([]);
+            return;
+        }
+        const regs = await fetchMyRegistrations(loggedInUser.addovediId);
+        setMyRegistrations(regs);
+    };
+
     useEffect(() => {
-        const onStorage = () => {
-            try {
-                const regs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-                setRegisteredCount(regs.length);
-            } catch { /**/ }
+        refreshMyRegistrations();
+        const interval = setInterval(refreshMyRegistrations, MY_REGISTRATIONS_POLL_MS);
+        window.addEventListener('storage', refreshMyRegistrations);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', refreshMyRegistrations);
         };
-        window.addEventListener('storage', onStorage);
-        return () => window.removeEventListener('storage', onStorage);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // XP per event = 200, level up every 3 events, max level 10
-    const totalXP = registeredCount * 200;
-    const playerLevel = Math.min(10, 1 + Math.floor(registeredCount / 3));
-    const xpForCurrentLevel = Math.floor(registeredCount / 3) * 600;
-    const xpForNextLevel = xpForCurrentLevel + 600;
-    const xpProgress = playerLevel >= 10 ? 100 : Math.round(((totalXP - xpForCurrentLevel) / 600) * 100);
+    // XP = 200 per verified registration (250 in single-player events), a level every 600 XP, max level 10 (see utils/xp.js)
+    const { xp: totalXP, level: playerLevel, progress: xpProgress } = xpStats(sumXp(myRegistrations));
 
     const [categoriesList, setCategoriesList] = useState(CARD_DATA);
     const [subEventsData, setSubEventsData] = useState(SUB_EVENTS);
     const [hoveredBtn, setHoveredBtn] = useState(null);
 
-    // Fetch dynamic database categories/sub-events on boot
+    // Fetch dynamic database categories & sub-events, and keep polling so
+    // admin-portal edits (new/edited/deleted categories and sub-events)
+    // actually show up on the public site within a few seconds instead of
+    // being stuck on the static fallback data until the next full reload.
     useEffect(() => {
+        let cancelled = false;
         const fetchEvents = async () => {
             try {
-                const res = await fetch(`${API_BASE}/events`);
-                if (res.ok) {
+                const res = await fetch(`${API_BASE}/events`, { cache: 'no-store' });
+                if (res.ok && !cancelled) {
                     const data = await res.json();
-                    if (data.categories && data.categories.length > 0) {
-                        const mappedCats = data.categories.map(c => ({
-                            title: c.title,
-                            subtitle: c.subtitle,
-                            desc: c.desc,
-                            color: c.color,
-                            xp: c.xp,
-                            difficulty: c.difficulty
-                        }));
-                        setCategoriesList(mappedCats);
-
-                        const mappedSubs = {};
-                        data.categories.forEach(c => {
-                            mappedSubs[c.title] = [];
-                        });
-                        data.subEvents.forEach(s => {
-                            if (!mappedSubs[s.categoryTitle]) mappedSubs[s.categoryTitle] = [];
-                            mappedSubs[s.categoryTitle].push({
-                                title: s.title,
-                                subtitle: s.subtitle,
-                                desc: s.desc,
-                                color: s.color,
-                                xp: s.xp,
-                                difficulty: s.difficulty,
-                                heads: s.heads || []
-                            });
-                        });
-                        setSubEventsData(mappedSubs);
+                    const mergedCategories = mergeCategoriesFromDb(data.categories);
+                    setCategoriesList(mergedCategories);
+                    if (data.subEvents && data.subEvents.length > 0) {
+                        setSubEventsData(mergeSubEventsFromDb(mergedCategories, data.subEvents));
                     }
                 }
             } catch (err) {
@@ -116,6 +109,8 @@ export default function EventsPage() {
             }
         };
         fetchEvents();
+        const interval = setInterval(fetchEvents, 15000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, []);
 
     const activeCategory = useMemo(() => {
@@ -129,6 +124,29 @@ export default function EventsPage() {
         if (!eventsList) return null;
         return eventsList.find(e => slugify(e.title) === eventName) || null;
     }, [activeCategory, eventName, subEventsData]);
+
+    // Start the team-size picker at this event's minimum (and keep it inside the allowed range).
+    // Depends on stable primitives so the 4s polling doesn't reset the user's choice.
+    const activeMinTeam = activeEvent?.minTeam ?? 1;
+    const activeMaxTeam = activeEvent?.maxTeam ?? 5;
+    useEffect(() => {
+        setTeamSize(prev => Math.min(Math.max(prev, activeMinTeam), activeMaxTeam));
+    }, [activeEvent?.title, activeMinTeam, activeMaxTeam]);
+
+    // The current user's registration for the event being viewed (if any),
+    // as leader or as a team member — drives the "already registered" view
+    // and its real admin-verification status.
+    const existingReg = useMemo(() => {
+        if (!activeEvent) return null;
+        return myRegistrations.find(r => r.eventTitle === activeEvent.title) || null;
+    }, [activeEvent, myRegistrations]);
+
+    // Keeps "already registered" state in sync with the server, so visiting
+    // an event you (or your team leader) registered for in a past session
+    // shows the registered view immediately, not just right after submitting.
+    useEffect(() => {
+        setIsRegistered(Boolean(existingReg));
+    }, [existingReg]);
 
     useEffect(() => {
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
@@ -149,31 +167,32 @@ export default function EventsPage() {
         navigate('/home');
     };
 
-    const handleRegisterSubmit = async (e) => {
-        e.preventDefault();
+    const submittingRegRef = useRef(false);
+    const handleRegisterSubmit = async (e, unstopRefId = '') => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (submittingRegRef.current) return; // ignore double-clicks while a submit is in flight
+        submittingRegRef.current = true;
+        try {
+            await submitRegistration(unstopRefId);
+        } finally {
+            submittingRegRef.current = false;
+        }
+    };
+
+    const submitRegistration = async (unstopRefId = '') => {
         const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
         if (!loggedInUser || !loggedInUser.isGlobalRegistered) return;
 
         if (!teamName || !leaderName || !leaderUID || !leaderPhone) return;
 
-        // Add to registrations list in localStorage
-        const storedRegs = JSON.parse(localStorage.getItem('addovedi_registrations') || '[]');
-        if (!storedRegs.some(r => r.title === activeEvent.title)) {
-            storedRegs.push({
-                title: activeEvent.title,
-                category: activeCategory.title,
-                venue: activeEvent.venue || 'Main Arena',
-                teamName: teamName
-            });
-            localStorage.setItem('addovedi_registrations', JSON.stringify(storedRegs));
-            setRegisteredCount(storedRegs.length); // update level/XP bar live
-        }
-
-        // Post to backend database
+        // Post to backend database — this IS the source of truth now; no
+        // more writing to localStorage, since that never reflected a team
+        // member's own registration status, only whatever the leader's own
+        // browser last wrote.
         try {
-            await fetch(`${API_BASE}/registrations`, {
+            const res = await fetch(`${API_BASE}/registrations`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loggedInUser?.token || ''}` },
                 body: JSON.stringify({
                     eventTitle: activeEvent.title,
                     categoryTitle: activeCategory.title,
@@ -183,14 +202,91 @@ export default function EventsPage() {
                     leaderPhone: leaderPhone,
                     teamSize: teamSize,
                     members: members,
-                    userEmail: loggedInUser.email || ''
+                    userEmail: loggedInUser.email || '',
+                    unstopRefId: unstopRefId
                 })
             });
+            if (res.status === 401) {
+                alert('Your login session has expired or is no longer valid. Please log out and log in again, then retry.');
+                return;
+            }
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || 'Registration failed. Please try again.');
+                return;
+            }
         } catch (err) {
             console.error('Server registration error:', err);
+            alert('Network error — registration was not submitted. Please try again.');
+            return;
         }
 
+        await refreshMyRegistrations();
         setIsRegistered(true);
+    };
+
+    // Teammate accepts / declines (or leaves) the team they were added to.
+    const handleRespondInvite = async (accept) => {
+        if (!existingReg?.registrationId) return;
+        const { ok, message } = await respondToTeamInvite(existingReg.registrationId, accept);
+        if (!ok) alert(message);
+        await refreshMyRegistrations();
+    };
+
+    const handleTeamAction = async (path, body) => {
+        if (!existingReg?.registrationId) return;
+        const { ok, message } = await teamAction(path, { registrationId: existingReg.registrationId, ...body });
+        if (!ok) alert(message);
+        await refreshMyRegistrations();
+        return ok;
+    };
+
+    const handleCancelRegistration = async () => {
+        // Only the team leader can cancel — the server only matches on
+        // leaderUID + leaderPhone, so a team member's own credentials would
+        // never match anyway; guard client-side with a clear message instead
+        // of letting it silently fail.
+        if (existingReg && !existingReg.isLeader) {
+            alert(`Only the team leader (${existingReg.leaderName}) can cancel this registration.`);
+            return;
+        }
+
+        const loggedInUser = JSON.parse(localStorage.getItem('addovedi_user') || 'null');
+        const userUid = loggedInUser?.addovediId || loggedInUser?.uniqueId || leaderUID;
+        const userPhone = loggedInUser?.phone || leaderPhone;
+
+        if (activeEvent?.title) {
+            try {
+                const res = await fetch(`${API_BASE}/registrations/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loggedInUser?.token || ''}` },
+                    body: JSON.stringify({
+                        eventTitle: activeEvent.title,
+                        leaderUID: userUid,
+                        leaderPhone: userPhone
+                    })
+                });
+                if (res.status === 401) {
+                    alert('Your login session has expired or is no longer valid. Please log out and log in again, then retry.');
+                    return;
+                }
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.message || 'Could not cancel registration.');
+                    return;
+                }
+            } catch (err) {
+                console.error('Server cancel registration error:', err);
+                alert('Network error — cancellation was not completed. Please try again.');
+                return;
+            }
+        }
+
+        await refreshMyRegistrations();
+        setIsRegistered(false);
+        setTeamName('');
+        setTeamSize(1);
+        setMembers([]);
     };
 
     const handleCloseModal = () => {
@@ -447,9 +543,14 @@ export default function EventsPage() {
                         </div>
                         <div className="flex flex-col pl-1 md:pl-2">
                             <div className="flex items-center leading-none">
-                                <span className="event-logo-title">
-                                    GAMING ARENA
-                                </span>
+                                <img
+                                    src={addovediLogo}
+                                    alt="Addovedi"
+                                    role="link"
+                                    title="Back to Home"
+                                    onClick={handleExit}
+                                    style={{ height: '26px', width: 'auto', cursor: 'pointer', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
+                                />
                                 <span className="event-demo-badge">
                                     DEMO MODE
                                 </span>
@@ -486,7 +587,12 @@ export default function EventsPage() {
                         <div
                             className="flex flex-col items-end border-r border-white/15 pr-6"
                         >
-                            <div className="flex flex-col items-end border-r border-white/15 pr-6">
+                            <div
+                                className="flex flex-col items-end border-r border-white/15 pr-6 cursor-pointer"
+                                role="button"
+                                title="Open your profile"
+                                onClick={() => useStore.getState().setAuthModalOpen(true)}
+                            >
                                 <div className="flex items-center gap-2 text-white text-xs font-black tracking-widest">
                                     <span className="text-white/40">PLAYER:</span>
                                     <span
@@ -713,7 +819,11 @@ export default function EventsPage() {
 
                     {/* Center: Title / Logo */}
                     <div className="flex flex-col items-center justify-center text-center">
-                        <span className="event-logo-title" style={{ fontSize: '0.85rem' }}>GAMING ARENA</span>
+                        <img
+                            src={addovediLogo}
+                            alt="Addovedi"
+                            style={{ height: '20px', width: 'auto', filter: 'drop-shadow(0 0 10px rgba(0,217,255,0.6))' }}
+                        />
                         <div className="flex items-center gap-1.5 leading-none mt-1">
                             <span className="w-1.5 h-1.5 rounded-full animate-pulse"
                                 style={{
@@ -888,7 +998,11 @@ export default function EventsPage() {
                     members={members}
                     setMembers={setMembers}
                     handleRegisterSubmit={handleRegisterSubmit}
+                    handleCancelRegistration={handleCancelRegistration}
+                    handleRespondInvite={handleRespondInvite}
+                    handleTeamAction={handleTeamAction}
                     isRegistered={isRegistered}
+                    existingReg={existingReg}
                 />
 
                 {/* Bottom Footer Area */}

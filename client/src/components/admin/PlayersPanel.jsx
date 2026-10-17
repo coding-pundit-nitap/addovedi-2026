@@ -1,0 +1,202 @@
+import { useEffect, useMemo, useState } from 'react';
+
+const mono = { fontFamily: 'monospace', fontSize: 11 };
+const norm = (v) => (v || '').trim().toLowerCase();
+
+// Every registration this Addovedi ID is part of, as leader or as a team member.
+export function playerRegistrations(registrations, addovediId) {
+    const id = norm(addovediId);
+    return registrations
+        .filter(r => norm(r.leaderUID) === id || (r.members || []).some(m => norm(m.uid) === id))
+        .map(r => ({ ...r, role: norm(r.leaderUID) === id ? 'LEADER' : 'MEMBER' }));
+}
+
+const STATUS_COLOR = { VERIFIED: '#1FFF76', PENDING_UNSTOP_VERIFICATION: '#FBBF24', CANCELLED: '#FF4D6D' };
+
+const FIELD = { width: '100%', boxSizing: 'border-box', padding: '7px 9px', background: '#05070d', border: '1px solid rgba(255,255,255,0.18)', color: '#fff', borderRadius: 3, fontSize: 12, fontFamily: 'monospace' };
+const EDIT_FIELDS = [
+    ['name', 'NAME'], ['email', 'EMAIL'], ['phone', 'PHONE'], ['gender', 'GENDER', ['Male', 'Female', 'Other']],
+    ['dob', 'DATE OF BIRTH (YYYY-MM-DD)'], ['college', 'COLLEGE'], ['department', 'DEPARTMENT'],
+    ['year', 'YEAR', ['1st Year', '2nd Year', '3rd Year', '4th Year', 'M.Tech', 'PhD']], ['state', 'STATE'], ['city', 'CITY'], ['emergencyContact', 'EMERGENCY CONTACT'],
+];
+
+// Admin-only editor for a player's account details. The server re-validates everything (valid email / phone, one account
+// per email and per mobile number) and never lets the Addovedi ID or password change here.
+function PlayerEditForm({ player, liveRegCount, onCancel, onSave }) {
+    const [vals, setVals] = useState(() => Object.fromEntries(EDIT_FIELDS.map(([k]) => [k, player[k] || ''])));
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+    const changed = EDIT_FIELDS.map(([k, label]) => [k, label]).filter(([k]) => (vals[k] || '').trim() !== (player[k] || ''));
+    const touchesCopies = changed.some(([k]) => ['name', 'email', 'phone'].includes(k));
+    const save = async () => {
+        setError('');
+        if (!changed.length) return setError('Nothing was changed.');
+        if (!confirm(`Save changes to ${player.name} (${player.addovediId})?\n\nChanging: ${changed.map(([, l]) => l).join(', ')}.${changed.some(([k]) => k === 'email') ? '\nThey will have to log in with the new email.' : ''}${touchesCopies && liveRegCount ? `\n\nThe name / phone / email will also be updated on their ${liveRegCount} registration(s).` : ''}`)) return;
+        setSaving(true);
+        const body = {};
+        changed.forEach(([k]) => { body[k] = vals[k].trim(); });
+        const res = await onSave(player, body);
+        setSaving(false);
+        if (res?.ok) onCancel(); else setError(res?.message || 'Could not save.');
+    };
+    return (
+        <div style={{ margin: '16px 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+                {EDIT_FIELDS.map(([k, label, options]) => (
+                    <div key={k}>
+                        <div style={{ ...mono, fontSize: 9, color: '#6B7280', letterSpacing: '0.1em', marginBottom: 3 }}>{label}</div>
+                        {options ? (
+                            <select value={vals[k]} onChange={e => setVals(v => ({ ...v, [k]: e.target.value }))} style={FIELD}>
+                                <option value="">—</option>
+                                {[...new Set([vals[k], ...options].filter(Boolean))].map(o => <option key={o} value={o}>{o}</option>)}
+                            </select>
+                        ) : (
+                            <input value={vals[k]} onChange={e => setVals(v => ({ ...v, [k]: e.target.value }))} style={{ ...FIELD, borderColor: (vals[k] || '').trim() !== (player[k] || '') ? '#00E5FF' : undefined }} />
+                        )}
+                    </div>
+                ))}
+            </div>
+            <div style={{ ...mono, fontSize: 10, color: '#6B7280', marginTop: 8 }}>Addovedi ID and password cannot be changed here (use RESET PASSWORD for the password).</div>
+            {liveRegCount > 0 && touchesCopies && (
+                <div style={{ ...mono, fontSize: 10, color: '#9CA3AF', marginTop: 10 }}>The new name / phone / email will also be updated on this player's {liveRegCount} registration(s) and in their own profile. Team, Team ID and status stay as they are.</div>
+            )}
+            {error && <div style={{ ...mono, color: '#f87171', border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.08)', padding: '8px 10px', marginTop: 10 }}>{error}</div>}
+            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                <button type="button" disabled={saving} onClick={save} style={{ background: 'rgba(31,255,118,0.08)', border: '1px solid #1FFF76', color: '#1FFF76', ...mono, padding: '8px 16px', cursor: 'pointer', fontWeight: 900 }}>{saving ? 'SAVING…' : 'SAVE CHANGES'}</button>
+                <button type="button" disabled={saving} onClick={onCancel} style={{ background: 'none', border: '1px solid #4B5563', color: '#9CA3AF', ...mono, padding: '8px 16px', cursor: 'pointer' }}>CANCEL</button>
+            </div>
+        </div>
+    );
+}
+
+export function PlayerProfileModal({ player, registrations, onClose, onDelete, onResetPassword, onEditSave }) {
+    const regs = useMemo(() => (player ? playerRegistrations(registrations, player.addovediId) : []), [player, registrations]);
+    const [editing, setEditing] = useState(false);
+    useEffect(() => { setEditing(false); }, [player?.addovediId]);
+    if (!player) return null;
+    const rows = [
+        ['ADDOVEDI ID', player.addovediId], ['EMAIL', player.email], ['PHONE', player.phone],
+        ['COLLEGE', player.college], ['DEPARTMENT', player.department], ['YEAR', player.year],
+        ['CITY / STATE', [player.city, player.state].filter(Boolean).join(', ')], ['GENDER', player.gender],
+        ['DATE OF BIRTH', player.dob], ['EMERGENCY CONTACT', player.emergencyContact],
+        ['JOINED', player.createdAt ? new Date(player.createdAt).toLocaleString() : ''],
+    ].filter(([, v]) => v);
+
+    return (
+        <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100000, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+            <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 680, maxHeight: '90vh', overflowY: 'auto', background: '#0D1320', border: '1px solid rgba(0,229,255,0.3)', borderRadius: 8, padding: 22 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                    <div>
+                        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, color: '#fff', fontWeight: 900 }}>{player.name}</div>
+                        <div style={{ ...mono, color: '#00E5FF', marginTop: 4 }}>{player.addovediId}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        {onEditSave && !editing && <button type="button" onClick={() => setEditing(true)} style={{ background: 'none', border: '1px solid #00E5FF', color: '#00E5FF', ...mono, padding: '4px 10px', cursor: 'pointer', fontWeight: 900 }}>EDIT DETAILS</button>}
+                        <button type="button" onClick={onClose} style={{ background: 'none', border: '1px solid #4B5563', color: '#9CA3AF', ...mono, padding: '4px 10px', cursor: 'pointer' }}>CLOSE</button>
+                    </div>
+                </div>
+
+                {editing && (
+                    <PlayerEditForm player={player} liveRegCount={regs.length} onCancel={() => setEditing(false)} onSave={onEditSave} />
+                )}
+
+                <div style={{ display: editing ? 'none' : 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10, margin: '18px 0' }}>
+                    {rows.map(([k, v]) => (
+                        <div key={k} style={{ border: '1px solid rgba(255,255,255,0.06)', padding: '8px 10px', borderRadius: 4 }}>
+                            <div style={{ ...mono, fontSize: 9, color: '#6B7280', letterSpacing: '0.1em' }}>{k}</div>
+                            <div style={{ ...mono, color: '#E5E7EB', marginTop: 2, wordBreak: 'break-word' }}>{v}</div>
+                        </div>
+                    ))}
+                </div>
+
+                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 11, color: '#00E5FF', letterSpacing: '0.15em', marginBottom: 8 }}>EVENTS ({regs.length})</div>
+                {regs.length === 0 ? (
+                    <div style={{ ...mono, color: '#6B7280' }}>Not registered in any event yet.</div>
+                ) : regs.map(r => (
+                    <div key={r._id} style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: 12, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ ...mono, fontWeight: 900, color: '#fff' }}>{r.eventTitle}</span>
+                            <span style={{ ...mono, color: STATUS_COLOR[r.status] || '#9CA3AF' }}>{(r.status || '').replace(/_/g, ' ')}</span>
+                        </div>
+                        <div style={{ ...mono, color: '#9CA3AF', marginTop: 4, lineHeight: 1.6 }}>
+                            {r.categoryTitle} · Team: {r.teamName} · Role: <span style={{ color: r.role === 'LEADER' ? '#00E5FF' : '#E5E7EB' }}>{r.role}</span>
+                            <br />Leader: {r.leaderName} ({r.leaderUID}){(r.members || []).length > 0 && <> · Members: {r.members.map(m => `${m.name} (${m.uid}) · ${m.status === 'REJECTED' ? 'DECLINED' : (m.status || 'ACCEPTED')}`).join(', ')}</>}
+                            {r.unstopRefId && <><br />Unstop ref: {r.unstopRefId}</>}
+                        </div>
+                    </div>
+                ))}
+
+                {onResetPassword && (
+                    <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <button type="button" onClick={() => onResetPassword(player)} style={{ background: 'none', border: '1px solid #F59E0B', color: '#F59E0B', ...mono, padding: '8px 16px', cursor: 'pointer', fontWeight: 900 }}>RESET PASSWORD</button>
+                        <span style={{ ...mono, fontSize: 10, color: '#6B7280', marginLeft: 10 }}>Sets a temporary password you give to the player. They must change it after logging in.</span>
+                    </div>
+                )}
+
+                {onDelete && (
+                    <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <button type="button" onClick={() => onDelete(player)} style={{ background: 'none', border: '1px solid #EF4444', color: '#EF4444', ...mono, padding: '8px 16px', cursor: 'pointer', fontWeight: 900 }}>REMOVE PLAYER</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default function PlayersPanel({ players, loading, registrations, onOpen, onDelete, onRefresh }) {
+    const [q, setQ] = useState('');
+    const list = useMemo(() => {
+        const term = norm(q);
+        return players.filter(p => !term || [p.name, p.addovediId, p.email, p.phone, p.college].some(v => norm(v).includes(term)));
+    }, [players, q]);
+    const counts = useMemo(() => {
+        const m = {};
+        players.forEach(p => { m[p.addovediId] = playerRegistrations(registrations, p.addovediId).filter(r => r.status !== 'CANCELLED').length; });
+        return m;
+    }, [players, registrations]);
+
+    return (
+        <div style={{ background: '#0D1320', padding: 24, borderRadius: 8, border: '1px solid rgba(0,229,255,0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+                <div>
+                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 12, color: '#00E5FF', letterSpacing: '0.15em' }}>REGISTERED PLAYERS ({players.length})</div>
+                    <div style={{ ...mono, fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>Everyone who created an Addovedi ID, whether or not they have joined an event. Click a row to see their profile and events.</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <input type="text" placeholder="Search name, ID, email, phone, college..." value={q} onChange={e => setQ(e.target.value)} style={{ minWidth: 240 }} />
+                    <button type="button" onClick={onRefresh} style={{ padding: '6px 14px', border: '1px solid #00E5FF', background: 'none', color: '#00E5FF', ...mono, cursor: 'pointer' }}>REFRESH</button>
+                </div>
+            </div>
+
+            {loading && <div style={{ ...mono, color: '#9CA3AF' }}>Loading players...</div>}
+            <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', ...mono }}>
+                    <thead>
+                        <tr style={{ textAlign: 'left', color: '#6B7280', fontSize: 10 }}>
+                            {['ADDOVEDI ID', 'NAME', 'EMAIL', 'PHONE', 'COLLEGE', 'EVENTS', 'JOINED', ''].map(h => <th key={h} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {list.map(p => (
+                            <tr key={p._id} onClick={() => onOpen(p.addovediId)} style={{ cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,229,255,0.05)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                                <td style={{ padding: '8px', color: '#00E5FF' }}>{p.addovediId}</td>
+                                <td style={{ padding: '8px', color: '#fff', fontWeight: 700 }}>{p.name}</td>
+                                <td style={{ padding: '8px', color: '#D1D5DB' }}>{p.email}</td>
+                                <td style={{ padding: '8px', color: '#D1D5DB' }}>{p.phone}</td>
+                                <td style={{ padding: '8px', color: '#9CA3AF' }}>{p.college || '-'}</td>
+                                <td style={{ padding: '8px', color: counts[p.addovediId] ? '#1FFF76' : '#6B7280' }}>{counts[p.addovediId] || 0}</td>
+                                <td style={{ padding: '8px', color: '#6B7280' }}>{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : ''}</td>
+                                <td style={{ padding: '8px' }}>
+                                    <button type="button" onClick={e => { e.stopPropagation(); onDelete(p); }} style={{ background: 'none', border: '1px solid #EF4444', color: '#EF4444', ...mono, fontSize: 10, padding: '3px 8px', cursor: 'pointer' }}>REMOVE</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                {!loading && list.length === 0 && <div style={{ ...mono, color: '#6B7280', padding: 14 }}>No players found.</div>}
+            </div>
+        </div>
+    );
+}
